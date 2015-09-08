@@ -43,20 +43,20 @@ class Client(object):
         return result
 
     def startService(self, service, instance=None):
-        servicePath = self._getServicePath(service, instance)
+        servicePath = self.getServicePath(service, instance)
         if not self._proxy.Start(servicePath):
             raise RuntimeError('Could not start: %s' % servicePath)
 
     def stopService(self, service, instance=None):
-        servicePath = self._getServicePath(service, instance)
+        servicePath = self.getServicePath(service, instance)
         if not self._proxy.Stop(servicePath):
             raise RuntimeError('Could not stop: %s' % servicePath)
 
     def getServiceStatus(self, service, instance=None):
-        servicePath = self._getServicePath(service, instance)
+        servicePath = self.getServicePath(service, instance)
         return self._proxy.GetStatus(servicePath)
 
-    def _getServicePath(self, service, instance):
+    def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
 
 

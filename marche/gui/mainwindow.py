@@ -25,20 +25,44 @@
 
 from marche.gui.util import loadUi
 from marche.gui.client import Client
+from marche.jobs import STATE_STR, RUNNING, DEAD
 
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig, QTimer
 from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QLabel, \
-    QInputDialog
+    QInputDialog, QPalette, QColor
 
 
 class JobWidget(QWidget):
-    def __init__(self, parent, service, instance=None):
+
+    STATE_COLORS = {
+        RUNNING : 'green',
+        DEAD : 'red'
+    }
+
+    def __init__(self, parent, proxy, service, instance=None):
         QWidget.__init__(self, parent)
         loadUi(self, 'job.ui')
-        self.service = service
-        self.instance = instance
+        self._proxy = proxy
+        self._service = service
+        self._instance = instance
+        self.pollTimer = QTimer()
+        self.pollTimer.timeout.connect(self._refreshState)
+        self.pollTimer.start(3000)
 
-        self.jobNameLabel.setText(instance)
+        if instance:
+            self.jobNameLabel.setText(instance)
+        else:
+            self.jobNameLabel.setText(service)
+        self._refreshState()
+
+    def _refreshState(self):
+        status = self._proxy.getServiceStatus(self._service, self._instance)
+        stylesheet = ('QLineEdit {background-color: %s; color: white}'
+                      % self.STATE_COLORS.get(status,QPalette(QColor('gray'))))
+        self.statusLineEdit.setStyleSheet(stylesheet)
+
+        status = STATE_STR.get(status, 'UNKNOWN')
+        self.statusLineEdit.setText(status)
 
 class HostWidget(QWidget):
     def __init__(self, parent, proxy):
@@ -53,10 +77,13 @@ class HostWidget(QWidget):
         services = self._proxy.getServices()
 
         for service, instances in services.iteritems():
-             self.layout().addWidget(QLabel(service))
+            self.layout().addWidget(QLabel(service))
 
-             for instance in instances:
-                 self.layout().addWidget(JobWidget(self, service, instance))
+            if not instances:
+                self.layout().addWidget(JobWidget(self, self._proxy, service))
+            else:
+                for instance in instances:
+                    self.layout().addWidget(JobWidget(self, self._proxy, service, instance))
 
         self.layout().addStretch(1)
 
@@ -65,6 +92,11 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'mainwindow.ui')
+
+        self.resize(800, 500)
+        self.splitter.setStretchFactor(0, 20)
+        self.splitter.setStretchFactor(1, 5)
+
 
         self._clients = {}
         self.addHost('ccr12.ictrl.frm2:8124')
