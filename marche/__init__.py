@@ -125,7 +125,7 @@ def main():
         running_interfaces.append(interface)
 
     if 'tango' not in running_interfaces:
-        log.info('Startup successful')
+        log.info('startup successful')
         try:
             while True:
                 time.sleep(1)
