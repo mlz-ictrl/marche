@@ -1,0 +1,15 @@
+Source: marche
+Section: misc
+Priority: extra
+Maintainer: Alexander Lenz <alexander.lenz@frm2.tum.de>
+Build-Depends: debhelper (>= 9.0.0),
+ git,
+ python (>= 2.7),
+ python-setuptools
+Standards-Version: 3.9.3
+
+Package: marche
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.7)
+Description: Marche is a server control daemon with multiple interfaces.
+
