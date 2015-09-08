@@ -28,6 +28,7 @@ import time
 import signal
 import logging
 import optparse
+from os import path
 
 # configure logging library: we don't need process/thread ids and callers
 logging.logMultiprocessing = False
@@ -47,10 +48,16 @@ __version__ = get_git_version()
 
 
 def main():
+    inplace = path.exists(path.join(path.dirname(__file__), '..', '.git'))
+    inplaceCfg = path.join(path.dirname(__file__), '..', 'devconfig')
+
     parser = optparse.OptionParser(
         usage='%prog [options]',
         version='Marche daemon version %s' % __version__)
-    parser.add_option('-c', dest='configdir', action='store', default='/etc/marche',
+    parser.add_option('-c',
+                      dest='configdir',
+                      action='store',
+                      default=(inplaceCfg if inplace else '/etc/marche'),
                       help='configuration directory (default /etc/marche)')
     parser.add_option('-d', dest='daemonize', action='store_true',
                       help='daemonize the process')
