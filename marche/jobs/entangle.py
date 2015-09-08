@@ -81,14 +81,14 @@ class Job(BaseJob):
         BaseJob.__init__(self, name, config, log)
 
     def check(self):
-        if not path.exists('/etc/entangle.conf'):
-            self.log.error('/etc/entangle.conf missing')
+        if not path.exists('/etc/entangle/entangle.conf'):
+            self.log.error('/etc/entangle/entangle.conf missing')
             return False
         return True
 
     def get_services(self):
         cfg = ConfigParser.RawConfigParser()
-        cfg.read('/etc/entangle.conf')
+        cfg.read('/etc/entangle/entangle.conf')
 
         if cfg.has_option('entangle', 'resdir'):
             resdir = cfg.get('entangle', 'resdir')
