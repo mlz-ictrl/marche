@@ -55,6 +55,16 @@ class JobWidget(QWidget):
             self.jobNameLabel.setText(service)
         self._refreshState()
 
+    def on_startBtn_clicked(self):
+        self._proxy.startService(self._service, self._instance)
+
+    def on_stopBtn_clicked(self):
+        self._proxy.stopService(self._service, self._instance)
+
+    def on_restartBtn_clicked(self):
+        self.on_stopBtn_clicked()
+        self.on_startBtn_clicked()
+
     def _refreshState(self):
         status = self._proxy.getServiceStatus(self._service, self._instance)
         stylesheet = ('QLineEdit {background-color: %s; color: white}'
