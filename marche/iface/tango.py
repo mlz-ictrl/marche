@@ -94,4 +94,5 @@ class Interface(object):
                        ProcessController.TangoClassName)
         u_inst = PyTango.Util.instance()
         u_inst.server_init()
+        self.log.info('Startup successful')
         u_inst.server_run()
