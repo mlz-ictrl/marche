@@ -32,6 +32,7 @@ from os import path
 #import PyTango
 
 from marche.jobs import DEAD, STARTING, RUNNING
+from marche.jobs.base import Job as BaseJob
 
 
 def convert_value(value):
@@ -74,11 +75,16 @@ def read_resfile(filename):
     return devices
 
 
-class Job(object):
+class Job(BaseJob):
 
     def __init__(self, name, config, log):
-        self.config = config
-        self.log = log.getChild(name)
+        BaseJob.__init__(self, name, config, log)
+
+    def check(self):
+        if not path.exists('/etc/entangle.conf'):
+            self.log.error('/etc/entangle.conf missing')
+            return False
+        return True
 
     def get_services(self):
         cfg = ConfigParser.RawConfigParser()

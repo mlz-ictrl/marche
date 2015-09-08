@@ -47,6 +47,8 @@ class JobHandler(object):
                 continue
             try:
                 job = mod.Job(name, config, self.log)
+                if not job.check():
+                    raise RuntimeError('Feasibility check failed')
                 for service in job.get_services():
                     self.service2job[service] = job
             except Exception as err:

@@ -25,15 +25,24 @@
 """Job for single init scripts."""
 
 import os
+from os import path
 
 from marche.jobs import DEAD, RUNNING
+from marche.jobs.base import Job as BaseJob
 
 
-class Job(object):
+class Job(BaseJob):
 
     def __init__(self, name, config, log):
+        BaseJob.__init__(self, name, config, log)
         self.init_name = config.get('script', name)
-        self.log = log.getChild(name)
+
+    def check(self):
+        script = '/etc/init.d/%s' % self.init_name
+        if not path.exists(script):
+            self.log.error('%s missing' % script)
+            return False
+        return True
 
     def get_services(self):
         return [self.init_name]
