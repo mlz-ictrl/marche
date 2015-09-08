@@ -57,20 +57,24 @@ class RPCFunctions(object):
 
 
 class Interface(object):
+
     def __init__(self, config, jobhandler, log):
         self.config = config
+        print(self.config.interface_config)
         self.jobhandler = jobhandler
         self.log = RequestHandler.log = log.getChild('xmlrpc')
 
     def run(self):
+        port = int(self.config.interface_config['xmlrpc']['port'])
         server = SimpleXMLRPCServer.SimpleXMLRPCServer(
-            ('', 8124), requestHandler=RequestHandler)
+            ('', port), requestHandler=RequestHandler)
         server.register_introspection_functions()
         server.register_instance(RPCFunctions(self.jobhandler, self.log))
 
         thd = threading.Thread(target=self._thread, args=(server,))
         thd.setDaemon(True)
         thd.start()
+        self.log.info('Listening on port %s' % port)
 
     def _thread(self, server):
         server.serve_forever()

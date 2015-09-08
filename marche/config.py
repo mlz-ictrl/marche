@@ -44,6 +44,12 @@ class Config(object):
     extended = {}
 
     job_config = {}
+    interface_config = {
+        'xmlrpc' : {
+            'port' : 8124
+            },
+        'tango' : {}
+            }
     interfaces = ['xmlrpc', 'tango']
 
     def __init__(self, confdir):
@@ -83,3 +89,7 @@ class Config(object):
                 self.extended = parser.items('general')
             elif section.startswith('job.'):
                 self.job_config[section[4:]] = dict(parser.items(section))
+            elif section.startswith('interface.'):
+                if not section[10:] in self.interface_config:
+                    self.interface_config[section[10:]] = {}
+                self.interface_config[section[10:]].update(dict(parser.items(section)))
