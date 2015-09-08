@@ -108,16 +108,23 @@ def main():
         ifaces = [iface for iface in config.interfaces if iface != 'tango']
         ifaces.append('tango')
 
+    running_interfaces = []
+
     for interface in config.interfaces:
         try:
             mod = __import__('marche.iface.%s' % interface, {}, {}, ['Interface'])
         except Exception as err:
             log.exception('could not import interface %r: %s' % (interface, err))
-        else:
-            log.info('starting interface: %s', interface)
+            continue
+        log.info('starting interface: %s', interface)
+        try:
             mod.Interface(config, jobhandler, log).run()
+        except Exception as err:
+            log.exception('could not start interface %r: %s' % (interface, err))
+            continue
+        running_interfaces.append(interface)
 
-    if 'tango' not in config.interfaces:
+    if 'tango' not in running_interfaces:
         try:
             while True:
                 time.sleep(1)
