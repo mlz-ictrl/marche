@@ -19,13 +19,13 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
 import os
 import sys
 import time
-import signal
 import logging
 import optparse
 from os import path

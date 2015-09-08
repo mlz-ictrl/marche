@@ -54,5 +54,3 @@ class Job(object):
     def service_status(self, param):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
-
-

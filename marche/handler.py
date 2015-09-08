@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -48,7 +49,7 @@ class JobHandler(object):
             try:
                 job = mod.Job(name, config, self.log)
                 if not job.check():
-                    raise RuntimeError('Feasibility check failed')
+                    raise RuntimeError('feasibility check failed')
                 for service in job.get_services():
                     self.service2job[service] = job
             except Exception as err:
