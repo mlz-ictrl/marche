@@ -23,24 +23,14 @@
 #
 # *****************************************************************************
 
-import sys
+from os import path
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+from PyQt4 import uic
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
 
-from marche.gui.mainwindow import MainWindow
+uipath = path.dirname(__file__)
 
-def main():
-    app = QApplication(sys.argv)
-    app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
-    app.setOrganizationName('mlz')
-    app.setApplicationName('march-gui')
 
-    win = MainWindow()
-    win.show()
+def loadUi(widget, uiname, subdir='ui'):
+    uic.loadUi(path.join(uipath, subdir, uiname), widget)
 
-    return app.exec_()

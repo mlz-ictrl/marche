@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>753</width>
+    <width>646</width>
     <height>589</height>
    </rect>
   </property>
@@ -20,8 +20,10 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QListWidget" name="listWidget"/>
-      <widget class="QListWidget" name="listWidget_2"/>
+      <widget class="QListWidget" name="hostListWidget"/>
+      <widget class="QWidget" name="surface" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout"/>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -31,7 +33,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>753</width>
+     <width>646</width>
      <height>23</height>
     </rect>
    </property>
