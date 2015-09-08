@@ -107,6 +107,7 @@ def main():
     if 'tango' in config.interfaces:
         ifaces = [iface for iface in config.interfaces if iface != 'tango']
         ifaces.append('tango')
+        config.interfaces = ifaces
 
     running_interfaces = []
 

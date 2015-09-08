@@ -23,59 +23,25 @@
 #
 # *****************************************************************************
 
-import os
 import socket
 import threading
-import SimpleXMLRPCServer
-
-
-class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/xmlrpc',)
-
-    def log_message(self, fmt, *args):
-        self.log.info('[%s] %s' % (self.client_address[0], fmt % args))
-
-
-class RPCFunctions(object):
-
-    def __init__(self, jobhandler, log):
-        self.jobhandler = jobhandler
-        self.log = log
-
-    def GetServices(self):
-        return self.jobhandler.get_services()
-
-    def Start(self, service):
-        self.jobhandler.start_service(service)
-        return True
-
-    def Stop(self, service):
-        self.jobhandler.stop_service(service)
-        return True
-
-    def GetStatus(self, service):
-        return self.jobhandler.service_status(service)
 
 
 class Interface(object):
-
     def __init__(self, config, jobhandler, log):
         self.config = config
-        self.jobhandler = jobhandler
-        self.log = RequestHandler.log = log.getChild('xmlrpc')
+        self.log = log.getChild('udp')
 
     def run(self):
-        port = int(self.config.interface_config['xmlrpc']['port'])
-        host = self.config.interface_config['xmlrpc']['host']
-        server = SimpleXMLRPCServer.SimpleXMLRPCServer(
-            (host, port), requestHandler=RequestHandler)
-        server.register_introspection_functions()
-        server.register_instance(RPCFunctions(self.jobhandler, self.log))
+        server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server.bind(('', 10767))
 
         thd = threading.Thread(target=self._thread, args=(server,))
         thd.setDaemon(True)
         thd.start()
-        self.log.info('listening on %s:%s' % (host, port))
 
     def _thread(self, server):
-        server.serve_forever()
+        while True:
+            data, addr = server.recvfrom(1024)
+            if data == 'PING':
+                server.sendto('PONG', addr)
