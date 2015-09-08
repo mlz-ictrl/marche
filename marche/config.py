@@ -46,6 +46,7 @@ class Config(object):
     job_config = {}
     interface_config = {
         'xmlrpc' : {
+            'host' : '0.0.0.0',
             'port' : 8124
             },
         'tango' : {}
