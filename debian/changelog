@@ -1,5 +1,70 @@
-marche (0.0.0) UNRELEASED; urgency=medium
+marche (0.0.1) unstable; urgency=medium
 
+  [ Alexander Lenz ]
   * UNRELEASED
+  * Recognice inplace exec.
+  * Introduce feasibility checks for jobs.
 
- -- Alexander Lenz <alexander.lenz@frm2.tum.de>  Tue, 08 Sep 2015 11:19:31 +0200
+  [ Georg Brandl ]
+  * better handling of failed interfaces
+
+  [ Alexander Lenz ]
+  * Add startup finished logging.
+  * Add logging for initialized jobs.
+
+  [ Georg Brandl ]
+  * Important change.
+
+  [ Alexander Lenz ]
+  * Quick fix idiots work.
+  * Add fancy systemCall.
+
+  [ Georg Brandl ]
+  * Author fix.
+
+  [ Alexander Lenz ]
+  * Fix entangle job.
+  * xmlrpc: make port configurable.
+  * xmlrpc: make host configurable.
+  * Update copyright notices.
+  * Initial commit of the gui infrastructure.
+  * Add experimental gui design.
+
+  [ Georg Brandl ]
+  * Add simple udp reply interface.
+
+  [ Alexander Lenz ]
+  * First experimental gui.
+  * Gui improvements.
+  * gui: start/stop/restart
+  * Install marche-gui.
+  * gui: polling stuff.
+  * gui: remove hardcoded ccr12.
+
+  [ Georg Brandl ]
+  * Use async processes.
+  * Add reload command, lock handler methods.
+
+  [ Alexander Lenz ]
+  * Fancy up gui.
+  * gui: fix buttons.
+
+  [ Georg Brandl ]
+  * Add a job for nicos. Nicer process handler.
+  * Do not return None from xmlrpc.
+  * Fix debug leftover.
+
+  [ Alexander Lenz ]
+  * gui: starting/stopping colors.
+  * gui: proc: items not selectable.
+
+  [ Georg Brandl ]
+  * Better exception handling for xmlrpc iface.
+  * Implement about dialog and exit menu entry.
+  * Fix string formatting.
+  * Small GUI improvements. Colored icons.
+  * Add restart command.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 09 Sep 2015 12:31:48 +0200
