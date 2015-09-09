@@ -40,7 +40,7 @@ def main():
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
     app.setOrganizationName('mlz')
-    app.setApplicationName('march-gui')
+    app.setApplicationName('marche-gui')
 
     win = MainWindow()
     win.show()

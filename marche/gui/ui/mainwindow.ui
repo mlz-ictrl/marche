@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../res/march-gui.qrc">
+   <iconset resource="../res/marche-gui.qrc">
     <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -70,7 +70,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAdd_host">
    <property name="icon">
-    <iconset resource="../res/march-gui.qrc">
+    <iconset resource="../res/marche-gui.qrc">
      <normaloff>:/server.png</normaloff>:/server.png</iconset>
    </property>
    <property name="text">
@@ -82,7 +82,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="../res/march-gui.qrc">
+    <iconset resource="../res/marche-gui.qrc">
      <normaloff>:/door-open.png</normaloff>:/door-open.png</iconset>
    </property>
    <property name="text">
@@ -94,7 +94,7 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="../res/march-gui.qrc">
+    <iconset resource="../res/marche-gui.qrc">
      <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
    </property>
    <property name="text">
@@ -103,7 +103,7 @@
   </action>
   <action name="actionAbout_Qt">
    <property name="icon">
-    <iconset resource="../res/march-gui.qrc">
+    <iconset resource="../res/marche-gui.qrc">
      <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
    </property>
    <property name="text">
@@ -120,7 +120,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../res/march-gui.qrc"/>
+  <include location="../res/marche-gui.qrc"/>
  </resources>
  <connections>
   <connection>

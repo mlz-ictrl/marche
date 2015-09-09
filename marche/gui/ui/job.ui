@@ -53,7 +53,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/march-gui.qrc">
+      <iconset resource="../res/marche-gui.qrc">
        <normaloff>:/control.png</normaloff>:/control.png</iconset>
      </property>
     </widget>
@@ -76,7 +76,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/march-gui.qrc">
+      <iconset resource="../res/marche-gui.qrc">
        <normaloff>:/control-stop-square.png</normaloff>:/control-stop-square.png</iconset>
      </property>
     </widget>
@@ -99,7 +99,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/march-gui.qrc">
+      <iconset resource="../res/marche-gui.qrc">
        <normaloff>:/arrow-circle-225.png</normaloff>:/arrow-circle-225.png</iconset>
      </property>
     </widget>
@@ -107,7 +107,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../res/march-gui.qrc"/>
+  <include location="../res/marche-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
