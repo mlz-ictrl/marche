@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import time
+import threading
 from xmlrpclib import ServerProxy, Fault
 
 from PyQt4.QtCore import QThread, pyqtSignal
@@ -69,6 +70,7 @@ class Client(object):
         self.host = host
         self.port = port
         self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
+        self._lock = threading.Lock()
         self._pollThread = None
 
     def _from_fault(self, f):
@@ -80,7 +82,8 @@ class Client(object):
         self._pollThread.start()
 
     def getServices(self):
-        lst = self._proxy.GetServices()
+        with self._lock:
+            lst = self._proxy.GetServices()
 
         result = {}
         for entry in lst:
@@ -98,7 +101,8 @@ class Client(object):
     def startService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
-            self._proxy.Start(servicePath)
+            with self._lock:
+                self._proxy.Start(servicePath)
         except Fault as f:
             raise self._from_fault(f)
         if self._pollThread:
@@ -107,7 +111,8 @@ class Client(object):
     def stopService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
-            self._proxy.Stop(servicePath)
+            with self._lock:
+                self._proxy.Stop(servicePath)
         except Fault as f:
             raise self._from_fault(f)
         if self._pollThread:
@@ -116,7 +121,8 @@ class Client(object):
     def restartService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
-            self._proxy.Restart(servicePath)
+            with self._lock:
+                self._proxy.Restart(servicePath)
         except Fault as f:
             raise self._from_fault(f)
         if self._pollThread:
@@ -124,7 +130,8 @@ class Client(object):
 
     def getServiceStatus(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        return self._proxy.GetStatus(servicePath)
+        with self._lock:
+            return self._proxy.GetStatus(servicePath)
 
     def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
