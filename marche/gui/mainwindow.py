@@ -96,7 +96,7 @@ class HostTree(QTreeWidget):
         self.setColumnWidth(0, self.columnWidth(0) * 1.4)
         self.resizeColumnToContents(2)
         width = sum([self.columnWidth(i) for i in range(self.columnCount())])
-        self.setMinimumWidth(width+2)
+        self.setMinimumWidth(width+25)
         # self.collapseAll()
 
     def fill(self):
