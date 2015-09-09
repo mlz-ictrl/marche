@@ -7,6 +7,7 @@
     <file>door-open.png</file>
     <file>drill.png</file>
     <file>server.png</file>
+    <file>server-big.png</file>
     <file>ui-progress-bar.png</file>
   </qresource>
 </RCC>

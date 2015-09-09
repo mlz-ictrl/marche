@@ -29,9 +29,9 @@ from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING, INITIALIZING
 from marche.version import get_version
 
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize
 from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem
 
 
 class JobButtons(QWidget):
@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
 
         self.resize(800, 500)
         self.splitter.setStretchFactor(0, 2)
-        self.splitter.setStretchFactor(1, 5)
+        self.splitter.setStretchFactor(1, 3)
         self.setWindowTitle('Marche')
 
         self._clients = {}
@@ -215,16 +215,20 @@ class MainWindow(QMainWindow):
     def addHost(self, addr):
         if ':' not in addr:
             addr += ':8124'
+        if addr in self._clients:
+            return
         host, port = addr.split(':')
         self._clients[addr] = Client(host, port)
 
-        self.hostListWidget.addItem(addr)
+        item = QListWidgetItem(QIcon(':/server-big.png'), addr)
+        self.hostListWidget.addItem(item)
 
     def removeHost(self, addr):
         if addr in self._clients:
             del self._clients[addr]
 
         item = self.hostListWidget.findItem(addr)
+        item.setSizeHint(QSize(0, 30))
         self.hostListWidget.takeItem(item)
 
     def openHost(self, addr):

@@ -57,7 +57,7 @@ class ScanThread(QThread):
                     addr = socket.gethostbyaddr(addr[0])[0]
                 except socket.error:
                     addr = addr[0]
-                self.hosts.append(addr)
+                self.hosts.append(addr + ':8124')
                 self.foundHosts.emit(len(self.hosts))
         self.finished.emit()
 
