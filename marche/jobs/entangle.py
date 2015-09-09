@@ -32,8 +32,9 @@ from os import path
 
 #import PyTango
 
-from marche.jobs import DEAD, STARTING, RUNNING
+from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Fault, Busy
 from marche.jobs.base import Job as BaseJob
+from marche.utils import AsyncProcess
 
 
 def convert_value(value):
@@ -80,6 +81,7 @@ class Job(BaseJob):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
+        self._server_procs = {}
 
     def check(self):
         if not path.exists('/etc/entangle/entangle.conf'):
@@ -102,19 +104,33 @@ class Job(BaseJob):
 
         return all_servers
 
-    # XXX use subprocess here...
+    def _proc(self, name):
+        proc = self._server_procs.get(name)
+        if proc and not proc.done:
+            return proc
 
     def start_service(self, name):
+        if self._proc(name):
+            raise Busy
         self.log.info('starting server %s' % name)
-        os.system('/etc/init.d/entangle start ' + name[9:])
+        self._server_procs[name] = AsyncProcess(STARTING, self.log,
+                                                '/etc/init.d/entangle start ' + name[9:])
+        self._server_procs[name].start()
 
     def stop_service(self, name):
+        if self._proc(name):
+            raise Busy
         self.log.info('stopping server %s' % name)
-        os.system('/etc/init.d/entangle stop ' + name[9:])
+        self._server_procs[name] = AsyncProcess(STOPPING, self.log,
+                                                '/etc/init.d/entangle stop ' + name[9:])
+        self._server_procs[name].start()
 
     # XXX check devices with Tango clients
 
     def service_status(self, name):
+        proc = self._proc(name)
+        if proc:
+            return proc.status
         if os.system('/etc/init.d/entangle status ' + name[9:]) == 0:
             return RUNNING
         return DEAD

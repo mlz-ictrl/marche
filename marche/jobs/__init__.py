@@ -29,9 +29,17 @@ STOPPING = 3
 NOT_AVAILABLE = 4
 
 STATE_STR = {
-    DEAD : 'DEAD',
-    STARTING : 'STARTING',
-    RUNNING : 'RUNNING',
-    STOPPING : 'STOPPING',
-    NOT_AVAILABLE : 'NOT_AVAILABLE',
+    DEAD: 'DEAD',
+    STARTING: 'STARTING',
+    RUNNING: 'RUNNING',
+    STOPPING: 'STOPPING',
+    NOT_AVAILABLE: 'NOT_AVAILABLE',
 }
+
+
+class Fault(Exception):
+    pass
+
+
+class Busy(Exception):
+    pass

@@ -58,7 +58,6 @@ class JobHandler(object):
                 self.jobs[name] = job
                 self.log.info('job %s initialized' % name)
 
-
     def get_services(self):
         return self.service2job.keys()
 

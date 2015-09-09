@@ -24,7 +24,6 @@
 # *****************************************************************************
 
 
-
 class Job(object):
 
     def __init__(self, name, config, log):
@@ -33,15 +32,13 @@ class Job(object):
         self.log = log.getChild(name)
 
     def check(self):
-        '''
+        """
         Checks if the job can be used at all (on this system).
-        '''
+        """
         return True
 
     def get_services(self):
         return []
-
-    # XXX use subprocess here...
 
     def start_service(self, param):
         raise NotImplementedError('%s.start_service not implemented'

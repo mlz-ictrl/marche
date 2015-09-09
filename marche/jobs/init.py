@@ -28,8 +28,9 @@
 import os
 from os import path
 
-from marche.jobs import DEAD, RUNNING
+from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy
 from marche.jobs.base import Job as BaseJob
+from marche.utils import AsyncProcess
 
 
 class Job(BaseJob):
@@ -37,6 +38,7 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
         self.init_name = config.get('script', name)
+        self._proc = None
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -48,17 +50,25 @@ class Job(BaseJob):
     def get_services(self):
         return [self.init_name]
 
-    # XXX use subprocess here...
-
     def start_service(self, name):
+        if self._proc and not self._proc.done:
+            raise Busy
         self.log.info('starting')
-        os.system('/etc/init.d/' + self.init_name + ' start')
+        self._proc = AsyncProcess(STARTING, self.log,
+                                  '/etc/init.d/' + self.init_name + ' start')
+        self._proc.start()
 
     def stop_service(self, name):
+        if self._proc and not self._proc.done:
+            raise Busy
         self.log.info('stopping')
-        os.system('/etc/init.d/' + self.init_name + ' stop')
+        self._proc = AsyncProcess(STOPPING, self.log,
+                                  '/etc/init.d/' + self.init_name + ' stop')
+        self._proc.start()
 
     def service_status(self, name):
+        if self._proc and not self._proc.done:
+            return self._proc.status
         if os.system('/etc/init.d/' + self.init_name + ' status') == 0:
             return RUNNING
         return DEAD

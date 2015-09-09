@@ -33,7 +33,8 @@ import pwd
 import grp
 import select
 from os import path
-from subprocess import Popen, PIPE, CalledProcessError
+from threading import Thread
+from subprocess import Popen, PIPE
 
 
 def ensure_directory(dirname):
@@ -136,57 +137,70 @@ class lazy_property(object):
         obj.__dict__[self.__name__] = self._func(obj)
         return obj.__dict__[self.__name__]
 
-def systemCall(cmd, log, sh=True):
-    log.debug('System call [sh:%s]: %s' \
-              % (sh, cmd))
 
-    out = []
-    proc = None
-    poller = None
+class AsyncProcess(Thread):
+    def __init__(self, status, log, cmd, sh=True):
+        Thread.__init__(self)
+        self.setDaemon(True)
 
-    def pollOutput():
-        '''
-        Read, log and store output (if any) from processes pipes.
-        '''
-        removeChars = '\r\n'
+        self.status = status
+        self.log = log
+        self.cmd = cmd
+        self.use_sh = sh
 
-         # collect fds with new output
-        fds = [entry[0] for entry in poller.poll()]
+        self.done = False
+        self.retcode = None
+        self.stdout = ''
+        self.stderr = ''
 
-        if proc.stdout.fileno() in fds:
-            for line in iter(proc.stdout.readline, ''):
-                log.debug(line.translate(None, removeChars))
-                out.append(line)
-        if proc.stderr.fileno() in fds:
-            for line in iter(proc.stderr.readline, ''):
-                log.warning(line.translate(None, removeChars))
+    def run(self):
+        self.log.debug('call [sh:%s]: %s' % (self.use_sh, self.cmd))
 
+        out = []
+        err = []
+        proc = None
+        poller = None
 
-    while True:
-        if proc is None:
-            # create and start process
-            proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=sh)
+        def pollOutput():
+            """
+            Read, log and store output (if any) from processes pipes.
+            """
+            removeChars = '\r\n'
 
-            # create poll select
-            poller = select.poll()
+            # collect fds with new output
+            fds = [entry[0] for entry in poller.poll()]
 
-            # register pipes to polling
-            poller.register(proc.stdout, select.POLLIN)
-            poller.register(proc.stderr, select.POLLIN)
+            if proc.stdout.fileno() in fds:
+                for line in iter(proc.stdout.readline, ''):
+                    self.log.debug(line.translate(None, removeChars))
+                    out.append(line)
+            if proc.stderr.fileno() in fds:
+                for line in iter(proc.stderr.readline, ''):
+                    self.log.warning(line.translate(None, removeChars))
+                    err.append(line)
 
+        while True:
+            if proc is None:
+                # create and start process
+                proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=self.use_sh)
+
+                # create poll select
+                poller = select.poll()
+
+                # register pipes to polling
+                poller.register(proc.stdout, select.POLLIN)
+                poller.register(proc.stderr, select.POLLIN)
+
+            pollOutput()
+
+            if proc.poll() is not None:  # proc finished
+                break
+
+        # poll once after the process ended to collect all the missing output
         pollOutput()
 
-        if proc.poll() is not None: # proc finished
-            break
-
-    # poll once after the process ended to collect all the missing output
-    pollOutput()
-
-    # check return code
-    if proc.returncode != 0:
-        raise RuntimeError(
-            CalledProcessError(proc.returncode, cmd, ''.join(out))
-            )
-
-    return ''.join(out)
-
+        # check return code
+        self.retcode = proc.returncode
+        self.stdout = ''.join(out)
+        self.stderr = ''.join(err)
+        self.done = True
