@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 import marche.version
 
 
-scripts = ['bin/marched']
+scripts = ['bin/marched', 'bin/marche-gui']
 
 setup(
     name = 'marche',
