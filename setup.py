@@ -38,6 +38,9 @@ setup(
     description = 'Server control daemon',
     packages = find_packages(),
     package_data = {'marche': ['RELEASE-VERSION']},
+    data_files = [
+        ('/etc/init.d', ['etc/marched'])
+    ],
     scripts = scripts,
     classifiers = [
         'Development Status :: 3 - Alpha',
