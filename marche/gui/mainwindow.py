@@ -30,7 +30,7 @@ from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
     INITIALIZING
 from marche.version import get_version
 
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem
 
@@ -163,9 +163,20 @@ class MainWindow(QMainWindow):
         self.splitter.setStretchFactor(1, 3)
         self.setWindowTitle('Marche')
 
+        settings = QSettings()
+        self.splitter.restoreState(settings.value('split', b'', QByteArray))
+        self.restoreGeometry(settings.value('geometry', b'', QByteArray))
+
         self._clients = {}
         self._cur_tree = None
         self.scanNetwork()
+
+    def closeEvent(self, event):
+        settings = QSettings()
+        settings.setValue('split', self.splitter.saveState())
+        settings.setValue('geometry', self.saveGeometry())
+        # settings.setValue('last_hosts', [])
+        return QMainWindow.closeEvent(self, event)
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
