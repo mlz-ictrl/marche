@@ -27,7 +27,6 @@
 
 import os
 
-from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
 from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 

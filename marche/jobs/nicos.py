@@ -26,7 +26,7 @@
 
 from os import path
 
-from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, WARNING, Busy
+from marche.jobs import DEAD, STARTING, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
 
 INITSCR = '/etc/init.d/nicos-system'

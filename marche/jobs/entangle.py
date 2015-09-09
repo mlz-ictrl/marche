@@ -30,9 +30,8 @@ import ast
 import ConfigParser
 from os import path
 
-#import PyTango
+# import PyTango
 
-from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
 from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 
