@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from marche.utils import AsyncProcess
+
 
 class Job(object):
 
@@ -30,6 +32,19 @@ class Job(object):
         self.name = name
         self.config = config
         self.log = log.getChild(name)
+
+    def _async(self, status, cmd, sh=True):
+        proc = AsyncProcess(status, self.log, cmd, sh)
+        proc.start()
+        return proc
+
+    def _sync(self, status, cmd, sh=True):
+        proc = AsyncProcess(status, self.log, cmd, sh)
+        proc.start()
+        proc.join()
+        return proc
+
+    # Public interface
 
     def check(self):
         """

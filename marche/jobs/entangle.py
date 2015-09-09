@@ -32,9 +32,8 @@ from os import path
 
 #import PyTango
 
-from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Fault, Busy
+from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
 from marche.jobs.base import Job as BaseJob
-from marche.utils import AsyncProcess
 
 
 def convert_value(value):
@@ -77,6 +76,10 @@ def read_resfile(filename):
     return devices
 
 
+CONFIG = '/etc/entangle/entangle.conf'
+INITSCR = '/etc/init.d/entangle'
+
+
 class Job(BaseJob):
 
     def __init__(self, name, config, log):
@@ -84,14 +87,14 @@ class Job(BaseJob):
         self._server_procs = {}
 
     def check(self):
-        if not path.exists('/etc/entangle/entangle.conf'):
-            self.log.error('/etc/entangle/entangle.conf missing')
+        if not (path.exists(CONFIG) and path.exists(INITSCR)):
+            self.log.error('%s or %s missing' % (CONFIG, INITSCR))
             return False
         return True
 
     def get_services(self):
         cfg = ConfigParser.RawConfigParser()
-        cfg.read('/etc/entangle/entangle.conf')
+        cfg.read(CONFIG)
 
         if cfg.has_option('entangle', 'resdir'):
             resdir = cfg.get('entangle', 'resdir')
@@ -113,17 +116,15 @@ class Job(BaseJob):
         if self._proc(name):
             raise Busy
         self.log.info('starting server %s' % name)
-        self._server_procs[name] = AsyncProcess(STARTING, self.log,
-                                                '/etc/init.d/entangle start ' + name[9:])
-        self._server_procs[name].start()
+        self._server_procs[name] = self._async(STARTING,
+                                               'sleep 5; %s start %s' % (INITSCR, name[9:]))
 
     def stop_service(self, name):
         if self._proc(name):
             raise Busy
         self.log.info('stopping server %s' % name)
-        self._server_procs[name] = AsyncProcess(STOPPING, self.log,
-                                                '/etc/init.d/entangle stop ' + name[9:])
-        self._server_procs[name].start()
+        self._server_procs[name] = self._async(STOPPING,
+                                               'sleep 5; %s stop %s' % (INITSCR, name[9:]))
 
     # XXX check devices with Tango clients
 
@@ -131,6 +132,6 @@ class Job(BaseJob):
         proc = self._proc(name)
         if proc:
             return proc.status
-        if os.system('/etc/init.d/entangle status ' + name[9:]) == 0:
+        if self._sync(0, '%s status %s' % (INITSCR, name[9:])).retcode == 0:
             return RUNNING
         return DEAD

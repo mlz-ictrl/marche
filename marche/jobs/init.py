@@ -30,7 +30,6 @@ from os import path
 
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy
 from marche.jobs.base import Job as BaseJob
-from marche.utils import AsyncProcess
 
 
 class Job(BaseJob):
@@ -54,21 +53,19 @@ class Job(BaseJob):
         if self._proc and not self._proc.done:
             raise Busy
         self.log.info('starting')
-        self._proc = AsyncProcess(STARTING, self.log,
-                                  '/etc/init.d/' + self.init_name + ' start')
-        self._proc.start()
+        self._proc = self._async(STARTING,
+                                 '/etc/init.d/' + self.init_name + ' start')
 
     def stop_service(self, name):
         if self._proc and not self._proc.done:
             raise Busy
         self.log.info('stopping')
-        self._proc = AsyncProcess(STOPPING, self.log,
-                                  '/etc/init.d/' + self.init_name + ' stop')
-        self._proc.start()
+        self._proc = self._async(STOPPING, self.log,
+                                 '/etc/init.d/' + self.init_name + ' stop')
 
     def service_status(self, name):
         if self._proc and not self._proc.done:
             return self._proc.status
-        if os.system('/etc/init.d/' + self.init_name + ' status') == 0:
+        if self._sync(0, '/etc/init.d/' + self.init_name + ' status').retcode == 0:
             return RUNNING
         return DEAD

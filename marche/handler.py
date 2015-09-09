@@ -39,6 +39,7 @@ class JobHandler(object):
         self._add_jobs()
 
     def _add_jobs(self):
+        self.log.info('adding jobs...')
         for (name, config) in self.config.job_config.items():
             if 'type' not in config:
                 self.log.warning('job %r has no type assigned, ignoring' % name)
@@ -59,6 +60,7 @@ class JobHandler(object):
                                            '%s and %s' % (service, name,
                                                           self.service2job[service].name))
                     self.service2job[service] = job
+                    self.log.info('found service: %s' % service)
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' % (name, err))
             else:
