@@ -14,5 +14,8 @@ DEBPYTHON_SUPPORTED=2.7
 
 export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
 
+override_dh_installinit:
+	dh_installinit --onlyscripts --name=marched --no-start
+
 %:
 	dh $@ --with python2 --buildsystem=python_distutils
