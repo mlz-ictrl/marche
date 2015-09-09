@@ -26,7 +26,7 @@
 
 from os import path
 
-from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
+from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, WARNING, Busy
 from marche.jobs.base import Job as BaseJob
 
 INITSCR = '/etc/init.d/nicos-system'
@@ -90,7 +90,18 @@ class Job(BaseJob):
         if self._proc and not self._proc.done:
             return self._proc.status
         if name == 'nicos-system':
-            retcode = self._sync(0, '%s status' % INITSCR).retcode
+            output = self._sync(0, '%s status' % INITSCR).stdout
+            something_dead = something_running = False
+            for line in output.splitlines():
+                if 'dead' in line:
+                    something_dead = True
+                if 'running' in line:
+                    something_running = True
+            if something_dead and something_running:
+                return WARNING
+            elif something_running:
+                return RUNNING
+            return DEAD
         else:
             retcode = self._sync(0, '%s status %s' % (INITSCR, name[6:])).retcode
-        return RUNNING if retcode == 0 else DEAD
+            return RUNNING if retcode == 0 else DEAD

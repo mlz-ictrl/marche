@@ -26,7 +26,8 @@
 from marche.gui.util import loadUi
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
-from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING, INITIALIZING
+from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
+    INITIALIZING
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize
@@ -73,6 +74,7 @@ class HostTree(QTreeWidget):
     STATE_COLORS = {
         RUNNING:      ('green', ''),
         DEAD:         ('white', 'red'),
+        WARNING:      ('black', 'yellow'),
         STARTING:     ('blue', ''),
         STOPPING:     ('blue', ''),
         INITIALIZING: ('blue', ''),
