@@ -159,9 +159,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Marche')
 
         self._clients = {}
-
-        self.addHost('localhost:8124')
-        self.openHost('localhost:8124')
+        self.on_actionScan_network_triggered()
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
