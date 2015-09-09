@@ -23,11 +23,15 @@
 # *****************************************************************************
 
 from setuptools import setup, find_packages
+from os import listdir, path
 
 import marche.version
 
 
 scripts = ['bin/marched', 'bin/marche-gui', 'bin/marche-gensyscfg']
+
+uidir = path.join(path.dirname(__file__), 'marche', 'gui', 'ui')
+uis = [path.join('gui', 'ui', entry) for entry in listdir(uidir)]
 
 setup(
     name = 'marche',
@@ -37,7 +41,7 @@ setup(
     author_email = 'g.brandl@fz-juelich.de',
     description = 'Server control daemon',
     packages = find_packages(),
-    package_data = {'marche': ['RELEASE-VERSION']},
+    package_data = {'marche': ['RELEASE-VERSION'] + uis},
     data_files = [
         ('/etc/init.d', ['etc/marched'])
     ],
