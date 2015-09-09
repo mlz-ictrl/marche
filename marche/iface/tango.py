@@ -24,11 +24,25 @@
 
 import os
 import socket
-import threading
 
 import PyTango
-from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState
-from PyTango.server import Device, DeviceMeta, attribute, command
+from PyTango.server import Device, DeviceMeta, command, DevState
+
+from marche.jobs import Busy, Fault
+
+
+def exc_wrap(f):
+    def new_f(*args):
+        try:
+            return f(*args)
+        except Busy as err:
+            PyTango.Except.throw_exception('Marche_Busy', str(err), '')
+        except Fault as err:
+            PyTango.Except.throw_exception('Marche_Fault', str(err), '')
+        except Exception as err:
+            PyTango.Except.throw_exception('Marche_Unexpected', str(err), '')
+    new_f.__name__ = f.__name__
+    return new_f
 
 
 class ProcessController(Device):
@@ -38,21 +52,28 @@ class ProcessController(Device):
         Device.init_device(self)
         self.set_state(DevState.ON)
 
+    @command
+    @exc_wrap
+    def ReloadJobs(self):
+        self.jobhandler.reload_jobs()
+
     @command(dtype_in=None, dtype_out='DevVarStringArray')
+    @exc_wrap
     def GetServices(self):
         return self.jobhandler.get_services()
 
-    @command(dtype_in=str, doc_in="Start service", dtype_out=bool)
+    @command(dtype_in=str, doc_in="Start service")
+    @exc_wrap
     def Start(self, service):
         self.jobhandler.start_service(service)
-        return True
 
-    @command(dtype_in=str, doc_in="Stop service", dtype_out=bool)
+    @command(dtype_in=str, doc_in="Stop service")
+    @exc_wrap
     def Stop(self, service):
         self.jobhandler.stop_service(service)
-        return True
 
     @command(dtype_in=str, doc_in="Status of service", dtype_out=int)
+    @exc_wrap
     def GetStatus(self, service):
         return self.jobhandler.service_status(service)
 

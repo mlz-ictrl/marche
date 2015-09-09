@@ -42,4 +42,6 @@ class Fault(Exception):
 
 
 class Busy(Exception):
-    pass
+    def __str__(self):
+        s = Exception.__str__(self)
+        return s or 'job is already busy, retry later'

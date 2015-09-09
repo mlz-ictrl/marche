@@ -42,16 +42,17 @@ class RPCFunctions(object):
         self.jobhandler = jobhandler
         self.log = log
 
+    def ReloadJobs(self):
+        self.jobhandler.reload_jobs()
+
     def GetServices(self):
         return self.jobhandler.get_services()
 
     def Start(self, service):
         self.jobhandler.start_service(service)
-        return True
 
     def Stop(self, service):
         self.jobhandler.stop_service(service)
-        return True
 
     def GetStatus(self, service):
         return self.jobhandler.service_status(service)

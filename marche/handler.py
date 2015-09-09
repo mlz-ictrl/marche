@@ -25,12 +25,15 @@
 
 """Job control dispatcher."""
 
+from threading import Lock
+
 
 class JobHandler(object):
 
     def __init__(self, config, log):
         self.config = config
         self.log = log
+        self._lock = Lock()
         self.jobs = {}
         self.service2job = {}
         self._add_jobs()
@@ -51,6 +54,10 @@ class JobHandler(object):
                 if not job.check():
                     raise RuntimeError('feasibility check failed')
                 for service in job.get_services():
+                    if service in self.service2job:
+                        raise RuntimeError('duplicate service name %r, provided by jobs '
+                                           '%s and %s' % (service, name,
+                                                          self.service2job[service].name))
                     self.service2job[service] = job
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' % (name, err))
@@ -58,14 +65,30 @@ class JobHandler(object):
                 self.jobs[name] = job
                 self.log.info('job %s initialized' % name)
 
+    def reload_jobs(self):
+        """Reload the jobs and list of their services."""
+        with self._lock:
+            self.config.reload()
+            self.jobs = {}
+            self.service2job = {}
+            self._add_jobs()
+
     def get_services(self):
-        return self.service2job.keys()
+        """Get a list of all services provided by jobs."""
+        with self._lock:
+            return self.service2job.keys()
 
     def start_service(self, name):
-        self.service2job[name].start_service(name)
+        """Start a single service."""
+        with self._lock:
+            self.service2job[name].start_service(name)
 
     def stop_service(self, name):
-        self.service2job[name].stop_service(name)
+        """Stop a single service."""
+        with self._lock:
+            self.service2job[name].stop_service(name)
 
     def service_status(self, name):
-        return self.service2job[name].service_status(name)
+        """Return the status of a single service."""
+        with self._lock:
+            return self.service2job[name].service_status(name)

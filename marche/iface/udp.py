@@ -34,6 +34,7 @@ class Interface(object):
 
     def run(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(('', 10767))
 
         thd = threading.Thread(target=self._thread, args=(server,))
