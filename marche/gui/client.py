@@ -39,9 +39,10 @@ class PollThread(QThread):
         QThread.__init__(self, parent)
         self._client = Client(host, port)
         self._loopDelay = loopDelay
+        self.running = True
 
     def run(self):
-        while True:
+        while self.running:
             services = self._client.getServices()
 
             for service, instances in services.iteritems():
@@ -73,6 +74,9 @@ class Client(object):
         self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
         self._lock = threading.Lock()
         self._pollThread = None
+
+    def stop(self):
+        self._pollThread.running = False
 
     def _from_fault(self, f):
         return ClientError(f.faultCode, f.faultString)

@@ -90,7 +90,6 @@ class HostTree(QTreeWidget):
         self.headerItem().setText(1, 'Status')
         self.headerItem().setText(2, 'Control')
         self.headerItem().setText(3, 'Last error')
-        self._items = {}
         self.fill()
 
         self.expandAll()
@@ -102,6 +101,8 @@ class HostTree(QTreeWidget):
         # self.collapseAll()
 
     def fill(self):
+        self.clear()
+        self._items = {}
         services = self._client.getServices()
 
         for service, instances in services.iteritems():
@@ -147,6 +148,10 @@ class HostTree(QTreeWidget):
         else:
             item.setIcon(1, QIcon())
 
+    def reloadJobs(self):
+        self._client.reloadJobs()
+        self.fill()
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -159,7 +164,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Marche')
 
         self._clients = {}
-        self._cur_client = None
+        self._cur_tree = None
         self.scanNetwork()
 
     @qtsig('')
@@ -174,8 +179,8 @@ class MainWindow(QMainWindow):
 
     @qtsig('')
     def on_actionReload_triggered(self):
-        if self._cur_client:
-            self._cur_client.reloadJobs()
+        if self._cur_tree:
+            self._cur_tree.reloadJobs()
 
     @qtsig('')
     def on_actionAbout_triggered(self):
@@ -237,8 +242,9 @@ class MainWindow(QMainWindow):
         self.hostListWidget.addItem(item)
 
     def removeHost(self, addr):
-        if addr in self._clients:
-            del self._clients[addr]
+        if addr not in self._clients:
+            return
+        del self._clients[addr]
 
         item = self.hostListWidget.findItem(addr)
         item.setSizeHint(QSize(0, 30))
@@ -252,9 +258,9 @@ class MainWindow(QMainWindow):
             prev.widget().deleteLater()
 
         widget = HostTree(self, self._clients[addr])
+        self._cur_tree = widget
 
         self.surface.layout().addWidget(widget)
-        self._cur_client = self._clients[addr]
         widget.show()
 
     def scanNetwork(self):
