@@ -30,7 +30,7 @@ from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget, \
-    QTreeWidgetItem, QBrush, QMessageBox
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon
 
 
 class JobButtons(QWidget):
@@ -138,6 +138,11 @@ class HostTree(QTreeWidget):
         item.setForeground(1, QBrush(QColor(colors[0])) if colors[0] else QBrush())
         item.setBackground(1, QBrush(QColor(colors[1])) if colors[1] else QBrush())
         item.setText(1, STATE_STR[status])
+
+        if status in [STARTING, INITIALIZING, STOPPING]:
+            item.setIcon(1, QIcon(':/ui-progress-bar.png'))
+        else:
+            item.setIcon(1, QIcon())
 
 
 class MainWindow(QMainWindow):
