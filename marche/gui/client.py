@@ -29,6 +29,7 @@ from xmlrpclib import ServerProxy
 
 from PyQt4.QtCore import QThread, pyqtSignal
 
+
 class PollThread(QThread):
     # service, instance, status
     newData = pyqtSignal(object, object, int)
@@ -52,7 +53,6 @@ class PollThread(QThread):
                         self.newData.emit(service, instance, status)
 
             time.sleep(self._loopDelay)
-
 
 
 class Client(object):
@@ -93,6 +93,3 @@ class Client(object):
 
     def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
-
-
-

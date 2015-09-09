@@ -25,11 +25,12 @@
 
 from marche.gui.util import loadUi
 from marche.gui.client import Client, PollThread
-from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING
+from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING, INITIALIZING
+from marche.version import get_version
 
-from PyQt4.QtCore import pyqtSignature as qtsig, QTimer, QThread, Qt
-from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QLabel, \
-    QInputDialog, QPalette, QColor, QTreeWidget, QTreeWidgetItem, QBrush
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt
+from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget, \
+    QTreeWidgetItem, QBrush, QMessageBox
 
 
 class JobButtons(QWidget):
@@ -54,12 +55,14 @@ class JobButtons(QWidget):
         self.on_stopBtn_clicked()
         self.on_startBtn_clicked()
 
+
 class HostTree(QTreeWidget):
     STATE_COLORS = {
-        RUNNING : 'green',
-        DEAD : 'red',
-        STARTING : 'blue',
-        STOPPING : 'blue',
+        RUNNING: 'green',
+        DEAD: 'red',
+        STARTING: 'blue',
+        STOPPING: 'blue',
+        INITIALIZING: 'blue',
     }
 
     def __init__(self, parent, client):
@@ -115,9 +118,7 @@ class HostTree(QTreeWidget):
         if instance:
             item = self._items[service][instance]
 
-
         item.setBackground(1, QBrush(QColor(self.STATE_COLORS.get(status, 'gray'))))
-
         item.setText(1, STATE_STR[status])
 
 
@@ -127,7 +128,7 @@ class MainWindow(QMainWindow):
         loadUi(self, 'mainwindow.ui')
 
         self.resize(800, 500)
-        self.splitter.setStretchFactor(0, 20)
+        self.splitter.setStretchFactor(0, 2)
         self.splitter.setStretchFactor(1, 5)
 
         self._clients = {}
@@ -137,10 +138,38 @@ class MainWindow(QMainWindow):
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
-        addr, accepted = QInputDialog.getText(self, 'Add host',
-                                              'New host:')
+        addr, accepted = QInputDialog.getText(self, 'Add host', 'New host:')
         if accepted:
             self.addHost(addr)
+
+    @qtsig('')
+    def on_actionAbout_triggered(self):
+        QMessageBox.about(
+            self, 'About Marche GUI',
+            '''
+            <h2>About Marche GUI</h2>
+            <p style="font-style: italic">
+              (C) 2015 MLZ instrument control
+            </p>
+            <p>
+              Marche GUI is a graphical interface for the Marche process control system.
+            </p>
+            <h3>Authors:</h3>
+            <ul>
+              <li>Copyright (C) 2015
+                <a href="mailto:g.brandl@fz-juelich.de">Georg Brandl</a></li>
+              <li>Copyright (C) 2015
+                <a href="mailto:alexander.lenz@frm2.tum.de">Alexander Lenz</a></li>
+            </ul>
+            <p>
+              Marche is published under the
+              <a href="http://www.gnu.org/licenses/gpl.html">GPL
+                (GNU General Public License)</a>
+            </p>
+            <p style="font-weight: bold">
+              Version: %s
+            </p>
+            ''' % get_version())
 
     def on_hostListWidget_currentItemChanged(self, current, previous):
         self.openHost(current.text())
