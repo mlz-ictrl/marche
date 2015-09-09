@@ -26,7 +26,7 @@ import os
 import socket
 
 import PyTango
-from PyTango.server import Device, DeviceMeta, command, DevState
+from PyTango.server import Device, DeviceMeta, command
 
 from marche.jobs import Busy, Fault
 
@@ -50,7 +50,7 @@ class ProcessController(Device):
 
     def init_device(self):
         Device.init_device(self)
-        self.set_state(DevState.ON)
+        self.set_state(PyTango.DevState.ON)
 
     @command
     @exc_wrap
