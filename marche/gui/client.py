@@ -24,7 +24,6 @@
 # *****************************************************************************
 
 import time
-
 from xmlrpclib import ServerProxy, Fault
 
 from PyQt4.QtCore import QThread, pyqtSignal
@@ -54,12 +53,31 @@ class PollThread(QThread):
 
             time.sleep(self._loopDelay)
 
+    def poll(self, service, instance):
+        status = self._client.getServiceStatus(service, instance)
+        self.newData.emit(service, instance, status)
+
+
+class ClientError(Exception):
+    def __init__(self, code, string):
+        self.code = code
+        Exception.__init__(self, string)
+
 
 class Client(object):
     def __init__(self, host, port):
         self.host = host
         self.port = port
         self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
+        self._pollThread = None
+
+    def _from_fault(self, f):
+        return ClientError(f.faultCode, f.faultString)
+
+    def startPoller(self, slot):
+        self._pollThread = PollThread(self.host, self.port)
+        self._pollThread.newData.connect(slot)
+        self._pollThread.start()
 
     def getServices(self):
         lst = self._proxy.GetServices()
@@ -81,22 +99,28 @@ class Client(object):
         servicePath = self.getServicePath(service, instance)
         try:
             self._proxy.Start(servicePath)
-        except Fault:
-            raise RuntimeError('Could not start: %s' % servicePath)
+        except Fault as f:
+            raise self._from_fault(f)
+        if self._pollThread:
+            self._pollThread.poll(service, instance)
 
     def stopService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
             self._proxy.Stop(servicePath)
-        except Fault:
-            raise RuntimeError('Could not stop: %s' % servicePath)
+        except Fault as f:
+            raise self._from_fault(f)
+        if self._pollThread:
+            self._pollThread.poll(service, instance)
 
     def restartService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
             self._proxy.Restart(servicePath)
-        except Fault:
-            raise RuntimeError('Could not restart: %s' % servicePath)
+        except Fault as f:
+            raise self._from_fault(f)
+        if self._pollThread:
+            self._pollThread.poll(service, instance)
 
     def getServiceStatus(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)

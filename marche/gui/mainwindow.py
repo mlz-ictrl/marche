@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 from marche.gui.util import loadUi
-from marche.gui.client import Client, PollThread
+from marche.gui.client import Client, ClientError
 from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING, INITIALIZING
 from marche.version import get_version
 
@@ -34,25 +34,38 @@ from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget,
 
 
 class JobButtons(QWidget):
-    def __init__(self, client, service, instance=None, parent=None):
+    def __init__(self, client, service, instance, item, parent=None):
         QWidget.__init__(self, parent)
         loadUi(self, 'job.ui')
 
+        self._item = item
         self._client = client
         self._service = service
         self._instance = instance
 
     @qtsig('')
     def on_startBtn_clicked(self):
-        self._client.startService(self._service, self._instance)
+        self._item.setText(3, '')
+        try:
+            self._client.startService(self._service, self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
 
     @qtsig('')
     def on_stopBtn_clicked(self):
-        self._client.stopService(self._service, self._instance)
+        self._item.setText(3, '')
+        try:
+            self._client.stopService(self._service, self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
 
     @qtsig('')
     def on_restartBtn_clicked(self):
-        self._client.restartService(self._service, self._instance)
+        self._item.setText(3, '')
+        try:
+            self._client.restartService(self._service, self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
 
 
 class HostTree(QTreeWidget):
@@ -67,15 +80,13 @@ class HostTree(QTreeWidget):
     def __init__(self, parent, client):
         QTreeWidget.__init__(self, parent)
         self._client = client
-        self._pollThread = PollThread(client.host, client.port)
-        self._pollThread.newData.connect(self.updateStatus)
-        self._pollThread.start()
+        self._client.startPoller(self.updateStatus)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
         self.headerItem().setText(1, 'Status')
         self.headerItem().setText(2, 'Control')
-        self.headerItem().setText(3, '')
+        self.headerItem().setText(3, 'Last error')
         self._items = {}
         self.fill()
 
@@ -95,11 +106,12 @@ class HostTree(QTreeWidget):
             serviceItem.setForeground(1, QBrush(QColor('white')))
             serviceItem.setTextAlignment(1, Qt.AlignCenter)
             serviceItem.setFlags(Qt.ItemIsEnabled)
+            serviceItem.setForeground(3, QBrush(QColor('red')))
             self.addTopLevelItem(serviceItem)
 
             if not instances:
                 self._items[service] = serviceItem
-                btn = JobButtons(self._client, service)
+                btn = JobButtons(self._client, service, None, serviceItem)
                 self.setItemWidget(serviceItem, 2, btn)
             else:
                 self._items[service] = {}
@@ -108,9 +120,10 @@ class HostTree(QTreeWidget):
                     instanceItem.setForeground(1, QBrush(QColor('white')))
                     instanceItem.setTextAlignment(1, Qt.AlignCenter)
                     instanceItem.setFlags(Qt.ItemIsEnabled)
+                    instanceItem.setForeground(3, QBrush(QColor('red')))
                     serviceItem.addChild(instanceItem)
 
-                    btn = JobButtons(self._client, service, instance)
+                    btn = JobButtons(self._client, service, instance, instanceItem)
                     self.setItemWidget(instanceItem, 2, btn)
 
                     self._items[service][instance] = instanceItem
