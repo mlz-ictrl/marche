@@ -15,10 +15,9 @@ if test -r /lib/lsb/init-functions ; then
 fi
 
 
-. /etc/default/marched
-
 BINARY_SHORT=marched
 BINARY_FULL=$(which $BINARY_SHORT)
+PIDFILE=/var/run/marched.pid
 if [ ! -x "${BINARY_FULL}" ] ;
 then
 	log_progress_msg "Cannot find ${BINARY_SHORT}; Abort!\n"
