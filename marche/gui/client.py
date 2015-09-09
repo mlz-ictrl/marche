@@ -26,6 +26,7 @@
 import time
 import threading
 from xmlrpclib import ServerProxy, Fault
+from collections import OrderedDict
 
 from PyQt4.QtCore import QThread, pyqtSignal
 
@@ -85,8 +86,8 @@ class Client(object):
         with self._lock:
             lst = self._proxy.GetServices()
 
-        result = {}
-        for entry in lst:
+        result = OrderedDict()
+        for entry in sorted(lst):
             parts = entry.split('.')
 
             if len(parts) > 1:
