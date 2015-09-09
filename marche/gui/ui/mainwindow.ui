@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>646</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -46,6 +46,8 @@
      <string>File</string>
     </property>
     <addaction name="actionAdd_host"/>
+    <addaction name="actionScan_network"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -99,6 +101,14 @@
    </property>
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionScan_network">
+   <property name="text">
+    <string>Scan network</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
    </property>
   </action>
  </widget>

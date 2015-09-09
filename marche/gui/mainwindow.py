@@ -25,6 +25,7 @@
 
 from marche.gui.util import loadUi
 from marche.gui.client import Client, ClientError
+from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING, INITIALIZING
 from marche.version import get_version
 
@@ -165,6 +166,15 @@ class MainWindow(QMainWindow):
         addr, accepted = QInputDialog.getText(self, 'Add host', 'New host:')
         if accepted:
             self.addHost(addr)
+
+    @qtsig('')
+    def on_actionScan_network_triggered(self):
+        hosts = Scanner(self).run()
+        if not hosts:
+            return
+        for host in hosts:
+            self.addHost(host)
+        self.openHost(hosts[-1])
 
     @qtsig('')
     def on_actionAbout_triggered(self):
