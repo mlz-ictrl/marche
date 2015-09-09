@@ -113,8 +113,6 @@ class MainWindow(QMainWindow):
 
 
         self._clients = {}
-        self.addHost('ccr12.ictrl.frm2:8124')
-        self.openHost('ccr12.ictrl.frm2:8124')
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
