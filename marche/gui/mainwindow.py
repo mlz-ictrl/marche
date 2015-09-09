@@ -159,7 +159,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Marche')
 
         self._clients = {}
-        self.on_actionScan_network_triggered()
+        self.scanNetwork()
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
@@ -169,12 +169,7 @@ class MainWindow(QMainWindow):
 
     @qtsig('')
     def on_actionScan_network_triggered(self):
-        hosts = Scanner(self).run()
-        if not hosts:
-            return
-        for host in hosts:
-            self.addHost(host)
-        self.openHost(hosts[-1])
+        self.scanNetwork()
 
     @qtsig('')
     def on_actionAbout_triggered(self):
@@ -242,3 +237,11 @@ class MainWindow(QMainWindow):
 
         self.surface.layout().addWidget(widget)
         widget.show()
+
+    def scanNetwork(self):
+        hosts = Scanner(self).run()
+        if not hosts:
+            return
+        for host in hosts:
+            self.addHost(host)
+        self.openHost(hosts[-1])
