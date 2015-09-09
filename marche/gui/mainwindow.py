@@ -88,6 +88,7 @@ class HostTree(QTreeWidget):
             serviceItem = QTreeWidgetItem([service])
             serviceItem.setForeground(1, QBrush(QColor('white')))
             serviceItem.setTextAlignment(1, Qt.AlignCenter)
+            serviceItem.setFlags(Qt.ItemIsEnabled)
             self.addTopLevelItem(serviceItem)
 
             if not instances:
@@ -100,6 +101,7 @@ class HostTree(QTreeWidget):
                     instanceItem = QTreeWidgetItem([instance])
                     instanceItem.setForeground(1, QBrush(QColor('white')))
                     instanceItem.setTextAlignment(1, Qt.AlignCenter)
+                    instanceItem.setFlags(Qt.ItemIsEnabled)
                     serviceItem.addChild(instanceItem)
 
                     btn = JobButtons(self._client, service, instance)
