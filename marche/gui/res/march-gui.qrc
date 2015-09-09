@@ -4,5 +4,8 @@
     <file>arrow-circle-225.png</file>
     <file>control.png</file>
     <file>control-stop-square.png</file>
+    <file>door-open.png</file>
+    <file>drill.png</file>
+    <file>server.png</file>
   </qresource>
 </RCC>

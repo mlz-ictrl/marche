@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../res/march-gui.qrc">
+    <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -34,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>646</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -49,12 +53,17 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAdd_host">
+   <property name="icon">
+    <iconset resource="../res/march-gui.qrc">
+     <normaloff>:/server.png</normaloff>:/server.png</iconset>
+   </property>
    <property name="text">
     <string>Add host</string>
    </property>
@@ -63,6 +72,10 @@
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../res/march-gui.qrc">
+     <normaloff>:/door-open.png</normaloff>:/door-open.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -71,12 +84,27 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="../res/march-gui.qrc">
+     <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
   </action>
+  <action name="actionAbout_Qt">
+   <property name="icon">
+    <iconset resource="../res/march-gui.qrc">
+     <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+   </property>
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res/march-gui.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>

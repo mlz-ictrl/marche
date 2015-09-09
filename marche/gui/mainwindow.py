@@ -193,6 +193,10 @@ class MainWindow(QMainWindow):
     def on_hostListWidget_currentItemChanged(self, current, previous):
         self.openHost(current.text())
 
+    @qtsig('')
+    def on_actionAbout_Qt_triggered(self):
+        QMessageBox.aboutQt(self, 'About Qt')
+
     def addHost(self, addr):
         if ':' not in addr:
             addr += ':8124'
