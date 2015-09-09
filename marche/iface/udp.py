@@ -33,9 +33,12 @@ class Interface(object):
         self.log = log.getChild('udp')
 
     def run(self):
+        host = self.config.interface_config['udp']['host']
+        port = int(self.config.interface_config['udp']['port'])
         server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server.bind(('', 10767))
+        server.bind((host, port))
+        self.log.info('listening on %s:%s' % (host, port))
 
         thd = threading.Thread(target=self._thread, args=(server,))
         thd.setDaemon(True)

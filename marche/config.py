@@ -51,6 +51,10 @@ class Config(object):
             'port': 8124
         },
         'tango': {},
+        'udp' : {
+            'host': '0.0.0.0',
+            'port' : 10767,
+        }
     }
     interfaces = ['xmlrpc', 'tango', 'udp']
 
