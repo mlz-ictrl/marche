@@ -1,3 +1,56 @@
+marche (0.1.0) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Make udp interface configurable.
+
+  [ Georg Brandl ]
+  * Better fault handling; poll services directly after start/stop actions.
+
+  [ Alexander Lenz ]
+  * gui: fancy icons.
+
+  [ Georg Brandl ]
+  * Lock xmlrpc proxy access.
+  * Add README attributions for icons.
+
+  [ Alexander Lenz ]
+  * Fancy starting/stopping icons.
+  * Add init script.
+
+  [ Georg Brandl ]
+  * Fix tango iface.
+  * Add broadcast scanner dialog.
+
+  [ Alexander Lenz ]
+  * Random marche-gensyscf script.
+
+  [ Georg Brandl ]
+  * Better display of the host list.
+  * Fix file name.
+
+  [ Alexander Lenz ]
+  * Sort services.
+
+  [ Georg Brandl ]
+  * Use different default UDP port.
+
+  [ Alexander Lenz ]
+  * gui: fix sizes.
+
+  [ Georg Brandl ]
+  * ...
+  * Add status WARNING.
+
+  [ Alexander Lenz ]
+  * marche-gensyscfg: only handle interesting jobs.
+  * gui: new job sorting.
+  * gui: change startup behaviour.
+  * Refactor network scanning.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 09 Sep 2015 14:01:41 +0200
+
 marche (0.0.1) unstable; urgency=medium
 
   [ Alexander Lenz ]
