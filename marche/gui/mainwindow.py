@@ -24,10 +24,10 @@
 # *****************************************************************************
 
 from marche.gui.util import loadUi
-from marche.gui.client import Client
+from marche.gui.client import Client, PollThread
 from marche.jobs import STATE_STR, RUNNING, DEAD
 
-from PyQt4.QtCore import pyqtSignature as qtsig, QTimer
+from PyQt4.QtCore import pyqtSignature as qtsig, QTimer, QThread
 from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QLabel, \
     QInputDialog, QPalette, QColor
 
@@ -45,15 +45,11 @@ class JobWidget(QWidget):
         self._proxy = proxy
         self._service = service
         self._instance = instance
-        self.pollTimer = QTimer()
-        self.pollTimer.timeout.connect(self._refreshState)
-        self.pollTimer.start(3000)
 
         if instance:
             self.jobNameLabel.setText(instance)
         else:
             self.jobNameLabel.setText(service)
-        self._refreshState()
 
     def on_startBtn_clicked(self):
         self._proxy.startService(self._service, self._instance)
@@ -65,8 +61,10 @@ class JobWidget(QWidget):
         self.on_stopBtn_clicked()
         self.on_startBtn_clicked()
 
-    def _refreshState(self):
-        status = self._proxy.getServiceStatus(self._service, self._instance)
+    def refreshState(self, service, instance, status):
+        if service != self._service or instance != self._instance:
+            return
+
         stylesheet = ('QLineEdit {background-color: %s; color: white}'
                       % self.STATE_COLORS.get(status,QPalette(QColor('gray'))))
         self.statusLineEdit.setStyleSheet(stylesheet)
@@ -75,25 +73,31 @@ class JobWidget(QWidget):
         self.statusLineEdit.setText(status)
 
 class HostWidget(QWidget):
-    def __init__(self, parent, proxy):
+    def __init__(self, parent, client):
         QWidget.__init__(self, parent)
-        self._proxy = proxy
+        self._client = client
+        self._pollThread = PollThread(client.host, client.port)
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self.fill()
+        self._pollThread.start()
 
     def fill(self):
-        services = self._proxy.getServices()
+        services = self._client.getServices()
 
         for service, instances in services.iteritems():
             self.layout().addWidget(QLabel(service))
 
+            widget = None
             if not instances:
-                self.layout().addWidget(JobWidget(self, self._proxy, service))
+                widget = JobWidget(self, self._client, service)
             else:
                 for instance in instances:
-                    self.layout().addWidget(JobWidget(self, self._proxy, service, instance))
+                    widget = JobWidget(self, self._client, service, instance)
+
+            self._pollThread.newData.connect(widget.refreshState)
+            self.layout().addWidget(widget)
 
         self.layout().addStretch(1)
 
@@ -119,7 +123,12 @@ class MainWindow(QMainWindow):
         if accepted:
             self.addHost(addr)
 
+    def on_hostListWidget_currentItemChanged(self, current, previous):
+        self.openHost(current.text())
+
     def addHost(self, addr):
+        if ':' not in addr:
+            addr += ':8124'
         host, port = addr.split(':')
         self._clients[addr] = Client(host, port)
 
@@ -136,8 +145,8 @@ class MainWindow(QMainWindow):
         prev = self.surface.layout().takeAt(0)
 
         if prev:
-            prev.hide()
-            prev.deleteLater()
+            prev.widget().hide()
+            prev.widget().deleteLater()
 
         widget = HostWidget(self, self._clients[addr])
 

@@ -23,10 +23,42 @@
 #
 # *****************************************************************************
 
+import time
+
 from xmlrpclib import ServerProxy
+
+from PyQt4.QtCore import QThread, pyqtSignal
+
+class PollThread(QThread):
+    # service, instance, status
+    newData = pyqtSignal(object, object, int)
+
+    def __init__(self, host, port, loopDelay=3.0, parent=None):
+        QThread.__init__(self, parent)
+        self._client = Client(host, port)
+        self._loopDelay = loopDelay
+
+    def run(self):
+        while True:
+            services = self._client.getServices()
+
+            for service, instances in services.iteritems():
+                if not instances:
+                    status = self._client.getServiceStatus(service)
+                    self.newData.emit(service, None, status)
+                else:
+                    for instance in instances:
+                        status = self._client.getServiceStatus(service, instance)
+                        self.newData.emit(service, instance, status)
+
+            time.sleep(self._loopDelay)
+
+
 
 class Client(object):
     def __init__(self, host, port):
+        self.host = host
+        self.port = port
         self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
 
     def getServices(self):
