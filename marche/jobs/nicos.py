@@ -60,7 +60,7 @@ class Job(BaseJob):
         if self._proc and not self._proc.done:
             raise Busy
         if name == 'nicos-system':
-            self.log.info('starting NICOS system' % name)
+            self.log.info('starting NICOS system')
             self._proc = self._async(STARTING, '%s start' % INITSCR)
         else:
             self.log.info('starting %s' % name.replace('.', '-'))
@@ -70,7 +70,7 @@ class Job(BaseJob):
         if self._proc and not self._proc.done:
             raise Busy
         if name == 'nicos-system':
-            self.log.info('stopping NICOS system' % name)
+            self.log.info('stopping NICOS system')
             self._proc = self._async(STOPPING, '%s stop' % INITSCR)
         else:
             self.log.info('stopping %s' % name.replace('.', '-'))
