@@ -78,9 +78,6 @@ class Client(object):
     def stop(self):
         self._pollThread.running = False
 
-    def _from_fault(self, f):
-        return ClientError(f.faultCode, f.faultString)
-
     def startPoller(self, slot):
         self._pollThread = PollThread(self.host, self.port)
         self._pollThread.newData.connect(slot)
@@ -118,7 +115,7 @@ class Client(object):
             with self._lock:
                 self._proxy.Start(servicePath)
         except Fault as f:
-            raise self._from_fault(f)
+            raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
@@ -128,7 +125,7 @@ class Client(object):
             with self._lock:
                 self._proxy.Stop(servicePath)
         except Fault as f:
-            raise self._from_fault(f)
+            raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
@@ -138,7 +135,7 @@ class Client(object):
             with self._lock:
                 self._proxy.Restart(servicePath)
         except Fault as f:
-            raise self._from_fault(f)
+            raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
