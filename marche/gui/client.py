@@ -87,6 +87,7 @@ class Client(object):
             lst = self._proxy.GetServices()
 
         result = OrderedDict()
+        singleJobs = []
         for entry in sorted(lst):
             parts = entry.split('.')
 
@@ -95,7 +96,11 @@ class Client(object):
                     result[parts[0]] = []
                 result[parts[0]].append(parts[1])
             else:
-                result[parts[0]] = None
+                singleJobs.append(parts[0])
+
+        # sort single jobs to the end
+        for entry in singleJobs:
+            result[entry] = None
 
         return result
 
