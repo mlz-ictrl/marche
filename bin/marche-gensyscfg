@@ -36,6 +36,13 @@ type = init
 script = %s
 '''
 
+INTERESTING_JOBS = [
+    'icse',
+    'munin-node',
+    'mysql',
+    'tango-db',
+]
+
 
 initScripts = os.listdir(INIT_DIR)
 
@@ -45,7 +52,9 @@ def printJobCfg(name):
 for entry in initScripts:
     path = os.path.join(INIT_DIR, entry)
 
-    if not os.access(path, os.X_OK) or '.' in entry:
+    if not os.access(path, os.X_OK) \
+        or '.' in entry \
+        or entry not in INTERESTING_JOBS:
         continue
 
     printJobCfg(entry)
