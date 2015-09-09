@@ -30,6 +30,7 @@ import select
 from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QDialog
 
+from marche.iface.udp import UDP_PORT
 from marche.gui.util import loadUi
 
 
@@ -44,7 +45,7 @@ class ScanThread(QThread):
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        s.sendto('PING', ('255.255.255.255', 10767))
+        s.sendto('PING', ('255.255.255.255', UDP_PORT))
         start = time.time()
         while time.time() - start < 3.0:  # wait 3 sec max
             res = select.select([s], [], [], 0.1)

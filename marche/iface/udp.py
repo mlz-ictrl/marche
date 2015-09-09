@@ -26,6 +26,8 @@
 import socket
 import threading
 
+UDP_PORT = 11691
+
 
 class Interface(object):
     def __init__(self, config, jobhandler, log):

@@ -29,6 +29,8 @@ import os
 import ConfigParser
 from os import path
 
+from marche.iface.udp import UDP_PORT
+
 
 class CasePreservingConfigParser(ConfigParser.SafeConfigParser):
     def optionxform(self, key):
@@ -53,7 +55,7 @@ class Config(object):
         'tango': {},
         'udp' : {
             'host': '0.0.0.0',
-            'port' : 10767,
+            'port': UDP_PORT,
         }
     }
     interfaces = ['xmlrpc', 'tango', 'udp']
