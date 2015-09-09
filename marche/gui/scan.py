@@ -47,7 +47,7 @@ class ScanThread(QThread):
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         s.sendto('PING', ('255.255.255.255', UDP_PORT))
         start = time.time()
-        while time.time() - start < 3.0:  # wait 3 sec max
+        while time.time() - start < 2.0:  # wait 2 sec max
             res = select.select([s], [], [], 0.1)
             if res[0]:
                 try:

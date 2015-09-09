@@ -82,6 +82,10 @@ class Client(object):
         self._pollThread.newData.connect(slot)
         self._pollThread.start()
 
+    def reloadJobs(self):
+        with self._lock:
+            self._proxy.ReloadJobs()
+
     def getServices(self):
         with self._lock:
             lst = self._proxy.GetServices()

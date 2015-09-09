@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Marche')
 
         self._clients = {}
+        self._cur_client = None
         self.scanNetwork()
 
     @qtsig('')
@@ -170,6 +171,11 @@ class MainWindow(QMainWindow):
     @qtsig('')
     def on_actionScan_network_triggered(self):
         self.scanNetwork()
+
+    @qtsig('')
+    def on_actionReload_triggered(self):
+        if self._cur_client:
+            self._cur_client.reloadJobs()
 
     @qtsig('')
     def on_actionAbout_triggered(self):
@@ -199,6 +205,18 @@ class MainWindow(QMainWindow):
               Version: %s
             </p>
             ''' % get_version())
+
+    @qtsig('')
+    def on_addHostBtn_clicked(self):
+        self.on_actionAdd_host_triggered()
+
+    @qtsig('')
+    def on_rescanBtn_clicked(self):
+        self.on_actionScan_network_triggered()
+
+    @qtsig('')
+    def on_reloadBtn_clicked(self):
+        self.on_actionReload_triggered()
 
     def on_hostListWidget_currentItemChanged(self, current, previous):
         self.openHost(current.text())
@@ -236,6 +254,7 @@ class MainWindow(QMainWindow):
         widget = HostTree(self, self._clients[addr])
 
         self.surface.layout().addWidget(widget)
+        self._cur_client = self._clients[addr]
         widget.show()
 
     def scanNetwork(self):
