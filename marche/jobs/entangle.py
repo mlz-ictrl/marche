@@ -116,13 +116,19 @@ class Job(BaseJob):
         if self._proc(name):
             raise Busy
         self.log.info('starting server %s' % name)
-        self._server_procs[name] = self._async(STARTING, '%s start %s' % (INITSCR, name[9:]))
+        self._server_procs[name] = self._async(STARTING, 'sleep 5; %s start %s' % (INITSCR, name[9:]))
 
     def stop_service(self, name):
         if self._proc(name):
             raise Busy
         self.log.info('stopping server %s' % name)
         self._server_procs[name] = self._async(STOPPING, '%s stop %s' % (INITSCR, name[9:]))
+
+    def restart_service(self, name):
+        if self._proc(name):
+            raise Busy
+        self.log.info('restarting server %s' % name)
+        self._server_procs[name] = self._async(STARTING, '%s restart %s' % (INITSCR, name[9:]))
 
     # XXX check devices with Tango clients
 

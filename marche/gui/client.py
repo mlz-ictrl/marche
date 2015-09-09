@@ -25,7 +25,7 @@
 
 import time
 
-from xmlrpclib import ServerProxy
+from xmlrpclib import ServerProxy, Fault
 
 from PyQt4.QtCore import QThread, pyqtSignal
 
@@ -79,13 +79,24 @@ class Client(object):
 
     def startService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        if not self._proxy.Start(servicePath):
+        try:
+            self._proxy.Start(servicePath)
+        except Fault:
             raise RuntimeError('Could not start: %s' % servicePath)
 
     def stopService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        if not self._proxy.Stop(servicePath):
+        try:
+            self._proxy.Stop(servicePath)
+        except Fault:
             raise RuntimeError('Could not stop: %s' % servicePath)
+
+    def restartService(self, service, instance=None):
+        servicePath = self.getServicePath(service, instance)
+        try:
+            self._proxy.Restart(servicePath)
+        except Fault:
+            raise RuntimeError('Could not restart: %s' % servicePath)
 
     def getServiceStatus(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)

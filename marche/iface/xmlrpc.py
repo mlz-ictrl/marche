@@ -81,6 +81,11 @@ class RPCFunctions(object):
         return True
 
     @wrap_fault
+    def Restart(self, service):
+        self.jobhandler.restart_service(service)
+        return True
+
+    @wrap_fault
     def GetStatus(self, service):
         return self.jobhandler.service_status(service)
 

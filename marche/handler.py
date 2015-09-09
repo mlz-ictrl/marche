@@ -90,6 +90,11 @@ class JobHandler(object):
         with self._lock:
             self.service2job[name].stop_service(name)
 
+    def restart_service(self, name):
+        """Restart a single service."""
+        with self._lock:
+            self.service2job[name].restart_service(name)
+
     def service_status(self, name):
         """Return the status of a single service."""
         with self._lock:

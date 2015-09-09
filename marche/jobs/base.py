@@ -63,6 +63,10 @@ class Job(object):
         raise NotImplementedError('%s.stop_service not implemented'
                                   % self.__class__.__name__)
 
+    def restart_service(self, param):
+        raise NotImplementedError('%s.restart_service not implemented'
+                                  % self.__class__.__name__)
+
     def service_status(self, param):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)

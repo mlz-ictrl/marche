@@ -76,6 +76,16 @@ class Job(BaseJob):
             self.log.info('stopping %s' % name.replace('.', '-'))
             self._proc = self._async(STOPPING, '%s stop %s' % (INITSCR, name[6:]))
 
+    def restart_service(self, name):
+        if self._proc and not self._proc.done:
+            raise Busy
+        if name == 'nicos-system':
+            self.log.info('restarting NICOS system')
+            self._proc = self._async(STARTING, '%s restart' % INITSCR)
+        else:
+            self.log.info('restarting %s' % name.replace('.', '-'))
+            self._proc = self._async(STARTING, '%s restart %s' % (INITSCR, name[6:]))
+
     def service_status(self, name):
         if self._proc and not self._proc.done:
             return self._proc.status

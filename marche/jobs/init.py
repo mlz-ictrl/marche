@@ -25,7 +25,6 @@
 
 """Job for single init scripts."""
 
-import os
 from os import path
 
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy
@@ -62,6 +61,13 @@ class Job(BaseJob):
         self.log.info('stopping')
         self._proc = self._async(STOPPING, self.log,
                                  '/etc/init.d/' + self.init_name + ' stop')
+
+    def restart_service(self, name):
+        if self._proc and not self._proc.done:
+            raise Busy
+        self.log.info('restarting')
+        self._proc = self._async(STARTING, self.log,
+                                 '/etc/init.d/' + self.init_name + ' restart')
 
     def service_status(self, name):
         if self._proc and not self._proc.done:

@@ -52,8 +52,7 @@ class JobButtons(QWidget):
 
     @qtsig('')
     def on_restartBtn_clicked(self):
-        self.on_stopBtn_clicked()
-        self.on_startBtn_clicked()
+        self._client.restartService(self._service, self._instance)
 
 
 class HostTree(QTreeWidget):

@@ -72,6 +72,11 @@ class ProcessController(Device):
     def Stop(self, service):
         self.jobhandler.stop_service(service)
 
+    @command(dtype_in=str, doc_in="Restart service")
+    @exc_wrap
+    def Restart(self, service):
+        self.jobhandler.restart_service(service)
+
     @command(dtype_in=str, doc_in="Status of service", dtype_out=int)
     @exc_wrap
     def GetStatus(self, service):
