@@ -47,7 +47,7 @@ class Job(BaseJob):
         return True
 
     def get_services(self):
-        proc = self._async(STARTING, '%s 2>&1' % INITSCR)
+        proc = self._async_call(STARTING, '%s 2>&1' % INITSCR)
         proc.join()
         lines = proc.stdout.splitlines()
         if len(lines) >= 2 and lines[-1].startswith('Possible services are'):
@@ -57,40 +57,29 @@ class Job(BaseJob):
         return ['nicos-system'] + ['nicos.%s' % s for s in self._services]
 
     def start_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
         if name == 'nicos-system':
-            self.log.info('starting NICOS system')
-            self._proc = self._async(STARTING, '%s start' % INITSCR)
+            return self._async_start(None, '%s start' % INITSCR)
         else:
-            self.log.info('starting %s' % name.replace('.', '-'))
-            self._proc = self._async(STARTING, '%s start %s' % (INITSCR, name[6:]))
+            return self._async_start(None, '%s start %s' % (INITSCR, name[6:]))
 
     def stop_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
         if name == 'nicos-system':
-            self.log.info('stopping NICOS system')
-            self._proc = self._async(STOPPING, '%s stop' % INITSCR)
+            return self._async_stop(None, '%s stop' % INITSCR)
         else:
-            self.log.info('stopping %s' % name.replace('.', '-'))
-            self._proc = self._async(STOPPING, '%s stop %s' % (INITSCR, name[6:]))
+            return self._async_stop(None, '%s stop %s' % (INITSCR, name[6:]))
 
     def restart_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
         if name == 'nicos-system':
-            self.log.info('restarting NICOS system')
-            self._proc = self._async(STARTING, '%s restart' % INITSCR)
+            return self._async_start(None, '%s restart' % INITSCR)
         else:
-            self.log.info('restarting %s' % name.replace('.', '-'))
-            self._proc = self._async(STARTING, '%s restart %s' % (INITSCR, name[6:]))
+            return self._async_start(None, '%s restart %s' % (INITSCR, name[6:]))
 
     def service_status(self, name):
-        if self._proc and not self._proc.done:
-            return self._proc.status
+        async_st = self._async_status_only(None)
+        if async_st is not None:
+            return async_st
         if name == 'nicos-system':
-            output = self._sync(0, '%s status' % INITSCR).stdout
+            output = self._sync_call(0, '%s status' % INITSCR).stdout
             something_dead = something_running = False
             for line in output.splitlines():
                 if 'dead' in line:
@@ -103,5 +92,5 @@ class Job(BaseJob):
                 return RUNNING
             return DEAD
         else:
-            retcode = self._sync(0, '%s status %s' % (INITSCR, name[6:])).retcode
+            retcode = self._sync_call(0, '%s status %s' % (INITSCR, name[6:])).retcode
             return RUNNING if retcode == 0 else DEAD

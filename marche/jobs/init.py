@@ -28,15 +28,15 @@
 from os import path
 
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 
-class Job(BaseJob):
+class Job(BaseJob, AsyncProcessMixin):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
+        AsyncProcessMixin.__init__(self)
         self.init_name = config.get('script', name)
-        self._proc = None
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -49,29 +49,13 @@ class Job(BaseJob):
         return [self.init_name]
 
     def start_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
-        self.log.info('starting')
-        self._proc = self._async(STARTING,
-                                 '/etc/init.d/' + self.init_name + ' start')
+        self._async_start(None, '/etc/init.d/' + self.init_name + ' start')
 
     def stop_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
-        self.log.info('stopping')
-        self._proc = self._async(STOPPING,
-                                 '/etc/init.d/' + self.init_name + ' stop')
+        self._async_stop(None, '/etc/init.d/' + self.init_name + ' stop')
 
     def restart_service(self, name):
-        if self._proc and not self._proc.done:
-            raise Busy
-        self.log.info('restarting')
-        self._proc = self._async(STARTING,
-                                 '/etc/init.d/' + self.init_name + ' restart')
+        self._async_start(None, '/etc/init.d/' + self.init_name + ' restart')
 
     def service_status(self, name):
-        if self._proc and not self._proc.done:
-            return self._proc.status
-        if self._sync(0, '/etc/init.d/' + self.init_name + ' status').retcode == 0:
-            return RUNNING
-        return DEAD
+        return self._async_status(None, '/etc/init.d/' + self.init_name + ' status')

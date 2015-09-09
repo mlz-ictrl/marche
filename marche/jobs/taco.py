@@ -28,27 +28,27 @@
 import os
 
 from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 
-class Job(BaseJob):
+class Job(BaseJob, AsyncProcessMixin):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
-        self._server_procs = {}
+        AsyncProcessMixin.__init__(self)
         self._initscripts = {}
 
     def check(self):
         return any(fn.startswith('taco') for fn in os.listdir('/etc/init.d'))
 
     def get_services(self):
-        servers = self._servers = set()
+        servers = set()
         manager = set()
         # get all servers for which we have an init script
         for fn in os.listdir('/etc/init.d'):
             if fn.startswith('taco-server-'):
                 name = 'taco.' + fn[len('taco-server-'):]
-                servers.add(name)
+                servers.add(name[5:])
             elif fn in ('taco', 'taco.debian'):
                 manager.add('taco')
                 self._initscripts['taco'] = '/etc/init.d/' + fn
@@ -82,59 +82,38 @@ class Job(BaseJob):
             return proc
 
     def start_service(self, name):
-        if self._proc(name):
-            raise Busy
         initscript = self._initscripts[name]
         if '.' in name:
-            self.log.info('starting server %s' % name)
-            command = initscript + ' start ' + name.split('.')[1]
+            self._async_start(name, initscript + ' start ' + name.split('.')[1])
         else:
-            self.log.info('starting TACO system')
-            command = initscript + ' start'
-        self._server_procs[name] = self._async(STARTING, command)
+            self._async_start(name, initscript + ' start')
 
     def stop_service(self, name):
-        if self._proc(name):
-            raise Busy
         initscript = self._initscripts[name]
         if '.' in name:
-            self.log.info('stopping server %s' % name)
-            command = initscript + ' stop ' + name.split('.')[1]
+            self._async_stop(name, initscript + ' stop ' + name.split('.')[1])
         else:
-            self.log.info('stopping TACO system')
-            command = initscript + ' stop'
-        self._server_procs[name] = self._async(STOPPING, command)
+            self._async_stop(name, initscript + ' stop')
 
     def restart_service(self, name):
-        if self._proc(name):
-            raise Busy
         initscript = self._initscripts[name]
         if '.' in name:
-            self.log.info('restarting server %s' % name)
-            command = initscript + ' restart ' + name.split('.')[1]
+            self._async_start(name, initscript + ' restart ' + name.split('.')[1])
         else:
-            self.log.info('restarting TACO system')
-            command = initscript + ' restart'
-        self._server_procs[name] = self._async(STARTING, command)
+            self._async_start(name, initscript + ' restart')
 
     def service_status(self, name):
-        proc = self._proc(name)
-        if proc:
-            return proc.status
         initscript = self._initscripts[name]
         if '.' in name:
             command = initscript + ' status ' + name.split('.')[1]
         else:
             command = initscript + ' status'
-        # XXX do the taco initscripts return an exit status?
-        if self._sync(0, command).retcode == 0:
-            return RUNNING
-        return DEAD
+        return self._async_status(name, command)
 
     # -- internal APIs --
 
     def _read_devices(self, restrict_servers):
-        p = self._sync('db_devicelist').stdout.splitlines()
+        p = self._sync_call('db_devicelist').stdout.splitlines()
         servers = {}
         alldevices = set()
         dev2server = {}
@@ -163,7 +142,7 @@ class Job(BaseJob):
     def _get_dependencies(self, devs, alldevices, dev2server):
         depends = set()
         for dev in devs:
-            p = self._sync('db_devres %s' % dev).stdout.splitlines()
+            p = self._sync_call('db_devres %s' % dev).stdout.splitlines()
             for line in p:
                 if not line.strip():
                     continue

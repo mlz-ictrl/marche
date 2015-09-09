@@ -33,7 +33,7 @@ from os import path
 #import PyTango
 
 from marche.jobs import DEAD, STARTING, STOPPING, RUNNING, Busy
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 
 def convert_value(value):
@@ -80,11 +80,11 @@ CONFIG = '/etc/entangle/entangle.conf'
 INITSCR = '/etc/init.d/entangle'
 
 
-class Job(BaseJob):
+class Job(BaseJob, AsyncProcessMixin):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
-        self._server_procs = {}
+        AsyncProcessMixin.__init__(self)
 
     def check(self):
         if not (path.exists(CONFIG) and path.exists(INITSCR)):
@@ -103,39 +103,17 @@ class Job(BaseJob):
 
         all_servers = ['entangle.' + base for (base, ext) in
                        map(path.splitext, os.listdir(resdir)) if ext == '.res']
-        all_servers.sort()
-
-        return all_servers
-
-    def _proc(self, name):
-        proc = self._server_procs.get(name)
-        if proc and not proc.done:
-            return proc
+        return sorted(all_servers)
 
     def start_service(self, name):
-        if self._proc(name):
-            raise Busy
-        self.log.info('starting server %s' % name)
-        self._server_procs[name] = self._async(STARTING, '%s start %s' % (INITSCR, name[9:]))
+        self._async_start(name, '%s start %s' % (INITSCR, name[9:]))
 
     def stop_service(self, name):
-        if self._proc(name):
-            raise Busy
-        self.log.info('stopping server %s' % name)
-        self._server_procs[name] = self._async(STOPPING, '%s stop %s' % (INITSCR, name[9:]))
+        self._async_stop(name, '%s stop %s' % (INITSCR, name[9:]))
 
     def restart_service(self, name):
-        if self._proc(name):
-            raise Busy
-        self.log.info('restarting server %s' % name)
-        self._server_procs[name] = self._async(STARTING, '%s restart %s' % (INITSCR, name[9:]))
-
-    # XXX check devices with Tango clients
+        self._async_start(name, '%s restart %s' % (INITSCR, name[9:]))
 
     def service_status(self, name):
-        proc = self._proc(name)
-        if proc:
-            return proc.status
-        if self._sync(0, '%s status %s' % (INITSCR, name[9:])).retcode == 0:
-            return RUNNING
-        return DEAD
+        # XXX check devices with Tango clients
+        return self._async_status(name, '%s status %s' % (INITSCR, name[9:]))

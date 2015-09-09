@@ -23,6 +23,7 @@
 #
 # *****************************************************************************
 
+from marche.jobs import Busy, STARTING, STOPPING, RUNNING, DEAD
 from marche.utils import AsyncProcess
 
 
@@ -33,13 +34,13 @@ class Job(object):
         self.config = config
         self.log = log.getChild(name)
 
-    def _async(self, status, cmd, sh=True):
+    def _async_call(self, status, cmd, sh=True):
         proc = AsyncProcess(status, self.log, cmd, sh)
         proc.start()
         return proc
 
-    def _sync(self, status, cmd, sh=True):
-        proc = AsyncProcess(status, self.log, cmd, sh)
+    def _sync_call(self, cmd, sh=True):
+        proc = AsyncProcess(0, self.log, cmd, sh)
         proc.start()
         proc.join()
         return proc
@@ -74,3 +75,30 @@ class Job(object):
     def service_output(self, name, n):
         raise NotImplementedError('%s.service_output not implemented'
                                   % self.__class__.__name__)
+
+
+class AsyncProcessMixin(object):
+
+    def __init__(self):
+        self._processes = {}
+
+    def _async_start(self, sub, cmd):
+        if sub in self._processes and not self._processes[sub].done:
+            raise Busy
+        self._processes[sub] = self._async_call(STARTING, cmd)
+
+    def _async_stop(self, sub, cmd):
+        if sub in self._processes and not self._processes[sub].done:
+            raise Busy
+        self._processes[sub] = self._async_call(STOPPING, cmd)
+
+    def _async_status_only(self, sub):
+        if sub in self._processes and not self._processes[sub].done:
+            return self._processes[sub].status
+
+    def _async_status(self, sub, cmd):
+        if sub in self._processes and not self._processes[sub].done:
+            return self._processes[sub].status
+        if self._sync_call(cmd).retcode == 0:
+            return RUNNING
+        return DEAD
