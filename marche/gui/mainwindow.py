@@ -27,79 +27,91 @@ from marche.gui.util import loadUi
 from marche.gui.client import Client, PollThread
 from marche.jobs import STATE_STR, RUNNING, DEAD
 
-from PyQt4.QtCore import pyqtSignature as qtsig, QTimer, QThread
+from PyQt4.QtCore import pyqtSignature as qtsig, QTimer, QThread, Qt
 from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QLabel, \
-    QInputDialog, QPalette, QColor
+    QInputDialog, QPalette, QColor, QTreeWidget, QTreeWidgetItem, QBrush
 
 
-class JobWidget(QWidget):
-
-    STATE_COLORS = {
-        RUNNING : 'green',
-        DEAD : 'red'
-    }
-
-    def __init__(self, parent, proxy, service, instance=None):
+class JobButtons(QWidget):
+    def __init__(self, client, service, instance=None, parent=None):
         QWidget.__init__(self, parent)
         loadUi(self, 'job.ui')
-        self._proxy = proxy
+
+        self._client = client
         self._service = service
         self._instance = instance
 
-        if instance:
-            self.jobNameLabel.setText(instance)
-        else:
-            self.jobNameLabel.setText(service)
-
     def on_startBtn_clicked(self):
-        self._proxy.startService(self._service, self._instance)
+        self._client.startService(self._service, self._instance)
 
     def on_stopBtn_clicked(self):
-        self._proxy.stopService(self._service, self._instance)
+        self._client.stopService(self._service, self._instance)
 
     def on_restartBtn_clicked(self):
         self.on_stopBtn_clicked()
         self.on_startBtn_clicked()
 
-    def refreshState(self, service, instance, status):
-        if service != self._service or instance != self._instance:
-            return
+class HostTree(QTreeWidget):
+    STATE_COLORS = {
+        RUNNING : 'green',
+        DEAD : 'red'
+    }
 
-        stylesheet = ('QLineEdit {background-color: %s; color: white}'
-                      % self.STATE_COLORS.get(status,QPalette(QColor('gray'))))
-        self.statusLineEdit.setStyleSheet(stylesheet)
-
-        status = STATE_STR.get(status, 'UNKNOWN')
-        self.statusLineEdit.setText(status)
-
-class HostWidget(QWidget):
     def __init__(self, parent, client):
-        QWidget.__init__(self, parent)
+        QTreeWidget.__init__(self, parent)
         self._client = client
         self._pollThread = PollThread(client.host, client.port)
-
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
-        self.fill()
+        self._pollThread.newData.connect(self.updateStatus)
         self._pollThread.start()
+
+        self.setColumnCount(3)
+        self.header().setStretchLastSection(False)
+        self._items = {}
+        self.fill()
+
+        self.expandAll()
+        self.resizeColumnToContents(0)
+        self.resizeColumnToContents(2)
+        width = sum([self.columnWidth(i) for i in range(self.columnCount())])
+        self.setMinimumWidth(width+2)
+        self.collapseAll()
 
     def fill(self):
         services = self._client.getServices()
 
         for service, instances in services.iteritems():
-            self.layout().addWidget(QLabel(service))
+            serviceItem = QTreeWidgetItem([service])
+            serviceItem.setForeground(1, QBrush(QColor('white')))
+            serviceItem.setTextAlignment(1, Qt.AlignCenter)
+            self.addTopLevelItem(serviceItem)
 
-            widget = None
             if not instances:
-                widget = JobWidget(self, self._client, service)
+                self._items[service] = serviceItem
+                btn = JobButtons(self._client, service)
+                self.setItemWidget(serviceItem, 2, btn)
             else:
+                self._items[service] = {}
                 for instance in instances:
-                    widget = JobWidget(self, self._client, service, instance)
+                    instanceItem = QTreeWidgetItem([instance])
+                    instanceItem.setForeground(1, QBrush(QColor('white')))
+                    instanceItem.setTextAlignment(1, Qt.AlignCenter)
+                    serviceItem.addChild(instanceItem)
 
-            self._pollThread.newData.connect(widget.refreshState)
-            self.layout().addWidget(widget)
+                    btn = JobButtons(self._client, service, instance)
+                    self.setItemWidget(instanceItem, 2, btn)
 
-        self.layout().addStretch(1)
+                    self._items[service][instance] = instanceItem
+
+    def updateStatus(self, service, instance, status):
+        item = self._items[service]
+
+        if instance:
+            item = self._items[service][instance]
+
+
+        item.setBackground(1, QBrush(QColor(self.STATE_COLORS[status])))
+
+        item.setText(1, STATE_STR[status])
 
 
 class MainWindow(QMainWindow):
@@ -111,8 +123,10 @@ class MainWindow(QMainWindow):
         self.splitter.setStretchFactor(0, 20)
         self.splitter.setStretchFactor(1, 5)
 
-
         self._clients = {}
+
+        self.addHost('localhost:8124')
+        self.openHost('localhost:8124')
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
@@ -146,7 +160,7 @@ class MainWindow(QMainWindow):
             prev.widget().hide()
             prev.widget().deleteLater()
 
-        widget = HostWidget(self, self._clients[addr])
+        widget = HostTree(self, self._clients[addr])
 
         self.surface.layout().addWidget(widget)
         widget.show()

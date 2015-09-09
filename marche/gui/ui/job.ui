@@ -6,94 +6,96 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>47</height>
+    <width>102</width>
+    <height>34</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QLabel" name="jobNameLabel">
+    <widget class="QPushButton" name="startBtn">
      <property name="minimumSize">
       <size>
-       <width>100</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Jobname</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="statusLineEdit">
-     <property name="minimumSize">
-      <size>
-       <width>100</width>
+       <width>30</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
+       <width>30</width>
        <height>16777215</height>
       </size>
      </property>
      <property name="text">
-      <string>Status</string>
+      <string/>
      </property>
-     <property name="frame">
-      <bool>false</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="startBtn">
-     <property name="text">
-      <string>Start</string>
+     <property name="icon">
+      <iconset resource="../res/march-gui.qrc">
+       <normaloff>:/control.png</normaloff>:/control.png</iconset>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="stopBtn">
+     <property name="minimumSize">
+      <size>
+       <width>30</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
-      <string>Stop</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../res/march-gui.qrc">
+       <normaloff>:/control-stop-square.png</normaloff>:/control-stop-square.png</iconset>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="restartBtn">
+     <property name="minimumSize">
+      <size>
+       <width>30</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
-      <string>Restart</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../res/march-gui.qrc">
+       <normaloff>:/arrow-circle-225.png</normaloff>:/arrow-circle-225.png</iconset>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res/march-gui.qrc"/>
+ </resources>
  <connections/>
 </ui>

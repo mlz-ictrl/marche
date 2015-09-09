@@ -68,9 +68,12 @@ class Client(object):
         for entry in lst:
             parts = entry.split('.')
 
-            if parts[0] not in result:
-                result[parts[0]] = []
-            result[parts[0]].append(parts[1])
+            if len(parts) > 1:
+                if parts[0] not in result:
+                    result[parts[0]] = []
+                result[parts[0]].append(parts[1])
+            else:
+                result[parts[0]] = None
 
         return result
 

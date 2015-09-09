@@ -34,6 +34,8 @@ from PyQt4.QtGui import QApplication
 
 from marche.gui.mainwindow import MainWindow
 
+import marche.gui.res
+
 def main():
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
