@@ -41,12 +41,15 @@ class JobButtons(QWidget):
         self._service = service
         self._instance = instance
 
+    @qtsig('')
     def on_startBtn_clicked(self):
         self._client.startService(self._service, self._instance)
 
+    @qtsig('')
     def on_stopBtn_clicked(self):
         self._client.stopService(self._service, self._instance)
 
+    @qtsig('')
     def on_restartBtn_clicked(self):
         self.on_stopBtn_clicked()
         self.on_startBtn_clicked()
