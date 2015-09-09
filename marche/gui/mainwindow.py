@@ -25,7 +25,7 @@
 
 from marche.gui.util import loadUi
 from marche.gui.client import Client, PollThread
-from marche.jobs import STATE_STR, RUNNING, DEAD
+from marche.jobs import STATE_STR, RUNNING, DEAD, STARTING, STOPPING
 
 from PyQt4.QtCore import pyqtSignature as qtsig, QTimer, QThread, Qt
 from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QLabel, \
@@ -57,7 +57,9 @@ class JobButtons(QWidget):
 class HostTree(QTreeWidget):
     STATE_COLORS = {
         RUNNING : 'green',
-        DEAD : 'red'
+        DEAD : 'red',
+        STARTING : 'blue',
+        STOPPING : 'blue',
     }
 
     def __init__(self, parent, client):
@@ -112,7 +114,7 @@ class HostTree(QTreeWidget):
             item = self._items[service][instance]
 
 
-        item.setBackground(1, QBrush(QColor(self.STATE_COLORS[status])))
+        item.setBackground(1, QBrush(QColor(self.STATE_COLORS.get(status, 'gray'))))
 
         item.setText(1, STATE_STR[status])
 
