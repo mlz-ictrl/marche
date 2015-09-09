@@ -55,18 +55,22 @@ class Job(object):
     def get_services(self):
         return []
 
-    def start_service(self, param):
+    def start_service(self, name):
         raise NotImplementedError('%s.start_service not implemented'
                                   % self.__class__.__name__)
 
-    def stop_service(self, param):
+    def stop_service(self, name):
         raise NotImplementedError('%s.stop_service not implemented'
                                   % self.__class__.__name__)
 
-    def restart_service(self, param):
+    def restart_service(self, name):
         raise NotImplementedError('%s.restart_service not implemented'
                                   % self.__class__.__name__)
 
-    def service_status(self, param):
+    def service_status(self, name):
         raise NotImplementedError('%s.service_status not implemented'
+                                  % self.__class__.__name__)
+
+    def service_output(self, name, n):
+        raise NotImplementedError('%s.service_output not implemented'
                                   % self.__class__.__name__)

@@ -27,6 +27,31 @@
 
 from threading import Lock
 
+from marche.jobs import Busy, Fault
+
+
+def log_exc(success_silent=False):
+    def deco(f):
+        def new_f(self, *args):
+            if success_silent:
+                self.log.debug('running %s%s' % (f.__name__, args))
+            else:
+                self.log.info('running %s%s' % (f.__name__, args))
+            try:
+                return f(self, *args)
+            except Busy as err:
+                self.log.error('%s%s failed: busy (%s)' % (f.__name__, args, err))
+                raise
+            except Fault as err:
+                self.log.error('%s%s failed: fault (%s)' % (f.__name__, args, err))
+                raise
+            except Exception:
+                self.log.exception('unexpected exception occurred')
+                raise
+        new_f.__name__ = f.__name__
+        return new_f
+    return deco
+
 
 class JobHandler(object):
 
@@ -80,22 +105,32 @@ class JobHandler(object):
         with self._lock:
             return self.service2job.keys()
 
+    @log_exc()
     def start_service(self, name):
         """Start a single service."""
         with self._lock:
             self.service2job[name].start_service(name)
 
+    @log_exc()
     def stop_service(self, name):
         """Stop a single service."""
         with self._lock:
             self.service2job[name].stop_service(name)
 
+    @log_exc()
     def restart_service(self, name):
         """Restart a single service."""
         with self._lock:
             self.service2job[name].restart_service(name)
 
+    @log_exc(True)
     def service_status(self, name):
         """Return the status of a single service."""
         with self._lock:
             return self.service2job[name].service_status(name)
+
+    @log_exc(True)
+    def service_output(self, name, n):
+        """Return the last *n* lines of output from starting/stopping."""
+        with self._lock:
+            return self.service2job[name].service_output(name, n)
