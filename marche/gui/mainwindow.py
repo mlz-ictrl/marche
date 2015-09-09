@@ -58,11 +58,11 @@ class JobButtons(QWidget):
 
 class HostTree(QTreeWidget):
     STATE_COLORS = {
-        RUNNING: 'green',
-        DEAD: 'red',
-        STARTING: 'blue',
-        STOPPING: 'blue',
-        INITIALIZING: 'blue',
+        RUNNING:      ('green', ''),
+        DEAD:         ('white', 'red'),
+        STARTING:     ('blue', ''),
+        STOPPING:     ('blue', ''),
+        INITIALIZING: ('blue', ''),
     }
 
     def __init__(self, parent, client):
@@ -72,17 +72,21 @@ class HostTree(QTreeWidget):
         self._pollThread.newData.connect(self.updateStatus)
         self._pollThread.start()
 
-        self.setColumnCount(3)
-        self.header().setStretchLastSection(False)
+        self.setColumnCount(4)
+        self.headerItem().setText(0, 'Service')
+        self.headerItem().setText(1, 'Status')
+        self.headerItem().setText(2, 'Control')
+        self.headerItem().setText(3, '')
         self._items = {}
         self.fill()
 
         self.expandAll()
         self.resizeColumnToContents(0)
+        self.setColumnWidth(0, self.columnWidth(0) * 1.4)
         self.resizeColumnToContents(2)
         width = sum([self.columnWidth(i) for i in range(self.columnCount())])
         self.setMinimumWidth(width+2)
-        self.collapseAll()
+        # self.collapseAll()
 
     def fill(self):
         services = self._client.getServices()
@@ -118,7 +122,9 @@ class HostTree(QTreeWidget):
         if instance:
             item = self._items[service][instance]
 
-        item.setBackground(1, QBrush(QColor(self.STATE_COLORS.get(status, 'gray'))))
+        colors = self.STATE_COLORS.get(status, ('gray', ''))
+        item.setForeground(1, QBrush(QColor(colors[0])) if colors[0] else QBrush())
+        item.setBackground(1, QBrush(QColor(colors[1])) if colors[1] else QBrush())
         item.setText(1, STATE_STR[status])
 
 
@@ -130,6 +136,7 @@ class MainWindow(QMainWindow):
         self.resize(800, 500)
         self.splitter.setStretchFactor(0, 2)
         self.splitter.setStretchFactor(1, 5)
+        self.setWindowTitle('Marche')
 
         self._clients = {}
 
