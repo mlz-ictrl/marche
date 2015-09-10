@@ -104,9 +104,13 @@ class Interface(object):
             db.add_device(di)
 
         util = PyTango.Util(['Marche', self.fqdn])
-        util.add_class(ProcessController.TangoClassClass,
-                       ProcessController,
-                       ProcessController.TangoClassName)
+        try:
+            devclass = ProcessController.TangoClassClass
+            devclass_name = ProcessController.TangoClassName
+        except AttributeError:  # older PyTangos
+            devclass = ProcessController._DeviceClass
+            devclass_name = ProcessController._DeviceClassName
+        util.add_class(devclass, ProcessController, devclass_name)
         u_inst = PyTango.Util.instance()
         u_inst.server_init()
         self.log.info('startup successful')
