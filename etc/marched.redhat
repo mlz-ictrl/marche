@@ -22,7 +22,7 @@ fi
 
 do_start()
 {
-	echo -n $"Starting $prog: "
+	echo -n $"Starting ${BINARY_SHORT}: "
 	daemon --pidfile ${PIDFILE} ${BINARY_FULL} -d
 	echo
 	return $?
@@ -30,7 +30,7 @@ do_start()
 
 do_stop()
 {
-	echo -n $"Stopping $prog: "
+	echo -n $"Stopping ${BINARY_SHORT}: "
 	killproc -p ${PIDFILE} ${BINARY_FULL}
 	echo
 	return $?
