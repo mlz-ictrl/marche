@@ -29,11 +29,14 @@ from threading import Lock
 
 from marche.jobs import Busy, Fault
 
+# Input/output types
+VOID, STRING, STRINGLIST, INTEGER = range(4)
 
-def log_exc(success_silent=False):
+
+def command(intype=VOID, outtype=VOID, silent=False):
     def deco(f):
         def new_f(self, *args):
-            if success_silent:
+            if silent:
                 self.log.debug('running %s%s' % (f.__name__, args))
             else:
                 self.log.info('running %s%s' % (f.__name__, args))
@@ -49,6 +52,10 @@ def log_exc(success_silent=False):
                 self.log.exception('unexpected exception occurred')
                 raise
         new_f.__name__ = f.__name__
+        new_f.__doc__ = f.__doc__
+        new_f.is_command = True
+        new_f.intype = intype
+        new_f.outtype = outtype
         return new_f
     return deco
 
@@ -92,7 +99,8 @@ class JobHandler(object):
                 self.jobs[name] = job
                 self.log.info('job %s initialized' % name)
 
-    def reload_jobs(self):
+    @command()
+    def ReloadJobs(self):
         """Reload the jobs and list of their services."""
         with self._lock:
             self.config.reload()
@@ -100,37 +108,38 @@ class JobHandler(object):
             self.service2job = {}
             self._add_jobs()
 
-    def get_services(self):
+    @command(outtype=STRINGLIST)
+    def GetServices(self):
         """Get a list of all services provided by jobs."""
         with self._lock:
             return self.service2job.keys()
 
-    @log_exc()
-    def start_service(self, name):
+    @command(intype=STRING)
+    def Start(self, name):
         """Start a single service."""
         with self._lock:
             self.service2job[name].start_service(name)
 
-    @log_exc()
-    def stop_service(self, name):
+    @command(intype=STRING)
+    def Stop(self, name):
         """Stop a single service."""
         with self._lock:
             self.service2job[name].stop_service(name)
 
-    @log_exc()
-    def restart_service(self, name):
+    @command(intype=STRING)
+    def Restart(self, name):
         """Restart a single service."""
         with self._lock:
             self.service2job[name].restart_service(name)
 
-    @log_exc(True)
-    def service_status(self, name):
+    @command(intype=STRING, outtype=INTEGER, silent=True)
+    def GetStatus(self, name):
         """Return the status of a single service."""
         with self._lock:
             return self.service2job[name].service_status(name)
 
-    @log_exc(True)
-    def service_output(self, name, n):
-        """Return the last *n* lines of output from starting/stopping."""
+    @command(intype=STRING, outtype=STRINGLIST, silent=True)
+    def GetOutput(self, name):
+        """Return the last lines of output from starting/stopping."""
         with self._lock:
             return self.service2job[name].service_output(name, n)

@@ -28,59 +28,48 @@ import socket
 import PyTango
 from PyTango.server import Device, DeviceMeta, command
 
+from marche.handler import JobHandler, VOID, STRING, STRINGLIST, INTEGER
 from marche.jobs import Busy, Fault
 
+dtype_map = {
+    VOID: None,
+    STRING: str,
+    STRINGLIST: 'DevVarStringArray',
+    INTEGER: int,
+}
 
-def exc_wrap(f):
-    def new_f(*args):
+
+def interface_command(method):
+    def tango_method(self, *args):
         try:
-            return f(*args)
+            return method(self.jobhandler, *args)
         except Busy as err:
             PyTango.Except.throw_exception('Marche_Busy', str(err), '')
         except Fault as err:
             PyTango.Except.throw_exception('Marche_Fault', str(err), '')
         except Exception as err:
             PyTango.Except.throw_exception('Marche_Unexpected', str(err), '')
-    new_f.__name__ = f.__name__
-    return new_f
+    tango_method.__name__ = method.__name__
+    return command(dtype_in=dtype_map[method.intype],
+                   dtype_out=dtype_map[method.outtype],
+                   doc_in=(method.__doc__ or '').strip())(tango_method)
+
+
+def MarcheDeviceMeta(name, bases, attrs):
+    for mname in dir(JobHandler):
+        method = getattr(JobHandler, mname)
+        if not hasattr(method, 'is_command'):
+            continue
+        attrs[mname] = interface_command(method)
+    return DeviceMeta(name, bases, attrs)
 
 
 class ProcessController(Device):
-    __metaclass__ = DeviceMeta
+    __metaclass__ = MarcheDeviceMeta
 
     def init_device(self):
         Device.init_device(self)
         self.set_state(PyTango.DevState.ON)
-
-    @command
-    @exc_wrap
-    def ReloadJobs(self):
-        self.jobhandler.reload_jobs()
-
-    @command(dtype_in=None, dtype_out='DevVarStringArray')
-    @exc_wrap
-    def GetServices(self):
-        return self.jobhandler.get_services()
-
-    @command(dtype_in=str, doc_in="Start service")
-    @exc_wrap
-    def Start(self, service):
-        self.jobhandler.start_service(service)
-
-    @command(dtype_in=str, doc_in="Stop service")
-    @exc_wrap
-    def Stop(self, service):
-        self.jobhandler.stop_service(service)
-
-    @command(dtype_in=str, doc_in="Restart service")
-    @exc_wrap
-    def Restart(self, service):
-        self.jobhandler.restart_service(service)
-
-    @command(dtype_in=str, doc_in="Status of service", dtype_out=int)
-    @exc_wrap
-    def GetStatus(self, service):
-        return self.jobhandler.service_status(service)
 
 
 class Interface(object):

@@ -28,6 +28,7 @@ import xmlrpclib
 import SimpleXMLRPCServer
 
 from marche.jobs import Busy, Fault
+from marche.handler import JobHandler, VOID
 
 BUSY = 1
 FAULT = 2
@@ -41,18 +42,20 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
         self.log.debug('[%s] %s' % (self.client_address[0], fmt % args))
 
 
-def wrap_fault(f):
-    def new_f(*args):
+def command(method, is_void):
+    def new_method(self, *args):
         try:
-            return f(*args)
+            ret = method(self.jobhandler, *args)
+            # returning None is not possible in XMLRPC without special options
+            return True if is_void else ret
         except Busy as err:
             raise xmlrpclib.Fault(BUSY, str(err))
         except Fault as err:
             raise xmlrpclib.Fault(FAULT, str(err))
         except Exception as err:
             raise xmlrpclib.Fault(EXCEPTION, 'Unexpected exception: %s' % err)
-    new_f.__name__ = f.__name__
-    return new_f
+    new_method.__name__ = method.__name__
+    return new_method
 
 
 class RPCFunctions(object):
@@ -61,33 +64,11 @@ class RPCFunctions(object):
         self.jobhandler = jobhandler
         self.log = log
 
-    @wrap_fault
-    def ReloadJobs(self):
-        self.jobhandler.reload_jobs()
-        return True  # returning None is not possible without special options
-
-    @wrap_fault
-    def GetServices(self):
-        return self.jobhandler.get_services()
-
-    @wrap_fault
-    def Start(self, service):
-        self.jobhandler.start_service(service)
-        return True
-
-    @wrap_fault
-    def Stop(self, service):
-        self.jobhandler.stop_service(service)
-        return True
-
-    @wrap_fault
-    def Restart(self, service):
-        self.jobhandler.restart_service(service)
-        return True
-
-    @wrap_fault
-    def GetStatus(self, service):
-        return self.jobhandler.service_status(service)
+for mname in dir(JobHandler):
+    method = getattr(JobHandler, mname)
+    if not hasattr(method, 'is_command'):
+        continue
+    setattr(RPCFunctions, mname, command(method, method.outtype == VOID))
 
 
 class Interface(object):
