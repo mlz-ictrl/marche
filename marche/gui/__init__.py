@@ -23,26 +23,6 @@
 #
 # *****************************************************************************
 
-import sys
-
 import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
-
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
-
-from marche.gui.mainwindow import MainWindow
-
-import marche.gui.res
-
-def main():
-    app = QApplication(sys.argv)
-    app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
-    app.setOrganizationName('mlz')
-    app.setApplicationName('marche-gui')
-
-    win = MainWindow()
-    win.show()
-
-    return app.exec_()

@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+import marche.gui.res  # noqa
+
 from marche.gui.util import loadUi
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
@@ -31,7 +33,7 @@ from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
-from PyQt4.QtGui import QMainWindow, QWidget, QInputDialog, QColor, QTreeWidget, \
+from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem
 
 
@@ -153,30 +155,27 @@ class HostTree(QTreeWidget):
         self.fill()
 
 
-class MainWindow(QMainWindow):
+class MainWidget(QWidget):
     def __init__(self, parent=None):
-        QMainWindow.__init__(self, parent)
-        loadUi(self, 'mainwindow.ui')
+        QWidget.__init__(self, parent)
+        loadUi(self, 'main.ui')
 
-        self.resize(800, 500)
         self.splitter.setStretchFactor(0, 2)
         self.splitter.setStretchFactor(1, 3)
-        self.setWindowTitle('Marche')
+        self.leftlayout.setContentsMargins(6, 6, 0, 6)
+        self.surface.layout().setContentsMargins(0, 6, 6, 6)
 
-        settings = QSettings()
+        settings = QSettings('marche-gui')
         self.splitter.restoreState(settings.value('split', b'', QByteArray))
-        self.restoreGeometry(settings.value('geometry', b'', QByteArray))
 
         self._clients = {}
         self._cur_tree = None
         self.scanNetwork()
 
-    def closeEvent(self, event):
-        settings = QSettings()
+    def saveSettings(self):
+        settings = QSettings('marche-gui')
         settings.setValue('split', self.splitter.saveState())
-        settings.setValue('geometry', self.saveGeometry())
         # settings.setValue('last_hosts', [])
-        return QMainWindow.closeEvent(self, event)
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
