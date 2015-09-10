@@ -39,7 +39,7 @@ logging._srcfile = None
 log = logging.getLogger('marche')
 
 from marche.config import Config
-from marche.utils import daemonize, setuser, write_pidfile
+from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile
 from marche.loggers import ColoredConsoleHandler, LogfileHandler
 from marche.handler import JobHandler
 from marche.version import get_git_version
@@ -73,7 +73,6 @@ def main():
 
     if opts.daemonize:
         daemonize(config.user, config.group)
-        write_pidfile(config.piddir)
     else:
         setuser(config.user, config.group)
 
@@ -94,12 +93,15 @@ def main():
     if not config.interfaces:
         log.error('no interfaces configured, the daemon will not do '
                   'anything useful!')
-        return
+        return 0
 
     if not config.job_config:
         log.error('no jobs configured, the daemon will not do '
                   'anything useful!')
-        return
+        return 0
+
+    if opts.daemonize:
+        write_pidfile(config.piddir)
 
     jobhandler = JobHandler(config, log)
 
@@ -132,3 +134,7 @@ def main():
                 time.sleep(1)
         except KeyboardInterrupt:
             pass
+
+    if opts.daemonize:
+        remove_pidfile(config.piddir)
+    return 0
