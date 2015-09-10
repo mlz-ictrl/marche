@@ -151,3 +151,8 @@ class Client(object):
         servicePath = self.getServicePath(service, instance)
         with self._lock:
             return self._proxy.GetOutput(servicePath)
+
+    def getServiceLogs(self, service, instance=None):
+        servicePath = self.getServicePath(service, instance)
+        with self._lock:
+            return self._proxy.GetLogs(servicePath)

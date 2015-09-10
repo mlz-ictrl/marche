@@ -34,7 +34,7 @@ from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QTextEdit
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QPlainTextEdit
 
 
 class JobButtons(QWidget):
@@ -76,11 +76,25 @@ class JobButtons(QWidget):
         self._item.setText(3, '')
         try:
             output = self._client.getServiceOutput(self._service, self._instance)
+            loglines = self._client.getServiceLogs(self._service, self._instance)
         except ClientError as err:
             self._item.setText(3, str(err))
         dlg = QDialog(self)
-        loadUi(dlg, 'text.ui')
-        dlg.edit.setPlainText(''.join(output))
+        loadUi(dlg, 'details.ui')
+        dlg.outEdit.setPlainText(''.join(output))
+        logs = []
+        for logline in loglines:
+            filename, content = logline.split(':', 1)
+            if not logs or filename != logs[-1][0]:
+                logs.append((filename, []))
+            logs[-1][1].append(content)
+        for filename, content in logs:
+            widget = QPlainTextEdit(dlg)
+            font = widget.font()
+            font.setFamily('Monospace')
+            widget.setFont(font)
+            widget.setPlainText(''.join(content))
+            dlg.tabber.addTab(widget, 'Logfile: ' + filename)
         dlg.exec_()
 
 

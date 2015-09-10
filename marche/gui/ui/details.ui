@@ -7,23 +7,43 @@
     <x>0</x>
     <y>0</y>
     <width>587</width>
-    <height>411</height>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Output</string>
+   <string>Details</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPlainTextEdit" name="edit">
-     <property name="font">
-      <font>
-       <family>Monospace</family>
-      </font>
+    <widget class="QTabWidget" name="tabber">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="readOnly">
+     <property name="documentMode">
       <bool>true</bool>
      </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Start/stop script output</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPlainTextEdit" name="outEdit">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
