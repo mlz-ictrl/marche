@@ -22,7 +22,7 @@ persistent=yes
 load-plugins=
 
 # For some reason, Pylint cannot check members of these modules.
-extension-pkg-whitelist = numpy,scipy,PyQt4
+extension-pkg-whitelist = numpy,scipy,PyQt4,sip,PyTango._PyTango
 
 
 [MESSAGES CONTROL]
@@ -35,7 +35,7 @@ extension-pkg-whitelist = numpy,scipy,PyQt4
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time.
-disable=missing-docstring,star-args,locally-disabled,fixme
+disable=missing-docstring,star-args,locally-disabled,fixme,invalid-name,no-self-use,too-few-public-methods,broad-except,unused-argument,protected-access
 
 [REPORTS]
 
