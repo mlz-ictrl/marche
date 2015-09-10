@@ -54,7 +54,7 @@
      </property>
      <property name="icon">
       <iconset resource="../res/marche-gui.qrc">
-       <normaloff>:/control.png</normaloff>:/control.png</iconset>
+       <normaloff>:/marche/control.png</normaloff>:/marche/control.png</iconset>
      </property>
     </widget>
    </item>
@@ -77,7 +77,7 @@
      </property>
      <property name="icon">
       <iconset resource="../res/marche-gui.qrc">
-       <normaloff>:/control-stop-square.png</normaloff>:/control-stop-square.png</iconset>
+       <normaloff>:/marche/control-stop-square.png</normaloff>:/marche/control-stop-square.png</iconset>
      </property>
     </widget>
    </item>
@@ -100,7 +100,7 @@
      </property>
      <property name="icon">
       <iconset resource="../res/marche-gui.qrc">
-       <normaloff>:/arrow-circle-225.png</normaloff>:/arrow-circle-225.png</iconset>
+       <normaloff>:/marche/arrow-circle-225.png</normaloff>:/marche/arrow-circle-225.png</iconset>
      </property>
     </widget>
    </item>

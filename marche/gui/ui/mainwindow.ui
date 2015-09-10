@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../res/marche-gui.qrc">
-    <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+    <normaloff>:/marche/24190.svg</normaloff>:/marche/24190.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -35,7 +35,7 @@
             </property>
             <property name="icon">
              <iconset resource="../res/marche-gui.qrc">
-              <normaloff>:/server.png</normaloff>:/server.png</iconset>
+              <normaloff>:/marche/server.png</normaloff>:/marche/server.png</iconset>
             </property>
             <property name="toolButtonStyle">
              <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -52,7 +52,7 @@
             </property>
             <property name="icon">
              <iconset resource="../res/marche-gui.qrc">
-              <normaloff>:/server-cast.png</normaloff>:/server-cast.png</iconset>
+              <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
             </property>
             <property name="toolButtonStyle">
              <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -82,7 +82,7 @@
             </property>
             <property name="icon">
              <iconset resource="../res/marche-gui.qrc">
-              <normaloff>:/arrow-circle-225.png</normaloff>:/arrow-circle-225.png</iconset>
+              <normaloff>:/marche/arrow-circle-225.png</normaloff>:/marche/arrow-circle-225.png</iconset>
             </property>
             <property name="toolButtonStyle">
              <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -156,7 +156,7 @@
   <action name="actionAdd_host">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/server.png</normaloff>:/server.png</iconset>
+     <normaloff>:/marche/server.png</normaloff>:/marche/server.png</iconset>
    </property>
    <property name="text">
     <string>Add host</string>
@@ -168,7 +168,7 @@
   <action name="actionExit">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/door-open.png</normaloff>:/door-open.png</iconset>
+     <normaloff>:/marche/door-open.png</normaloff>:/marche/door-open.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -180,7 +180,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+     <normaloff>:/marche/24190.svg</normaloff>:/marche/24190.svg</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -189,7 +189,7 @@
   <action name="actionAbout_Qt">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/24190.svg</normaloff>:/24190.svg</iconset>
+     <normaloff>:/marche/24190.svg</normaloff>:/marche/24190.svg</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -198,7 +198,7 @@
   <action name="actionScan_network">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/server-cast.png</normaloff>:/server-cast.png</iconset>
+     <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
    </property>
    <property name="text">
     <string>Scan network</string>
@@ -210,7 +210,7 @@
   <action name="actionReload">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
-     <normaloff>:/arrow-circle-225.png</normaloff>:/arrow-circle-225.png</iconset>
+     <normaloff>:/marche/arrow-circle-225.png</normaloff>:/marche/arrow-circle-225.png</iconset>
    </property>
    <property name="text">
     <string>Reload</string>

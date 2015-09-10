@@ -144,7 +144,7 @@ class HostTree(QTreeWidget):
         item.setText(1, STATE_STR[status])
 
         if status in [STARTING, INITIALIZING, STOPPING]:
-            item.setIcon(1, QIcon(':/ui-progress-bar.png'))
+            item.setIcon(1, QIcon(':/marche/ui-progress-bar.png'))
         else:
             item.setIcon(1, QIcon())
 
@@ -249,7 +249,7 @@ class MainWindow(QMainWindow):
         host, port = addr.split(':')
         self._clients[addr] = Client(host, port)
 
-        item = QListWidgetItem(QIcon(':/server-big.png'), addr)
+        item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
         self.hostListWidget.addItem(item)
 
     def removeHost(self, addr):

@@ -1,7 +1,7 @@
 <RCC>
-  <qresource>
-    <file>24190.svg</file>
+  <qresource prefix="marche">
     <file>arrow-circle-225.png</file>
+    <file>24190.svg</file>
     <file>control.png</file>
     <file>control-stop-square.png</file>
     <file>door-open.png</file>
