@@ -49,16 +49,16 @@ class Job(BaseJob):
         return [self.init_name]
 
     def start_service(self, name):
-        self._async_start(name, '/etc/init.d/' + self.init_name + ' start')
+        self._async_start(name, '/etc/init.d/%s start' % self.init_name)
 
     def stop_service(self, name):
-        self._async_stop(name, '/etc/init.d/' + self.init_name + ' stop')
+        self._async_stop(name, '/etc/init.d/%s stop' % self.init_name)
 
     def restart_service(self, name):
-        self._async_start(name, '/etc/init.d/' + self.init_name + ' restart')
+        self._async_start(name, '/etc/init.d/%s restart' % self.init_name)
 
     def service_status(self, name):
-        return self._async_status(name, '/etc/init.d/' + self.init_name + ' status')
+        return self._async_status(name, '/etc/init.d/%s status' % self.init_name)
 
     def service_logs(self, name):
         if self.log_file:
