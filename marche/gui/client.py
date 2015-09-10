@@ -109,6 +109,9 @@ class Client(object):
 
         return result
 
+    def getServicePath(self, service, instance):
+        return '%s.%s' % (service, instance) if instance else service
+
     def startService(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
         try:
@@ -144,5 +147,7 @@ class Client(object):
         with self._lock:
             return self._proxy.GetStatus(servicePath)
 
-    def getServicePath(self, service, instance):
-        return '%s.%s' % (service, instance) if instance else service
+    def getServiceOutput(self, service, instance=None):
+        servicePath = self.getServicePath(service, instance)
+        with self._lock:
+            return self._proxy.GetOutput(servicePath)

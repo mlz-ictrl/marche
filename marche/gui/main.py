@@ -33,8 +33,8 @@ from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
-from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem
+from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QTextEdit
 
 
 class JobButtons(QWidget):
@@ -70,6 +70,18 @@ class JobButtons(QWidget):
             self._client.restartService(self._service, self._instance)
         except ClientError as err:
             self._item.setText(3, str(err))
+
+    @qtsig('')
+    def on_outputBtn_clicked(self):
+        self._item.setText(3, '')
+        try:
+            output = self._client.getServiceOutput(self._service, self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
+        dlg = QDialog(self)
+        loadUi(dlg, 'text.ui')
+        dlg.edit.setPlainText(''.join(output))
+        dlg.exec_()
 
 
 class HostTree(QTreeWidget):

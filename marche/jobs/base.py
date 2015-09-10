@@ -39,8 +39,8 @@ class Job(object):
         self._output = {}
 
     def _async_call(self, status, cmd, sh=True, output=None):
-        if output:
-            output.append('$ %s' % cmd)
+        if output is not None:
+            output.append('$ %s\n' % cmd)
         proc = AsyncProcess(status, self.log, cmd, sh, output, output)
         proc.start()
         return proc

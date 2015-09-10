@@ -10,5 +10,6 @@
     <file>server-big.png</file>
     <file>server-cast.png</file>
     <file>ui-progress-bar.png</file>
+    <file>terminal.png</file>
   </qresource>
 </RCC>
