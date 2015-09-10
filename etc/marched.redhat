@@ -1,0 +1,63 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          marched
+# Required-Start:    $local_fs $network
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: marched init script
+### END INIT INFO
+
+# Author: Alexander Lenz <alexander.lenz@frm2.tum.de>
+
+. /etc/init.d/functions
+
+BINARY_SHORT=marched
+BINARY_FULL=$(which $BINARY_SHORT)
+PIDFILE=/var/run/marched.pid
+if [ ! -x "${BINARY_FULL}" ] ; then
+	echo "Cannot find ${BINARY_SHORT}; Abort!" >&2
+	exit 127
+fi
+
+do_start()
+{
+	echo -n $"Starting $prog: "
+	daemon --pidfile ${PIDFILE} ${BINARY_FULL} -d
+	echo
+	return $?
+}
+
+do_stop()
+{
+	echo -n $"Stopping $prog: "
+	killproc -p ${PIDFILE} ${BINARY_FULL}
+	echo
+	return $?
+}
+
+
+case "$1" in
+  start)
+        do_start
+        exit $?
+        ;;
+  restart|reload|force-reload)
+	do_stop
+	do_start
+        exit $?
+        ;;
+  stop)
+	do_stop
+        exit $?
+        ;;
+  status)
+        status -p ${PIDFILE} marched
+        exit $?
+        ;;
+  *)
+        echo "Usage: ${0} {start|stop|status|restart}" >&2
+        exit 3
+        ;;
+esac
+
