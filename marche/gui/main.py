@@ -186,7 +186,7 @@ class HostTree(QTreeWidget):
 
 
 class MainWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, scan_on_startup=False):
         QWidget.__init__(self, parent)
         loadUi(self, 'main.ui')
 
@@ -200,7 +200,9 @@ class MainWidget(QWidget):
 
         self._clients = {}
         self._cur_tree = None
-        self.scanNetwork()
+
+        if scan_on_startup:
+            self.scanNetwork()
 
     def saveSettings(self):
         settings = QSettings('marche-gui')
@@ -211,7 +213,7 @@ class MainWidget(QWidget):
     def on_actionAdd_host_triggered(self):
         addr, accepted = QInputDialog.getText(self, 'Add host', 'New host:')
         if accepted:
-            self.addHost(addr)
+            self.openHost(self.addHost(addr))
 
     @qtsig('')
     def on_actionScan_network_triggered(self):
@@ -280,6 +282,7 @@ class MainWidget(QWidget):
 
         item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
         self.hostListWidget.addItem(item)
+        return addr
 
     def removeHost(self, addr):
         if addr not in self._clients:

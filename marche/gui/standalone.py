@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import sys
+import optparse
 
 from PyQt4.QtCore import Qt, QSettings, QByteArray
 from PyQt4.QtGui import QApplication, QMainWindow
@@ -32,10 +33,10 @@ from marche.gui.main import MainWidget
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, scan_on_startup=False):
         QMainWindow.__init__(self, parent)
         self.resize(800, 500)
-        self._widget = MainWidget(self)
+        self._widget = MainWidget(self, scan_on_startup=scan_on_startup)
         self.setCentralWidget(self._widget)
         settings = QSettings()
         self.restoreGeometry(settings.value('geometry', b'', QByteArray))
@@ -56,6 +57,9 @@ class MainWindow(QMainWindow):
 
         self.statusBar().showMessage('Welcome!', 1000)
 
+    def addHost(self, host):
+        self._widget.openHost(self._widget.addHost(host))
+
     def closeEvent(self, event):
         self._widget.saveSettings()
         settings = QSettings()
@@ -64,12 +68,21 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    parser = optparse.OptionParser()
+    parser.add_option('-B', dest='noscan', action='store_true',
+                      help='do not scan local network for hosts')
+    opts, args = parser.parse_args()
+
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
     app.setOrganizationName('mlz')
     app.setApplicationName('marche-gui')
 
-    win = MainWindow()
+    win = MainWindow(scan_on_startup=not opts.noscan)
+
+    for arg in args:
+        win.addHost(arg)
+
     win.show()
 
     return app.exec_()
