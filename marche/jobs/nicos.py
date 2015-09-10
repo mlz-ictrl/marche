@@ -27,16 +27,15 @@
 from os import path
 
 from marche.jobs import DEAD, STARTING, RUNNING, WARNING
-from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
+from marche.jobs.base import Job as BaseJob
 
 INITSCR = '/etc/init.d/nicos-system'
 
 
-class Job(BaseJob, AsyncProcessMixin):
+class Job(BaseJob):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
-        AsyncProcessMixin.__init__(self)
         self.config = config
         self.log = log.getChild(name)
         self._services = []

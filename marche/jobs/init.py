@@ -27,14 +27,13 @@
 
 from os import path
 
-from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
+from marche.jobs.base import Job as BaseJob
 
 
-class Job(BaseJob, AsyncProcessMixin):
+class Job(BaseJob):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
-        AsyncProcessMixin.__init__(self)
         self.init_name = config.get('script', name)
 
     def check(self):
