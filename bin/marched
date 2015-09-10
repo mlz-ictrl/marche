@@ -28,6 +28,6 @@ from os import path
 # Add import path for inplace usage
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-import marche
+import marche.daemon
 
-sys.exit(marche.main())
+sys.exit(marche.daemon.main())
