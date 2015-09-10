@@ -1,3 +1,27 @@
+marche (0.1.5) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Add TACO job.
+  * Add nice button for "reload jobs".
+  * Fix init script job.
+  * Implement reloading of jobs.
+  * Save/restore window geometry.
+  * Log handler actions.
+  * Refactor processes a bit.
+  * Import fix.
+  * Remove unnecessary method.
+  * Move GUI resources into a prefix.
+  * Refactor main window to be a widget. Create new "standalone" main window.
+  * Fix Nicos job.
+  * Refactor iface/handler generation.
+  * Add redhat specific init script.
+  * Remove pidfile on exit.
+  * Redhat script needs full path.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 10 Sep 2015 11:19:10 +0200
+
 marche (0.1.4) unstable; urgency=low
 
   [ Alexander Lenz ]
