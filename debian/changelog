@@ -1,3 +1,22 @@
+marche (0.1.6) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix messages in initscript.
+  * GetServices should not log in info level.
+  * Fix compatibility with older PyTango 8.1 versions.
+  * Fix taco job startup.
+  * Add service_logs functionality.
+  * Fixup pylintrc a bit.
+  * Factor out daemon main function into a separate module.
+  * pylint related fixes.
+  * Remove AsyncProcessMixin - can just as well go into the base job.
+  * Implement "get last output" for async calls.
+  * Add dialog to display output.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 10 Sep 2015 12:33:23 +0200
+
 marche (0.1.5) unstable; urgency=low
 
   [ Georg Brandl ]
