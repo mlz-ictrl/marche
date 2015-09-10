@@ -13,7 +13,7 @@
 . /etc/init.d/functions
 
 BINARY_SHORT=marched
-BINARY_FULL=$(which $BINARY_SHORT)
+BINARY_FULL=/usr/local/bin/marched
 PIDFILE=/var/run/marched.pid
 if [ ! -x "${BINARY_FULL}" ] ; then
 	echo "Cannot find ${BINARY_SHORT}; Abort!" >&2
