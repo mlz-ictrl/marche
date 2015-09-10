@@ -57,9 +57,9 @@ class Job(BaseJob, AsyncProcessMixin):
         all_depends = {}
         direct_deps = {}
         for server, instances in serverinfo.items():
-            for instance, (_, devs) in instances.items():
+            for instance, devs in instances.items():
                 direct_deps[server, instance] = \
-                    self.get_dependencies(devs, alldevs, dev2server)
+                    self._get_dependencies(devs, alldevs, dev2server)
                 all_depends[server, instance] = set()
         for key, depends in direct_deps.iteritems():
             all_depends[key].update(depends)
@@ -125,7 +125,7 @@ class Job(BaseJob, AsyncProcessMixin):
                 if curserver is None:
                     continue
                 dev = line.strip()
-                servers[curserver][curinstance][1].append(dev)
+                servers[curserver][curinstance].append(dev)
                 alldevices.add(dev)
                 dev2server[dev] = (curserver, curinstance)
             else:

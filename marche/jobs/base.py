@@ -72,7 +72,7 @@ class Job(object):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
 
-    def service_output(self, name, n):
+    def service_output(self, name):
         raise NotImplementedError('%s.service_output not implemented'
                                   % self.__class__.__name__)
 

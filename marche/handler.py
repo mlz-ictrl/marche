@@ -142,4 +142,4 @@ class JobHandler(object):
     def GetOutput(self, name):
         """Return the last lines of output from starting/stopping."""
         with self._lock:
-            return self.service2job[name].service_output(name, n)
+            return self.service2job[name].service_output(name)
