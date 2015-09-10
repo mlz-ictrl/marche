@@ -270,7 +270,7 @@ class MainWidget(QWidget):
         self.on_actionReload_triggered()
 
     def on_hostListWidget_currentItemChanged(self, current, previous):
-        self.openHost(current.text())
+        self.openHost(current.text(), False)
 
     @qtsig('')
     def on_actionAbout_Qt_triggered(self):
@@ -297,7 +297,7 @@ class MainWidget(QWidget):
         item.setSizeHint(QSize(0, 30))
         self.hostListWidget.takeItem(item)
 
-    def openHost(self, addr):
+    def openHost(self, addr, select_item=True):
         prev = self.surface.layout().takeAt(0)
 
         if prev:
@@ -309,6 +309,10 @@ class MainWidget(QWidget):
 
         self.surface.layout().addWidget(widget)
         widget.show()
+
+        if select_item:
+            item = self.hostListWidget.findItems(addr, Qt.MatchExactly)[0]
+            self.hostListWidget.setCurrentItem(item)
 
     def scanNetwork(self):
         hosts = Scanner(self).run()
