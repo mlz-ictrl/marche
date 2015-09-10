@@ -31,6 +31,7 @@ import os
 import sys
 import pwd
 import grp
+import socket
 import select
 import collections
 from os import path
@@ -210,3 +211,14 @@ def extractLoglines(filename, n=50):
         for line in fp:
             lines.append(filename + ':' + line)
     return list(lines)
+
+
+def normalizeAddr(addr, defport):
+    if ':' not in addr:
+        addr += ':' + str(defport)
+    host, port = addr.split(':')
+    try:
+        host = socket.getfqdn(host)
+    except socket.error:
+        pass
+    return host, port

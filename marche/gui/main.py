@@ -30,6 +30,7 @@ from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
     INITIALIZING
+from marche.utils import normalizeAddr
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
@@ -277,15 +278,12 @@ class MainWidget(QWidget):
         QMessageBox.aboutQt(self, 'About Qt')
 
     def addHost(self, addr):
-        if ':' not in addr:
-            addr += ':8124'
-        if addr in self._clients:
-            return
-        host, port = addr.split(':')
-        self._clients[addr] = Client(host, port)
-
-        item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
-        self.hostListWidget.addItem(item)
+        host, port = normalizeAddr(addr, 8124)
+        addr = host + ':' + port
+        if addr not in self._clients:
+            self._clients[addr] = Client(host, port)
+            item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
+            self.hostListWidget.addItem(item)
         return addr
 
     def removeHost(self, addr):
