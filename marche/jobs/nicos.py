@@ -50,7 +50,7 @@ class Job(BaseJob):
     def get_services(self):
         proc = self._async_call(STARTING, '%s 2>&1' % INITSCR)
         proc.join()
-        lines = proc.stdout.splitlines()
+        lines = proc.stdout
         if len(lines) >= 2 and lines[-1].startswith('Possible services are'):
             self._services = [entry.strip() for entry in
                               lines[-1][len('Possible services are '):].split(',')]
@@ -82,7 +82,7 @@ class Job(BaseJob):
         if name == 'nicos-system':
             output = self._sync_call('%s status' % INITSCR).stdout
             something_dead = something_running = False
-            for line in output.splitlines():
+            for line in output:
                 if 'dead' in line:
                     something_dead = True
                 if 'running' in line:

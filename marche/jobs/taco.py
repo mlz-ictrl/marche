@@ -107,7 +107,7 @@ class Job(BaseJob):
     # -- internal APIs --
 
     def _read_devices(self, restrict_servers):
-        p = self._sync_call('db_devicelist').stdout.splitlines()
+        p = self._sync_call('db_devicelist').stdout
         servers = {}
         alldevices = set()
         dev2server = {}
@@ -136,7 +136,7 @@ class Job(BaseJob):
     def _get_dependencies(self, devs, alldevices, dev2server):
         depends = set()
         for dev in devs:
-            p = self._sync_call('db_devres %s' % dev).stdout.splitlines()
+            p = self._sync_call('db_devres %s' % dev).stdout
             for line in p:
                 if not line.strip():
                     continue

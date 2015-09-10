@@ -139,7 +139,7 @@ class lazy_property(object):
 
 
 class AsyncProcess(Thread):
-    def __init__(self, status, log, cmd, sh=True):
+    def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None):
         Thread.__init__(self)
         self.setDaemon(True)
 
@@ -150,14 +150,11 @@ class AsyncProcess(Thread):
 
         self.done = False
         self.retcode = None
-        self.stdout = ''
-        self.stderr = ''
+        self.stdout = stdout if stdout is not None else []
+        self.stderr = stderr if stderr is not None else []
 
     def run(self):
         self.log.debug('call [sh:%s]: %s' % (self.use_sh, self.cmd))
-
-        out = []
-        err = []
         proc = None
         poller = None
 
@@ -173,11 +170,11 @@ class AsyncProcess(Thread):
             if proc.stdout.fileno() in fds:
                 for line in iter(proc.stdout.readline, ''):
                     self.log.debug(line.translate(None, removeChars))
-                    out.append(line)
+                    self.stdout.append(line)
             if proc.stderr.fileno() in fds:
                 for line in iter(proc.stderr.readline, ''):
                     self.log.warning(line.translate(None, removeChars))
-                    err.append(line)
+                    self.stderr.append(line)
 
         while True:
             if proc is None:
@@ -201,6 +198,4 @@ class AsyncProcess(Thread):
 
         # check return code
         self.retcode = proc.returncode
-        self.stdout = ''.join(out)
-        self.stderr = ''.join(err)
         self.done = True
