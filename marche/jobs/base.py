@@ -76,6 +76,9 @@ class Job(object):
         raise NotImplementedError('%s.service_output not implemented'
                                   % self.__class__.__name__)
 
+    def service_logs(self, name):
+        return []
+
 
 class AsyncProcessMixin(object):
 

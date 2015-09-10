@@ -143,3 +143,9 @@ class JobHandler(object):
         """Return the last lines of output from starting/stopping."""
         with self._lock:
             return self.service2job[name].service_output(name)
+
+    @command(intype=STRING, outtype=STRINGLIST)
+    def GetLogs(self, name):
+        """Return the most recent lines of the service's logfile."""
+        with self._lock:
+            return self.service2job[name].service_logs(name)
