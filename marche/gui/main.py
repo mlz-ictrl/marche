@@ -34,7 +34,8 @@ from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QPlainTextEdit
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, \
+    QPlainTextEdit
 
 
 class JobButtons(QWidget):
@@ -150,6 +151,9 @@ class HostTree(QTreeWidget):
                 btn = JobButtons(self._client, service, None, serviceItem)
                 self.setItemWidget(serviceItem, 2, btn)
             else:
+                lbl = QLabel(self)
+                lbl.setMinimumSize(QSize(30, 30))
+                self.setItemWidget(serviceItem, 2, lbl)
                 self._items[service] = {}
                 for instance in instances:
                     instanceItem = QTreeWidgetItem([instance])
