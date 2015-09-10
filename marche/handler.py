@@ -108,7 +108,7 @@ class JobHandler(object):
             self.service2job = {}
             self._add_jobs()
 
-    @command(outtype=STRINGLIST)
+    @command(outtype=STRINGLIST, silent=True)
     def GetServices(self):
         """Get a list of all services provided by jobs."""
         with self._lock:
