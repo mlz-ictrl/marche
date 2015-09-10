@@ -92,6 +92,7 @@ class HostTree(QTreeWidget):
         self.headerItem().setText(1, 'Status')
         self.headerItem().setText(2, 'Control')
         self.headerItem().setText(3, 'Last error')
+        self._items = {}
         self.fill()
 
         self.expandAll()
@@ -104,7 +105,7 @@ class HostTree(QTreeWidget):
 
     def fill(self):
         self.clear()
-        self._items = {}
+        self._items.clear()
         services = self._client.getServices()
 
         for service, instances in services.iteritems():

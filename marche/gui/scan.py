@@ -51,7 +51,7 @@ class ScanThread(QThread):
             res = select.select([s], [], [], 0.1)
             if res[0]:
                 try:
-                    msg, addr = s.recvfrom(1024)
+                    _msg, addr = s.recvfrom(1024)
                 except socket.error:
                     continue
                 try:

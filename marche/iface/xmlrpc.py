@@ -64,11 +64,11 @@ class RPCFunctions(object):
         self.jobhandler = jobhandler
         self.log = log
 
-for mname in dir(JobHandler):
-    method = getattr(JobHandler, mname)
-    if not hasattr(method, 'is_command'):
-        continue
-    setattr(RPCFunctions, mname, command(method, method.outtype == VOID))
+    for mname in dir(JobHandler):
+        method = getattr(JobHandler, mname)
+        if not hasattr(method, 'is_command'):
+            continue
+        locals()[mname] = command(method, method.outtype == VOID)
 
 
 class Interface(object):

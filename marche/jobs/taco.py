@@ -36,6 +36,7 @@ class Job(BaseJob, AsyncProcessMixin):
         BaseJob.__init__(self, name, config, log)
         AsyncProcessMixin.__init__(self)
         self._initscripts = {}
+        self._depends = set()
 
     def check(self):
         return any(fn.startswith('taco') for fn in os.listdir('/etc/init.d'))
@@ -74,11 +75,6 @@ class Job(BaseJob, AsyncProcessMixin):
                 services.append(servicename)
                 self._initscripts[servicename] = '/etc/init.d/taco-server-%s' % server
         return services
-
-    def _proc(self, name):
-        proc = self._server_procs.get(name)
-        if proc and not proc.done:
-            return proc
 
     def start_service(self, name):
         initscript = self._initscripts[name]
@@ -147,7 +143,7 @@ class Job(BaseJob, AsyncProcessMixin):
                     continue
                 key, value = line.strip().split(':', 1)
                 value = value.strip()
-                kdev, kres = key.rsplit('/', 1)
+                kdev, _kres = key.rsplit('/', 1)
                 assert kdev == dev
                 if value in alldevices:
                     depends.add(dev2server[value])
