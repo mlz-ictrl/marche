@@ -26,7 +26,9 @@
 """Job for Taco servers."""
 
 import os
+from os import path
 
+from marche.utils import extractLoglines
 from marche.jobs.base import Job as BaseJob
 
 
@@ -103,6 +105,24 @@ class Job(BaseJob):
         else:
             command = initscript + ' status'
         return self._async_status(name, command)
+
+    def service_logs(self, name):
+        if '.' not in name:
+            return []  # no logs for manager
+        if not path.isdir('/var/log/taco'):
+            return []
+        srvname, instance = name.split('.', 1)
+        srvname = srvname[5:]  # strip "taco-"
+        candidates = os.listdir('/var/log/taco')
+        output = []
+        for filename in candidates:
+            # check for srvname_instance
+            if filename.lower() == ('%s_%s.log' % (srvname, instance)).lower():
+                output.extend(extractLoglines(path.join('/var/log/taco', filename)))
+            # check for srvname only
+            if filename.lower() == ('%s.log' % srvname).lower():
+                output.extend(extractLoglines(path.join('/var/log/taco', filename)))
+        return output
 
     # -- internal APIs --
 

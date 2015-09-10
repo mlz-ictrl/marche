@@ -119,7 +119,10 @@ class HostTree(QTreeWidget):
         self.headerItem().setText(2, 'Control')
         self.headerItem().setText(3, 'Last error')
         self._items = {}
-        self.fill()
+        try:
+            self.fill()
+        except Exception:
+            pass
 
         self.expandAll()
         self.resizeColumnToContents(0)

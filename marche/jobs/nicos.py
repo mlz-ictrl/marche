@@ -95,3 +95,7 @@ class Job(BaseJob):
         else:
             retcode = self._sync_call('%s status %s' % (INITSCR, name[6:])).retcode
             return RUNNING if retcode == 0 else DEAD
+
+    def service_logs(self, name):
+        # XXX extract nicos log directory
+        return []

@@ -27,6 +27,7 @@
 
 from os import path
 
+from marche.utils import extractLoglines
 from marche.jobs.base import Job as BaseJob
 
 
@@ -35,6 +36,7 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
         self.init_name = config.get('script', name)
+        self.log_file = config.get('logfile', '')
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -57,3 +59,7 @@ class Job(BaseJob):
 
     def service_status(self, name):
         return self._async_status(None, '/etc/init.d/' + self.init_name + ' status')
+
+    def service_logs(self, name):
+        if self.log_file:
+            return extractLoglines(self.log_file)

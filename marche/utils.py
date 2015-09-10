@@ -32,6 +32,7 @@ import sys
 import pwd
 import grp
 import select
+import collections
 from os import path
 from threading import Thread
 from subprocess import Popen, PIPE
@@ -199,3 +200,13 @@ class AsyncProcess(Thread):
         # check return code
         self.retcode = proc.returncode
         self.done = True
+
+
+def extractLoglines(filename, n=50):
+    if not path.exists(filename):
+        return []
+    lines = collections.deque(maxlen=n)
+    with open(filename, 'r') as fp:
+        for line in fp:
+            lines.append(filename + ':' + line)
+    return list(lines)

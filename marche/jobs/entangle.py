@@ -33,6 +33,7 @@ from os import path
 # import PyTango
 
 from marche.jobs.base import Job as BaseJob
+from marche.utils import extractLoglines
 
 
 def convert_value(value):
@@ -84,13 +85,6 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
 
-    def check(self):
-        if not (path.exists(CONFIG) and path.exists(INITSCR)):
-            self.log.error('%s or %s missing' % (CONFIG, INITSCR))
-            return False
-        return True
-
-    def get_services(self):
         cfg = ConfigParser.RawConfigParser()
         cfg.read(CONFIG)
 
@@ -98,10 +92,23 @@ class Job(BaseJob):
             resdir = cfg.get('entangle', 'resdir')
         else:
             resdir = '/etc/entangle'
+        if cfg.has_option('entangle', 'logdir'):
+            self._logdir = cfg.get('entangle', 'logdir')
+        else:
+            self._logdir = '/var/log/entangle'
 
         all_servers = ['entangle.' + base for (base, ext) in
                        map(path.splitext, os.listdir(resdir)) if ext == '.res']
-        return sorted(all_servers)
+        self._servers = sorted(all_servers)
+
+    def check(self):
+        if not (path.exists(CONFIG) and path.exists(INITSCR)):
+            self.log.error('%s or %s missing' % (CONFIG, INITSCR))
+            return False
+        return True
+
+    def get_services(self):
+        return self._servers
 
     def start_service(self, name):
         self._async_start(name, '%s start %s' % (INITSCR, name[9:]))
@@ -115,3 +122,7 @@ class Job(BaseJob):
     def service_status(self, name):
         # XXX check devices with Tango clients
         return self._async_status(name, '%s status %s' % (INITSCR, name[9:]))
+
+    def service_logs(self, name):
+        logname = path.join(self._logdir, name[9:], 'current')
+        return extractLoglines(logname)
