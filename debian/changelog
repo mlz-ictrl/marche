@@ -1,3 +1,19 @@
+marche (0.2.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Add GUI for logfiles.
+  * Add logfile extraction for different job types.
+  * Minimal command line support for the gui.
+  * Make service group items larger.
+  * Small fix for initscript output.
+  * Nit.
+  * Select host in list.
+  * Normalize hostnames.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 10 Sep 2015 15:14:02 +0200
+
 marche (0.1.7) unstable; urgency=low
 
   [ Alexander Lenz ]
