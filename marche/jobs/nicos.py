@@ -27,14 +27,16 @@
 from os import path
 
 from marche.jobs import DEAD, STARTING, RUNNING, WARNING
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, AsyncProcessMixin
 
 INITSCR = '/etc/init.d/nicos-system'
 
 
-class Job(BaseJob):
+class Job(BaseJob, AsyncProcessMixin):
 
     def __init__(self, name, config, log):
+        BaseJob.__init__(self, name, config, log)
+        AsyncProcessMixin.__init__(self)
         self.config = config
         self.log = log.getChild(name)
         self._services = []
@@ -79,7 +81,7 @@ class Job(BaseJob):
         if async_st is not None:
             return async_st
         if name == 'nicos-system':
-            output = self._sync_call(0, '%s status' % INITSCR).stdout
+            output = self._sync_call('%s status' % INITSCR).stdout
             something_dead = something_running = False
             for line in output.splitlines():
                 if 'dead' in line:
@@ -92,5 +94,5 @@ class Job(BaseJob):
                 return RUNNING
             return DEAD
         else:
-            retcode = self._sync_call(0, '%s status %s' % (INITSCR, name[6:])).retcode
+            retcode = self._sync_call('%s status %s' % (INITSCR, name[6:])).retcode
             return RUNNING if retcode == 0 else DEAD
