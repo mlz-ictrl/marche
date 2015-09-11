@@ -192,9 +192,13 @@ class HostTree(QTreeWidget):
                     self._items[service][instance] = instanceItem
 
     def updateStatus(self, service, instance, status):
+        if service not in self._items:
+            return
         item = self._items[service]
 
         if instance:
+            if instance not in self._items[service]:
+                return
             item = self._items[service][instance]
 
         colors = self.STATE_COLORS.get(status, ('gray', ''))
