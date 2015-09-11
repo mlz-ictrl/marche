@@ -38,22 +38,23 @@ from marche.version import get_version
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, QMenu, \
-    QPlainTextEdit, QFileDialog
+    QPlainTextEdit, QFileDialog, QDialogButtonBox
 
 
 class AuthDialog(QDialog):
     def __init__(self, parent, title):
         QDialog.__init__(self, parent)
         loadUi(self, 'authdlg.ui')
+        self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
         self.setWindowTitle(title)
 
     @property
     def user(self):
-        self.userLineEdit.text()
+        return str(self.userLineEdit.text()).strip()
 
     @property
     def passwd(self):
-        self.passwdLineEdit.text()
+        return str(self.passwdLineEdit.text()).strip()
 
 
 
@@ -390,10 +391,12 @@ class MainWidget(QWidget):
                 user = 'marche'
                 passwd = 'marche'
 
-                dlg = AuthDialog('Access %s' % addr)
+                dlg = AuthDialog(self, 'Access %s' % addr)
                 if dlg.exec_():
                     user = dlg.user
                     passwd = dlg.passwd
+
+                    print(user, passwd)
 
                     client = Client(host, port, user, passwd)
 

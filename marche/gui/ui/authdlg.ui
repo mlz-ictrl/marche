@@ -24,7 +24,7 @@
    <item row="0" column="1">
     <widget class="QLineEdit" name="userLineEdit">
      <property name="text">
-      <string>march</string>
+      <string>marche</string>
      </property>
     </widget>
    </item>
@@ -54,6 +54,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>passwdLineEdit</tabstop>
+  <tabstop>userLineEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

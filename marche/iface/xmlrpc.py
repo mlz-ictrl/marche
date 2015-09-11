@@ -49,7 +49,12 @@ class AuthRequestHandler(RequestHandler):
     def do_POST(self):
         auth = base64.b64encode('%s:%s' % (self.USER, self.PASSWD))
 
-        if auth != self.headers['Authorization']:
+        if 'Authorization' not in self.headers:
+            self.send_error(401)
+            return
+
+        authHeader = self.headers['Authorization'].split()[-1].strip()
+        if auth != authHeader:
             self.send_error(401)
             return
 
