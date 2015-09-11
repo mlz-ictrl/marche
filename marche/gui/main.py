@@ -46,6 +46,7 @@ class AuthDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'authdlg.ui')
         self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+        self.nameLbl.setText(title)
         self.setWindowTitle(title)
 
     @property
@@ -55,8 +56,6 @@ class AuthDialog(QDialog):
     @property
     def passwd(self):
         return str(self.passwdLineEdit.text()).strip()
-
-
 
 
 class JobButtons(QWidget):
@@ -393,7 +392,7 @@ class MainWidget(QWidget):
                 user = 'marche'
                 passwd = 'marche'
 
-                dlg = AuthDialog(self, 'Access %s' % addr)
+                dlg = AuthDialog(self, 'Authenticate at %s' % addr)
                 if dlg.exec_():
                     user = dlg.user
                     passwd = dlg.passwd
