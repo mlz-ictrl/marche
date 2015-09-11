@@ -368,7 +368,9 @@ class MainWidget(QWidget):
         del self._clients[addr]
 
         item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
-        self.hostList.takeItem(self.hostList.row(item))
+
+        if item:
+            self.hostList.takeItem(self.hostList.row(item))
 
     def closeHost(self):
         prev = self.surface.layout().takeAt(0)
@@ -396,11 +398,16 @@ class MainWidget(QWidget):
                     user = dlg.user
                     passwd = dlg.passwd
 
-                    print(user, passwd)
-
                     client = Client(host, port, user, passwd)
 
             self._clients[addr] = client
+
+        try:
+            self._clients[addr].getVersion()
+        except ProtocolError as e:
+            QMessageBox.critical(self, 'Connection failed', e.errmsg)
+            self.removeHost(addr)
+            return
 
         widget = HostTree(self, self._clients[addr])
         self._cur_tree = widget
