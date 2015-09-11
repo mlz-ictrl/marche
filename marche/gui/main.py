@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-from xmlrpclib import ProtocolError
+from xmlrpclib import ProtocolError, Fault
 
 import marche.gui.res  # noqa
 
@@ -395,11 +395,15 @@ class MainWidget(QWidget):
                     passwd = dlg.passwd
 
                     client = Client(host, port, user, passwd)
+            except Fault as err:
+                QMessageBox.critical(self, 'Connection failed',
+                                     'Could not connect to %s: %s' %
+                                     (addr, err.faultString))
+                return
             except Exception as err:
                 QMessageBox.critical(self, 'Connection failed',
                                      'Could not connect to %s: %s' %
                                      (addr, err))
-                self.removeHost(addr)
                 return
 
             self._clients[addr] = client
@@ -410,7 +414,6 @@ class MainWidget(QWidget):
             QMessageBox.critical(self, 'Connection failed',
                                  'Could not connect to %s: %s' %
                                  (addr, e.errmsg))
-            self.removeHost(addr)
             return
 
         widget = HostTree(self, self._clients[addr])
