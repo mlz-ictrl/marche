@@ -1,3 +1,18 @@
+marche (0.4.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Load/save sessions.
+  * Add version query command to remote interface.
+
+  [ Alexander Lenz ]
+  * Implement xmlrpc auth.
+  * Improve xmlrpc auth.
+  * Fancy unauthorization.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 11 Sep 2015 14:48:37 +0200
+
 marche (0.3.0) unstable; urgency=low
 
   [ Georg Brandl ]
