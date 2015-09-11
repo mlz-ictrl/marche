@@ -23,6 +23,6 @@
 #
 # *****************************************************************************
 
-from marche.version import get_git_version
+from marche.version import get_version
 
-__version__ = get_git_version()
+__version__ = get_version()
