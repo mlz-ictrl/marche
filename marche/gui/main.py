@@ -443,4 +443,3 @@ class MainWidget(QWidget):
             return
         for host in hosts:
             self.addHost(host)
-        self.openHost(hosts[-1])
