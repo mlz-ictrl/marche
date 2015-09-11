@@ -12,5 +12,7 @@
     <file>ui-progress-bar.png</file>
     <file>terminal.png</file>
     <file>cross.png</file>
+    <file>folder-open.png</file>
+    <file>disk.png</file>
   </qresource>
 </RCC>

@@ -36,7 +36,7 @@ from marche.version import get_version
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, QMenu, \
-    QPlainTextEdit
+    QPlainTextEdit, QFileDialog
 
 
 class JobButtons(QWidget):
@@ -230,6 +230,44 @@ class MainWidget(QWidget):
             self._cur_tree.reloadJobs()
 
     @qtsig('')
+    def on_actionLoad_session_triggered(self):
+        filename = QFileDialog.getOpenFileName(self, 'Load session', '',
+                                               'Marche sessions (*.marche)')
+        if not filename:
+            return
+        try:
+            with open(filename) as fp:
+                firstline = fp.readline()
+                if firstline.startswith('Marche session v1'):
+                    hosts = [h.strip() for h in fp]
+                else:
+                    raise RuntimeError('Unrecognized file format.')
+        except Exception as err:
+            QMessageBox.critical(self, 'Error', str(err))
+            return
+        self.closeHost()
+        self.hostList.clear()
+        for host in hosts:
+            self.addHost(host)
+        if hosts:
+            self.openHost(hosts[-1])
+
+    @qtsig('')
+    def on_actionSave_session_as_triggered(self):
+        filename = QFileDialog.getSaveFileName(self, 'Save session', '',
+                                               'Marche sessions (*.marche)')
+        if not filename:
+            return
+        try:
+            with open(filename, 'w') as fp:
+                fp.write('Marche session v1\n')
+                for i in range(self.hostList.count()):
+                    fp.write(self.hostList.item(i).text() + '\n')
+        except Exception as err:
+            QMessageBox.critical(self, 'Error', str(err))
+            return
+
+    @qtsig('')
     def on_actionAbout_triggered(self):
         QMessageBox.about(
             self, 'About Marche GUI',
@@ -278,10 +316,7 @@ class MainWidget(QWidget):
         if current:
             self.openHost(current.text(), False)
         else:
-            prev = self.surface.layout().takeAt(0)
-            if prev:
-                prev.widget().hide()
-                prev.widget().deleteLater()
+            self.closeHost()
 
     def on_hostList_customContextMenuRequested(self, pos):
         item = self.hostList.itemAt(pos)
@@ -316,12 +351,15 @@ class MainWidget(QWidget):
         item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
         self.hostList.takeItem(self.hostList.row(item))
 
-    def openHost(self, addr, select_item=True):
+    def closeHost(self):
         prev = self.surface.layout().takeAt(0)
 
         if prev:
             prev.widget().hide()
             prev.widget().deleteLater()
+
+    def openHost(self, addr, select_item=True):
+        self.closeHost()
 
         widget = HostTree(self, self._clients[addr])
         self._cur_tree = widget
