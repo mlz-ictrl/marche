@@ -378,6 +378,7 @@ class MainWidget(QWidget):
     def closeHost(self):
         if self._cur_tree:
             self._cur_tree.clear()
+            self._cur_tree = None
         prev = self.surface.layout().takeAt(0)
         if prev:
             prev.widget().hide()
