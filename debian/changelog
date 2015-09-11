@@ -1,3 +1,12 @@
+marche (0.4.4) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * gui: do NOT open last host.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 11 Sep 2015 16:34:31 +0200
+
 marche (0.4.3) unstable; urgency=low
 
   [ Alexander Lenz ]
