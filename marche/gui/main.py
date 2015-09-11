@@ -362,14 +362,11 @@ class MainWidget(QWidget):
         return addr
 
     def removeHost(self, addr):
-        if addr not in self._clients:
-            return
-        del self._clients[addr]
-
-        item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
-
-        if item:
-            self.hostList.takeItem(self.hostList.row(item))
+        if addr in self._clients:
+            del self._clients[addr]
+        items = self.hostList.findItems(addr, Qt.MatchExactly)
+        if items:
+            self.hostList.takeItem(self.hostList.row(items[0]))
 
     def closeHost(self):
         prev = self.surface.layout().takeAt(0)
@@ -398,13 +395,21 @@ class MainWidget(QWidget):
                     passwd = dlg.passwd
 
                     client = Client(host, port, user, passwd)
+            except Exception as err:
+                QMessageBox.critical(self, 'Connection failed',
+                                     'Could not connect to %s: %s' %
+                                     (addr, err))
+                self.removeHost(addr)
+                return
 
             self._clients[addr] = client
 
         try:
             self._clients[addr].getVersion()
         except ProtocolError as e:
-            QMessageBox.critical(self, 'Connection failed', e.errmsg)
+            QMessageBox.critical(self, 'Connection failed',
+                                 'Could not connect to %s: %s' %
+                                 (addr, e.errmsg))
             self.removeHost(addr)
             return
 
