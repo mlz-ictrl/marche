@@ -1,3 +1,27 @@
+marche (0.4.1) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Use pw for the inplace stuff.
+  * Print version on startup.
+
+  [ Georg Brandl ]
+  * Show better which host needs the password.
+  * Show error box if something goes wrong during connect.
+  * Handle fault better.
+  * Remove unusable client.Ä
+  * Fix deleted c++ objects.
+
+  [ Alexander Lenz ]
+  * Activate host on click.
+
+  [ Georg Brandl ]
+  * More guarding.
+  * Fix version query.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 11 Sep 2015 15:31:23 +0200
+
 marche (0.4.0) unstable; urgency=low
 
   [ Georg Brandl ]
