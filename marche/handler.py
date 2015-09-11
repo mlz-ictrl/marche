@@ -99,6 +99,12 @@ class JobHandler(object):
                 self.jobs[name] = job
                 self.log.info('job %s initialized' % name)
 
+    def _get_job(self, name):
+        try:
+            return self.service2job[name]
+        except KeyError:
+            raise Fault('no such service: %r' % name)
+
     @command()
     def ReloadJobs(self):
         """Reload the jobs and list of their services."""
@@ -118,34 +124,34 @@ class JobHandler(object):
     def Start(self, name):
         """Start a single service."""
         with self._lock:
-            self.service2job[name].start_service(name)
+            self._get_job(name).start_service(name)
 
     @command(intype=STRING)
     def Stop(self, name):
         """Stop a single service."""
         with self._lock:
-            self.service2job[name].stop_service(name)
+            self._get_job(name).stop_service(name)
 
     @command(intype=STRING)
     def Restart(self, name):
         """Restart a single service."""
         with self._lock:
-            self.service2job[name].restart_service(name)
+            self._get_job(name).restart_service(name)
 
     @command(intype=STRING, outtype=INTEGER, silent=True)
     def GetStatus(self, name):
         """Return the status of a single service."""
         with self._lock:
-            return self.service2job[name].service_status(name)
+            return self._get_job(name).service_status(name)
 
     @command(intype=STRING, outtype=STRINGLIST, silent=True)
     def GetOutput(self, name):
         """Return the last lines of output from starting/stopping."""
         with self._lock:
-            return self.service2job[name].service_output(name)
+            return self._get_job(name).service_output(name)
 
     @command(intype=STRING, outtype=STRINGLIST)
     def GetLogs(self, name):
         """Return the most recent lines of the service's logfile."""
         with self._lock:
-            return self.service2job[name].service_logs(name)
+            return self._get_job(name).service_logs(name)
