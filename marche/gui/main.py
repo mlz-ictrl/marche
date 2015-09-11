@@ -361,6 +361,7 @@ class MainWidget(QWidget):
             self.removeHost(addr)
 
     def addHost(self, addr):
+        self.removeHost(addr)
         host, port = normalizeAddr(addr, 8124)
         addr = host + ':' + port
         if addr not in self._clients:
