@@ -414,6 +414,7 @@ class MainWidget(QWidget):
             QMessageBox.critical(self, 'Connection failed',
                                  'Could not connect to %s: %s' %
                                  (addr, e.errmsg))
+            del self._clients[addr]
             return
 
         widget = HostTree(self, self._clients[addr])
