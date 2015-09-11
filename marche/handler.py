@@ -27,6 +27,7 @@
 
 from threading import Lock
 
+from marche import __version__
 from marche.jobs import Busy, Fault
 
 # Input/output types
@@ -113,6 +114,11 @@ class JobHandler(object):
             self.jobs = {}
             self.service2job = {}
             self._add_jobs()
+
+    @command(outtype=STRING, silent=True)
+    def GetVersion(self):
+        """Return the version of the Marche daemon."""
+        return __version__
 
     @command(outtype=STRINGLIST, silent=True)
     def GetServices(self):
