@@ -153,9 +153,12 @@ class HostTree(QTreeWidget):
         self.setMinimumWidth(width+25)
         # self.collapseAll()
 
+    def clear(self):
+        self._items.clear()
+        QTreeWidget.clear(self)
+
     def fill(self):
         self.clear()
-        self._items.clear()
         services = self._client.getServices()
 
         for service, instances in services.iteritems():
@@ -369,8 +372,9 @@ class MainWidget(QWidget):
             self.hostList.takeItem(self.hostList.row(items[0]))
 
     def closeHost(self):
+        if self._cur_tree:
+            self._cur_tree.clear()
         prev = self.surface.layout().takeAt(0)
-
         if prev:
             prev.widget().hide()
             prev.widget().deleteLater()
