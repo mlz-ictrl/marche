@@ -101,6 +101,8 @@ def main():
     if opts.daemonize:
         write_pidfile(config.piddir)
 
+    log.info('Starting marche %s ...' % __version__)
+
     jobhandler = JobHandler(config, log)
 
     # put tango at the end: its server loop needs to run in the foreground
@@ -110,6 +112,7 @@ def main():
         config.interfaces = ifaces
 
     running_interfaces = []
+
 
     for interface in config.interfaces:
         try:
