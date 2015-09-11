@@ -63,3 +63,4 @@ class Job(BaseJob):
     def service_logs(self, name):
         if self.log_file:
             return extractLoglines(self.log_file)
+        return []
