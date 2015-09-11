@@ -334,9 +334,9 @@ class MainWidget(QWidget):
     def on_reloadBtn_clicked(self):
         self.on_actionReload_triggered()
 
-    def on_hostList_currentItemChanged(self, current, previous):
-        if current:
-            self.openHost(current.text(), False)
+    def on_hostList_itemClicked(self, item):
+        if item:
+            self.openHost(item.text(), False)
         else:
             self.closeHost()
 
