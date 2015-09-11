@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from xmlrpclib import ProtocolError
+
 import marche.gui.res  # noqa
 
 from marche.gui.util import loadUi
@@ -37,6 +39,23 @@ from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArra
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, QMenu, \
     QPlainTextEdit, QFileDialog
+
+
+class AuthDialog(QDialog):
+    def __init__(self, parent, title):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'authdlg.ui')
+        self.setWindowTitle(title)
+
+    @property
+    def user(self):
+        self.userLineEdit.text()
+
+    @property
+    def passwd(self):
+        self.passwdLineEdit.text()
+
+
 
 
 class JobButtons(QWidget):
@@ -338,7 +357,6 @@ class MainWidget(QWidget):
         host, port = normalizeAddr(addr, 8124)
         addr = host + ':' + port
         if addr not in self._clients:
-            self._clients[addr] = Client(host, port)
             item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
             self.hostList.addItem(item)
         return addr
@@ -360,6 +378,26 @@ class MainWidget(QWidget):
 
     def openHost(self, addr, select_item=True):
         self.closeHost()
+        if addr not in self._clients:
+            host, port = normalizeAddr(addr, 8124)
+
+            try:
+                client = Client(host, port)
+                client.getVersion()
+            except ProtocolError as e:
+                if e.errcode != 401:
+                    raise
+                user = 'marche'
+                passwd = 'marche'
+
+                dlg = AuthDialog('Access %s' % addr)
+                if dlg.exec_():
+                    user = dlg.user
+                    passwd = dlg.passwd
+
+                    client = Client(host, port, user, passwd)
+
+            self._clients[addr] = client
 
         widget = HostTree(self, self._clients[addr])
         self._cur_tree = widget

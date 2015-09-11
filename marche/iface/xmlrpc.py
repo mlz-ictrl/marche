@@ -26,6 +26,7 @@
 import threading
 import xmlrpclib
 import SimpleXMLRPCServer
+import base64
 
 from marche.jobs import Busy, Fault
 from marche.handler import JobHandler, VOID
@@ -40,6 +41,19 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
     def log_message(self, fmt, *args):
         self.log.debug('[%s] %s' % (self.client_address[0], fmt % args))
+
+class AuthRequestHandler(RequestHandler):
+    USER = 'marche'
+    PASSWD = 'marche'
+
+    def do_POST(self):
+        auth = base64.b64encode('%s:%s' % (self.USER, self.PASSWD))
+
+        if auth != self.headers['Authorization']:
+            self.send_error(401)
+            return
+
+        return SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.do_POST(self)
 
 
 def command(method, is_void):
@@ -81,8 +95,19 @@ class Interface(object):
     def run(self):
         port = int(self.config.interface_config['xmlrpc']['port'])
         host = self.config.interface_config['xmlrpc']['host']
+        user = self.config.interface_config['xmlrpc']['user']
+        passwd = self.config.interface_config['xmlrpc']['passwd']
+
+
+        requestHandler = RequestHandler
+        if passwd:
+            self.log.info('Use authentication functionality')
+            requestHandler = AuthRequestHandler
+            AuthRequestHandler.USER = user
+            AuthRequestHandler.PASSWD = passwd
+
         server = SimpleXMLRPCServer.SimpleXMLRPCServer(
-            (host, port), requestHandler=RequestHandler)
+            (host, port), requestHandler=requestHandler)
         server.register_introspection_functions()
         server.register_instance(RPCFunctions(self.jobhandler, self.log))
 

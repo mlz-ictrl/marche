@@ -35,9 +35,9 @@ class PollThread(QThread):
     # service, instance, status
     newData = pyqtSignal(object, object, int)
 
-    def __init__(self, host, port, loopDelay=3.0, parent=None):
+    def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0, parent=None):
         QThread.__init__(self, parent)
-        self._client = Client(host, port)
+        self._client = Client(host, port, user, passwd)
         self._loopDelay = loopDelay
         self.running = True
 
@@ -68,10 +68,17 @@ class ClientError(Exception):
 
 
 class Client(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, user=None, passwd=None):
         self.host = host
         self.port = port
-        self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
+        self.user = user
+        self.passwd = passwd
+
+        if user is not None and passwd is not None:
+            self._proxy = ServerProxy('http://%s:%s@%s:%s/xmlrpc'
+                                      % (user, passwd, host, port))
+        else:
+            self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
         self._lock = threading.Lock()
         self._pollThread = None
 
@@ -79,7 +86,10 @@ class Client(object):
         self._pollThread.running = False
 
     def startPoller(self, slot):
-        self._pollThread = PollThread(self.host, self.port)
+        self._pollThread = PollThread(self.host,
+                                      self.port,
+                                      self.user,
+                                      self.passwd)
         self._pollThread.newData.connect(slot)
         self._pollThread.start()
 
@@ -156,3 +166,7 @@ class Client(object):
         servicePath = self.getServicePath(service, instance)
         with self._lock:
             return self._proxy.GetLogs(servicePath)
+
+    def getVersion(self):
+        with self._lock:
+            return self._proxy.GetVersion()

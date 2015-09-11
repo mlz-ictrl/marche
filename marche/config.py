@@ -50,7 +50,9 @@ class Config(object):
     interface_config = {
         'xmlrpc': {
             'host': '0.0.0.0',
-            'port': 8124
+            'port': 8124,
+            'user': 'marche',
+            'passwd': '',
         },
         'tango': {},
         'udp' : {
