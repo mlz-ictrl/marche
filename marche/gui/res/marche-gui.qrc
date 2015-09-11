@@ -11,5 +11,6 @@
     <file>server-cast.png</file>
     <file>ui-progress-bar.png</file>
     <file>terminal.png</file>
+    <file>cross.png</file>
   </qresource>
 </RCC>

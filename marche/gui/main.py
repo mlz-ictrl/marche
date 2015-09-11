@@ -35,7 +35,7 @@ from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, \
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, QMenu, \
     QPlainTextEdit
 
 
@@ -259,6 +259,10 @@ class MainWidget(QWidget):
             ''' % get_version())
 
     @qtsig('')
+    def on_actionAbout_Qt_triggered(self):
+        QMessageBox.aboutQt(self, 'About Qt')
+
+    @qtsig('')
     def on_addHostBtn_clicked(self):
         self.on_actionAdd_host_triggered()
 
@@ -270,12 +274,30 @@ class MainWidget(QWidget):
     def on_reloadBtn_clicked(self):
         self.on_actionReload_triggered()
 
-    def on_hostListWidget_currentItemChanged(self, current, previous):
-        self.openHost(current.text(), False)
+    def on_hostList_currentItemChanged(self, current, previous):
+        if current:
+            self.openHost(current.text(), False)
+        else:
+            prev = self.surface.layout().takeAt(0)
+            if prev:
+                prev.widget().hide()
+                prev.widget().deleteLater()
 
-    @qtsig('')
-    def on_actionAbout_Qt_triggered(self):
-        QMessageBox.aboutQt(self, 'About Qt')
+    def on_hostList_customContextMenuRequested(self, pos):
+        item = self.hostList.itemAt(pos)
+        if not item:
+            return
+        self._showHostContextMenu(pos, item)
+
+    def _showHostContextMenu(self, pos, item):
+        contextMenu = QMenu()
+        removeAction = contextMenu.addAction('Remove')
+        removeAction.setIcon(QIcon(':/marche/cross.png'))
+
+        chosenAction = contextMenu.exec_(self.hostList.viewport().mapToGlobal(pos))
+        if chosenAction == removeAction:
+            addr = item.text()
+            self.removeHost(addr)
 
     def addHost(self, addr):
         host, port = normalizeAddr(addr, 8124)
@@ -283,7 +305,7 @@ class MainWidget(QWidget):
         if addr not in self._clients:
             self._clients[addr] = Client(host, port)
             item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
-            self.hostListWidget.addItem(item)
+            self.hostList.addItem(item)
         return addr
 
     def removeHost(self, addr):
@@ -291,9 +313,8 @@ class MainWidget(QWidget):
             return
         del self._clients[addr]
 
-        item = self.hostListWidget.findItem(addr)
-        item.setSizeHint(QSize(0, 30))
-        self.hostListWidget.takeItem(item)
+        item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
+        self.hostList.takeItem(self.hostList.row(item))
 
     def openHost(self, addr, select_item=True):
         prev = self.surface.layout().takeAt(0)
@@ -309,8 +330,8 @@ class MainWidget(QWidget):
         widget.show()
 
         if select_item:
-            item = self.hostListWidget.findItems(addr, Qt.MatchExactly)[0]
-            self.hostListWidget.setCurrentItem(item)
+            item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
+            self.hostList.setCurrentItem(item)
 
     def scanNetwork(self):
         hosts = Scanner(self).run()

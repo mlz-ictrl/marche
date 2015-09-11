@@ -100,7 +100,10 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="hostListWidget">
+        <widget class="QListWidget" name="hostList">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
          <property name="iconSize">
           <size>
            <width>16</width>
@@ -191,6 +194,5 @@
  <resources>
   <include location="../res/marche-gui.qrc"/>
  </resources>
- <connections>
- </connections>
+ <connections/>
 </ui>
