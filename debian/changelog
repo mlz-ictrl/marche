@@ -1,3 +1,12 @@
+marche (0.4.7) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Remove local gen file.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 14 Sep 2015 13:30:16 +0200
+
 marche (0.4.6) unstable; urgency=low
 
   [ Alexander Lenz ]
