@@ -35,7 +35,9 @@ srcdir =  path.dirname(__file__)
 uidir = path.join(srcdir, 'marche', 'gui', 'ui')
 uis = [path.join('gui', 'ui', entry) for entry in listdir(uidir)]
 
-configs = glob.glob(path.join(srcdir, 'etc', '*.conf*'))
+configs = glob.glob(path.join(srcdir, 'etc', '*.conf'))
+configs += glob.glob(path.join(srcdir, 'etc', 'dist', '*.conf'))
+configs.remove('etc/general.conf')
 
 setup(
     name = 'marche',
