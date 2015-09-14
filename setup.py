@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+import glob
 from setuptools import setup, find_packages
 from os import listdir, path
 
@@ -30,8 +31,11 @@ import marche.version
 
 scripts = ['bin/marched', 'bin/marche-gui', 'bin/marche-gensyscfg']
 
-uidir = path.join(path.dirname(__file__), 'marche', 'gui', 'ui')
+srcdir =  path.dirname(__file__)
+uidir = path.join(srcdir, 'marche', 'gui', 'ui')
 uis = [path.join('gui', 'ui', entry) for entry in listdir(uidir)]
+
+configs = glob.glob(path.join(srcdir, 'etc', '*.conf*'))
 
 setup(
     name = 'marche',
@@ -43,7 +47,8 @@ setup(
     packages = find_packages(),
     package_data = {'marche': ['RELEASE-VERSION'] + uis},
     data_files = [
-        ('/etc/init.d', ['etc/marched'])
+        ('/etc/init.d', ['etc/marched']),
+        ('/etc/marche', configs)
     ],
     scripts = scripts,
     classifiers = [

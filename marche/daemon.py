@@ -47,7 +47,7 @@ from marche.handler import JobHandler
 
 def main():
     inplace = path.exists(path.join(path.dirname(__file__), '..', '.git'))
-    inplaceCfg = path.join(path.dirname(__file__), '..', 'devconfig')
+    inplaceCfg = path.join(path.dirname(__file__), '..', 'etc')
 
     parser = optparse.OptionParser(
         usage='%prog [options]',
@@ -84,8 +84,8 @@ def main():
             print >>sys.stderr, 'cannot open logfile:', e
         else:
             log.exception('cannot open logfile: %s', e)
-            if opts.configdir == '/etc/marche' and os.path.isdir('devconfig'):
-                log.info('consider using `-c devconfig` from a checkout')
+            if opts.configdir == '/etc/marche' and os.path.isdir('etc'):
+                log.info('consider using `-c etc` from a checkout')
         return 1
 
     if not config.interfaces:

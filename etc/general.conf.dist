@@ -1,0 +1,25 @@
+[general]
+# interfaces to export 
+# interfaces = xmlrpc, udp, tango
+interfaces = xmlrpc, udp
+
+# Output directory for log files
+logdir  = /var/log
+
+# Output directory for pid files
+piddir = /var/run
+
+
+# Interface configuration: xmlrpc
+[interface.xmlrpc]
+# Host to bind to
+# host = 0.0.0.0
+
+# Port to bind to
+port = 8124
+
+# User for authentication
+# user = marche
+
+# Password for authentication
+passwd = marche
