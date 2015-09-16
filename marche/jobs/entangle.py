@@ -85,6 +85,10 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
 
+        self._ok = (path.exists(CONFIG) and path.exists(INITSCR))
+
+        if not self._ok:
+            return
         cfg = ConfigParser.RawConfigParser()
         cfg.read(CONFIG)
 
@@ -102,7 +106,7 @@ class Job(BaseJob):
         self._servers = sorted(all_servers)
 
     def check(self):
-        if not (path.exists(CONFIG) and path.exists(INITSCR)):
+        if not self._ok:
             self.log.error('%s or %s missing' % (CONFIG, INITSCR))
             return False
         return True
