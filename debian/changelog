@@ -1,3 +1,13 @@
+marche (0.4.8) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix init logic.
+  * Stop polling on closed hosts.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 16 Sep 2015 13:21:44 +0200
+
 marche (0.4.7) unstable; urgency=low
 
   [ Alexander Lenz ]
