@@ -82,8 +82,9 @@ class Client(object):
         self._lock = threading.Lock()
         self._pollThread = None
 
-    def stop(self):
-        self._pollThread.running = False
+    def stopPoller(self):
+        if self._pollThread:
+            self._pollThread.running = False
 
     def startPoller(self, slot):
         self._pollThread = PollThread(self.host,

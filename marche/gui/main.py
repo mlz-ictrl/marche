@@ -132,7 +132,6 @@ class HostTree(QTreeWidget):
     def __init__(self, parent, client):
         QTreeWidget.__init__(self, parent)
         self._client = client
-        self._client.startPoller(self.updateStatus)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
@@ -154,12 +153,14 @@ class HostTree(QTreeWidget):
         # self.collapseAll()
 
     def clear(self):
+        self._client.stopPoller()
         self._items.clear()
         QTreeWidget.clear(self)
 
     def fill(self):
         self.clear()
         services = self._client.getServices()
+        self._client.startPoller(self.updateStatus)
 
         for service, instances in services.iteritems():
             serviceItem = QTreeWidgetItem([service])
