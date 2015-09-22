@@ -204,13 +204,23 @@ class AsyncProcess(Thread):
 
 
 def extractLoglines(filename, n=50):
+    def extract(filename):
+        shortfn = path.basename(filename)
+        lines = collections.deque(maxlen=n)
+        with open(filename, 'r') as fp:
+            for line in fp:
+                lines.append(shortfn + ':' + line)
+        return list(lines)
     if not path.exists(filename):
         return []
-    lines = collections.deque(maxlen=n)
-    with open(filename, 'r') as fp:
-        for line in fp:
-            lines.append(filename + ':' + line)
-    return list(lines)
+    filename = path.realpath(filename)
+    result = extract(filename)
+    # also add rotated logs
+    i = 1
+    while path.exists(filename + '.%d' % i):
+        result.extend(extract(filename + '.%d' % i))
+        i += 1
+    return result
 
 
 def normalizeAddr(addr, defport):
