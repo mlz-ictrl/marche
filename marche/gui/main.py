@@ -215,6 +215,7 @@ class HostTree(QTreeWidget):
     def reloadJobs(self):
         self._client.reloadJobs()
         self.fill()
+        self.expandAll()
 
 
 class MainWidget(QWidget):
