@@ -1,3 +1,14 @@
+marche (0.4.9) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: add tooltips for job control buttons.
+  * gui: expand tree after reload.
+  * utils: search rotated logfiles as well
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 22 Sep 2015 10:25:47 +0200
+
 marche (0.4.8) unstable; urgency=low
 
   [ Georg Brandl ]
