@@ -49,6 +49,9 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Start the service.</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -71,6 +74,9 @@
        <width>30</width>
        <height>16777215</height>
       </size>
+     </property>
+     <property name="toolTip">
+      <string>Stop the service.</string>
      </property>
      <property name="text">
       <string/>
@@ -95,6 +101,9 @@
        <height>16777215</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Restart the service.</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -117,6 +126,9 @@
        <width>30</width>
        <height>16777215</height>
       </size>
+     </property>
+     <property name="toolTip">
+      <string>Show output and logfiles.</string>
      </property>
      <property name="text">
       <string/>
