@@ -286,6 +286,8 @@ class MainWidget(QWidget):
                                                'Marche sessions (*.marche)')
         if not filename:
             return
+        if not filename.endswith('.marche'):
+            filename += '.marche'
         try:
             with open(filename, 'w') as fp:
                 fp.write('Marche session v1\n')
