@@ -14,5 +14,6 @@
     <file>cross.png</file>
     <file>folder-open.png</file>
     <file>disk.png</file>
+    <file>blue-documents-text.png</file>
   </qresource>
 </RCC>

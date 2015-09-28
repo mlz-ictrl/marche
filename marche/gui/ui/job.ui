@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>141</width>
-    <height>29</height>
+    <height>38</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -50,7 +50,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Start the service.</string>
+      <string>Start job</string>
      </property>
      <property name="text">
       <string/>
@@ -76,7 +76,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Stop the service.</string>
+      <string>Stop job</string>
      </property>
      <property name="text">
       <string/>
@@ -102,7 +102,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Restart the service.</string>
+      <string>Restart job</string>
      </property>
      <property name="text">
       <string/>
@@ -128,14 +128,14 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Show output and logfiles.</string>
+      <string>Display logs</string>
      </property>
      <property name="text">
       <string/>
      </property>
      <property name="icon">
       <iconset resource="../res/marche-gui.qrc">
-       <normaloff>:/marche/terminal.png</normaloff>:/marche/terminal.png</iconset>
+       <normaloff>:/marche/blue-documents-text.png</normaloff>:/marche/blue-documents-text.png</iconset>
      </property>
     </widget>
    </item>
