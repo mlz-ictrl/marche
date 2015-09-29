@@ -6,6 +6,8 @@
 Welcome to marche's documentation!
 ==================================
 
+Marche is a server control daemon with multiple interfaces.
+
 Contents:
 
 .. toctree::
@@ -14,6 +16,7 @@ Contents:
    intro
    start
    config
+   gui
    iface
    jobs
 
