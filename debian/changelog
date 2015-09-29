@@ -1,3 +1,15 @@
+marche (0.4.12) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix tooltips.
+
+  [ Alexander Lenz ]
+  * Add missing icon.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 29 Sep 2015 11:31:53 +0200
+
 marche (0.4.11) unstable; urgency=low
 
   [ Alexander Lenz ]
