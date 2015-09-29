@@ -14,8 +14,8 @@ Contents:
    :maxdepth: 2
 
    intro
-   start
    getit
+   start
    config
    gui
    iface
