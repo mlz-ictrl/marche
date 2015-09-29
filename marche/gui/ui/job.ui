@@ -50,7 +50,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Start job</string>
+      <string>Start the service</string>
      </property>
      <property name="text">
       <string/>
@@ -76,7 +76,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Stop job</string>
+      <string>Stop the service</string>
      </property>
      <property name="text">
       <string/>
@@ -102,7 +102,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Restart job</string>
+      <string>Restart the service</string>
      </property>
      <property name="text">
       <string/>
@@ -128,7 +128,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Display logs</string>
+      <string>Show output and logfiles</string>
      </property>
      <property name="text">
       <string/>
