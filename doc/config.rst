@@ -43,3 +43,11 @@ logdir
 
 The directory where all the log files will be stored.
 
+
+interface.xxx sections
+++++++++++++++++++++++
+
+Here are all the interfaces configured that should be provided by marched.
+For details about configuring the different interfaces, have all at the particular
+interface documentation (see: :doc:`iface`).
+
