@@ -44,6 +44,12 @@ logdir
 The directory where all the log files will be stored.
 
 
+Interface configuration
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The interface configuration is usually also done by **general.conf**.
+
+
 interface.xxx sections
 ++++++++++++++++++++++
 
