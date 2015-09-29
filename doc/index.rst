@@ -15,6 +15,7 @@ Contents:
 
    intro
    start
+   getit
    config
    gui
    iface
