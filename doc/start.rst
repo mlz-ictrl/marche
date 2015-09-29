@@ -10,10 +10,9 @@ the boot procedure.
 Additionally, marche's bundled :doc:`graphical user interface <gui>` is installed as **marche-gui**.
 
 |
-|
 
 You should start now by checking (and possibly changing) the general configuration (**general.conf**)
-and configuring your services (see :doc:`jobs`).
+and configuring your services (see :doc:`config` and :doc:`jobs`).
 
 To test your configuration, you can start **marche-gui** which will find your server automatically (if you activated the
 :doc:`udp interface <iface/udp>` and it's within your own network).
