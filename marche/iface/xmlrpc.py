@@ -91,6 +91,39 @@ class RPCFunctions(object):
 
 
 class Interface(object):
+    '''
+    This interface allows remote access via remote procedure calls (RPC)
+    over HTTP in the XML format.
+
+    The configuration settings that can be set within the **interfaces.xmlrpc**
+    section are:
+
+    .. describe:: port
+
+        **Default:** 8124
+
+        The port to listen for xmlrpc requests.
+
+    .. describe:: host
+
+        **Default:** 0.0.0.0
+
+        The host to bind to.
+
+    .. describe:: user
+
+        **Default:** marche
+
+        The user for remote authentication.
+
+    .. describe:: passwd
+
+        **Default:** None
+
+        | The password for remote authentication.
+        | If not password is given, no authentication is used.
+
+    '''
 
     def __init__(self, config, jobhandler, log):
         self.config = config
