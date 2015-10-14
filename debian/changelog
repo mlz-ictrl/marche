@@ -1,3 +1,41 @@
+marche (0.4.13) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Begin doc.
+  * doc: add file structure.
+  * doc: short intro.
+  * doc: get it.
+  * doc: reorder.
+
+  [ Georg Brandl ]
+  * Add theme for older Sphinxes.
+
+  [ Alexander Lenz ]
+  * doc: describe installed stuff.
+
+  [ Georg Brandl ]
+  * Fix markup.
+
+  [ Alexander Lenz ]
+  * doc: getting started.
+  * doc: getting started.
+  * doc: general.conf
+  * doc: general.conf: interface.xxx
+  * doc: config.
+
+  [ Georg Brandl ]
+  * Slight logo change.
+
+  [ Alexander Lenz ]
+  * doc: xmlrpc.
+
+  [ Robert Georgii ]
+  * Allow loading sessions from cmdline.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 14 Oct 2015 10:20:46 +0200
+
 marche (0.4.12) unstable; urgency=low
 
   [ Georg Brandl ]
