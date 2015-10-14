@@ -263,6 +263,9 @@ class MainWidget(QWidget):
                                                'Marche sessions (*.marche)')
         if not filename:
             return
+        self.loadSession(filename)
+
+    def loadSession(self, filename):
         try:
             with open(filename) as fp:
                 firstline = fp.readline()

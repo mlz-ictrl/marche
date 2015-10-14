@@ -63,6 +63,9 @@ class MainWindow(QMainWindow):
     def addHost(self, host):
         self._widget.openHost(self._widget.addHost(host))
 
+    def loadSession(self, filename):
+        self._widget.loadSession(filename)
+
     def closeEvent(self, event):
         self._widget.saveSettings()
         settings = QSettings()
@@ -84,7 +87,10 @@ def main():
     win = MainWindow(scan_on_startup=not opts.noscan)
 
     for arg in args:
-        win.addHost(arg)
+        if arg.endswith('.marche'):
+            win.loadSession(arg)
+        else:
+            win.addHost(arg)
 
     win.show()
 
