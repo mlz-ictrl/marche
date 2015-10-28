@@ -36,7 +36,14 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
         self.init_name = config.get('script', name)
-        self.log_file = config.get('logfile', '')
+        self.log_files = []
+        singlelog = config.get('logfile', '')
+        if singlelog:
+            self.log_files.append(singlelog)
+        multilog = config.get('logfiles', '').split(',')
+        for log in multilog:
+            if log.strip():
+                self.log_files.append(log.strip())
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -58,9 +65,11 @@ class Job(BaseJob):
         self._async_start(name, '/etc/init.d/%s restart' % self.init_name)
 
     def service_status(self, name):
-        return self._async_status(name, '/etc/init.d/%s status' % self.init_name)
+        return self._async_status(name, '/etc/init.d/%s status' %
+                                  self.init_name)
 
     def service_logs(self, name):
-        if self.log_file:
-            return extractLoglines(self.log_file)
-        return []
+        ret = []
+        for log_file in self.log_files:
+            ret.extend(extractLoglines(log_file))
+        return ret
