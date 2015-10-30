@@ -47,7 +47,7 @@ class ScanThread(QThread):
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         s.sendto('PING', ('255.255.255.255', UDP_PORT))
         start = time.time()
-        while time.time() - start < 2.0:  # wait 2 sec max
+        while time.time() - start < 1.0:  # wait 1 sec max
             res = select.select([s], [], [], 0.1)
             if res[0]:
                 try:
@@ -67,10 +67,10 @@ class Scanner(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         loadUi(self, 'scan.ui')
-        self.foundLbl.setText('Found 0 hosts with Marche daemons.')
+        self.foundLbl.setText('Found 0 hosts running Marche.')
 
     def update(self, n):
-        self.foundLbl.setText('Found %d host(s) with Marche daemons.' % n)
+        self.foundLbl.setText('Found %d host(s) running Marche.' % n)
 
     def run(self):
         scanner = ScanThread()
