@@ -9,6 +9,5 @@ Available jobs
    jobs/entangle
    jobs/init
    jobs/nicos
+   jobs/process
    jobs/taco
-
-
