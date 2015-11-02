@@ -30,14 +30,18 @@ from __future__ import print_function
 import os
 import re
 import sys
-import pwd
-import grp
 import socket
 import select
 import collections
 from os import path
 from threading import Thread
 from subprocess import Popen, PIPE
+
+try:
+    import pwd
+    import grp
+except ImportError:
+    pwd = grp = None
 
 
 def ensure_directory(dirname):
@@ -96,7 +100,7 @@ def setuser(user, group, recover=True):
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
     """
-    if os.geteuid() != 0:
+    if not hasattr(os, 'geteuid') or os.geteuid() != 0:
         return
     # switch user
     if group:
@@ -204,7 +208,7 @@ class AsyncProcess(Thread):
         self.done = True
 
 
-nontext_re = re.compile('[^\x20-\x7e]')
+nontext_re = re.compile('[^\n\t\x20-\x7e]')
 
 
 def extractLoglines(filename, n=50):

@@ -43,6 +43,7 @@ from marche.config import Config
 from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile
 from marche.loggers import ColoredConsoleHandler, LogfileHandler
 from marche.handler import JobHandler
+from marche.colors import nocolor
 
 
 def main():
@@ -66,6 +67,9 @@ def main():
     if args:
         parser.print_usage()
         return 1
+
+    if os.name == 'nt':
+        nocolor()
 
     config = Config(opts.configdir)
 
