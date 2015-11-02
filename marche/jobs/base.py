@@ -77,10 +77,12 @@ class Job(object):
     # Public interface
 
     def check(self):
-        """
-        Checks if the job can be used at all (on this system).
-        """
+        """Check if the job can be used at all (on this system)."""
         return True
+
+    def init(self):
+        """Initialize job."""
+        pass
 
     def get_services(self):
         return []

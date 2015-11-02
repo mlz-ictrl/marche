@@ -98,6 +98,7 @@ class JobHandler(object):
                 self.log.exception('could not initialize job %s: %s' % (name, err))
             else:
                 self.jobs[name] = job
+                job.init()
                 self.log.info('job %s initialized' % name)
 
     def _get_job(self, name):

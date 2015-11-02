@@ -73,6 +73,7 @@ class Job(BaseJob):
         self.output_file = config.get('outputfile', None)
         if self.working_dir is None:
             self.working_dir = path.dirname(self.binary)
+        self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
         self.log_files = []
         for log in config.get('logfiles', self.output_file or '').split(','):
             if log.strip():
@@ -84,6 +85,10 @@ class Job(BaseJob):
             self.log.error('%s missing' % self.binary)
             return False
         return True
+
+    def init(self):
+        if self.autostart:
+            self.start_service(self.short_name)
 
     def get_services(self):
         return [self.short_name]
