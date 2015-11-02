@@ -28,6 +28,7 @@
 from __future__ import print_function
 
 import os
+import re
 import sys
 import pwd
 import grp
@@ -203,13 +204,16 @@ class AsyncProcess(Thread):
         self.done = True
 
 
+nontext_re = re.compile('[^\x20-\x7e]')
+
+
 def extractLoglines(filename, n=50):
     def extract(filename):
         shortfn = path.basename(filename)
         lines = collections.deque(maxlen=n)
         with open(filename, 'r') as fp:
             for line in fp:
-                lines.append(shortfn + ':' + line)
+                lines.append(shortfn + ':' + nontext_re.sub('', line))
         return list(lines)
     if not path.exists(filename):
         return []
