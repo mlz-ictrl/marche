@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>237</width>
-    <height>115</height>
+    <width>287</width>
+    <height>139</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -65,12 +65,20 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="saveBox">
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>passwdLineEdit</tabstop>
-  <tabstop>userLineEdit</tabstop>
+  <tabstop>saveBox</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>userLineEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>

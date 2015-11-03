@@ -23,6 +23,7 @@
 #
 # *****************************************************************************
 
+import binascii
 from xmlrpclib import ProtocolError, Fault
 
 import marche.gui.res  # noqa
@@ -30,15 +31,16 @@ import marche.gui.res  # noqa
 from marche.gui.util import loadUi
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
-from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, STOPPING, \
-    INITIALIZING
+from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
+    STOPPING, INITIALIZING
 from marche.utils import normalizeAddr
 from marche.version import get_version
 
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, QByteArray
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
+    QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, QMenu, \
-    QPlainTextEdit, QFileDialog, QDialogButtonBox
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, \
+    QMenu, QPlainTextEdit, QFileDialog, QDialogButtonBox
 
 
 class AuthDialog(QDialog):
@@ -56,6 +58,10 @@ class AuthDialog(QDialog):
     @property
     def passwd(self):
         return str(self.passwdLineEdit.text()).strip()
+
+    @property
+    def save_creds(self):
+        return self.saveBox.isChecked()
 
 
 class JobButtons(QWidget):
@@ -96,8 +102,10 @@ class JobButtons(QWidget):
     def on_outputBtn_clicked(self):
         self._item.setText(3, '')
         try:
-            output = self._client.getServiceOutput(self._service, self._instance)
-            loglines = self._client.getServiceLogs(self._service, self._instance)
+            output = self._client.getServiceOutput(self._service,
+                                                   self._instance)
+            loglines = self._client.getServiceLogs(self._service,
+                                                   self._instance)
         except ClientError as err:
             self._item.setText(3, str(err))
         dlg = QDialog(self)
@@ -187,7 +195,8 @@ class HostTree(QTreeWidget):
                     instanceItem.setForeground(3, QBrush(QColor('red')))
                     serviceItem.addChild(instanceItem)
 
-                    btn = JobButtons(self._client, service, instance, instanceItem)
+                    btn = JobButtons(self._client, service, instance,
+                                     instanceItem)
                     self.setItemWidget(instanceItem, 2, btn)
 
                     self._items[service][instance] = instanceItem
@@ -203,8 +212,10 @@ class HostTree(QTreeWidget):
             item = self._items[service][instance]
 
         colors = self.STATE_COLORS.get(status, ('gray', ''))
-        item.setForeground(1, QBrush(QColor(colors[0])) if colors[0] else QBrush())
-        item.setBackground(1, QBrush(QColor(colors[1])) if colors[1] else QBrush())
+        item.setForeground(1, QBrush(QColor(colors[0]))
+                           if colors[0] else QBrush())
+        item.setBackground(1, QBrush(QColor(colors[1]))
+                           if colors[1] else QBrush())
         item.setText(1, STATE_STR[status])
 
         if status in [STARTING, INITIALIZING, STOPPING]:
@@ -310,14 +321,16 @@ class MainWidget(QWidget):
               (C) 2015 MLZ instrument control
             </p>
             <p>
-              Marche GUI is a graphical interface for the Marche process control system.
+              Marche GUI is a graphical interface for the Marche process
+              control system.
             </p>
             <h3>Authors:</h3>
             <ul>
               <li>Copyright (C) 2015
                 <a href="mailto:g.brandl@fz-juelich.de">Georg Brandl</a></li>
               <li>Copyright (C) 2015
-                <a href="mailto:alexander.lenz@frm2.tum.de">Alexander Lenz</a></li>
+                <a href="mailto:alexander.lenz@frm2.tum.de">Alexander
+                Lenz</a></li>
             </ul>
             <p>
               Marche is published under the
@@ -362,7 +375,8 @@ class MainWidget(QWidget):
         removeAction = contextMenu.addAction('Remove')
         removeAction.setIcon(QIcon(':/marche/cross.png'))
 
-        chosenAction = contextMenu.exec_(self.hostList.viewport().mapToGlobal(pos))
+        chosenAction = contextMenu.exec_(
+            self.hostList.viewport().mapToGlobal(pos))
         if chosenAction == removeAction:
             addr = item.text()
             self.removeHost(addr)
@@ -393,25 +407,58 @@ class MainWidget(QWidget):
             prev.widget().deleteLater()
 
     def openHost(self, addr, select_item=True):
-        self.closeHost()
-        if addr not in self._clients:
-            host, port = normalizeAddr(addr, 8124)
-
+        def try_connect(host, port, user, passwd):
             try:
-                client = Client(host, port)
+                client = Client(host, port, user, passwd)
                 client.getVersion()
             except ProtocolError as e:
                 if e.errcode != 401:
                     raise
-                user = 'marche'
-                passwd = 'marche'
+                return
+            return client
 
+        def negotiate(addr):
+            host, port = normalizeAddr(addr, 8124)
+            settings = QSettings('marche-gui')
+
+            # try without credentials
+            client = try_connect(host, port, None, None)
+            if client:
+                return client
+
+            # try saved credentials
+            user = settings.value('creds/user/%s' % host)
+            if user:
+                passwd = binascii.a2b_base64(
+                    settings.value('creds/pass/%s' % host))
+                client = try_connect(host, port, user, passwd)
+                if client:
+                    return client
+
+            # ask for credentials
+            while True:
                 dlg = AuthDialog(self, 'Authenticate at %s' % addr)
-                if dlg.exec_():
-                    user = dlg.user
-                    passwd = dlg.passwd
+                if not dlg.exec_():
+                    break
+                user = dlg.user
+                passwd = dlg.passwd
 
-                    client = Client(host, port, user, passwd)
+                if dlg.save_creds:
+                    settings.setValue('creds/user/%s' % host, user)
+                    settings.setValue('creds/pass/%s' % host,
+                                      binascii.b2a_base64(passwd))
+
+                client = try_connect(host, port, user, passwd)
+                if client:
+                    return client
+
+            # no luck!
+            raise RuntimeError('valid login credentials needed')
+
+        self.closeHost()
+        if addr not in self._clients:
+            try:
+                self._clients[addr] = negotiate(addr)
             except Fault as err:
                 QMessageBox.critical(self, 'Connection failed',
                                      'Could not connect to %s: %s' %
@@ -422,8 +469,6 @@ class MainWidget(QWidget):
                                      'Could not connect to %s: %s' %
                                      (addr, err))
                 return
-
-            self._clients[addr] = client
 
         try:
             self._clients[addr].getVersion()
