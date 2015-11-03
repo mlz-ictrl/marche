@@ -1,3 +1,17 @@
+marche (0.4.16) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Scan: better message, reduce timeout to 1sec.
+  * log extract: remove nonprintables
+  * jobs: add a simple process control job
+  * Minor changes for Window support.
+  * Allow "process" type services to autostart.
+  * Allow saving credentials.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 03 Nov 2015 13:56:50 +0100
+
 marche (0.4.15) unstable; urgency=low
 
   [ Georg Brandl ]
