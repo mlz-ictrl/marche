@@ -186,7 +186,7 @@ class HostTree(QTreeWidget):
                 lbl = QLabel(self)
                 lbl.setMinimumSize(QSize(30, 30))
                 self.setItemWidget(serviceItem, 2, lbl)
-                self._items[service] = {}
+                self._items[service] = (serviceItem, {})
                 for instance in instances:
                     instanceItem = QTreeWidgetItem([instance])
                     instanceItem.setForeground(1, QBrush(QColor('white')))
@@ -199,17 +199,20 @@ class HostTree(QTreeWidget):
                                      instanceItem)
                     self.setItemWidget(instanceItem, 2, btn)
 
-                    self._items[service][instance] = instanceItem
+                    self._items[service][1][instance] = instanceItem
 
     def updateStatus(self, service, instance, status):
         if service not in self._items:
             return
-        item = self._items[service]
 
         if instance:
-            if instance not in self._items[service]:
+            if instance not in self._items[service][1]:
                 return
-            item = self._items[service][instance]
+            parentitem = self._items[service][0]
+            item = self._items[service][1][instance]
+        else:
+            parentitem = None
+            item = self._items[service]
 
         colors = self.STATE_COLORS.get(status, ('gray', ''))
         item.setForeground(1, QBrush(QColor(colors[0]))
@@ -217,11 +220,35 @@ class HostTree(QTreeWidget):
         item.setBackground(1, QBrush(QColor(colors[1]))
                            if colors[1] else QBrush())
         item.setText(1, STATE_STR[status])
+        item.setData(1, 32, status)
 
         if status in [STARTING, INITIALIZING, STOPPING]:
             item.setIcon(1, QIcon(':/marche/ui-progress-bar.png'))
         else:
             item.setIcon(1, QIcon())
+
+        if parentitem:
+            self.updateParentItem(parentitem)
+
+    def updateParentItem(self, item):
+        statuses = set()
+        for i in range(item.childCount()):
+            child = item.child(i)
+            statuses.add(child.data(1, 32))
+        if not statuses:
+            return
+        if len(statuses) == 1:
+            status = statuses.pop()
+            colors = self.STATE_COLORS.get(status, ('gray', ''))
+            item.setForeground(1, QBrush(QColor(colors[0]))
+                               if colors[0] else QBrush())
+            item.setBackground(1, QBrush(QColor(colors[1]))
+                               if colors[1] else QBrush())
+            item.setText(1, 'ALL %s' % STATE_STR[status])
+        else:
+            item.setText(1, 'MIXED')
+            item.setForeground(1, QBrush(QColor('black')))
+            item.setBackground(1, QBrush(QColor('lightgray')))
 
     def reloadJobs(self):
         self._client.reloadJobs()
