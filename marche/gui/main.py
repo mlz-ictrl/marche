@@ -231,24 +231,30 @@ class HostTree(QTreeWidget):
             self.updateParentItem(parentitem)
 
     def updateParentItem(self, item):
-        statuses = set()
-        for i in range(item.childCount()):
-            child = item.child(i)
-            statuses.add(child.data(1, 32))
+        statuses = {}
+        total = item.childCount()
+        for i in range(total):
+            chst = item.child(i).data(1, 32)
+            count = statuses.setdefault(chst, 0)
+            statuses[chst] = count + 1
         if not statuses:
             return
-        if len(statuses) == 1:
-            status = statuses.pop()
+        if None in statuses:
+            item.setText(1, '')
+            item.setForeground(1, QBrush(QColor('black')))
+            item.setBackground(1, QBrush())
+        elif len(statuses) == 1:
+            status, _ = statuses.popitem()
             colors = self.STATE_COLORS.get(status, ('gray', ''))
             item.setForeground(1, QBrush(QColor(colors[0]))
                                if colors[0] else QBrush())
             item.setBackground(1, QBrush(QColor(colors[1]))
                                if colors[1] else QBrush())
-            item.setText(1, 'ALL %s' % STATE_STR[status])
+            item.setText(1, 'ALL %d %s' % (total, STATE_STR[status]))
         else:
-            item.setText(1, 'MIXED')
+            item.setText(1, '%d/%d RUNNING' % (statuses[RUNNING], total))
             item.setForeground(1, QBrush(QColor('black')))
-            item.setBackground(1, QBrush(QColor('lightgray')))
+            item.setBackground(1, QBrush(QColor('#ffcccc')))
 
     def reloadJobs(self):
         self._client.reloadJobs()
