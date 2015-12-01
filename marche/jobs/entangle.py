@@ -93,16 +93,17 @@ class Job(BaseJob):
         cfg.read(CONFIG)
 
         if cfg.has_option('entangle', 'resdir'):
-            resdir = cfg.get('entangle', 'resdir')
+            self._resdir = cfg.get('entangle', 'resdir')
         else:
-            resdir = '/etc/entangle'
+            self._resdir = '/etc/entangle'
         if cfg.has_option('entangle', 'logdir'):
             self._logdir = cfg.get('entangle', 'logdir')
         else:
             self._logdir = '/var/log/entangle'
 
         all_servers = ['entangle.' + base for (base, ext) in
-                       map(path.splitext, os.listdir(resdir)) if ext == '.res']
+                       map(path.splitext, os.listdir(self._resdir))
+                       if ext == '.res']
         self._servers = sorted(all_servers)
 
     def check(self):
@@ -130,3 +131,13 @@ class Job(BaseJob):
     def service_logs(self, name):
         logname = path.join(self._logdir, name[9:], 'current')
         return extractLoglines(logname)
+
+    def receive_config(self, name):
+        cfgname = path.join(self._resdir, name[9:] + '.res')
+        return [name[9:] + '.res', open(cfgname).read()]
+
+    def send_config(self, name, data):
+        cfgname = path.join(self._resdir, name[9:] + '.res')
+        if len(data) != 2 or data[0] != name[9:] + '.res':
+            return
+        open(cfgname, 'w').write(data[1])

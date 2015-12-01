@@ -35,7 +35,8 @@ class PollThread(QThread):
     # service, instance, status
     newData = pyqtSignal(object, object, int)
 
-    def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0, parent=None):
+    def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0,
+                 parent=None):
         QThread.__init__(self, parent)
         self._client = Client(host, port, user, passwd)
         self._loopDelay = loopDelay
@@ -51,7 +52,8 @@ class PollThread(QThread):
                     self.newData.emit(service, None, status)
                 else:
                     for instance in instances:
-                        status = self._client.getServiceStatus(service, instance)
+                        status = self._client.getServiceStatus(service,
+                                                               instance)
                         self.newData.emit(service, instance, status)
 
             time.sleep(self._loopDelay)

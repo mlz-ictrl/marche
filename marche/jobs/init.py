@@ -44,6 +44,7 @@ class Job(BaseJob):
         for log in multilog:
             if log.strip():
                 self.log_files.append(log.strip())
+        self.config_file = config.get('configfile', '')
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -73,3 +74,13 @@ class Job(BaseJob):
         for log_file in self.log_files:
             ret.extend(extractLoglines(log_file))
         return ret
+
+    def receive_config(self, name):
+        if not self.config_file:
+            return []
+        return [path.basename(self.config_file), open(self.config_file).read()]
+
+    def send_config(self, name, data):
+        if len(data) != 2 or data[0] != path.basename(self.config_file):
+            return
+        open(self.config_file, 'w').write(data[1])

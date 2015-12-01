@@ -44,10 +44,12 @@ def command(intype=VOID, outtype=VOID, silent=False):
             try:
                 return f(self, *args)
             except Busy as err:
-                self.log.error('%s%s failed: busy (%s)' % (f.__name__, args, err))
+                self.log.error('%s%s failed: busy (%s)' %
+                               (f.__name__, args, err))
                 raise
             except Fault as err:
-                self.log.error('%s%s failed: fault (%s)' % (f.__name__, args, err))
+                self.log.error('%s%s failed: fault (%s)' %
+                               (f.__name__, args, err))
                 raise
             except Exception:
                 self.log.exception('unexpected exception occurred')
@@ -75,13 +77,15 @@ class JobHandler(object):
         self.log.info('adding jobs...')
         for (name, config) in self.config.job_config.items():
             if 'type' not in config:
-                self.log.warning('job %r has no type assigned, ignoring' % name)
+                self.log.warning('job %r has no type assigned, '
+                                 'ignoring' % name)
                 continue
             try:
-                mod = __import__('marche.jobs.%s' % config['type'], {}, {}, 'Job')
+                mod = __import__('marche.jobs.%s' % config['type'], {}, {},
+                                 'Job')
             except Exception as err:
-                self.log.exception('could not import module %r for job %s: %s' %
-                                   (config['type'], name, err))
+                self.log.exception('could not import module %r for job %s: %s'
+                                   % (config['type'], name, err))
                 continue
             try:
                 job = mod.Job(name, config, self.log)
@@ -89,13 +93,15 @@ class JobHandler(object):
                     raise RuntimeError('feasibility check failed')
                 for service in job.get_services():
                     if service in self.service2job:
-                        raise RuntimeError('duplicate service name %r, provided by jobs '
-                                           '%s and %s' % (service, name,
-                                                          self.service2job[service].name))
+                        raise RuntimeError('duplicate service name %r, '
+                                           'provided by jobs %s and %s' %
+                                           (service, name,
+                                            self.service2job[service].name))
                     self.service2job[service] = job
                     self.log.info('found service: %s' % service)
             except Exception as err:
-                self.log.exception('could not initialize job %s: %s' % (name, err))
+                self.log.exception('could not initialize job %s: %s' %
+                                   (name, err))
             else:
                 self.jobs[name] = job
                 job.init()
@@ -145,6 +151,12 @@ class JobHandler(object):
         with self._lock:
             self._get_job(name).restart_service(name)
 
+    @command(intype=STRING, outtype=STRING, silent=True)
+    def GetDescription(self, name):
+        """Return a longer description of a single service."""
+        with self._lock:
+            self._get_job(name).service_description(name)
+
     @command(intype=STRING, outtype=INTEGER, silent=True)
     def GetStatus(self, name):
         """Return the status of a single service."""
@@ -162,3 +174,25 @@ class JobHandler(object):
         """Return the most recent lines of the service's logfile."""
         with self._lock:
             return self._get_job(name).service_logs(name)
+
+    @command(intype=STRING, outtype=STRINGLIST)
+    def ReceiveConfig(self, name):
+        """Retrieve the relevant configuration file(s) for this service.
+
+        Returned list: [filename1, contents1, filename2, contents2, ...]
+        """
+        with self._lock:
+            return self._get_job(name).receive_config(name)
+
+    @command(intype=STRINGLIST)
+    def SendConfig(self, data):
+        """Send back the relevant configuration file(s) for this service
+        and install them.  The service might require a restart afterwards.
+
+        Input list: [name, filename1, contents1, filename2, contents2, ...]
+
+        The filenames must correspond to what the ReceiveConfig command
+        returned.
+        """
+        with self._lock:
+            return self._get_job(data[0]).send_config(data[0], data[1:])

@@ -103,8 +103,19 @@ class Job(object):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
 
+    def service_description(self, name):
+        return '(no long description provided)'
+
     def service_output(self, name):
         return list(self._output.get(name, []))
 
     def service_logs(self, name):
         return []
+
+    def receive_config(self, name):
+        raise NotImplementedError('%s.receive_config not implemented'
+                                  % self.__class__.__name__)
+
+    def send_config(self, name, data):
+        raise NotImplementedError('%s.send_config not implemented'
+                                  % self.__class__.__name__)
