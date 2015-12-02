@@ -83,6 +83,7 @@ class Client(object):
             self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
         self._lock = threading.Lock()
         self._pollThread = None
+        self.version = self.getVersion()
 
     def stopPoller(self):
         if self._pollThread:
@@ -157,19 +158,44 @@ class Client(object):
 
     def getServiceStatus(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        with self._lock:
-            return self._proxy.GetStatus(servicePath)
+        try:
+            with self._lock:
+                return self._proxy.GetStatus(servicePath)
+        except Fault as f:
+            raise ClientError(f.faultCode, f.faultString)
 
     def getServiceOutput(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        with self._lock:
-            return self._proxy.GetOutput(servicePath)
+        try:
+            with self._lock:
+                return self._proxy.GetOutput(servicePath)
+        except Fault as f:
+            raise ClientError(f.faultCode, f.faultString)
 
     def getServiceLogs(self, service, instance=None):
         servicePath = self.getServicePath(service, instance)
-        with self._lock:
-            return self._proxy.GetLogs(servicePath)
+        try:
+            with self._lock:
+                return self._proxy.GetLogs(servicePath)
+        except Fault as f:
+            raise ClientError(f.faultCode, f.faultString)
 
     def getVersion(self):
         with self._lock:
-            return self._proxy.GetVersion()
+            return int(self._proxy.GetVersion().strip('v')[:1])
+
+    def receiveServiceConfig(self, service, instance=None):
+        servicePath = self.getServicePath(service, instance)
+        try:
+            with self._lock:
+                return self._proxy.ReceiveConfig(servicePath)
+        except Fault as f:
+            raise ClientError(f.faultCode, f.faultString)
+
+    def sendServiceConfig(self, service, instance=None, data=[]):
+        servicePath = self.getServicePath(service, instance)
+        try:
+            with self._lock:
+                self._proxy.SendConfig([servicePath] + data)
+        except Fault as f:
+            raise ClientError(f.faultCode, f.faultString)

@@ -23,7 +23,10 @@
 #
 # *****************************************************************************
 
+import os
 import binascii
+import tempfile
+from os import path
 from xmlrpclib import ProtocolError, Fault
 
 import marche.gui.res  # noqa
@@ -74,6 +77,13 @@ class JobButtons(QWidget):
         self._service = service
         self._instance = instance
 
+        menu = QMenu(self)
+        menu.addAction(self.actionShow_output)
+        menu.addAction(self.actionShow_logfiles)
+        menu.addSeparator()
+        menu.addAction(self.actionConfigure)
+        self.moreBtn.setMenu(menu)
+
     @qtsig('')
     def on_startBtn_clicked(self):
         self._item.setText(3, '')
@@ -99,18 +109,73 @@ class JobButtons(QWidget):
             self._item.setText(3, str(err))
 
     @qtsig('')
-    def on_outputBtn_clicked(self):
+    def on_actionConfigure_triggered(self):
+        self._item.setText(3, '')
+        if self._client.version < 1:
+            self._item.setText(3, 'Daemon too old')
+            return
+        editor = os.environ.get('EDITOR', 'gedit')
+        try:
+            config = self._client.receiveServiceConfig(self._service,
+                                                       self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
+            return
+        if not config:
+            self._item.setText(3, 'No configs to edit')
+            return
+        elif len(config) % 2 != 0:
+            self._item.setText(3, 'Strange return value')
+            return
+        dtemp = tempfile.mkdtemp()
+        result = []
+        for i in range(0, len(config), 2):
+            fn = config[i]
+            contents = config[i + 1]
+            localfn = path.join(dtemp, fn)
+            open(localfn, 'w').write(contents)
+            if os.system('%s %s' % (editor, localfn)) != 0:
+                self._item.setText(3, 'Editor failed')
+                return
+            result.append(fn)
+            result.append(open(localfn, 'r').read())
+        try:
+            config = self._client.sendServiceConfig(self._service,
+                                                    self._instance,
+                                                    result)
+        except ClientError as err:
+            self._item.setText(3, str(err))
+            return
+
+    @qtsig('')
+    def on_actionShow_output_triggered(self):
         self._item.setText(3, '')
         try:
             output = self._client.getServiceOutput(self._service,
                                                    self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
+            return
+        dlg = QDialog(self)
+        loadUi(dlg, 'details.ui')
+        dlg.outEdit.setPlainText(''.join(output))
+        dlg.exec_()
+
+    @qtsig('')
+    def on_actionShow_logfiles_triggered(self):
+        self._item.setText(3, '')
+        try:
             loglines = self._client.getServiceLogs(self._service,
                                                    self._instance)
         except ClientError as err:
             self._item.setText(3, str(err))
+            return
+        if not loglines:
+            self._item.setText(3, 'Service does not return logs')
+            return
         dlg = QDialog(self)
         loadUi(dlg, 'details.ui')
-        dlg.outEdit.setPlainText(''.join(output))
+        dlg.tabber.clear()
         logs = []
         for logline in loglines:
             filename, content = logline.split(':', 1)
@@ -123,7 +188,7 @@ class JobButtons(QWidget):
             font.setFamily('Monospace')
             widget.setFont(font)
             widget.setPlainText(''.join(content))
-            dlg.tabber.addTab(widget, 'Logfile: ' + filename)
+            dlg.tabber.addTab(widget, filename)
         dlg.exec_()
 
 
@@ -443,7 +508,6 @@ class MainWidget(QWidget):
         def try_connect(host, port, user, passwd):
             try:
                 client = Client(host, port, user, passwd)
-                client.getVersion()
             except ProtocolError as e:
                 if e.errcode != 401:
                     raise
