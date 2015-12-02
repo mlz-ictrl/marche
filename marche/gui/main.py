@@ -317,7 +317,7 @@ class HostTree(QTreeWidget):
                                if colors[1] else QBrush())
             item.setText(1, 'ALL %d %s' % (total, STATE_STR[status]))
         else:
-            item.setText(1, '%d/%d RUNNING' % (statuses[RUNNING], total))
+            item.setText(1, '%d/%d RUNNING' % (statuses.get(RUNNING, 0), total))
             item.setForeground(1, QBrush(QColor('black')))
             item.setBackground(1, QBrush(QColor('#ffcccc')))
 
