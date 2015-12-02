@@ -83,8 +83,7 @@ class Client(object):
             self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
         self._lock = threading.Lock()
         self._pollThread = None
-        with self._lock:
-            self.version = self.getVersion()
+        self.version = self.getVersion()
 
     def stopPoller(self):
         if self._pollThread:
