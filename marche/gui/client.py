@@ -83,7 +83,8 @@ class Client(object):
             self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
         self._lock = threading.Lock()
         self._pollThread = None
-        self.version = self.getVersion()
+        with self._lock:
+            self.version = self.getVersion()
 
     def stopPoller(self):
         if self._pollThread:
@@ -100,6 +101,7 @@ class Client(object):
     def reloadJobs(self):
         with self._lock:
             self._proxy.ReloadJobs()
+            self.version = self.getVersion()
 
     def getServices(self):
         with self._lock:
