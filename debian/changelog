@@ -1,3 +1,15 @@
+marche (0.5.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * update version when reloading
+
+  [ Alexander Lenz ]
+  * Fix cp error.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 02 Dec 2015 12:18:37 +0100
+
 marche (0.5.0) unstable; urgency=low
 
   [ Georg Brandl ]
