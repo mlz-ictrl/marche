@@ -1,3 +1,13 @@
+marche (0.5.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix deadlock.
+  * Add content to the readme.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 02 Dec 2015 12:53:40 +0100
+
 marche (0.5.1) unstable; urgency=low
 
   [ Georg Brandl ]
