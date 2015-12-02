@@ -57,7 +57,7 @@ class TangoSrvJob(InitJob):
             for val in vals:
                 prop.value_string.append(val)
             if dev[0:6] == "class/":
-                db.put_class_property(s = dev.split("/")[1], prop)
+                db.put_class_property(dev.split("/")[1], prop)
             else:
                 db.put_device_property(dev, prop)
 
