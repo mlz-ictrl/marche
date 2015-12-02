@@ -1,3 +1,16 @@
+marche (0.5.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Show status of job groups.
+  * Little nicer group status.
+  * Protocol: add new methods
+  * Handler: use a separate protocol version
+  * GUI: add gui for config edit
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 02 Dec 2015 10:55:47 +0100
+
 marche (0.4.16) unstable; urgency=low
 
   [ Georg Brandl ]
