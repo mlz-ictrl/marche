@@ -34,12 +34,12 @@ from marche.jobs.init import Job as InitJob
 _DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
 
 
-class TangoSrvJob(InitJob):
+class Job(InitJob):
     """Special job for legacy Tango servers (not using Entangle)."""
 
     def __init__(self, name, config, log):
         InitJob.__init__(self, name, config, log)
-        self.init_name = config.get('script', name.lower())
+        self.init_name = config.get('script', 'tango-server-' + name.lower())
         self.srvname = config.get('srvname', name)
         resdir = ''
         with open(_DEFAULT, 'r') as fd:
@@ -52,7 +52,7 @@ class TangoSrvJob(InitJob):
                             resdir = value.strip()
                             break
         if resdir:
-            self.config_file = path.join(resdir, self.srvname)
+            self.config_file = path.join(resdir, self.srvname + '.res')
         else:
             self.config_file = ''
         self.log_files = ['/var/log/tango/%s.out.log' % self.srvname,
@@ -86,20 +86,22 @@ class TangoSrvJob(InitJob):
             else:
                 db.put_device_property(dev, prop)
 
-        def processvalue(key, res, val):
+        def processvalue(dev, res, val):
             if val.startswith('"'):
-                add_property(key, res, [val.strip('"')])
+                add_property(dev, res, [val.strip('"')])
             elif ',' not in val:
-                add_property(key, res, [val])
+                add_property(dev, res, [val])
             else:
                 arr = val.split(',')
-                add_property(key, res, [v for v in arr if v])
+                add_property(dev, res, [v for v in arr if v])
 
         def processdevice(key, valpar):
             klass = key[0].upper()
+            if key[1] == 'localhost':
+                return
             for val in valpar:
                 valarr = val.strip().split('/')
-                srv = klass  + '/' + valarr[0] + '_' + key[1]
+                srv = klass  + '/' + key[1]
                 name = val.strip()
                 add_device(name, valarr[1], srv)
 
@@ -118,8 +120,10 @@ class TangoSrvJob(InitJob):
             val = line.split(':', 1)
             if len(val) < 2:
                 continue
-            key = val[0].lower().split('/')
+            key = [k.strip() for k in val[0].lower().split('/')]
             if len(key) == 4:
-                processvalue(key[0].strip() + '/' + key[1].strip() + '/' +
-                             key[2].strip(), key[3], val[1].strip())
+                processvalue(key[0] + '/' + key[1] + '/' + key[2],
+                             key[3], val[1].strip())
+            elif len(key) == 3 and key[2] == 'device':
+                processdevice(key, val[1].strip().split(','))
         fp.close()

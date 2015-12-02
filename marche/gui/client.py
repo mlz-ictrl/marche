@@ -100,7 +100,7 @@ class Client(object):
     def reloadJobs(self):
         with self._lock:
             self._proxy.ReloadJobs()
-            self.version = self.getVersion()
+        self.version = self.getVersion()
 
     def getServices(self):
         with self._lock:
