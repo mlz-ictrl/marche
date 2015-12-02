@@ -1,3 +1,14 @@
+marche (0.5.3) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix eventual KeyError.
+  * tangosrv job: add res file location.
+  * Some fixes for the tangosrv job.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 02 Dec 2015 16:59:21 +0100
+
 marche (0.5.2) unstable; urgency=low
 
   [ Georg Brandl ]
