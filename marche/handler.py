@@ -27,11 +27,13 @@
 
 from threading import Lock
 
-from marche import __version__
 from marche.jobs import Busy, Fault
 
 # Input/output types
 VOID, STRING, STRINGLIST, INTEGER = range(4)
+
+# Protocol version
+PROTO_VERSION = 1
 
 
 def command(intype=VOID, outtype=VOID, silent=False):
@@ -124,8 +126,8 @@ class JobHandler(object):
 
     @command(outtype=STRING, silent=True)
     def GetVersion(self):
-        """Return the version of the Marche daemon."""
-        return __version__
+        """Return the version of the Marche protocol."""
+        return str(PROTO_VERSION)
 
     @command(outtype=STRINGLIST, silent=True)
     def GetServices(self):
