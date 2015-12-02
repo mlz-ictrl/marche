@@ -25,13 +25,38 @@
 
 """Job for single init scripts."""
 
+from os import path
+
 from PyTango import Database, DbDatum, DbDevInfo
 
 from marche.jobs.init import Job as InitJob
 
+_DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
+
 
 class TangoSrvJob(InitJob):
     """Special job for legacy Tango servers (not using Entangle)."""
+
+    def __init__(self, name, config, log):
+        InitJob.__init__(self, name, config, log)
+        self.init_name = config.get('script', name.lower())
+        self.srvname = config.get('srvname', name)
+        resdir = ''
+        with open(_DEFAULT, 'r') as fd:
+            for line in fd:
+                if not line.startswith('#'):
+                    (key, sep, value) = line.partition('=')
+                    if sep:
+                        key = key.replace('export', '').strip()
+                        if key == 'TANGO_RES_DIR':
+                            resdir = value.strip()
+                            break
+        if resdir:
+            self.config_file = path.join(resdir, self.srvname)
+        else:
+            self.config_file = ''
+        self.log_files = ['/var/log/tango/%s.out.log' % self.srvname,
+                          '/var/log/tango/%s.err.log' % self.srvname]
 
     def send_config(self, name, data):
         InitJob.send_config(self, name, data)
@@ -51,10 +76,10 @@ class TangoSrvJob(InitJob):
         def add_property(dev, name, vals):
             if dev.startswith(("cmds/", "error/")):
                 return
-            val = val.strip()
             prop = DbDatum()
             prop.name = name
             for val in vals:
+                val = val.strip()
                 prop.value_string.append(val)
             if dev[0:6] == "class/":
                 db.put_class_property(dev.split("/")[1], prop)
@@ -68,7 +93,7 @@ class TangoSrvJob(InitJob):
                 add_property(key, res, [val])
             else:
                 arr = val.split(',')
-                add_property(key, res, [val for val in arr if val])
+                add_property(key, res, [v for v in arr if v])
 
         def processdevice(key, valpar):
             klass = key[0].upper()
