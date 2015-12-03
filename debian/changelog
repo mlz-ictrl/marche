@@ -1,3 +1,12 @@
+marche (0.5.5) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * jobs/taco Fix dep finding.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 03 Dec 2015 14:12:34 +0100
+
 marche (0.5.4) unstable; urgency=low
 
   [ Georg Brandl ]
