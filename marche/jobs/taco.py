@@ -158,7 +158,7 @@ class Job(BaseJob):
         for dev in devs:
             p = self._sync_call('. /etc/tacoenv.sh; db_devres %s' % dev).stdout
             for line in p:
-                if not line.strip():
+                if ':' not in line.strip():
                     continue
                 key, value = line.strip().split(':', 1)
                 value = value.strip()
