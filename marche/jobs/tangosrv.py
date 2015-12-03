@@ -96,12 +96,12 @@ class Job(InitJob):
                 add_property(dev, res, [v for v in arr if v])
 
         def processdevice(key, valpar):
-            klass = key[0].upper()
+            klass = key[0].title()
             if key[1] == 'localhost':
                 return
             for val in valpar:
                 valarr = val.strip().split('/')
-                srv = klass  + '/' + key[1]
+                srv = klass  + '/' + valarr[0] + '_' + key[1]
                 name = val.strip()
                 add_device(name, valarr[1], srv)
 
