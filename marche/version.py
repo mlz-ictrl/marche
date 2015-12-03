@@ -37,11 +37,13 @@ import os.path
 from subprocess import Popen, PIPE
 
 RELEASE_VERSION_FILE = os.path.join(os.path.dirname(__file__), 'RELEASE-VERSION')
+GIT_REPO = os.path.join(os.path.dirname(__file__), '..', '.git')
 
 
 def get_git_version(abbrev=4, cwd=None):
     try:
-        p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
+        p = Popen(['git', '--git-dir=%s' % GIT_REPO,
+                   'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
         stdout, _stderr = p.communicate()
         return stdout.strip()
