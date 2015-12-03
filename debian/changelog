@@ -1,3 +1,12 @@
+marche (0.5.4) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * fix version.py when running installed version from unrelated git repo.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 03 Dec 2015 13:15:43 +0100
+
 marche (0.5.3) unstable; urgency=low
 
   [ Georg Brandl ]
