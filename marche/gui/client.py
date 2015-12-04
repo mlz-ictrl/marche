@@ -85,9 +85,12 @@ class Client(object):
         self._pollThread = None
         self.version = self.getVersion()
 
-    def stopPoller(self):
+    def stopPoller(self, join=False):
         if self._pollThread:
             self._pollThread.running = False
+
+            if join:
+                self._pollThread.wait()
 
     def startPoller(self, slot):
         self._pollThread = PollThread(self.host,
@@ -99,7 +102,9 @@ class Client(object):
 
     def reloadJobs(self):
         with self._lock:
+            self.stopPoller(True)
             self._proxy.ReloadJobs()
+            self._pollThread.start()
         self.version = self.getVersion()
 
     def getServices(self):
