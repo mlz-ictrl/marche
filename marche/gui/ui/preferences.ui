@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>582</width>
-    <height>383</height>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,10 +20,13 @@
       <string>Global settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Default editor:</string>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="pollIntervalSpinBpx">
+        <property name="maximum">
+         <double>9999.989999999999782</double>
+        </property>
+        <property name="value">
+         <double>3.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -34,6 +37,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Default editor:</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -41,15 +51,15 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="pollIntervalSpinBpx">
-        <property name="maximum">
-         <double>9999.989999999999782</double>
-        </property>
-        <property name="value">
-         <double>3.000000000000000</double>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Default session:</string>
         </property>
        </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="sessionLineEdit"/>
       </item>
      </layout>
     </widget>
