@@ -1,3 +1,15 @@
+marche (0.5.7) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Allow selecting an editor, ask before transferring files back.
+
+  [ Alexander Lenz ]
+  * May fix the gui threading issues.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 04 Dec 2015 10:42:19 +0100
+
 marche (0.5.6) unstable; urgency=low
 
   [ Georg Brandl ]
