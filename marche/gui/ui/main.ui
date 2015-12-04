@@ -214,6 +214,15 @@
     <string>Ctrl+S</string>
    </property>
   </action>
+  <action name="actionPreferences">
+   <property name="icon">
+    <iconset resource="../res/marche-gui.qrc">
+     <normaloff>:/marche/drill.png</normaloff>:/marche/drill.png</iconset>
+   </property>
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../res/marche-gui.qrc"/>

@@ -67,6 +67,13 @@ class AuthDialog(QDialog):
         return self.saveBox.isChecked()
 
 
+class PreferencesDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'preferences.ui')
+
+
+
 class JobButtons(QWidget):
     def __init__(self, client, service, instance, item, parent=None):
         QWidget.__init__(self, parent)
@@ -361,6 +368,12 @@ class MainWidget(QWidget):
         settings = QSettings('marche-gui')
         settings.setValue('split', self.splitter.saveState())
         # settings.setValue('last_hosts', [])
+
+    @qtsig('')
+    def on_actionPreferences_triggered(self):
+        dlg = PreferencesDialog(self)
+        if dlg.exec_():
+            pass
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):

@@ -52,6 +52,8 @@ class MainWindow(QMainWindow):
         menuFile.addSeparator()
         menuFile.addAction(self._widget.actionExit)
         self._widget.actionExit.triggered.connect(self.close)
+        menuEdit = menu.addMenu('Edit')
+        menuEdit.addAction(self._widget.actionPreferences)
         menuJobs = menu.addMenu('Jobs')
         menuJobs.addAction(self._widget.actionReload)
         menuHelp = menu.addMenu('Help')
