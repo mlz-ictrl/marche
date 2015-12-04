@@ -1,3 +1,12 @@
+marche (0.5.8) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * gui: add more editors.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 04 Dec 2015 10:51:14 +0100
+
 marche (0.5.7) unstable; urgency=low
 
   [ Georg Brandl ]
