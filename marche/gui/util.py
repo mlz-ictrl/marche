@@ -95,7 +95,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
 
 def selectEditor():
     presets = []
-    for preset in ['gedit', 'kate', 'emacs']:
+    for preset in ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']:
         if which(preset):
             presets.append(preset)
     dlg = QDialog()
