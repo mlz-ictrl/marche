@@ -31,7 +31,7 @@ from xmlrpclib import ProtocolError, Fault
 
 import marche.gui.res  # noqa
 
-from marche.gui.util import loadUi
+from marche.gui.util import loadUi, selectEditor
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -114,7 +114,13 @@ class JobButtons(QWidget):
         if self._client.version < 1:
             self._item.setText(3, 'Daemon too old')
             return
-        editor = os.environ.get('EDITOR', 'gedit')
+        settings = QSettings('marche-gui')
+        editor = settings.value('configeditor')
+        if not editor:
+            editor = selectEditor()
+            if not editor:
+                return
+            settings.setValue('configeditor', editor)
         try:
             config = self._client.receiveServiceConfig(self._service,
                                                        self._instance)
@@ -137,8 +143,13 @@ class JobButtons(QWidget):
             if os.system('%s %s' % (editor, localfn)) != 0:
                 self._item.setText(3, 'Editor failed')
                 return
-            result.append(fn)
-            result.append(open(localfn, 'r').read())
+            if QMessageBox.question(
+                    self, 'Configure', 'Is the changed file ok to use?',
+                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+                result.append(fn)
+                result.append(open(localfn, 'r').read())
+        if not result:
+            return
         try:
             config = self._client.sendServiceConfig(self._service,
                                                     self._instance,
