@@ -34,16 +34,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="sessionLineEdit"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Default session:</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="2">
        <widget class="QPushButton" name="selSessionPushButton">
         <property name="maximumSize">
@@ -61,7 +51,34 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="sessionLineEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Default session:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QPushButton" name="pushButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../res/marche-gui.qrc">
+          <normaloff>:/marche/broom.png</normaloff>:/marche/broom.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="3">
        <widget class="QDoubleSpinBox" name="pollIntervalSpinBpx">
         <property name="maximum">
          <double>9999.989999999999782</double>
@@ -71,7 +88,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="2">
+      <item row="0" column="1" colspan="3">
        <widget class="QComboBox" name="editorComboBox">
         <property name="editable">
          <bool>true</bool>
@@ -242,12 +259,28 @@
    <slot>selectDefaultSession()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>550</x>
+     <x>496</x>
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
      <y>234</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>sessionLineEdit</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>546</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>118</y>
     </hint>
    </hints>
   </connection>

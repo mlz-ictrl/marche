@@ -32,7 +32,7 @@ from xmlrpclib import ProtocolError, Fault
 import marche.gui.res  # noqa
 
 from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
-    loadSettings, saveSettings
+    loadSettings, saveSettings, loadSetting
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -401,8 +401,13 @@ class MainWidget(QWidget):
         self._clients = {}
         self._cur_tree = None
 
-        if scan_on_startup:
+        if loadSetting('defaultSession'):
+            self.loadDefaultSession()
+        elif scan_on_startup:
             self.scanNetwork()
+
+    def loadDefaultSession(self):
+        self.loadSession(loadSetting('defaultSession'))
 
     def saveSettings(self):
         settings = QSettings('marche-gui')
@@ -470,8 +475,6 @@ class MainWidget(QWidget):
         self.hostList.clear()
         for host in hosts:
             self.addHost(host)
-        if hosts:
-            self.openHost(hosts[-1])
 
     @qtsig('')
     def on_actionSave_session_as_triggered(self):
