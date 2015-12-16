@@ -101,11 +101,11 @@ class PreferencesDialog(QDialog):
 
     @property
     def pollInterval(self):
-        return self.pollIntervalSpinBpx.value()
+        return self.pollIntervalSpinBox.value()
 
     @pollInterval.setter
     def pollInterval(self, value):
-        self.pollIntervalSpinBpx.setValue(float(value))
+        self.pollIntervalSpinBox.setValue(float(value))
 
     @property
     def defaultSession(self):
