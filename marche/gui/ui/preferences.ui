@@ -166,7 +166,11 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QLineEdit" name="userLineEdit"/>
+           <widget class="QLineEdit" name="userLineEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -180,7 +184,11 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QLineEdit" name="pwLineEdit"/>
+           <widget class="QLineEdit" name="pwLineEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -201,6 +209,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="credApplyPushButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Apply</string>
             </property>
