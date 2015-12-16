@@ -163,7 +163,8 @@ def loadSettings(request):
 def saveCredentials(host, user, passwd):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], valType=list, settings=settings)
+    hosts = loadSetting('creds/hosts', default=[], valType=list,
+                        settings=settings)
     hosts.append(host)
 
     saveSetting('creds/%s/user' % host,
@@ -179,7 +180,8 @@ def saveCredentials(host, user, passwd):
 def loadCredentials(host):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], valType=list, settings=settings)
+    hosts = loadSetting('creds/hosts', default=[], valType=list,
+                        settings=settings)
     if host not in hosts:
         return (None, None)
 
@@ -194,10 +196,4 @@ def loadCredentials(host):
 
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], valType=list)
-
-    result = {}
-
-    for host in hosts:
-        result[host] = loadCredentials(host)
-
-    return result
+    return dict((host, loadCredentials(host)) for host in hosts)
