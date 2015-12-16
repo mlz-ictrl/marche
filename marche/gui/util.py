@@ -33,6 +33,7 @@ from PyQt4.QtGui import QDialog
 
 uipath = path.dirname(__file__)
 
+KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']
 
 def loadUi(widget, uiname, subdir='ui'):
     uic.loadUi(path.join(uipath, subdir, uiname), widget)
@@ -92,12 +93,16 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
                     return name
     return None
 
+def getAvailableEditors():
+    result = []
+    for entry in KNOWN_EDITORS:
+        if which(entry):
+            result.append(entry)
+
+    return result
 
 def selectEditor():
-    presets = []
-    for preset in ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']:
-        if which(preset):
-            presets.append(preset)
+    presets = getAvailableEditors()
     dlg = QDialog()
     loadUi(dlg, 'editor.ui')
     dlg.editorBox.addItems(presets)
