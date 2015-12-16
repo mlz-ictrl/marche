@@ -31,7 +31,8 @@ from xmlrpclib import ProtocolError, Fault
 
 import marche.gui.res  # noqa
 
-from marche.gui.util import loadUi, selectEditor
+from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
+    loadSettings, saveSettings
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -72,6 +73,45 @@ class PreferencesDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'preferences.ui')
 
+        self.editorComboBox.addItems(getAvailableEditors())
+
+    def selectDefaultSession(self):
+        name = QFileDialog.getOpenFileName(self,
+                                           'Select default session',
+                                           '',
+                                           'Marche sessions (*.marche)')
+        if name:
+            self.sessionLineEdit.setText(name)
+
+    @property
+    def defaultEditor(self):
+        return self.editorComboBox.currentText()
+
+    @defaultEditor.setter
+    def defaultEditor(self, value):
+        index = self.editorComboBox.findText(value)
+
+        if index == -1:
+            self.editorComboBox.addItem(value)
+            index = self.editorComboBox.count() -1
+
+        self.editorComboBox.setCurrentIndex(index)
+
+    @property
+    def pollInterval(self):
+        return self.pollIntervalSpinBpx.value()
+
+    @pollInterval.setter
+    def pollInterval(self, value):
+        self.pollIntervalSpinBpx.setValue(float(value))
+
+    @property
+    def defaultSession(self):
+        return self.sessionLineEdit.text()
+
+    @defaultSession.setter
+    def defaultSession(self, value):
+        self.sessionLineEdit.setText(value)
 
 
 class JobButtons(QWidget):
@@ -372,8 +412,25 @@ class MainWidget(QWidget):
     @qtsig('')
     def on_actionPreferences_triggered(self):
         dlg = PreferencesDialog(self)
+
+        # load and enter settings
+        settings = loadSettings(['defaultEditor',
+                                 'pollInterval',
+                                 'defaultSession'])
+
+        if settings['defaultEditor']:
+            dlg.defaultEditor = settings['defaultEditor']
+        if settings['pollInterval']:
+            dlg.pollInterval = settings['pollInterval']
+        if settings['defaultSession']:
+            dlg.defaultSession = settings['defaultSession']
+
         if dlg.exec_():
-            pass
+            saveSettings({
+                'defaultEditor' : dlg.defaultEditor,
+                'pollInterval' : dlg.pollInterval,
+                'defaultSession' : dlg.defaultSession,
+                })
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):

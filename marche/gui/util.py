@@ -28,11 +28,11 @@ import sys
 from os import path
 
 from PyQt4 import uic
+from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
 
 
 uipath = path.dirname(__file__)
-
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']
 
 def loadUi(widget, uiname, subdir='ui'):
@@ -111,3 +111,35 @@ def selectEditor():
     if dlg.cmdEdit.text():
         return dlg.cmdEdit.text()
     return dlg.editorBox.currentText()
+
+def _getSettingsObj():
+    return QSettings('marche-gui')
+
+def saveSetting(name, value, settings=None):
+    if settings is None:
+        settings = _getSettingsObj()
+    settings.setValue(name, value)
+
+def loadSetting(name, default=None, settings=None):
+    if settings is None:
+        settings = _getSettingsObj()
+    return settings.value(name)
+
+def saveSettings(settingsDict):
+    settings = _getSettingsObj()
+
+    for key, value in settingsDict.items():
+        saveSetting(key, value, settings=settings)
+
+def loadSettings(request):
+    settings = _getSettingsObj()
+
+    result = {}
+    if isinstance(request, list):
+        for key in request:
+            result[key] = loadSetting(key, settings=settings)
+    elif isinstance(request, dict):
+        for key, default in request.items():
+            result[key] = loadSetting(key, default, settings=settings)
+
+    return result
