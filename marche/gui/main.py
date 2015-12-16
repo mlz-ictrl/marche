@@ -280,7 +280,6 @@ class HostTree(QTreeWidget):
         self.resizeColumnToContents(2)
         width = sum([self.columnWidth(i) for i in range(self.columnCount())])
         self.setMinimumWidth(width+25)
-        # self.collapseAll()
 
     def refresh(self):
         self.clear()
@@ -442,7 +441,8 @@ class MainWidget(QWidget):
                 'defaultSession' : dlg.defaultSession,
                 })
 
-            if dlg.pollInterval != settings['pollInterval']:
+            if dlg.pollInterval != settings['pollInterval'] \
+            and self._cur_tree is not None:
                 self._cur_tree.refresh()
 
     @qtsig('')
