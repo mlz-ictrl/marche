@@ -26,6 +26,7 @@
 import os
 import sys
 from os import path
+import binascii
 
 from PyQt4 import uic
 from PyQt4.QtCore import QSettings
@@ -123,7 +124,7 @@ def saveSetting(name, value, settings=None):
 def loadSetting(name, default=None, type=str, settings=None):
     if settings is None:
         settings = _getSettingsObj()
-    return type(settings.value(name))
+    return type(settings.value(name, default))
 
 def saveSettings(settingsDict):
     settings = _getSettingsObj()
@@ -143,3 +144,33 @@ def loadSettings(request):
             result[key] = loadSetting(key, default, settings=settings)
 
     return result
+
+def saveCredentials(host, user, passwd):
+    settings = _getSettingsObj()
+
+    hosts = loadSetting('creds/hosts', default=[], type=list, settings=settings)
+    hosts.append(host)
+
+    saveSetting('creds/%s/user' % host,
+                binascii.b2a_base64(user),
+                settings=settings)
+    saveSetting('creds/%s/passwd' % host,
+                binascii.b2a_base64(passwd),
+                settings=settings)
+
+    saveSetting('creds/hosts', hosts, settings=settings)
+
+def loadCredentials(host):
+    settings = _getSettingsObj()
+
+    hosts = loadSetting('creds/hosts', default=[], type=list, settings=settings)
+    if host not in hosts:
+        return (None, None)
+
+    user = binascii.a2b_base64(loadSetting('creds/%s/user' %
+                                           host,
+                                           settings=settings))
+    passwd = binascii.a2b_base64(loadSetting('creds/%s/passwd' % host,
+                                             settings=settings))
+
+    return (user, passwd)

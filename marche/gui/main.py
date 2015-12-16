@@ -32,7 +32,8 @@ from xmlrpclib import ProtocolError, Fault
 import marche.gui.res  # noqa
 
 from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
-    loadSettings, saveSettings, loadSetting, saveSetting
+    loadSettings, saveSettings, loadSetting, saveSetting, saveCredentials, \
+    loadCredentials
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -608,7 +609,6 @@ class MainWidget(QWidget):
 
         def negotiate(addr):
             host, port = normalizeAddr(addr, 8124)
-            settings = QSettings('marche-gui')
 
             # try without credentials
             client = try_connect(host, port, None, None)
@@ -616,13 +616,10 @@ class MainWidget(QWidget):
                 return client
 
             # try saved credentials
-            user = settings.value('creds/user/%s' % host)
-            if user:
-                passwd = binascii.a2b_base64(
-                    settings.value('creds/pass/%s' % host))
-                client = try_connect(host, port, user, passwd)
-                if client:
-                    return client
+            user, passwd = loadCredentials(host)
+            client = try_connect(host, port, user, passwd)
+            if client:
+                return client
 
             # ask for credentials
             while True:
@@ -633,9 +630,7 @@ class MainWidget(QWidget):
                 passwd = dlg.passwd
 
                 if dlg.save_creds:
-                    settings.setValue('creds/user/%s' % host, user)
-                    settings.setValue('creds/pass/%s' % host,
-                                      binascii.b2a_base64(passwd))
+                    saveCredentials(host, user, passwd)
 
                 client = try_connect(host, port, user, passwd)
                 if client:
