@@ -126,12 +126,19 @@ class PreferencesDialog(QDialog):
             self.hostsListWidget.addItem(host)
 
     def selectCred(self, host):
-        user, passwd = self._creds[host]
-        self.userLineEdit.setText(user)
-        self.pwLineEdit.setText(passwd)
-        self.credApplyPushButton.setEnabled(True)
-        self.userLineEdit.setEnabled(True)
-        self.pwLineEdit.setEnabled(True)
+        if not host:
+            self.userLineEdit.clear()
+            self.pwLineEdit.clear()
+            self.credApplyPushButton.setEnabled(False)
+            self.userLineEdit.setEnabled(False)
+            self.pwLineEdit.setEnabled(False)
+        else:
+            user, passwd = self._creds[host]
+            self.userLineEdit.setText(user)
+            self.pwLineEdit.setText(passwd)
+            self.credApplyPushButton.setEnabled(True)
+            self.userLineEdit.setEnabled(True)
+            self.pwLineEdit.setEnabled(True)
 
     def applyCred(self):
         host = self.hostsListWidget.currentItem().text()
