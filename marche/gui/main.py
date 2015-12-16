@@ -33,7 +33,7 @@ import marche.gui.res  # noqa
 
 from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
     loadSettings, saveSettings, loadSetting, saveSetting, saveCredentials, \
-    loadCredentials
+    loadCredentials, loadAllCredentials
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -74,6 +74,7 @@ class PreferencesDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'preferences.ui')
 
+        self._creds = {}
         self.editorComboBox.addItems(getAvailableEditors())
 
     def selectDefaultSession(self):
@@ -113,6 +114,33 @@ class PreferencesDialog(QDialog):
     @defaultSession.setter
     def defaultSession(self, value):
         self.sessionLineEdit.setText(value)
+
+    @property
+    def credentials(self):
+        return self._creds
+
+    @credentials.setter
+    def credentials(self, value):
+        self._creds = value
+
+        for host, _ in value.items():
+            self.hostsListWidget.addItem(host)
+
+    def selectCred(self, host):
+        user, passwd = self._creds[host]
+        self.userLineEdit.setText(user)
+        self.pwLineEdit.setText(passwd)
+
+    def applyCred(self):
+        host = self.hostsListWidget.currentItem().text()
+        user = self.userLineEdit.text()
+        passwd = self.pwLineEdit.text()
+
+        self._creds[host] = (user, passwd)
+
+
+
+
 
 
 class JobButtons(QWidget):
@@ -435,12 +463,17 @@ class MainWidget(QWidget):
         if settings['defaultSession']:
             dlg.defaultSession = settings['defaultSession']
 
+        dlg.credentials = loadAllCredentials()
+
         if dlg.exec_():
             saveSettings({
                 'defaultEditor' : dlg.defaultEditor,
                 'pollInterval' : dlg.pollInterval,
                 'defaultSession' : dlg.defaultSession,
                 })
+
+            for host, (user, passwd) in dlg.credentials.items():
+                saveCredentials(host, user, passwd)
 
             if dlg.pollInterval != settings['pollInterval'] \
             and self._cur_tree is not None:

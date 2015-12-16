@@ -174,3 +174,14 @@ def loadCredentials(host):
                                              settings=settings))
 
     return (user, passwd)
+
+def loadAllCredentials():
+    hosts = loadSetting('creds/hosts', default=[], type=list)
+
+    result = {}
+
+    for host in hosts:
+        result[host] = loadCredentials(host)
+
+    return result
+

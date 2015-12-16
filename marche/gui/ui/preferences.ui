@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>418</height>
+    <width>491</width>
+    <height>421</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Global settings</string>
@@ -98,7 +98,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Saved passwords</string>
@@ -159,6 +159,20 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
+           <string>User</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLineEdit" name="userLineEdit"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
            <string>Password</string>
           </property>
          </widget>
@@ -168,8 +182,25 @@
           <item>
            <widget class="QLineEdit" name="pwLineEdit"/>
           </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QPushButton" name="pwApplyPushButton">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="credApplyPushButton">
             <property name="text">
              <string>Apply</string>
             </property>
@@ -204,7 +235,7 @@
      <zorder></zorder>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -259,11 +290,11 @@
    <slot>selectDefaultSession()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>496</x>
+     <x>405</x>
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>580</x>
+     <x>490</x>
      <y>234</y>
     </hint>
    </hints>
@@ -275,17 +306,51 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>546</x>
+     <x>455</x>
      <y>118</y>
     </hint>
     <hint type="destinationlabel">
-     <x>387</x>
+     <x>364</x>
      <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hostsListWidget</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>Dialog</receiver>
+   <slot>selectCred(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>184</x>
+     <y>218</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>491</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>credApplyPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>applyCred()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>441</x>
+     <y>309</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>selectDefaultSession()</slot>
+  <slot>selectCred(QString)</slot>
+  <slot>applyCred()</slot>
  </slots>
 </ui>
