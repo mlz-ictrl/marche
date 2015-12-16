@@ -497,7 +497,6 @@ class MainWidget(QWidget):
                 saveCredentials(host, user, passwd)
 
             for host in (oldCredHosts - set(dlg.credentials.keys())):
-                print(host)
                 removeCredentials(host)
 
 
