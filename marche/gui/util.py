@@ -133,7 +133,7 @@ def loadSetting(name, default=None, valType=str, settings=None):
 
     raw = settings.value(name, default)
 
-    if not raw:
+    if raw is None:
         return None
 
     return valType(raw)
