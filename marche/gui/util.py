@@ -120,10 +120,10 @@ def saveSetting(name, value, settings=None):
         settings = _getSettingsObj()
     settings.setValue(name, value)
 
-def loadSetting(name, default=None, settings=None):
+def loadSetting(name, default=None, type=str, settings=None):
     if settings is None:
         settings = _getSettingsObj()
-    return settings.value(name)
+    return type(settings.value(name))
 
 def saveSettings(settingsDict):
     settings = _getSettingsObj()

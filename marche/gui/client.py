@@ -30,6 +30,8 @@ from collections import OrderedDict
 
 from PyQt4.QtCore import QThread, pyqtSignal
 
+from marche.gui.util import loadSetting
+
 
 class PollThread(QThread):
     # service, instance, status
@@ -96,7 +98,8 @@ class Client(object):
         self._pollThread = PollThread(self.host,
                                       self.port,
                                       self.user,
-                                      self.passwd)
+                                      self.passwd,
+                                      loadSetting('pollInterval', 3, type=float))
         self._pollThread.newData.connect(slot)
         self._pollThread.start()
 

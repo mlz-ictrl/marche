@@ -282,6 +282,11 @@ class HostTree(QTreeWidget):
         self.setMinimumWidth(width+25)
         # self.collapseAll()
 
+    def refresh(self):
+        self.clear()
+        self.fill()
+
+
     def clear(self):
         self._client.stopPoller()
         self._items.clear()
@@ -322,6 +327,8 @@ class HostTree(QTreeWidget):
                     self.setItemWidget(instanceItem, 2, btn)
 
                     self._items[service][1][instance] = instanceItem
+
+        self.expandAll()
 
     def updateStatus(self, service, instance, status):
         if service not in self._items:
@@ -381,7 +388,6 @@ class HostTree(QTreeWidget):
     def reloadJobs(self):
         self._client.reloadJobs()
         self.fill()
-        self.expandAll()
 
 
 class MainWidget(QWidget):
@@ -435,6 +441,9 @@ class MainWidget(QWidget):
                 'pollInterval' : dlg.pollInterval,
                 'defaultSession' : dlg.defaultSession,
                 })
+
+            if dlg.pollInterval != settings['pollInterval']:
+                self._cur_tree.refresh()
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
