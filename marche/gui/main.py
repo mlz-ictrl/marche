@@ -134,14 +134,29 @@ class PreferencesDialog(QDialog):
         self.userLineEdit.setEnabled(True)
         self.pwLineEdit.setEnabled(True)
 
-
-
     def applyCred(self):
         host = self.hostsListWidget.currentItem().text()
         user = self.userLineEdit.text()
         passwd = self.pwLineEdit.text()
 
         self._creds[host] = (user, passwd)
+
+    def addCred(self):
+        host, accepted = QInputDialog.getText(self, 'New host', 'New host:')
+
+        if not accepted:
+            return
+
+        self._creds[host] = ('marche', '')
+        self.hostsListWidget.addItem(host)
+
+    def removeCred(self):
+        host = self.hostsListWidget.currentItem().text()
+        self.hostsListWidget.takeItem(self.hostsListWidget.currentRow())
+
+        del self._creds[host]
+
+
 
 
 

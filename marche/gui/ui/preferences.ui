@@ -358,10 +358,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>addHostPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>addCred()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>327</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>484</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rmHostPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>removeCred()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>303</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>487</x>
+     <y>332</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>selectDefaultSession()</slot>
   <slot>selectCred(QString)</slot>
   <slot>applyCred()</slot>
+  <slot>addCred()</slot>
+  <slot>removeCred()</slot>
  </slots>
 </ui>
