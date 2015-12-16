@@ -99,7 +99,9 @@ class Client(object):
                                       self.port,
                                       self.user,
                                       self.passwd,
-                                      loadSetting('pollInterval', 3, type=float))
+                                      loadSetting('pollInterval',
+                                                  3,
+                                                  valType=float))
         self._pollThread.newData.connect(slot)
         self._pollThread.start()
 
