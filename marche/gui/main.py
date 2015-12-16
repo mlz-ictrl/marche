@@ -32,7 +32,7 @@ import marche.gui.res  # noqa
 
 from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
     loadSettings, saveSettings, loadSetting, saveSetting, saveCredentials, \
-    loadCredentials, loadAllCredentials
+    loadCredentials, loadAllCredentials, removeCredentials
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
@@ -484,6 +484,7 @@ class MainWidget(QWidget):
             dlg.defaultSession = settings['defaultSession']
 
         dlg.credentials = loadAllCredentials()
+        oldCredHosts = set(dlg.credentials.keys())
 
         if dlg.exec_():
             saveSettings({
@@ -494,6 +495,12 @@ class MainWidget(QWidget):
 
             for host, (user, passwd) in dlg.credentials.items():
                 saveCredentials(host, user, passwd)
+
+            for host in (oldCredHosts - set(dlg.credentials.keys())):
+                print(host)
+                removeCredentials(host)
+
+
 
             if dlg.pollInterval != settings['pollInterval'] \
                and self._cur_tree is not None:

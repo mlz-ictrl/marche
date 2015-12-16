@@ -134,7 +134,9 @@ def loadSetting(name, default=None, valType=str, settings=None):
     raw = settings.value(name, default)
 
     if raw is None:
-        return None
+        raw = default
+    if raw is None:
+        return raw
 
     return valType(raw)
 
@@ -194,6 +196,18 @@ def loadCredentials(host):
     return (user, passwd)
 
 
+def removeCredentials(host):
+    settings = _getSettingsObj()
+
+    hosts = loadSetting('creds/hosts', default=[], valType=list, settings=settings)
+    hosts.remove(host)
+
+    saveSetting('creds/hosts', hosts, settings=settings)
+    settings.remove('creds/%s/user' % host)
+    settings.remove('creds/%s/passwd' % host)
+
+
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], valType=list)
     return dict((host, loadCredentials(host)) for host in hosts)
+
