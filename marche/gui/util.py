@@ -36,6 +36,7 @@ from PyQt4.QtGui import QDialog
 uipath = path.dirname(__file__)
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']
 
+
 def loadUi(widget, uiname, subdir='ui'):
     uic.loadUi(path.join(uipath, subdir, uiname), widget)
 
@@ -94,6 +95,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
                     return name
     return None
 
+
 def getAvailableEditors():
     result = []
     for entry in KNOWN_EDITORS:
@@ -101,6 +103,7 @@ def getAvailableEditors():
             result.append(entry)
 
     return result
+
 
 def selectEditor():
     presets = getAvailableEditors()
@@ -113,24 +116,29 @@ def selectEditor():
         return dlg.cmdEdit.text()
     return dlg.editorBox.currentText()
 
+
 def _getSettingsObj():
     return QSettings('marche-gui')
+
 
 def saveSetting(name, value, settings=None):
     if settings is None:
         settings = _getSettingsObj()
     settings.setValue(name, value)
 
+
 def loadSetting(name, default=None, type=str, settings=None):
     if settings is None:
         settings = _getSettingsObj()
     return type(settings.value(name, default))
+
 
 def saveSettings(settingsDict):
     settings = _getSettingsObj()
 
     for key, value in settingsDict.items():
         saveSetting(key, value, settings=settings)
+
 
 def loadSettings(request):
     settings = _getSettingsObj()
@@ -145,10 +153,12 @@ def loadSettings(request):
 
     return result
 
+
 def saveCredentials(host, user, passwd):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], type=list, settings=settings)
+    hosts = loadSetting('creds/hosts', default=[], type=list,
+                        settings=settings)
     hosts.append(host)
 
     saveSetting('creds/%s/user' % host,
@@ -160,10 +170,12 @@ def saveCredentials(host, user, passwd):
 
     saveSetting('creds/hosts', hosts, settings=settings)
 
+
 def loadCredentials(host):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], type=list, settings=settings)
+    hosts = loadSetting('creds/hosts', default=[], type=list,
+                        settings=settings)
     if host not in hosts:
         return (None, None)
 
@@ -175,6 +187,7 @@ def loadCredentials(host):
 
     return (user, passwd)
 
+
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], type=list)
 
@@ -184,4 +197,3 @@ def loadAllCredentials():
         result[host] = loadCredentials(host)
 
     return result
-

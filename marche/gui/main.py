@@ -24,7 +24,6 @@
 # *****************************************************************************
 
 import os
-import binascii
 import tempfile
 from os import path
 from xmlrpclib import ProtocolError, Fault
@@ -95,7 +94,7 @@ class PreferencesDialog(QDialog):
 
         if index == -1:
             self.editorComboBox.addItem(value)
-            index = self.editorComboBox.count() -1
+            index = self.editorComboBox.count() - 1
 
         self.editorComboBox.setCurrentIndex(index)
 
@@ -155,12 +154,6 @@ class PreferencesDialog(QDialog):
         self.hostsListWidget.takeItem(self.hostsListWidget.currentRow())
 
         del self._creds[host]
-
-
-
-
-
-
 
 
 class JobButtons(QWidget):
@@ -334,7 +327,6 @@ class HostTree(QTreeWidget):
         self.clear()
         self.fill()
 
-
     def clear(self):
         self._client.stopPoller()
         self._items.clear()
@@ -429,7 +421,8 @@ class HostTree(QTreeWidget):
                                if colors[1] else QBrush())
             item.setText(1, 'ALL %d %s' % (total, STATE_STR[status]))
         else:
-            item.setText(1, '%d/%d RUNNING' % (statuses.get(RUNNING, 0), total))
+            item.setText(1, '%d/%d RUNNING' %
+                         (statuses.get(RUNNING, 0), total))
             item.setForeground(1, QBrush(QColor('black')))
             item.setBackground(1, QBrush(QColor('#ffcccc')))
 
@@ -487,16 +480,16 @@ class MainWidget(QWidget):
 
         if dlg.exec_():
             saveSettings({
-                'defaultEditor' : dlg.defaultEditor,
-                'pollInterval' : dlg.pollInterval,
-                'defaultSession' : dlg.defaultSession,
-                })
+                'defaultEditor': dlg.defaultEditor,
+                'pollInterval': dlg.pollInterval,
+                'defaultSession': dlg.defaultSession,
+            })
 
             for host, (user, passwd) in dlg.credentials.items():
                 saveCredentials(host, user, passwd)
 
             if dlg.pollInterval != settings['pollInterval'] \
-            and self._cur_tree is not None:
+               and self._cur_tree is not None:
                 self._cur_tree.refresh()
 
     @qtsig('')
