@@ -1,3 +1,46 @@
+marche (0.5.9) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Add pref dlg ui.
+  * gui: pref: small design changes.
+  * gui: pref: small design changes.
+  * gui add pref dlg dummy.
+  * gui: Refactor determination of available editors.
+  * gui: load/save settings util.
+  * gui: Support default session.
+  * gui: connect used editor to configured editor.
+  * gui: support configuring the poll interval.
+  * gui: fix refresh without tree.
+  * gui: refactor cred save/load.
+  * gui: support changing of saved creds.
+  * gui: pref dlg: disable cred stuff per default.
+  * gui: pref dlg: remove creds.
+  * gui: fix typo.
+
+  [ Georg Brandl ]
+  * pep8
+
+  [ Alexander Lenz ]
+  * gui: fix conversion.
+  * gui: fix stupidity.
+  * gui: fix names.
+  * gui: pref dlg: handling for removing the last cred.
+
+  [ Georg Brandl ]
+  * small code simplification
+
+  [ Alexander Lenz ]
+  * gui: pref dlg: fix cred removing.
+  * gui: remove print.
+  * gui: pref dlg: minor tweaks.
+
+  [ Georg Brandl ]
+  * Add a dialog that appears while waiting for the config editor.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 22 Jan 2016 16:09:23 +0100
+
 marche (0.5.8) unstable; urgency=low
 
   [ Alexander Lenz ]
