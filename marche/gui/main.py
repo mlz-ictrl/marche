@@ -23,8 +23,9 @@
 #
 # *****************************************************************************
 
-import os
+import time
 import tempfile
+import subprocess
 from os import path
 from xmlrpclib import ProtocolError, Fault
 
@@ -44,7 +45,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
     QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, \
-    QMenu, QPlainTextEdit, QFileDialog, QDialogButtonBox
+    QMenu, QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
 
 
 class AuthDialog(QDialog):
@@ -237,7 +238,7 @@ class JobButtons(QWidget):
             contents = config[i + 1]
             localfn = path.join(dtemp, fn)
             open(localfn, 'w').write(contents)
-            if os.system('%s %s' % (editor, localfn)) != 0:
+            if not self.editLocal(editor, localfn):
                 self._item.setText(3, 'Editor failed')
                 return
             if QMessageBox.question(
@@ -254,6 +255,18 @@ class JobButtons(QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
             return
+
+    def editLocal(self, editor, localfn):
+        dlg = QDialog(self)
+        loadUi(dlg, 'wait.ui')
+        dlg.setModal(True)
+        dlg.show()
+        pid = subprocess.Popen('%s %s' % (editor, localfn), shell=True)
+        while pid.poll() is None:
+            QApplication.processEvents()
+            time.sleep(0.2)
+        dlg.close()
+        return pid.returncode == 0
 
     @qtsig('')
     def on_actionShow_output_triggered(self):
