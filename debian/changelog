@@ -1,3 +1,18 @@
+marche (0.5.10) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Add default mysql.conf.
+  * Add default tango-db.conf.
+  * Add default munin-node.conf.
+  * Add default rpcbind.conf.
+  * Add default cachereg.conf.
+  * Add default isc-dhcp-server.conf.
+  * Add default openbsd-inetd.conf.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 29 Feb 2016 16:42:08 +0100
+
 marche (0.5.9) unstable; urgency=low
 
   [ Alexander Lenz ]
