@@ -6,8 +6,9 @@ Available jobs
    :maxdepth: 3
 
    jobs/base
-   jobs/entangle
    jobs/init
-   jobs/nicos
    jobs/process
+
+   jobs/entangle
+   jobs/nicos
    jobs/taco

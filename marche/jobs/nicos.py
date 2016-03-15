@@ -22,7 +22,10 @@
 #
 # *****************************************************************************
 
-"""Job for Entangle servers."""
+"""Job for NICOS_ services.
+
+.. _NICOS: http://nicos-controls.org/
+"""
 
 from os import path
 

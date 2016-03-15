@@ -23,7 +23,10 @@
 #
 # *****************************************************************************
 
-"""Job for Entangle servers."""
+"""Job for Entangle_ servers.
+
+.. _Entangle: https://forge.frm2.tum.de/entangle/doc/entangle-master/
+"""
 
 import os
 import ast
