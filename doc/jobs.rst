@@ -12,3 +12,4 @@ Available jobs
    jobs/entangle
    jobs/nicos
    jobs/taco
+   jobs/tangosrv

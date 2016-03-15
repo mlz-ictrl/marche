@@ -23,7 +23,10 @@
 #
 # *****************************************************************************
 
-"""Job for single init scripts."""
+"""Job for standalone Tango_ servers.
+
+.. _Tango: http://tango-controls.org
+"""
 
 from os import path
 
