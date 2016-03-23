@@ -1,3 +1,15 @@
+marche (0.5.11) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * give the readme the right extension
+  * doc: add links to nicos/entangle
+  * add tangosrv job to docs
+  * taco job: do not auto-detect manager
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 23 Mar 2016 12:01:27 +0100
+
 marche (0.5.10) unstable; urgency=low
 
   [ Alexander Lenz ]
