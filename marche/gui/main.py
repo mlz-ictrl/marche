@@ -313,6 +313,30 @@ class JobButtons(QWidget):
         dlg.exec_()
 
 
+class MultiJobButtons(QWidget):
+    def __init__(self, buttons, parent=None):
+        QWidget.__init__(self, parent)
+        loadUi(self, 'job.ui')
+        self.stacker.setCurrentIndex(1)
+        self._buttons = buttons
+        self.setMinimumSize(QSize(30, 40))
+
+    @qtsig('')
+    def on_startBtn_clicked(self):
+        for button in self._buttons:
+            button.on_startBtn_clicked()
+
+    @qtsig('')
+    def on_stopBtn_clicked(self):
+        for button in self._buttons:
+            button.on_stopBtn_clicked()
+
+    @qtsig('')
+    def on_restartBtn_clicked(self):
+        for button in self._buttons:
+            button.on_restartBtn_clicked()
+
+
 class HostTree(QTreeWidget):
     STATE_COLORS = {
         RUNNING:      ('green', ''),
@@ -335,8 +359,8 @@ class HostTree(QTreeWidget):
         self._items = {}
         try:
             self.fill()
-        except Exception:
-            pass
+        except Exception as err:
+            print err
 
         self.expandAll()
         self.resizeColumnToContents(0)
@@ -372,10 +396,8 @@ class HostTree(QTreeWidget):
                 btn = JobButtons(self._client, service, None, serviceItem)
                 self.setItemWidget(serviceItem, 2, btn)
             else:
-                lbl = QLabel(self)
-                lbl.setMinimumSize(QSize(30, 30))
-                self.setItemWidget(serviceItem, 2, lbl)
                 self._items[service] = (serviceItem, {})
+                btns = []
                 for instance in instances:
                     instanceItem = QTreeWidgetItem([instance])
                     instanceItem.setForeground(1, QBrush(QColor('white')))
@@ -386,9 +408,11 @@ class HostTree(QTreeWidget):
 
                     btn = JobButtons(self._client, service, instance,
                                      instanceItem)
+                    btns.append(btn)
                     self.setItemWidget(instanceItem, 2, btn)
-
                     self._items[service][1][instance] = instanceItem
+                multibtn = MultiJobButtons(btns)
+                self.setItemWidget(serviceItem, 2, multibtn)
 
         self.expandAll()
 
