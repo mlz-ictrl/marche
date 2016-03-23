@@ -25,7 +25,7 @@
 
 import time
 import threading
-from xmlrpclib import ServerProxy, Fault
+from xmlrpclib import ServerProxy, Fault, Transport
 from collections import OrderedDict
 
 from PyQt4.QtCore import QThread, pyqtSignal
@@ -71,6 +71,13 @@ class ClientError(Exception):
         Exception.__init__(self, string)
 
 
+class HttpTransport(Transport):
+    def make_connection(self, host):
+        retval = Transport.make_connection(self, host)
+        self._connection[1].timeout = 2.0
+        return retval
+
+
 class Client(object):
     def __init__(self, host, port, user=None, passwd=None):
         self.host = host
@@ -80,9 +87,11 @@ class Client(object):
 
         if user is not None and passwd is not None:
             self._proxy = ServerProxy('http://%s:%s@%s:%s/xmlrpc'
-                                      % (user, passwd, host, port))
+                                      % (user, passwd, host, port),
+                                      transport=HttpTransport())
         else:
-            self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port))
+            self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port),
+                                      transport=HttpTransport())
         self._lock = threading.Lock()
         self._pollThread = None
         self.version = self.getVersion()
