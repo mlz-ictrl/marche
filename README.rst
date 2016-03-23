@@ -1,6 +1,14 @@
 README for Marche
 =================
 
+.. image:: https://travis-ci.org/dev-platypus/marche.svg?branch=master
+    :target: https://travis-ci.org/dev-platypus/marche
+
+.. image:: https://readthedocs.org/projects/marche/badge/?version=latest
+    :target: http://marche.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
+
+
 Intro
 -----
 
