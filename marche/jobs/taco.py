@@ -40,19 +40,16 @@ class Job(BaseJob):
         self._depends = set()
 
     def check(self):
-        return any(fn.startswith('taco') for fn in os.listdir('/etc/init.d'))
+        return any(fn.startswith('taco-server-')
+                   for fn in os.listdir('/etc/init.d'))
 
     def get_services(self):
         servers = set()
-        manager = set()
         # get all servers for which we have an init script
         for fn in os.listdir('/etc/init.d'):
             if fn.startswith('taco-server-'):
                 name = 'taco.' + fn[len('taco-server-'):]
                 servers.add(name[5:])
-            elif fn in ('taco', 'taco.debian'):
-                manager.add('taco')
-                self._initscripts['taco'] = '/etc/init.d/' + fn
         # read device info for servers
         serverinfo, alldevs, dev2server = self._read_devices(servers)
         # collect device dependency info for servers
@@ -69,7 +66,7 @@ class Job(BaseJob):
                 all_depends[revkey].add(key)
         self._depends = all_depends
         # construct services
-        services = list(manager)
+        services = []
         for server, instances in serverinfo.items():
             for instance in instances:
                 servicename = 'taco-%s.%s' % (server, instance)
@@ -79,36 +76,22 @@ class Job(BaseJob):
 
     def start_service(self, name):
         initscript = self._initscripts[name]
-        if '.' in name:
-            self._async_start(name, initscript + ' start ' + name.split('.')[1])
-        else:
-            self._async_start(name, initscript + ' start')
+        self._async_start(name, initscript + ' start ' + name.split('.')[1])
 
     def stop_service(self, name):
         initscript = self._initscripts[name]
-        if '.' in name:
-            self._async_stop(name, initscript + ' stop ' + name.split('.')[1])
-        else:
-            self._async_stop(name, initscript + ' stop')
+        self._async_stop(name, initscript + ' stop ' + name.split('.')[1])
 
     def restart_service(self, name):
         initscript = self._initscripts[name]
-        if '.' in name:
-            self._async_start(name, initscript + ' restart ' + name.split('.')[1])
-        else:
-            self._async_start(name, initscript + ' restart')
+        self._async_start(name, initscript + ' restart ' + name.split('.')[1])
 
     def service_status(self, name):
         initscript = self._initscripts[name]
-        if '.' in name:
-            command = initscript + ' status ' + name.split('.')[1]
-        else:
-            command = initscript + ' status'
+        command = initscript + ' status ' + name.split('.')[1]
         return self._async_status(name, command)
 
     def service_logs(self, name):
-        if '.' not in name:
-            return []  # no logs for manager
         if not path.isdir('/var/log/taco'):
             return []
         srvname, instance = name.split('.', 1)
