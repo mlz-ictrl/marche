@@ -23,7 +23,63 @@
 #
 # *****************************************************************************
 
-"""Job for directly controlling a process."""
+""".. index:: process; job
+
+Simple Process job
+==================
+
+This is a job for directly controlling processes without an init script.
+
+This is useful when the service has no init script, or the system has no
+concept of init scripts (e.g. Windows).
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``process``.
+
+   .. describe:: binary
+
+      The name (or full path) of the binary to start.  If not given, defaults
+      to the job name.
+
+   .. describe:: args
+
+      Additional arguments to pass to the binary.  They will be split in a
+      shell-like fashion, i.e., you can use quotes to include spaces in one
+      argument.  If not given, no arguments are passed.
+
+   .. describe:: workingdir
+
+      The initial working directory for the process.  If not given, Marche's
+      working directory is used, which depends on how the daemon was started.
+
+   .. describe:: outputfile
+
+      If given, the full path to a file where stdout and stderr from the
+      process will be written to.  If not given, Marche's stdout is used.
+
+   .. describe:: autostart
+
+      If ``yes``, the process will be started when the Marche daemon is
+      started.  The default is not to start the process automatically.
+
+   .. describe:: logfiles
+
+      A comma-separated list of logfiles to transfer to the client on request.
+      If not given, the ``outputfile`` is the default.
+
+A typical section looks like this::
+
+    [job.myprocess]
+    type = process
+    binary = MyProcess
+    workingdir = /tmp
+    outputfile = /var/log/myprocess.log
+"""
 
 import sys
 import shlex

@@ -23,14 +23,49 @@
 #
 # *****************************************************************************
 
-"""Job for standalone Tango_ servers.
+""".. index:: tangosrv; job
+
+Standalone Tango Server job
+===========================
+
+Job for standalone Tango_ servers controlled by an init script.
+
+This is basically an Init-Script job, with the additional feature of
+transferring the server resources from a file into the Tango database when the
+config file is edited via Marche.
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``tangosrv``.
+
+   .. describe:: resdir
+
+      The configuration for the server is expected in a resource file located
+      in this directory.  If not given, file :file:`/etc/default/tango` should
+      contain a line ``TANGO_RES_DIR=resdir``.
+
+This job inherits from the :ref:`init-job`, and therefore supports all its
+other configuration parameters.
+
+A typical section looks like this::
+
+    [job.counter]
+    type = tangosrv
+
+This will start/stop via ``/etc/init.d/tango-server-counter`` (the init script
+name can be overridden with the ``script`` parameter as for the init job).  The
+names of potential logfiles are also automatically determined.
 
 .. _Tango: http://tango-controls.org
 """
 
 from os import path
 
-from PyTango import Database, DbDatum, DbDevInfo
+# from PyTango import Database, DbDatum, DbDevInfo
 
 from marche.jobs.init import Job as InitJob
 

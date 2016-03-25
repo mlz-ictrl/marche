@@ -22,9 +22,33 @@
 #
 # *****************************************************************************
 
-"""Job for NICOS_ services.
+""".. index:: nicos; job
+
+NICOS job
+=========
+
+This is a job for controlling all NICOS_ services configured on the host.
 
 .. _NICOS: http://nicos-controls.org/
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``nicos``.
+
+   .. describe:: root
+
+      The root of the NICOS installation, which should contain ``nicos.conf``.
+      If not given, it is derived from the init script
+      ``/etc/init.d/nicos-system``, which is normally a symbolic link to the
+      file below the NICOS root.
+
+   No further configuration is necessary; the job will read the NICOS
+   configuration file ``nicos.conf`` and derive parameters like available
+   services and their logfiles from there.
 """
 
 import ConfigParser

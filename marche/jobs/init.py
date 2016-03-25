@@ -23,7 +23,51 @@
 #
 # *****************************************************************************
 
-"""Job for single init scripts."""
+""".. index:: init; job
+
+.. _init-job:
+
+Init script job
+===============
+
+This is a job for controlling services started by an init script.
+
+This is a very simple job, because it defers most of its action to the existing
+init script for a service, found in ``/etc/init.d``.
+
+Features not provided by the init script are the retrieval of logfiles, and the
+possibility to retrieve and transfer back configuration files.
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``init``.
+
+   .. describe:: script
+
+      The name of the init script (as a file in ``/etc/init.d``).  If not
+      given, it is the same as the name of the job.
+
+   .. describe:: logfiles
+
+      Comma-separated paths of logfiles to read and show to the client when
+      requested.  If not given, no logs are transferred.
+
+   .. describe:: configfile
+
+      The full path of the config file to transfer to the client and write back
+      when updates are received.  If not given, no config is transferred.
+
+A typical section looks like this::
+
+    [job.dhcpd]
+    type = init
+    logfile = /var/log/dhcpd.log
+    configfile = /etc/dhcp/dhcpd.conf
+"""
 
 from os import path
 

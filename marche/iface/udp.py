@@ -23,6 +23,36 @@
 #
 # *****************************************************************************
 
+""".. index:: udp; interface
+
+.. _udp-iface:
+
+UDP interface
+-------------
+
+This interface allows discovery of running Marche daemons.  It does not allow
+controlling services, it just responds to a "ping"-type packet to let clients
+know there is a Marche daemon running on the host.  This is especially useful
+with UDP broadcasts that search all hosts within a network.
+
+.. describe:: [interfaces.udp]
+
+   The configuration settings that can be set within the **interfaces.udp**
+   section are:
+
+   .. describe:: port
+
+      **Default:** 11691
+
+      The port to listen for UDP packets.
+
+   .. describe:: host
+
+      **Default:** 0.0.0.0
+
+      The host to bind to.  The broadcast option will be set on the socket.
+"""
+
 import socket
 import threading
 

@@ -1,11 +1,12 @@
-
 Available jobs
 --------------
 
-.. toctree::
-   :maxdepth: 3
+Each section ``[job.xxx]`` in the configuration should configure a single job
+from the types below.  (The type is selected by the ``type`` value inside the
+section.)
 
-   jobs/base
+.. toctree::
+
    jobs/init
    jobs/process
 

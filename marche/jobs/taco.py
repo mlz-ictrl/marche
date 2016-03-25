@@ -23,7 +23,27 @@
 #
 # *****************************************************************************
 
-"""Job for Taco servers."""
+""".. index:: taco; job
+
+Taco Servers job
+=================
+
+This is a job for controlling all TACO_ servers (following the FRM-II standard)
+configured on the host.
+
+.. _TACO: https://forge.frm2.tum.de/wiki/projects:taco:index
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``taco``.
+
+   No further configuration is necessary; the job will read the TACO
+   database and derive parameters like available servers from there.
+"""
 
 import os
 from os import path

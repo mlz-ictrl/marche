@@ -23,6 +23,46 @@
 #
 # *****************************************************************************
 
+""".. index:: xmlrpc; interface
+
+XMLRPC interface
+----------------
+
+This interface allows controlling sservice via remote procedure calls (RPC)
+over HTTP in the XML format.  This is the main interface of Marche and should
+always be enabled.
+
+.. describe:: [interfaces.xmlrpc]
+
+   The configuration settings that can be set within the **interfaces.xmlrpc**
+   section are:
+
+   .. describe:: port
+
+      **Default:** 8124
+
+      The port to listen for xmlrpc requests.
+
+   .. describe:: host
+
+      **Default:** 0.0.0.0
+
+      The host to bind to.
+
+   .. describe:: user
+
+      **Default:** marche
+
+      The user for remote authentication.
+
+   .. describe:: passwd
+
+      **Default:** None
+
+      The password for remote authentication.  If not password is given, no
+      authentication is used.
+"""
+
 import threading
 import xmlrpclib
 import SimpleXMLRPCServer
@@ -41,6 +81,7 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
     def log_message(self, fmt, *args):
         self.log.debug('[%s] %s' % (self.client_address[0], fmt % args))
+
 
 class AuthRequestHandler(RequestHandler):
     USER = 'marche'
@@ -91,39 +132,6 @@ class RPCFunctions(object):
 
 
 class Interface(object):
-    '''
-    This interface allows remote access via remote procedure calls (RPC)
-    over HTTP in the XML format.
-
-    The configuration settings that can be set within the **interfaces.xmlrpc**
-    section are:
-
-    .. describe:: port
-
-        **Default:** 8124
-
-        The port to listen for xmlrpc requests.
-
-    .. describe:: host
-
-        **Default:** 0.0.0.0
-
-        The host to bind to.
-
-    .. describe:: user
-
-        **Default:** marche
-
-        The user for remote authentication.
-
-    .. describe:: passwd
-
-        **Default:** None
-
-        | The password for remote authentication.
-        | If not password is given, no authentication is used.
-
-    '''
 
     def __init__(self, config, jobhandler, log):
         self.config = config
@@ -135,7 +143,6 @@ class Interface(object):
         host = self.config.interface_config['xmlrpc']['host']
         user = self.config.interface_config['xmlrpc']['user']
         passwd = self.config.interface_config['xmlrpc']['passwd']
-
 
         requestHandler = RequestHandler
         if passwd:

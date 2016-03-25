@@ -20,10 +20,7 @@ Contents:
    gui
    iface
    jobs
-
-
-
-
+   api
 
 Indices and tables
 ==================

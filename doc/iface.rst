@@ -1,12 +1,8 @@
-
 Available interfaces
---------------------
+====================
 
-.. toctree::
-   :maxdepth: 3
+.. automodule:: marche.iface.xmlrpc
 
-   iface/xmlrpc
-   iface/udp
-   iface/tango
+.. automodule:: marche.iface.udp
 
-
+.. automodule:: marche.iface.tango

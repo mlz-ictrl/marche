@@ -22,6 +22,30 @@
 #
 # *****************************************************************************
 
+""".. index:: tango; interface
+
+Tango interface
+---------------
+
+This interface allows control of services via a Tango_ device.  If active, the
+Marche daemon will register itself as a Tango device and provide a Tango
+command for each Marche protocol command.
+
+.. describe:: [interfaces.tango]
+
+   The configuration settings that can be set within the **interfaces.tango**
+   section are:
+
+   .. describe:: tango_host
+
+      **Default:** nothing
+
+      The host of the Tango database to register the server in.  The default
+      is to use the existing ``TANGO_HOST`` environment variable.
+
+.. _Tango: http://tango-controls.org
+"""
+
 import os
 import socket
 

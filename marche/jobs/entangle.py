@@ -23,9 +23,26 @@
 #
 # *****************************************************************************
 
-"""Job for Entangle_ servers.
+""".. index:: entangle; job
+
+Entangle Servers job
+====================
+
+This is a job for controlling all Entangle_ servers configured on the host.
 
 .. _Entangle: https://forge.frm2.tum.de/entangle/doc/entangle-master/
+
+This job has the following configuration parameters:
+
+.. describe:: [job.xxx]
+
+   .. describe:: type
+
+      Must be ``entangle``.
+
+   No further configuration is necessary; the job will read the Entangle
+   configuration file ``/etc/entangle/entangle.conf`` and derive parameters
+   like available servers and their logfiles from there.
 """
 
 import os
