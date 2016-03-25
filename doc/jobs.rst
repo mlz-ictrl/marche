@@ -9,6 +9,7 @@ section.)
 
    jobs/init
    jobs/process
+   jobs/systemd
 
    jobs/entangle
    jobs/nicos
