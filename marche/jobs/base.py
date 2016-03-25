@@ -30,13 +30,40 @@ from marche.utils import AsyncProcess
 
 
 class Job(object):
+    """This is the basic job class.
+
+    All methods that implement a Marche command should raise
+    :exc:`marche.jobs.Fault` with a nice error message on error.  Other
+    exceptions are caught but will cause tracebacks to be written to the
+    logfile.
+
+    All methods that start/stop services can also raise :exc:`marche.jobs.Busy`
+    to indicate that the operation cannot be done at the moment, because a job
+    is already starting/stopping.
+
+    .. automethod:: __init__
+    """
 
     def __init__(self, name, config, log):
+        """The constructor can be overridden, but the base class constructor
+        should always be called.
+
+        It sets the following instance attributes:
+
+        ``name``
+           The job name (the *name* argument).
+        ``config``
+           The job config dictionary (the *config* argument).
+        ``log``
+           A logger for the job (a child of the *log* argument).
+        """
         self.name = name
         self.config = config
         self.log = log.getChild(name)
         self._processes = {}
         self._output = {}
+
+    # Utilities
 
     def _async_call(self, status, cmd, sh=True, output=None):
         if output is not None:
@@ -77,45 +104,126 @@ class Job(object):
     # Public interface
 
     def check(self):
-        """Check if the job can be used at all (on this system)."""
+        """Check if the job can be used at all (on this system).
+
+        This is called on daemon initialization for each configured job, and if
+        it returns False, the job is not further used.
+
+        If this returns False, it should also do some logging output to inform
+        the user of the reason that the job cannot work.
+
+        The default is to return True.
+        """
         return True
 
     def init(self):
-        """Initialize job."""
+        """Initialize the job.
+
+        This can further configure the job after the feasibility check has run.
+        By default, does nothing.
+        """
         pass
 
     def get_services(self):
+        """Return a list of service names that this job supports.
+
+        Sub-services should be of the form ``name.subname`` so that the client
+        can recognize and display them properly.
+
+        The default returns no services.
+        """
         return []
 
     def start_service(self, name):
+        """Start the service with the given name.
+
+        The method should not block; instead, if the service takes a while to
+        start the returned status should be ``STARTING`` during that time.
+        """
         raise NotImplementedError('%s.start_service not implemented'
                                   % self.__class__.__name__)
 
     def stop_service(self, name):
+        """Stop the service with the given name.
+
+        The method should not block; instead, if the service takes a while to
+        stop the returned status should be ``STOPPING`` during that time.
+        """
         raise NotImplementedError('%s.stop_service not implemented'
                                   % self.__class__.__name__)
 
     def restart_service(self, name):
+        """Restart the service with the given name.
+
+        The method should not block; instead, if the service takes a while to
+        restart the returned status should be ``STARTING`` during that time.
+        """
         raise NotImplementedError('%s.restart_service not implemented'
                                   % self.__class__.__name__)
 
     def service_status(self, name):
+        """Return the status of the service with the given name.
+
+        The status should be one of the constants defined in the
+        :mod:`marche.jobs` module:
+
+        * ``DEAD`` (not running)
+        * ``STARTING`` (currently starting to run)
+        * ``INITIALIZING`` (process running, but not started up)
+        * ``RUNNING`` (running OK)
+        * ``WARNING`` (running, but not completely/with errors)
+        * ``STOPPING`` (currently stopping to run)
+        * ``NOT_AVAILABLE`` (not running, cannot start) -- this should only be
+          necessary if the feasibility check cannot already rule it out
+
+        Not all states have to be supported; the most basic set of states to
+        return is ``DEAD`` or ``RUNNING``.
+        """
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
 
     def service_description(self, name):
+        """Return a long string description of the service with the given
+        name.
+        """
         return '(no long description provided)'
 
     def service_output(self, name):
+        """Return the console output of the last attempt to start/stop/restart
+        the service, as a list of strings (lines).
+        """
         return list(self._output.get(name, []))
 
     def service_logs(self, name):
+        """Return the contents of the logfile(s) of the service, if possible.
+
+        The return value must be a list of strings (lines) with the name of the
+        respective file prepended and separated by a colon.  For example,
+        ``['file1:line1', 'file1:line2', 'file2:line1']``.
+        """
         return []
 
     def receive_config(self, name):
+        """Return the contents of the config file(s) of the service, if
+        possible.
+
+        The return value must be a list with ``2*n`` elements for ``n`` files:
+        the file name and the content for each file.
+        """
         raise NotImplementedError('%s.receive_config not implemented'
                                   % self.__class__.__name__)
 
     def send_config(self, name, data):
+        """Transfer changed config file(s) to the service, and update them.
+
+        Usually, this means that the new file is written to disk, but it could
+        also take some further action.
+
+        It should *not* restart the service, even if that is necessary for the
+        config file to take effect.
+
+        The format of the ``data`` argument is the same as for the return value
+        of `receive_config`.
+        """
         raise NotImplementedError('%s.send_config not implemented'
                                   % self.__class__.__name__)
