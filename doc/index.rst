@@ -1,12 +1,7 @@
-.. marche documentation master file, created by
-   sphinx-quickstart on Tue Sep 29 11:53:05 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Documentation for Marche
+========================
 
-Welcome to marche's documentation!
-==================================
-
-| Marche is a server control daemon with multiple interfaces.
+| Marche is a server control daemon with multiple protocols and a graphical user interface.
 | Version: |version|
 
 Contents:
@@ -18,13 +13,13 @@ Contents:
    getit
    start
    config
-   gui
    iface
    jobs
+   gui
    api
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
