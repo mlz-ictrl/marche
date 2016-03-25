@@ -27,12 +27,14 @@
 .. _NICOS: http://nicos-controls.org/
 """
 
+import ConfigParser
 from os import path
 
 from marche.jobs import DEAD, STARTING, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
+from marche.utils import extractLoglines
 
-INITSCR = '/etc/init.d/nicos-system'
+DEFAULT_INIT = '/etc/init.d/nicos-system'
 
 
 class Job(BaseJob):
@@ -43,15 +45,24 @@ class Job(BaseJob):
         self.log = log.getChild(name)
         self._services = []
         self._proc = None
+        if 'root' in config:
+            self._root = config['root']
+            self._script = path.join(self._root, 'etc', 'nicos-system')
+        else:
+            # determine the NICOS root from the init script, which is a symlink
+            # to the init script in the NICOS root
+            self._root = path.dirname(path.dirname(path.realpath(DEFAULT_INIT)))
+            self._script = DEFAULT_INIT
+        self._logpath = None
 
     def check(self):
-        if not path.exists(INITSCR):
-            self.log.error('%s missing' % INITSCR)
+        if not path.exists(self._script):
+            self.log.error('%s missing' % self._script)
             return False
         return True
 
     def get_services(self):
-        proc = self._async_call(STARTING, '%s 2>&1' % INITSCR)
+        proc = self._async_call(STARTING, '%s 2>&1' % self._script)
         proc.join()
         lines = proc.stdout
         if len(lines) >= 2 and lines[-1].startswith('Possible services are'):
@@ -62,28 +73,28 @@ class Job(BaseJob):
 
     def start_service(self, name):
         if name == 'nicos-system':
-            return self._async_start(None, '%s start' % INITSCR)
+            return self._async_start(None, '%s start' % self._script)
         else:
-            return self._async_start(None, '%s start %s' % (INITSCR, name[6:]))
+            return self._async_start(None, '%s start %s' % (self._script, name[6:]))
 
     def stop_service(self, name):
         if name == 'nicos-system':
-            return self._async_stop(None, '%s stop' % INITSCR)
+            return self._async_stop(None, '%s stop' % self._script)
         else:
-            return self._async_stop(None, '%s stop %s' % (INITSCR, name[6:]))
+            return self._async_stop(None, '%s stop %s' % (self._script, name[6:]))
 
     def restart_service(self, name):
         if name == 'nicos-system':
-            return self._async_start(None, '%s restart' % INITSCR)
+            return self._async_start(None, '%s restart' % self._script)
         else:
-            return self._async_start(None, '%s restart %s' % (INITSCR, name[6:]))
+            return self._async_start(None, '%s restart %s' % (self._script, name[6:]))
 
     def service_status(self, name):
         async_st = self._async_status_only(None)
         if async_st is not None:
             return async_st
         if name == 'nicos-system':
-            output = self._sync_call('%s status' % INITSCR).stdout
+            output = self._sync_call('%s status' % self._script).stdout
             something_dead = something_running = False
             for line in output:
                 if 'dead' in line:
@@ -96,9 +107,18 @@ class Job(BaseJob):
                 return RUNNING
             return DEAD
         else:
-            retcode = self._sync_call('%s status %s' % (INITSCR, name[6:])).retcode
+            retcode = self._sync_call('%s status %s' % (self._script, name[6:])).retcode
             return RUNNING if retcode == 0 else DEAD
 
     def service_logs(self, name):
-        # XXX extract nicos log directory
-        return []
+        if name == 'nicos-system':
+            return []
+        if self._logpath is None:
+            # extract nicos log directory
+            cfg = ConfigParser.RawConfigParser()
+            cfg.read([path.join(self._root, 'nicos.conf')])
+            if cfg.has_option('nicos', 'logging_path'):
+                self._logpath = cfg.get('nicos', 'logging_path')
+            else:
+                self._logpath = path.join(self._root, 'log')
+        return extractLoglines(path.join(self._logpath, name[6:], 'current'))
