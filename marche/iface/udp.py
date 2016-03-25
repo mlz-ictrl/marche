@@ -56,17 +56,18 @@ with UDP broadcasts that search all hosts within a network.
 import socket
 import threading
 
+from marche.iface.base import Interface as BaseInterface
+
 UDP_PORT = 11691
 
 
-class Interface(object):
-    def __init__(self, config, jobhandler, log):
-        self.config = config
-        self.log = log.getChild('udp')
+class Interface(BaseInterface):
+
+    iface_name = 'udp'
 
     def run(self):
-        host = self.config.interface_config['udp']['host']
-        port = int(self.config.interface_config['udp']['port'])
+        host = self.config['host']
+        port = int(self.config['port'])
         server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((host, port))

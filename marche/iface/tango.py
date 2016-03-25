@@ -53,6 +53,7 @@ import PyTango
 from PyTango.server import Device, DeviceMeta, command
 
 from marche.handler import JobHandler, VOID, STRING, STRINGLIST, INTEGER
+from marche.iface.base import Interface as BaseInterface
 from marche.jobs import Busy, Fault
 
 dtype_map = {
@@ -96,16 +97,15 @@ class ProcessController(Device):
         self.set_state(PyTango.DevState.ON)
 
 
-class Interface(object):
-    def __init__(self, config, jobhandler, log):
-        self.config = config
-        ProcessController.jobhandler = jobhandler
-        self.log = log.getChild('tango')
+class Interface(BaseInterface):
 
-        hostconfig = config.interface_config['tango']['tango_host']
+    iface_name = 'tango'
+
+    def init(self):
+        ProcessController.jobhandler = self.jobhandler
+        hostconfig = self.config['tango_host']
         if hostconfig:
             os.environ['TANGO_HOST'] = hostconfig
-
         try:
             hostname = socket.gethostname()
         except socket.error:

@@ -63,12 +63,13 @@ always be enabled.
       authentication is used.
 """
 
+import base64
 import threading
 import xmlrpclib
 import SimpleXMLRPCServer
-import base64
 
 from marche.jobs import Busy, Fault
+from marche.iface.base import Interface as BaseInterface
 from marche.handler import JobHandler, VOID
 
 BUSY = 1
@@ -131,22 +132,22 @@ class RPCFunctions(object):
         locals()[mname] = command(method, method.outtype == VOID)
 
 
-class Interface(object):
+class Interface(BaseInterface):
 
-    def __init__(self, config, jobhandler, log):
-        self.config = config
-        self.jobhandler = jobhandler
-        self.log = RequestHandler.log = log.getChild('xmlrpc')
+    iface_name = 'xmlrpc'
+
+    def init(self):
+        RequestHandler.log = self.log
 
     def run(self):
-        port = int(self.config.interface_config['xmlrpc']['port'])
-        host = self.config.interface_config['xmlrpc']['host']
-        user = self.config.interface_config['xmlrpc']['user']
-        passwd = self.config.interface_config['xmlrpc']['passwd']
+        port = int(self.config['port'])
+        host = self.config['host']
+        user = self.config['user']
+        passwd = self.config['passwd']
 
         requestHandler = RequestHandler
         if passwd:
-            self.log.info('Use authentication functionality')
+            self.log.info('using authentication functionality')
             requestHandler = AuthRequestHandler
             AuthRequestHandler.USER = user
             AuthRequestHandler.PASSWD = passwd
