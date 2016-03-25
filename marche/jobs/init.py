@@ -78,9 +78,11 @@ class Job(BaseJob):
     def receive_config(self, name):
         if not self.config_file:
             return []
-        return [path.basename(self.config_file), open(self.config_file).read()]
+        return [path.basename(self.config_file),
+                open(self.config_file, 'rb').read()]
 
     def send_config(self, name, data):
-        if len(data) != 2 or data[0] != path.basename(self.config_file):
-            return
-        open(self.config_file, 'w').write(data[1])
+        if len(data) != 2 or data[0] != path.basename(self.config_file) or \
+           not isinstance(data[1], bytes):
+            raise RuntimeError('invalid request')
+        open(self.config_file, 'wb').write(data[1])
