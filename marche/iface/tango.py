@@ -31,6 +31,9 @@ This interface allows control of services via a Tango_ device.  If active, the
 Marche daemon will register itself as a Tango device and provide a Tango
 command for each Marche protocol command.
 
+The Tango device name is ``marche/control/<hostname>``, where ``<hostname>`` is
+the fully-qualified hostname of the machine running the Marche daemon.
+
 .. describe:: [interfaces.tango]
 
    The configuration settings that can be set within the **interfaces.tango**

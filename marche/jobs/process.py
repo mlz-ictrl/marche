@@ -43,8 +43,8 @@ This job has the following configuration parameters:
 
    .. describe:: binary
 
-      The name (or full path) of the binary to start.  If not given, defaults
-      to the job name.
+      The full path of the binary to start.  If not given, defaults to the job
+      name.
 
    .. describe:: args
 
