@@ -125,7 +125,6 @@ class Job(BaseJob):
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
         self.binary = config.get('binary', name)
-        self.short_name = path.splitext(path.basename(self.binary))[0]
         self.args = shlex.split(config.get('args', ''))
         self.working_dir = config.get('workingdir', None)
         self.output_file = config.get('outputfile', None)
@@ -146,10 +145,10 @@ class Job(BaseJob):
 
     def init(self):
         if self.autostart:
-            self.start_service(self.short_name)
+            self.start_service(self.name)
 
     def get_services(self):
-        return [self.short_name]
+        return [self.name]
 
     def start_service(self, name):
         if self._thread and self._thread.isAlive():
