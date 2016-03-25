@@ -23,11 +23,16 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import time
 import tempfile
 import subprocess
 from os import path
-from xmlrpclib import ProtocolError, Fault
+
+from marche.six import iteritems
+from marche.six.moves import range
+from marche.six.moves.xmlrpc_client import ProtocolError, Fault
 
 import marche.gui.res  # noqa
 
@@ -38,14 +43,14 @@ from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
     STOPPING, INITIALIZING
-from marche.utils import normalizeAddr
+from marche.utils import normalizeAddr, readFile, writeFile
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
     QByteArray
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QLabel, \
-    QMenu, QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QMenu, \
+    QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
 
 
 class AuthDialog(QDialog):
@@ -122,8 +127,7 @@ class PreferencesDialog(QDialog):
     @credentials.setter
     def credentials(self, value):
         self._creds = value
-
-        for host, _ in value.items():
+        for host, _ in iteritems(value):
             self.hostsListWidget.addItem(host)
 
     def selectCred(self, host):
@@ -237,7 +241,7 @@ class JobButtons(QWidget):
             fn = config[i]
             contents = config[i + 1]
             localfn = path.join(dtemp, fn)
-            open(localfn, 'w').write(contents)
+            writeFile(localfn, contents)
             if not self.editLocal(editor, localfn):
                 self._item.setText(3, 'Editor failed')
                 return
@@ -245,7 +249,7 @@ class JobButtons(QWidget):
                     self, 'Configure', 'Is the changed file ok to use?',
                     QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
                 result.append(fn)
-                result.append(open(localfn, 'r').read())
+                result.append(readFile(localfn))
         if not result:
             return
         try:
@@ -360,7 +364,7 @@ class HostTree(QTreeWidget):
         try:
             self.fill()
         except Exception as err:
-            print err
+            print(err)
 
         self.expandAll()
         self.resizeColumnToContents(0)
@@ -383,7 +387,7 @@ class HostTree(QTreeWidget):
         services = self._client.getServices()
         self._client.startPoller(self.updateStatus)
 
-        for service, instances in services.iteritems():
+        for service, instances in iteritems(services):
             serviceItem = QTreeWidgetItem([service])
             serviceItem.setForeground(1, QBrush(QColor('white')))
             serviceItem.setTextAlignment(1, Qt.AlignCenter)
@@ -532,13 +536,11 @@ class MainWidget(QWidget):
                 'defaultSession': dlg.defaultSession,
             })
 
-            for host, (user, passwd) in dlg.credentials.items():
+            for host, (user, passwd) in iteritems(dlg.credentials):
                 saveCredentials(host, user, passwd)
 
-            for host in (oldCredHosts - set(dlg.credentials.keys())):
+            for host in (oldCredHosts - set(dlg.credentials)):
                 removeCredentials(host)
-
-
 
             if dlg.pollInterval != settings['pollInterval'] \
                and self._cur_tree is not None:

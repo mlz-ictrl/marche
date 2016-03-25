@@ -30,6 +30,8 @@ import traceback
 from os import path
 from logging import Formatter, Handler, DEBUG, INFO, WARNING, ERROR
 
+from marche.six import iteritems
+
 from marche import colors
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)-25s: %(message)s'
@@ -85,7 +87,7 @@ class ConsoleFormatter(Formatter):
 
 def format_extended_frame(frame):
     ret = []
-    for key, value in frame.f_locals.items():
+    for key, value in iteritems(frame.f_locals):
         try:
             valstr = repr(value)[:256]
         except Exception:

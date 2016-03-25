@@ -51,8 +51,9 @@ This job has the following configuration parameters:
    services and their logfiles from there.
 """
 
-import ConfigParser
 from os import path
+
+from six.moves import configparser
 
 from marche.jobs import DEAD, STARTING, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
@@ -139,7 +140,7 @@ class Job(BaseJob):
             return []
         if self._logpath is None:
             # extract nicos log directory
-            cfg = ConfigParser.RawConfigParser()
+            cfg = configparser.RawConfigParser()
             cfg.read([path.join(self._root, 'nicos.conf')])
             if cfg.has_option('nicos', 'logging_path'):
                 self._logpath = cfg.get('nicos', 'logging_path')

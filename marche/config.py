@@ -26,13 +26,14 @@
 """Config file handling."""
 
 import os
-import ConfigParser
 from os import path
+
+from marche.six.moves import configparser
 
 from marche.iface.udp import UDP_PORT
 
 
-class CasePreservingConfigParser(ConfigParser.SafeConfigParser):
+class CasePreservingConfigParser(configparser.SafeConfigParser):
     def optionxform(self, key):
         return key
 

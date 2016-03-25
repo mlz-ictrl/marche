@@ -25,12 +25,14 @@
 
 import os
 import sys
+import base64
 from os import path
-import binascii
 
 from PyQt4 import uic
 from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
+
+from marche.six import iteritems
 
 
 uipath = path.dirname(__file__)
@@ -143,8 +145,7 @@ def loadSetting(name, default=None, valType=str, settings=None):
 
 def saveSettings(settingsDict):
     settings = _getSettingsObj()
-
-    for key, value in settingsDict.items():
+    for key, value in iteritems(settingsDict):
         saveSetting(key, value, settings=settings)
 
 
@@ -156,7 +157,7 @@ def loadSettings(request):
         for key in request:
             result[key] = loadSetting(key, settings=settings)
     elif isinstance(request, dict):
-        for key, default in request.items():
+        for key, default in iteritems(request):
             result[key] = loadSetting(key, default, settings=settings)
 
     return result
@@ -170,10 +171,10 @@ def saveCredentials(host, user, passwd):
     hosts.append(host)
 
     saveSetting('creds/%s/user' % host,
-                binascii.b2a_base64(user),
+                base64.b64encode(user.encode('utf-8')).decode(),
                 settings=settings)
     saveSetting('creds/%s/passwd' % host,
-                binascii.b2a_base64(passwd),
+                base64.b64encode(passwd.encode('utf-8')).decode(),
                 settings=settings)
 
     saveSetting('creds/hosts', hosts, settings=settings)
@@ -187,11 +188,10 @@ def loadCredentials(host):
     if host not in hosts:
         return (None, None)
 
-    user = binascii.a2b_base64(loadSetting('creds/%s/user' %
-                                           host,
-                                           settings=settings))
-    passwd = binascii.a2b_base64(loadSetting('creds/%s/passwd' % host,
-                                             settings=settings))
+    user = base64.b64decode(loadSetting('creds/%s/user' % host,
+                                        settings=settings).encode()).decode('utf-8')
+    passwd = base64.b64decode(loadSetting('creds/%s/passwd' % host,
+                                          settings=settings).encode()).decode('utf-8')
 
     return (user, passwd)
 

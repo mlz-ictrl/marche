@@ -52,6 +52,8 @@ import socket
 import PyTango
 from PyTango.server import Device, DeviceMeta, command
 
+from marche.six import add_metaclass
+
 from marche.handler import JobHandler, VOID, STRING, STRINGLIST, INTEGER
 from marche.iface.base import Interface as BaseInterface
 from marche.jobs import Busy, Fault
@@ -89,9 +91,8 @@ def MarcheDeviceMeta(name, bases, attrs):
     return DeviceMeta(name, bases, attrs)
 
 
+@add_metaclass(MarcheDeviceMeta)
 class ProcessController(Device):
-    __metaclass__ = MarcheDeviceMeta
-
     def init_device(self):
         Device.init_device(self)
         self.set_state(PyTango.DevState.ON)

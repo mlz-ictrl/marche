@@ -65,8 +65,8 @@ always be enabled.
 
 import base64
 import threading
-import xmlrpclib
-import SimpleXMLRPCServer
+
+from marche.six.moves import xmlrpc_client, xmlrpc_server
 
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
@@ -77,7 +77,7 @@ FAULT = 2
 EXCEPTION = 9
 
 
-class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
+class RequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/xmlrpc',)
 
     def log_message(self, fmt, *args):
@@ -85,22 +85,19 @@ class RequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
 
 class AuthRequestHandler(RequestHandler):
-    USER = 'marche'
-    PASSWD = 'marche'
+    encoded_auth = ''
 
     def do_POST(self):
-        auth = base64.b64encode('%s:%s' % (self.USER, self.PASSWD))
-
         if 'Authorization' not in self.headers:
             self.send_error(401)
             return
 
         authHeader = self.headers['Authorization'].split()[-1].strip()
-        if auth != authHeader:
+        if authHeader != self.encoded_auth:
             self.send_error(401)
             return
 
-        return SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.do_POST(self)
+        return xmlrpc_server.SimpleXMLRPCRequestHandler.do_POST(self)
 
 
 def command(method, is_void):
@@ -110,11 +107,11 @@ def command(method, is_void):
             # returning None is not possible in XMLRPC without special options
             return True if is_void else ret
         except Busy as err:
-            raise xmlrpclib.Fault(BUSY, str(err))
+            raise xmlrpc_client.Fault(BUSY, str(err))
         except Fault as err:
-            raise xmlrpclib.Fault(FAULT, str(err))
+            raise xmlrpc_client.Fault(FAULT, str(err))
         except Exception as err:
-            raise xmlrpclib.Fault(EXCEPTION, 'Unexpected exception: %s' % err)
+            raise xmlrpc_client.Fault(EXCEPTION, 'Unexpected exception: %s' % err)
     new_method.__name__ = method.__name__
     return new_method
 
@@ -145,15 +142,20 @@ class Interface(BaseInterface):
         user = self.config['user']
         passwd = self.config['passwd']
 
-        requestHandler = RequestHandler
+        request_handler = RequestHandler
         if passwd:
             self.log.info('using authentication functionality')
-            requestHandler = AuthRequestHandler
-            AuthRequestHandler.USER = user
-            AuthRequestHandler.PASSWD = passwd
+            request_handler = AuthRequestHandler
+            try:
+                enc_auth = base64.b64encode(('%s:%s' % (user, passwd))
+                                            .encode('utf-8')).decode().strip()
+            except UnicodeError:
+                self.log.error('could not encode user/password')
+            else:
+                AuthRequestHandler.encoded_auth = enc_auth
 
-        server = SimpleXMLRPCServer.SimpleXMLRPCServer(
-            (host, port), requestHandler=requestHandler)
+        server = xmlrpc_server.SimpleXMLRPCServer(
+            (host, port), requestHandler=request_handler)
         server.register_introspection_functions()
         server.register_instance(RPCFunctions(self.jobhandler, self.log))
 

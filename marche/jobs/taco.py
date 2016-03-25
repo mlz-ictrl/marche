@@ -48,6 +48,8 @@ This job has the following configuration parameters:
 import os
 from os import path
 
+from marche.six import iteritems
+
 from marche.utils import extractLoglines
 from marche.jobs.base import Job as BaseJob
 
@@ -60,8 +62,11 @@ class Job(BaseJob):
         self._depends = set()
 
     def check(self):
-        return any(fn.startswith('taco-server-')
-                   for fn in os.listdir('/etc/init.d'))
+        if any(fn.startswith('taco-server-')
+               for fn in os.listdir('/etc/init.d')):
+            return True
+        self.log.error('no TACO server init scripts found')
+        return False
 
     def get_services(self):
         servers = set()
@@ -75,19 +80,19 @@ class Job(BaseJob):
         # collect device dependency info for servers
         all_depends = {}
         direct_deps = {}
-        for server, instances in serverinfo.items():
-            for instance, devs in instances.items():
+        for server, instances in iteritems(serverinfo):
+            for instance, devs in iteritems(instances):
                 direct_deps[server, instance] = \
                     self._get_dependencies(devs, alldevs, dev2server)
                 all_depends[server, instance] = set()
-        for key, depends in direct_deps.iteritems():
+        for key, depends in iteritems(direct_deps):
             all_depends[key].update(depends)
             for revkey in depends:
                 all_depends[revkey].add(key)
         self._depends = all_depends
         # construct services
         services = []
-        for server, instances in serverinfo.items():
+        for server, instances in iteritems(serverinfo):
             for instance in instances:
                 servicename = 'taco-%s.%s' % (server, instance)
                 services.append(servicename)

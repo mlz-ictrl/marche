@@ -106,9 +106,11 @@ class ProcessMonitor(Thread):
     def run(self):
         self.log.info('worker %s: started' % self._cmd)
         if self._outfile is not None:
-            outfile = open(self._outfile, 'w+')
+            outfile = open(self._outfile, 'wb+')
         else:
             outfile = sys.stdout
+            if hasattr(outfile, 'buffer'):
+                outfile = outfile.buffer
         process = Popen(self._cmd, stdout=outfile, stderr=STDOUT, cwd=self._wd)
         while process.poll() is None:
             sleep(0.1)

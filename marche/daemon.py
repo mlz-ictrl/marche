@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import os
 import sys
 import time
@@ -83,11 +85,11 @@ def main():
         log.addHandler(ColoredConsoleHandler())
     try:
         log.addHandler(LogfileHandler(config.logdir, 'marche'))
-    except Exception, e:
+    except Exception as err:
         if opts.daemonize:
-            print >>sys.stderr, 'cannot open logfile:', e
+            print('cannot open logfile:', err, file=sys.stderr)
         else:
-            log.exception('cannot open logfile: %s', e)
+            log.exception('cannot open logfile: %s', err)
             if opts.configdir == '/etc/marche' and os.path.isdir('etc'):
                 log.info('consider using `-c etc` from a checkout')
         return 1

@@ -81,7 +81,7 @@ class Job(InitJob):
         self.srvname = config.get('srvname', name)
         resdir = config.get('resdir', '')
         if not resdir:
-            with open(_DEFAULT, 'r') as fd:
+            with open(_DEFAULT) as fd:
                 for line in fd:
                     if not line.startswith('#'):
                         (key, sep, value) = line.partition('=')
@@ -144,25 +144,24 @@ class Job(InitJob):
                 name = val.strip()
                 add_device(name, valarr[1], srv)
 
-        fp = open(fn)
-        for line in iter(fp.readline, ''):
-            line = line.expandtabs(1).strip()
-            while line.endswith('\\'):
-                line = line.rstrip('\\ ')
-                if not line.endswith(':'):
-                    line += ','
-                line += fp.readline().expandtabs(1).strip()
-            if line.startswith('#'):
-                continue
-            val = line.split('#', 1)
-            line = val[0]
-            val = line.split(':', 1)
-            if len(val) < 2:
-                continue
-            key = [k.strip() for k in val[0].lower().split('/')]
-            if len(key) == 4:
-                processvalue(key[0] + '/' + key[1] + '/' + key[2],
-                             key[3], val[1].strip())
-            elif len(key) == 3 and key[2] == 'device':
-                processdevice(key, val[1].strip().split(','))
-        fp.close()
+        with open(fn) as fp:
+            for line in fp:
+                line = line.decode('utf-8', 'replace').expandtabs(1).strip()
+                while line.endswith('\\'):
+                    line = line.rstrip('\\ ')
+                    if not line.endswith(':'):
+                        line += ','
+                    line += fp.readline().expandtabs(1).strip()
+                if line.startswith('#'):
+                    continue
+                val = line.split('#', 1)
+                line = val[0]
+                val = line.split(':', 1)
+                if len(val) < 2:
+                    continue
+                key = [k.strip() for k in val[0].lower().split('/')]
+                if len(key) == 4:
+                    processvalue(key[0] + '/' + key[1] + '/' + key[2],
+                                 key[3], val[1].strip())
+                elif len(key) == 3 and key[2] == 'device':
+                    processdevice(key, val[1].strip().split(','))

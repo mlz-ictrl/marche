@@ -25,10 +25,12 @@
 
 import time
 import threading
-from xmlrpclib import ServerProxy, Fault, Transport
 from collections import OrderedDict
 
 from PyQt4.QtCore import QThread, pyqtSignal
+
+from marche.six import iteritems
+from marche.six.moves.xmlrpc_client import ServerProxy, Fault, Transport
 
 from marche.gui.util import loadSetting
 
@@ -48,7 +50,7 @@ class PollThread(QThread):
         while self.running:
             services = self._client.getServices()
 
-            for service, instances in services.iteritems():
+            for service, instances in iteritems(services):
                 if not instances:
                     status = self._client.getServiceStatus(service)
                     self.newData.emit(service, None, status)

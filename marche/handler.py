@@ -27,6 +27,8 @@
 
 from threading import Lock
 
+from marche.six import iteritems
+
 from marche.jobs import Busy, Fault
 
 # Input/output types
@@ -77,7 +79,7 @@ class JobHandler(object):
 
     def _add_jobs(self):
         self.log.info('adding jobs...')
-        for (name, config) in self.config.job_config.items():
+        for (name, config) in iteritems(self.config.job_config):
             if 'type' not in config:
                 self.log.warning('job %r has no type assigned, '
                                  'ignoring' % name)
@@ -133,7 +135,7 @@ class JobHandler(object):
     def GetServices(self):
         """Get a list of all services provided by jobs."""
         with self._lock:
-            return self.service2job.keys()
+            return list(self.service2job)
 
     @command(intype=STRING)
     def Start(self, name):
@@ -195,6 +197,8 @@ class JobHandler(object):
 
         The filenames must correspond to what the ReceiveConfig command
         returned.
+
+        The contents are sent as a latin1-decoded string.
         """
         with self._lock:
             return self._get_job(data[0]).send_config(data[0], data[1:])

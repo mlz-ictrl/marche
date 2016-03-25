@@ -80,5 +80,5 @@ class Interface(BaseInterface):
     def _thread(self, server):
         while True:
             data, addr = server.recvfrom(1024)
-            if data == 'PING':
-                server.sendto('PONG', addr)
+            if data == b'PING':
+                server.sendto(b'PONG', addr)

@@ -47,13 +47,12 @@ This job has the following configuration parameters:
 
 import os
 import ast
-import ConfigParser
 from os import path
 
-# import PyTango
+from marche.six.moves import configparser
 
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extractLoglines
+from marche.utils import extractLoglines, readFile, writeFile
 
 
 def convert_value(value):
@@ -76,9 +75,9 @@ def convert_value(value):
 def read_resfile(filename):
     """Read device names and properties from a resource file."""
     devices = {}
-    with open(filename) as fp:
+    with open(filename, 'rb') as fp:
         for line in fp:
-            line = line.strip()
+            line = line.decode('utf-8', 'replace').strip()
             # comments
             if not line or line.startswith(('#', '%')):
                 continue
@@ -109,7 +108,7 @@ class Job(BaseJob):
 
         if not self._ok:
             return
-        cfg = ConfigParser.RawConfigParser()
+        cfg = configparser.RawConfigParser()
         cfg.read(CONFIG)
 
         if cfg.has_option('entangle', 'resdir'):
@@ -154,10 +153,10 @@ class Job(BaseJob):
 
     def receive_config(self, name):
         cfgname = path.join(self._resdir, name[9:] + '.res')
-        return [name[9:] + '.res', open(cfgname).read()]
+        return [name[9:] + '.res', readFile(cfgname)]
 
     def send_config(self, name, data):
         cfgname = path.join(self._resdir, name[9:] + '.res')
         if len(data) != 2 or data[0] != name[9:] + '.res':
-            return
-        open(cfgname, 'w').write(data[1])
+            raise RuntimeError('invalid request')
+        writeFile(cfgname, data[1])

@@ -92,8 +92,8 @@ def daemonize(user, group):
     os.close(2)
 
     # redirect standard file descriptors
-    sys.stdin = open('/dev/null', 'r')
-    sys.stdout = sys.stderr = open('/dev/null', 'w')
+    sys.stdin = open('/dev/null', 'rb')
+    sys.stdout = sys.stderr = open('/dev/null', 'wb')
 
 
 def setuser(user, group, recover=True):
@@ -169,24 +169,25 @@ class AsyncProcess(Thread):
             """
             Read, log and store output (if any) from processes pipes.
             """
-            removeChars = '\r\n'
-
             # collect fds with new output
             fds = [entry[0] for entry in poller.poll()]
 
             if proc.stdout.fileno() in fds:
-                for line in iter(proc.stdout.readline, ''):
-                    self.log.debug(line.translate(None, removeChars))
+                for line in iter(proc.stdout.readline, b''):
+                    line = line.decode('utf-8', 'replace').strip('\r\n')
+                    self.log.debug(line)
                     self.stdout.append(line)
             if proc.stderr.fileno() in fds:
-                for line in iter(proc.stderr.readline, ''):
-                    self.log.warning(line.translate(None, removeChars))
+                for line in iter(proc.stderr.readline, b''):
+                    line = line.decode('utf-8', 'replace').strip('\r\n')
+                    self.log.warning(line)
                     self.stderr.append(line)
 
         while True:
             if proc is None:
                 # create and start process
-                proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=self.use_sh)
+                proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                             shell=self.use_sh)
 
                 # create poll select
                 poller = select.poll()
@@ -215,8 +216,9 @@ def extractLoglines(filename, n=50):
     def extract(filename):
         shortfn = path.basename(filename)
         lines = collections.deque(maxlen=n)
-        with open(filename, 'r') as fp:
+        with open(filename, 'rb') as fp:
             for line in fp:
+                line = line.decode('utf-8', 'replace')
                 lines.append(shortfn + ':' + nontext_re.sub('', line))
         return list(lines)
     if not path.exists(filename):
@@ -240,3 +242,20 @@ def normalizeAddr(addr, defport):
     except socket.error:
         pass
     return host, port
+
+
+def readFile(fname):
+    """Read file as latin-1 str."""
+    with open(fname, 'rb') as fp:
+        contents = fp.read()
+    if not isinstance(contents, str):
+        return contents.decode('latin1')
+    return contents
+
+
+def writeFile(fname, contents):
+    """Write file from latin-1 string."""
+    if not isinstance(contents, bytes):
+        contents = contents.encode('latin1')
+    with open(fname, 'wb') as fp:
+        fp.write(contents)
