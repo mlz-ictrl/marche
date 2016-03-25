@@ -65,7 +65,7 @@ names of potential logfiles are also automatically determined.
 
 from os import path
 
-# from PyTango import Database, DbDatum, DbDevInfo
+from PyTango import Database, DbDatum, DbDevInfo
 
 from marche.jobs.init import Job as InitJob
 
