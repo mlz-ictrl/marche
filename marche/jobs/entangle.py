@@ -127,7 +127,7 @@ class Job(BaseJob):
 
     def check(self):
         if not self._ok:
-            self.log.error('%s or %s missing' % (CONFIG, INITSCR))
+            self.log.warning('%s or %s missing' % (CONFIG, INITSCR))
             return False
         return True
 

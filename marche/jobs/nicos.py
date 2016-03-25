@@ -82,7 +82,7 @@ class Job(BaseJob):
 
     def check(self):
         if not path.exists(self._script):
-            self.log.error('%s missing' % self._script)
+            self.log.warning('%s missing' % self._script)
             return False
         return True
 

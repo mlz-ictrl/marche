@@ -93,7 +93,7 @@ class Job(BaseJob):
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
         if not path.exists(script):
-            self.log.error('%s missing' % script)
+            self.log.warning('%s missing' % script)
             return False
         return True
 

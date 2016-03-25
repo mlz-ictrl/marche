@@ -65,7 +65,7 @@ class Job(BaseJob):
         if any(fn.startswith('taco-server-')
                for fn in os.listdir('/etc/init.d')):
             return True
-        self.log.error('no TACO server init scripts found')
+        self.log.warning('no TACO server init scripts found')
         return False
 
     def get_services(self):

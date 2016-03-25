@@ -158,7 +158,7 @@ class Job(BaseJob):
 
     def check(self):
         if not path.exists(self.binary):
-            self.log.error('%s missing' % self.binary)
+            self.log.warning('%s missing' % self.binary)
             return False
         return True
 
