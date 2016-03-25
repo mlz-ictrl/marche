@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # MLZ server control daemon
-# Copyright (c) 2015 by the authors, see LICENSE
+# Copyright (c) 2015-2016 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -607,7 +607,7 @@ class MainWidget(QWidget):
             '''
             <h2>About Marche GUI</h2>
             <p style="font-style: italic">
-              (C) 2015 MLZ instrument control
+              (C) 2015-2016 MLZ instrument control
             </p>
             <p>
               Marche GUI is a graphical interface for the Marche process
@@ -615,9 +615,9 @@ class MainWidget(QWidget):
             </p>
             <h3>Authors:</h3>
             <ul>
-              <li>Copyright (C) 2015
+              <li>Copyright (C) 2015-2016
                 <a href="mailto:g.brandl@fz-juelich.de">Georg Brandl</a></li>
-              <li>Copyright (C) 2015
+              <li>Copyright (C) 2015-2016
                 <a href="mailto:alexander.lenz@frm2.tum.de">Alexander
                 Lenz</a></li>
             </ul>
