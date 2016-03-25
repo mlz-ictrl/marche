@@ -167,7 +167,8 @@ class Job(object):
         The status should be one of the constants defined in the
         :mod:`marche.jobs` module:
 
-        * ``DEAD`` (not running)
+        * ``DEAD`` (not running, for services that should run continuously)
+        * ``NOT_RUNNING`` (not running, for one-shot services)
         * ``STARTING`` (currently starting to run)
         * ``INITIALIZING`` (process running, but not started up)
         * ``RUNNING`` (running OK)

@@ -41,8 +41,8 @@ from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
     loadCredentials, loadAllCredentials, removeCredentials
 from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
-from marche.jobs import STATE_STR, RUNNING, WARNING, DEAD, STARTING, \
-    STOPPING, INITIALIZING
+from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
+    STARTING, STOPPING, INITIALIZING
 from marche.utils import normalizeAddr, readFile, writeFile
 from marche.version import get_version
 
@@ -344,6 +344,7 @@ class MultiJobButtons(QWidget):
 class HostTree(QTreeWidget):
     STATE_COLORS = {
         RUNNING:      ('green', ''),
+        NOT_RUNNING:  ('black', ''),
         DEAD:         ('white', 'red'),
         WARNING:      ('black', 'yellow'),
         STARTING:     ('blue', ''),

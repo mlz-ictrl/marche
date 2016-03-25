@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 DEAD = 0
+NOT_RUNNING = 5
 STARTING = 10
 INITIALIZING = 15
 RUNNING = 20
@@ -32,12 +33,13 @@ NOT_AVAILABLE = 40
 
 STATE_STR = {
     DEAD: 'DEAD',
+    NOT_RUNNING: 'NOT RUNNING',
     STARTING: 'STARTING',
     INITIALIZING: 'INITIALIZING',
     RUNNING: 'RUNNING',
     WARNING: 'WARNING',
     STOPPING: 'STOPPING',
-    NOT_AVAILABLE: 'NOT_AVAILABLE',
+    NOT_AVAILABLE: 'NOT AVAILABLE',
 }
 
 

@@ -52,6 +52,16 @@ This job has the following configuration parameters:
       shell-like fashion, i.e., you can use quotes to include spaces in one
       argument.  If not given, no arguments are passed.
 
+   .. describe:: oneshot
+
+      If ``yes``, treat this process as a "one-shot" process, which is supposed
+      to be started and then stop after doing it job.  The only effects of this
+      flag are that the service returns "NOT RUNNING" (instead of "DEAD") when
+      not running, and that the output is caught by Marche if ``outputfile`` is
+      not set.  It can be retrieved by the "get output" command.
+
+      The default is "no".
+
    .. describe:: workingdir
 
       The initial working directory for the process.  If not given, Marche's
@@ -86,19 +96,21 @@ import shlex
 from os import path
 from time import sleep
 from threading import Thread
-from subprocess import Popen, STDOUT
+from subprocess import Popen, STDOUT, PIPE
 
 from marche.utils import extractLoglines
-from marche.jobs import RUNNING, DEAD
+from marche.jobs import RUNNING, NOT_RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob
 
 
 class ProcessMonitor(Thread):
-    def __init__(self, cmd, wd, outfile, log):
+    def __init__(self, cmd, wd, outfile, oneshot, output, log):
         Thread.__init__(self)
         self.returncode = None
         self.stopflag = False
         self.log = log
+        self.oneshot = oneshot
+        self.output = output
         self._wd = wd
         self._cmd = cmd
         self._outfile = outfile
@@ -106,7 +118,9 @@ class ProcessMonitor(Thread):
     def run(self):
         self.log.info('worker %s: started' % self._cmd)
         if self._outfile is not None:
-            outfile = open(self._outfile, 'wb+')
+            outfile = open(self._outfile, 'wb')
+        elif self.oneshot:
+            outfile = PIPE
         else:
             outfile = sys.stdout
             if hasattr(outfile, 'buffer'):
@@ -116,6 +130,10 @@ class ProcessMonitor(Thread):
             sleep(0.1)
             if self.stopflag:
                 process.kill()
+        if self._outfile is None and self.oneshot:
+            for line in iter(process.stdout.readline, b''):
+                line = line.decode('utf-8', 'replace').strip('\r\n')
+                self.output.append(line)
         self.returncode = process.returncode
         self.log.info('worker %s: return %d' % (self._cmd, self.returncode))
 
@@ -128,6 +146,7 @@ class Job(BaseJob):
         self.args = shlex.split(config.get('args', ''))
         self.working_dir = config.get('workingdir', None)
         self.output_file = config.get('outputfile', None)
+        self.one_shot = config.get('oneshot', '').lower() in ('yes', 'true')
         if self.working_dir is None:
             self.working_dir = path.dirname(self.binary)
         self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
@@ -153,8 +172,10 @@ class Job(BaseJob):
     def start_service(self, name):
         if self._thread and self._thread.isAlive():
             return
+        self._output[name] = []
         self._thread = ProcessMonitor([self.binary] + self.args,
                                       self.working_dir, self.output_file,
+                                      self.one_shot, self._output[name],
                                       self.log)
         self._thread.setDaemon(True)
         self._thread.start()
@@ -172,6 +193,8 @@ class Job(BaseJob):
     def service_status(self, name):
         if self._thread and self._thread.isAlive():
             return RUNNING
+        if self.one_shot:
+            return NOT_RUNNING
         return DEAD
 
     def service_logs(self, name):
