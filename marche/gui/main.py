@@ -420,7 +420,7 @@ class HostTree(QTreeWidget):
 
         self.expandAll()
 
-    def updateStatus(self, service, instance, status):
+    def updateStatus(self, service, instance, status, info):
         if service not in self._items:
             return
 
@@ -440,6 +440,8 @@ class HostTree(QTreeWidget):
                            if colors[1] else QBrush())
         item.setText(1, STATE_STR[status])
         item.setData(1, 32, status)
+        if info is not None:
+            item.setText(3, info)
 
         if status in [STARTING, INITIALIZING, STOPPING]:
             item.setIcon(1, QIcon(':/marche/ui-progress-bar.png'))

@@ -32,12 +32,13 @@ from PyQt4.QtCore import QThread, pyqtSignal
 from marche.six import iteritems
 from marche.six.moves.xmlrpc_client import ServerProxy, Fault, Transport
 
+from marche.jobs import NOT_AVAILABLE
 from marche.gui.util import loadSetting
 
 
 class PollThread(QThread):
-    # service, instance, status
-    newData = pyqtSignal(object, object, int)
+    # service, instance, status, error info
+    newData = pyqtSignal(object, object, int, object)
 
     def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0,
                  parent=None):
@@ -48,23 +49,27 @@ class PollThread(QThread):
 
     def run(self):
         while self.running:
-            services = self._client.getServices()
+            try:
+                services = self._client.getServices()
+            except Exception:
+                services = {}
 
             for service, instances in iteritems(services):
                 if not instances:
-                    status = self._client.getServiceStatus(service)
-                    self.newData.emit(service, None, status)
+                    self.poll(service, None)
                 else:
                     for instance in instances:
-                        status = self._client.getServiceStatus(service,
-                                                               instance)
-                        self.newData.emit(service, instance, status)
+                        self.poll(service, instance)
 
             time.sleep(self._loopDelay)
 
     def poll(self, service, instance):
-        status = self._client.getServiceStatus(service, instance)
-        self.newData.emit(service, instance, status)
+        try:
+            status = self._client.getServiceStatus(service, instance)
+            info = None
+        except Exception as err:
+            status, info = NOT_AVAILABLE, str(err)
+        self.newData.emit(service, instance, status, info)
 
 
 class ClientError(Exception):
