@@ -78,8 +78,9 @@ class Interface(object):
         ProcessController.jobhandler = jobhandler
         self.log = log.getChild('tango')
 
-        if 'tango_host' in config.extended:
-            os.environ['TANGO_HOST'] = config.extended['tango_host']
+        hostconfig = config.interface_config['tango']['tango_host']
+        if hostconfig:
+            os.environ['TANGO_HOST'] = hostconfig
 
         try:
             hostname = socket.gethostname()

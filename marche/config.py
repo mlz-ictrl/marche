@@ -44,7 +44,6 @@ class Config(object):
     group = None
     piddir = '/var/run'
     logdir = '/var/log'
-    extended = {}
 
     job_config = {}
     interface_config = {
@@ -54,8 +53,10 @@ class Config(object):
             'user': 'marche',
             'passwd': '',
         },
-        'tango': {},
-        'udp' : {
+        'tango': {
+            'tango_host': '',
+        },
+        'udp': {
             'host': '0.0.0.0',
             'port': UDP_PORT,
         }
@@ -96,7 +97,6 @@ class Config(object):
                     self.interfaces = [
                         i.strip() for i in
                         parser.get('general', 'interfaces').split(',')]
-                self.extended = parser.items('general')
             elif section.startswith('job.'):
                 self.job_config[section[4:]] = dict(parser.items(section))
             elif section.startswith('interface.'):
