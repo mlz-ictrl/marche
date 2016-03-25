@@ -38,22 +38,23 @@ _DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
 
 
 class Job(InitJob):
-    """Special job for legacy Tango servers (not using Entangle)."""
+    """Special job for Tango servers not using Entangle."""
 
     def __init__(self, name, config, log):
         InitJob.__init__(self, name, config, log)
         self.init_name = config.get('script', 'tango-server-' + name.lower())
         self.srvname = config.get('srvname', name)
-        resdir = ''
-        with open(_DEFAULT, 'r') as fd:
-            for line in fd:
-                if not line.startswith('#'):
-                    (key, sep, value) = line.partition('=')
-                    if sep:
-                        key = key.replace('export', '').strip()
-                        if key == 'TANGO_RES_DIR':
-                            resdir = value.strip()
-                            break
+        resdir = config.get('resdir', '')
+        if not resdir:
+            with open(_DEFAULT, 'r') as fd:
+                for line in fd:
+                    if not line.startswith('#'):
+                        (key, sep, value) = line.partition('=')
+                        if sep:
+                            key = key.replace('export', '').strip()
+                            if key == 'TANGO_RES_DIR':
+                                resdir = value.strip()
+                                break
         if resdir:
             self.config_file = path.join(resdir, self.srvname + '.res')
         else:
