@@ -198,7 +198,10 @@ class Job(BaseJob):
         return DEAD
 
     def service_logs(self, service, instance):
-        ret = []
+        ret = {}
         for log_file in self.log_files:
-            ret.extend(extractLoglines(log_file))
+            ret.update(extractLoglines(log_file))
         return ret
+
+    def service_output(self, service, instance):
+        return list(self._output.get(service, []))

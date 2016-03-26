@@ -113,16 +113,19 @@ class Job(BaseJob):
         return self._async_status(service, '/etc/init.d/%s status' %
                                   self.init_name)
 
+    def service_output(self, service, instance):
+        return list(self._output.get(service, []))
+
     def service_logs(self, service, instance):
-        ret = []
+        ret = {}
         for log_file in self.log_files:
-            ret.extend(extractLoglines(log_file))
+            ret.update(extractLoglines(log_file))
         return ret
 
     def receive_config(self, service, instance):
         if not self.config_file:
-            return []
-        return [path.basename(self.config_file), readFile(self.config_file)]
+            return {}
+        return {path.basename(self.config_file): readFile(self.config_file)}
 
     def send_config(self, service, instance, filename, contents):
         if filename != path.basename(self.config_file):

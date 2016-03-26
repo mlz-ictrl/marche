@@ -132,12 +132,16 @@ class Job(BaseJob):
                 return RUNNING
             return DEAD
         else:
-            retcode = self._sync_call('%s status %s' % (self._script, instance)).retcode
+            retcode = self._sync_call('%s status %s' %
+                                      (self._script, instance)).retcode
             return RUNNING if retcode == 0 else DEAD
+
+    def service_output(self, service, instance):
+        return list(self._output.get(None, []))
 
     def service_logs(self, service, instance):
         if service == 'nicos-system':
-            return []
+            return {}
         if self._logpath is None:
             # extract nicos log directory
             cfg = configparser.RawConfigParser()

@@ -221,14 +221,13 @@ def extractLoglines(filename, n=500):
                 lines.append(nontext_re.sub('', line))
         return '\n'.join(lines)
     if not path.exists(filename):
-        return []
+        return {}
     filename = path.realpath(filename)
-    result = [filename, extract(filename)]
+    result = {filename: extract(filename)}
     # also add rotated logs
     i = 1
     while path.exists(filename + '.%d' % i):
-        result.append(filename + '.%d' % i)
-        result.append(extract(filename + '.%d' % i))
+        result[filename + '.%d' % i] = extract(filename + '.%d' % i)
         i += 1
     return result
 

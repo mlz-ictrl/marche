@@ -193,23 +193,21 @@ class Job(object):
         """Return the console output of the last attempt to start/stop/restart
         the service, as a list of strings (lines).
         """
-        return list(self._output.get((service, instance), []))
+        return []
 
     def service_logs(self, service, instance):
         """Return the contents of the logfile(s) of the service, if possible.
 
-        The return value must be a list of strings (lines) with the name of the
-        respective file prepended and separated by a colon.  For example,
-        ``['file1:line1', 'file1:line2', 'file2:line1']``.
+        The return value must be a dictionary of file names and contents.
         """
-        return []
+        return {}
 
     def receive_config(self, service, instance):
         """Return the contents of the config file(s) of the service, if
         possible.
 
-        The return value must be a list with ``2*n`` elements for ``n`` files:
-        the file name and the content for each file.
+        The return value must be a dict mapping the file name to the decoded
+        string content for each file.
         """
         raise NotImplementedError('%s.receive_config not implemented'
                                   % self.__class__.__name__)

@@ -120,19 +120,24 @@ class Job(BaseJob):
         command = initscript + ' status ' + instance
         return self._async_status(key, command)
 
+    def service_output(self, service, instance):
+        key = service, instance
+        return list(self._output.get(key, []))
+
     def service_logs(self, service, instance):
         if not path.isdir('/var/log/taco'):
-            return []
+            return {}
         srvname = service[5:]  # strip "taco-"
         candidates = os.listdir('/var/log/taco')
-        output = []
+        output = {}
         for filename in candidates:
+            fullname = path.join('/var/log/taco', filename)
             # check for srvname_instance
             if filename.lower() == ('%s_%s.log' % (srvname, instance)).lower():
-                output.extend(extractLoglines(path.join('/var/log/taco', filename)))
+                output.update(extractLoglines(fullname))
             # check for srvname only
             if filename.lower() == ('%s.log' % srvname).lower():
-                output.extend(extractLoglines(path.join('/var/log/taco', filename)))
+                output.update(extractLoglines(fullname))
         return output
 
     # -- internal APIs --

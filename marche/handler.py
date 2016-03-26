@@ -136,6 +136,7 @@ class JobHandler(object):
             self.config.reload()
             self.jobs = {}
             self.service2job = {}
+            self.servicecache = []
             self._add_jobs()
 
     @command(silent=True)
@@ -193,12 +194,8 @@ class JobHandler(object):
     def requestLogfiles(self, service, instance):
         """Return the most recent lines of the service's logfile."""
         with self._lock:
-            # TODO: change API to dictionary return
             logfiles = self._get_job(service).service_logs(service, instance)
-        res = {}
-        for i in range(0, len(logfiles), 2):
-            res[logfiles[i]] = logfiles[i + 1]
-        self.emit_event(LogfileEvent(files=res))
+        self.emit_event(LogfileEvent(files=logfiles))
 
     @command()
     def requestConffiles(self, service, instance):
@@ -207,21 +204,15 @@ class JobHandler(object):
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
         with self._lock:
-            # TODO: change API to dictionary return
             confs = self._get_job(service).receive_config(service, instance)
-        res = {}
-        for i in range(0, len(confs), 2):
-            res[confs[i]] = confs[i + 1]
-        self.emit_event(ConffileEvent(files=res))
+        self.emit_event(ConffileEvent(files=confs))
 
     @command()
     def sendConffile(self, service, instance, filename, contents):
         """Send back the relevant configuration file(s) for this service
         and install them.  The service might require a restart afterwards.
 
-        Input list: [name, filename1, contents1, filename2, contents2, ...]
-
-        The filenames must correspond to what the ReceiveConfig command
+        The filename must correspond to one that the ReceiveConfig command
         returned.
 
         The contents are sent as a latin1-decoded string.

@@ -106,20 +106,22 @@ class Job(BaseJob):
     def service_status(self, service, instance):
         return self._async_status(service, 'systemctl is-active %s' % self.unit)
 
+    def service_output(self, service, instance):
+        return list(self._output.get(service, []))
+
     def service_logs(self, service, instance):
-        ret = []
+        ret = {}
         if self.log_files:
             for log_file in self.log_files:
-                ret.extend(extractLoglines(log_file))
+                ret.update(extractLoglines(log_file))
         else:
-            ret.append('journal')
-            ret.append(self._sync_call('journalctl -n 500 -u %s').stdout)
+            ret['journal'] = self._sync_call('journalctl -n 500 -u %s').stdout
         return ret
 
     def receive_config(self, service, instance):
         if not self.config_file:
-            return []
-        return [path.basename(self.config_file), readFile(self.config_file)]
+            return {}
+        return {path.basename(self.config_file): readFile(self.config_file)}
 
     def send_config(self, service, instance, filename, contents):
         if filename != path.basename(self.config_file):

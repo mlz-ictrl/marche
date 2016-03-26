@@ -147,13 +147,16 @@ class Job(BaseJob):
         # XXX check devices with Tango clients
         return self._async_status(instance, '%s status %s' % (INITSCR, instance))
 
+    def service_output(self, service, instance):
+        return list(self._output.get(instance, []))
+
     def service_logs(self, service, instance):
         logname = path.join(self._logdir, instance, 'current')
         return extractLoglines(logname)
 
     def receive_config(self, service, instance):
         cfgname = path.join(self._resdir, instance + '.res')
-        return [instance + '.res', readFile(cfgname)]
+        return {instance + '.res': readFile(cfgname)}
 
     def send_config(self, service, instance, filename, contents):
         cfgname = path.join(self._resdir, instance + '.res')
