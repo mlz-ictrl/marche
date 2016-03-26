@@ -164,40 +164,40 @@ class Job(BaseJob):
 
     def init(self):
         if self.autostart:
-            self.start_service(self.name)
+            self.start_service(self.name, '')
 
     def get_services(self):
-        return [self.name]
+        return [(self.name, '')]
 
-    def start_service(self, name):
+    def start_service(self, service, instance):
         if self._thread and self._thread.isAlive():
             return
-        self._output[name] = []
+        self._output[service] = []
         self._thread = ProcessMonitor([self.binary] + self.args,
                                       self.working_dir, self.output_file,
-                                      self.one_shot, self._output[name],
+                                      self.one_shot, self._output[service],
                                       self.log)
         self._thread.setDaemon(True)
         self._thread.start()
 
-    def stop_service(self, name):
+    def stop_service(self, service, instance):
         if not (self._thread and self._thread.isAlive()):
             return
         self._thread.stopflag = True
         self._thread.join()
 
-    def restart_service(self, name):
-        self.stop_service(name)
-        self.start_service(name)
+    def restart_service(self, service, instance):
+        self.stop_service(service, instance)
+        self.start_service(service, instance)
 
-    def service_status(self, name):
+    def service_status(self, service, instance):
         if self._thread and self._thread.isAlive():
             return RUNNING
         if self.one_shot:
             return NOT_RUNNING
         return DEAD
 
-    def service_logs(self, name):
+    def service_logs(self, service, instance):
         ret = []
         for log_file in self.log_files:
             ret.extend(extractLoglines(log_file))

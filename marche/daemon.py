@@ -121,7 +121,10 @@ def main():
             continue
         log.info('starting interface: %s', interface)
         try:
-            mod.Interface(config, jobhandler, log).run()
+            iface = mod.Interface(config, jobhandler, log)
+            if iface.needs_events:
+                jobhandler.add_interface(iface)
+            iface.run()
         except Exception as err:
             log.exception('could not start interface %r: %s', interface, err)
             continue

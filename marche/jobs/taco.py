@@ -93,34 +93,37 @@ class Job(BaseJob):
         # construct services
         services = []
         for server, instances in iteritems(serverinfo):
+            self._initscripts['taco-' + server] = \
+                '/etc/init.d/taco-server-%s' % server
             for instance in instances:
-                servicename = 'taco-%s.%s' % (server, instance)
-                services.append(servicename)
-                self._initscripts[servicename] = '/etc/init.d/taco-server-%s' % server
+                services.append(('taco-' + server, instance))
         return services
 
-    def start_service(self, name):
-        initscript = self._initscripts[name]
-        self._async_start(name, initscript + ' start ' + name.split('.')[1])
+    def start_service(self, service, instance):
+        key = service, instance
+        initscript = self._initscripts[service]
+        self._async_start(key, initscript + ' start ' + instance)
 
-    def stop_service(self, name):
-        initscript = self._initscripts[name]
-        self._async_stop(name, initscript + ' stop ' + name.split('.')[1])
+    def stop_service(self, service, instance):
+        key = service, instance
+        initscript = self._initscripts[service]
+        self._async_stop(key, initscript + ' stop ' + instance)
 
-    def restart_service(self, name):
-        initscript = self._initscripts[name]
-        self._async_start(name, initscript + ' restart ' + name.split('.')[1])
+    def restart_service(self, service, instance):
+        key = service, instance
+        initscript = self._initscripts[service]
+        self._async_start(key, initscript + ' restart ' + instance)
 
-    def service_status(self, name):
-        initscript = self._initscripts[name]
-        command = initscript + ' status ' + name.split('.')[1]
-        return self._async_status(name, command)
+    def service_status(self, service, instance):
+        key = service, instance
+        initscript = self._initscripts[service]
+        command = initscript + ' status ' + instance
+        return self._async_status(key, command)
 
-    def service_logs(self, name):
+    def service_logs(self, service, instance):
         if not path.isdir('/var/log/taco'):
             return []
-        srvname, instance = name.split('.', 1)
-        srvname = srvname[5:]  # strip "taco-"
+        srvname = service[5:]  # strip "taco-"
         candidates = os.listdir('/var/log/taco')
         output = []
         for filename in candidates:

@@ -30,6 +30,8 @@ class Interface(object):
 
     #: The name of the interface, must be the same as the module name.
     iface_name = 'iface'
+    #: True if the interface can emit or otherwise handle events.
+    needs_events = True
 
     def __init__(self, config, jobhandler, log):
         self.jobhandler = jobhandler

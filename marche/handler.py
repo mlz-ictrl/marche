@@ -29,6 +29,8 @@ from threading import Lock
 
 from marche.six import iteritems
 
+from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
+    LogfileEvent, StatusEvent
 from marche.jobs import Busy, Fault
 
 # Input/output types
@@ -38,7 +40,7 @@ VOID, STRING, STRINGLIST, INTEGER = range(4)
 PROTO_VERSION = 1
 
 
-def command(intype=VOID, outtype=VOID, silent=False):
+def command(silent=False):
     def deco(f):
         def new_f(self, *args):
             if silent:
@@ -61,8 +63,6 @@ def command(intype=VOID, outtype=VOID, silent=False):
         new_f.__name__ = f.__name__
         new_f.__doc__ = f.__doc__
         new_f.is_command = True
-        new_f.intype = intype
-        new_f.outtype = outtype
         return new_f
     return deco
 
@@ -75,7 +75,12 @@ class JobHandler(object):
         self._lock = Lock()
         self.jobs = {}
         self.service2job = {}
+        self.servicecache = []
+        self.interfaces = []
         self._add_jobs()
+
+    def add_interface(self, iface):
+        self.interfaces.append(iface)
 
     def _add_jobs(self):
         self.log.info('adding jobs...')
@@ -95,14 +100,15 @@ class JobHandler(object):
                 job = mod.Job(name, config, self.log)
                 if not job.check():
                     raise RuntimeError('feasibility check failed')
-                for service in job.get_services():
-                    if service in self.service2job:
-                        raise RuntimeError('duplicate service name %r, '
+                for service, instance in job.get_services():
+                    other = self.service2job.get(service)
+                    if other and other is not job:
+                        raise RuntimeError('duplicate service %r, '
                                            'provided by jobs %s and %s' %
-                                           (service, name,
-                                            self.service2job[service].name))
+                                           (service, name, other.name))
                     self.service2job[service] = job
-                    self.log.info('found service: %s' % service)
+                    self.servicecache.append((service, instance))
+                    self.log.info('found service: %s.%s' % (service, instance))
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' %
                                    (name, err))
@@ -111,85 +117,105 @@ class JobHandler(object):
                 job.init()
                 self.log.info('job %s initialized' % name)
 
-    def _get_job(self, name):
+    def _get_job(self, service):
+        """Return the job the service belongs to."""
         try:
-            return self.service2job[name]
+            return self.service2job[service]
         except KeyError:
-            raise Fault('no such service: %r' % name)
+            raise Fault('no such service: %s' % service)
+
+    def emit_event(self, event):
+        """Emit an event to all connected clients."""
+        for iface in self.interfaces:
+            iface.emit_event(event)
 
     @command()
-    def ReloadJobs(self):
-        """Reload the jobs and list of their services."""
+    def triggerReload(self):
+        """Trigger a reload of the jobs and list of their services."""
         with self._lock:
             self.config.reload()
             self.jobs = {}
             self.service2job = {}
             self._add_jobs()
 
-    @command(outtype=STRING, silent=True)
-    def GetVersion(self):
-        """Return the version of the Marche protocol."""
-        return str(PROTO_VERSION)
+    @command(silent=True)
+    def requestServiceList(self):
+        """Request a list of all services provided by jobs.
 
-    @command(outtype=STRINGLIST, silent=True)
-    def GetServices(self):
-        """Get a list of all services provided by jobs."""
+        The service list is sent back as a single ServiceListEvent."""
         with self._lock:
-            return list(self.service2job)
+            svcs = {}
+            for service, instance in self.servicecache:
+                job = self._get_job(service)
+                info = {
+                    'desc': job.service_description(service, instance),
+                    'state': job.service_status(service, instance),
+                    'ext_state': '',  # TODO: implement this
+                    'permissions': [],  # TODO: implement this
+                }
+                svcs.setdefault(service, {})[instance] = info
+        self.emit_event(ServiceListEvent(services=svcs))
 
-    @command(intype=STRING)
-    def Start(self, name):
+    @command()
+    def startService(self, service, instance):
         """Start a single service."""
         with self._lock:
-            self._get_job(name).start_service(name)
+            self._get_job(service).start_service(service, instance)
 
-    @command(intype=STRING)
-    def Stop(self, name):
+    @command()
+    def stopService(self, service, instance):
         """Stop a single service."""
         with self._lock:
-            self._get_job(name).stop_service(name)
+            self._get_job(service).stop_service(service, instance)
 
-    @command(intype=STRING)
-    def Restart(self, name):
+    @command()
+    def restartService(self, service, instance):
         """Restart a single service."""
         with self._lock:
-            self._get_job(name).restart_service(name)
+            self._get_job(service).restart_service(service, instance)
 
-    @command(intype=STRING, outtype=STRING, silent=True)
-    def GetDescription(self, name):
-        """Return a longer description of a single service."""
-        with self._lock:
-            self._get_job(name).service_description(name)
-
-    @command(intype=STRING, outtype=INTEGER, silent=True)
-    def GetStatus(self, name):
+    @command(silent=True)
+    def requestServiceStatus(self, service, instance):
         """Return the status of a single service."""
         with self._lock:
-            return self._get_job(name).service_status(name)
+            status = self._get_job(service).service_status(service, instance)
+        self.emit_event(StatusEvent(state=status,
+                                    ext_state=''))  # TODO: implement
 
-    @command(intype=STRING, outtype=STRINGLIST, silent=True)
-    def GetOutput(self, name):
+    @command(silent=True)
+    def requestControlOutput(self, service, instance):
         """Return the last lines of output from starting/stopping."""
         with self._lock:
-            return self._get_job(name).service_output(name)
+            output = self._get_job(service).service_output(service, instance)
+        self.emit_event(ControlOutputEvent(content=output))
 
-    @command(intype=STRING, outtype=STRINGLIST)
-    def GetLogs(self, name):
+    @command()
+    def requestLogfiles(self, service, instance):
         """Return the most recent lines of the service's logfile."""
         with self._lock:
-            return self._get_job(name).service_logs(name)
+            # TODO: change API to dictionary return
+            logfiles = self._get_job(service).service_logs(service, instance)
+        res = {}
+        for i in range(0, len(logfiles), 2):
+            res[logfiles[i]] = logfiles[i + 1]
+        self.emit_event(LogfileEvent(files=res))
 
-    @command(intype=STRING, outtype=STRINGLIST)
-    def ReceiveConfig(self, name):
+    @command()
+    def requestConffiles(self, service, instance):
         """Retrieve the relevant configuration file(s) for this service.
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
         with self._lock:
-            return self._get_job(name).receive_config(name)
+            # TODO: change API to dictionary return
+            confs = self._get_job(service).receive_config(service, instance)
+        res = {}
+        for i in range(0, len(confs), 2):
+            res[confs[i]] = confs[i + 1]
+        self.emit_event(ConffileEvent(files=res))
 
-    @command(intype=STRINGLIST)
-    def SendConfig(self, data):
+    @command()
+    def sendConffile(self, service, instance, filename, contents):
         """Send back the relevant configuration file(s) for this service
         and install them.  The service might require a restart afterwards.
 
@@ -201,4 +227,5 @@ class JobHandler(object):
         The contents are sent as a latin1-decoded string.
         """
         with self._lock:
-            return self._get_job(data[0]).send_config(data[0], data[1:])
+            self._get_job(service).send_config(service, instance,
+                                               filename, contents)

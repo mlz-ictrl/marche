@@ -92,36 +92,36 @@ class Job(BaseJob):
         return True
 
     def get_services(self):
-        return [self.unit]
+        return [(self.unit, '')]
 
-    def start_service(self, name):
-        self._async_start(name, 'systemctl start %s' % self.unit)
+    def start_service(self, service, instance):
+        self._async_start(service, 'systemctl start %s' % self.unit)
 
-    def stop_service(self, name):
-        self._async_stop(name, 'systemctl stop %s' % self.unit)
+    def stop_service(self, service, instance):
+        self._async_stop(service, 'systemctl stop %s' % self.unit)
 
-    def restart_service(self, name):
-        self._async_start(name, 'systemctl restart %s' % self.unit)
+    def restart_service(self, service, instance):
+        self._async_start(service, 'systemctl restart %s' % self.unit)
 
-    def service_status(self, name):
-        return self._async_status(name, 'systemctl is-active %s' % self.unit)
+    def service_status(self, service, instance):
+        return self._async_status(service, 'systemctl is-active %s' % self.unit)
 
-    def service_logs(self, name):
+    def service_logs(self, service, instance):
         ret = []
         if self.log_files:
             for log_file in self.log_files:
                 ret.extend(extractLoglines(log_file))
         else:
-            for line in self._sync_call('journalctl -n 1000 -u %s').stdout:
-                ret.append('journal:' + line)
+            ret.append('journal')
+            ret.append(self._sync_call('journalctl -n 500 -u %s').stdout)
         return ret
 
-    def receive_config(self, name):
+    def receive_config(self, service, instance):
         if not self.config_file:
             return []
         return [path.basename(self.config_file), readFile(self.config_file)]
 
-    def send_config(self, name, data):
-        if len(data) != 2 or data[0] != path.basename(self.config_file):
+    def send_config(self, service, instance, filename, contents):
+        if filename != path.basename(self.config_file):
             raise RuntimeError('invalid request')
-        writeFile(self.config_file, data[1])
+        writeFile(self.config_file, contents)

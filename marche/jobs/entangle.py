@@ -120,7 +120,7 @@ class Job(BaseJob):
         else:
             self._logdir = '/var/log/entangle'
 
-        all_servers = ['entangle.' + base for (base, ext) in
+        all_servers = [('entangle', base) for (base, ext) in
                        map(path.splitext, os.listdir(self._resdir))
                        if ext == '.res']
         self._servers = sorted(all_servers)
@@ -134,29 +134,29 @@ class Job(BaseJob):
     def get_services(self):
         return self._servers
 
-    def start_service(self, name):
-        self._async_start(name, '%s start %s' % (INITSCR, name[9:]))
+    def start_service(self, service, instance):
+        self._async_start(instance, '%s start %s' % (INITSCR, instance))
 
-    def stop_service(self, name):
-        self._async_stop(name, '%s stop %s' % (INITSCR, name[9:]))
+    def stop_service(self, service, instance):
+        self._async_stop(instance, '%s stop %s' % (INITSCR, instance))
 
-    def restart_service(self, name):
-        self._async_start(name, '%s restart %s' % (INITSCR, name[9:]))
+    def restart_service(self, service, instance):
+        self._async_start(instance, '%s restart %s' % (INITSCR, instance))
 
-    def service_status(self, name):
+    def service_status(self, service, instance):
         # XXX check devices with Tango clients
-        return self._async_status(name, '%s status %s' % (INITSCR, name[9:]))
+        return self._async_status(instance, '%s status %s' % (INITSCR, instance))
 
-    def service_logs(self, name):
-        logname = path.join(self._logdir, name[9:], 'current')
+    def service_logs(self, service, instance):
+        logname = path.join(self._logdir, instance, 'current')
         return extractLoglines(logname)
 
-    def receive_config(self, name):
-        cfgname = path.join(self._resdir, name[9:] + '.res')
-        return [name[9:] + '.res', readFile(cfgname)]
+    def receive_config(self, service, instance):
+        cfgname = path.join(self._resdir, instance + '.res')
+        return [instance + '.res', readFile(cfgname)]
 
-    def send_config(self, name, data):
-        cfgname = path.join(self._resdir, name[9:] + '.res')
-        if len(data) != 2 or data[0] != name[9:] + '.res':
+    def send_config(self, service, instance, filename, contents):
+        cfgname = path.join(self._resdir, instance + '.res')
+        if filename != instance + '.res':
             raise RuntimeError('invalid request')
-        writeFile(cfgname, data[1])
+        writeFile(cfgname, contents)

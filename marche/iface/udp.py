@@ -64,6 +64,7 @@ UDP_PORT = 11691
 class Interface(BaseInterface):
 
     iface_name = 'udp'
+    needs_events = False
 
     def run(self):
         host = self.config['host']

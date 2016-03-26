@@ -212,23 +212,23 @@ class AsyncProcess(Thread):
 nontext_re = re.compile('[^\n\t\x20-\x7e]')
 
 
-def extractLoglines(filename, n=50):
+def extractLoglines(filename, n=500):
     def extract(filename):
-        shortfn = path.basename(filename)
         lines = collections.deque(maxlen=n)
         with open(filename, 'rb') as fp:
             for line in fp:
                 line = line.decode('utf-8', 'replace')
-                lines.append(shortfn + ':' + nontext_re.sub('', line))
-        return list(lines)
+                lines.append(nontext_re.sub('', line))
+        return '\n'.join(lines)
     if not path.exists(filename):
         return []
     filename = path.realpath(filename)
-    result = extract(filename)
+    result = [filename, extract(filename)]
     # also add rotated logs
     i = 1
     while path.exists(filename + '.%d' % i):
-        result.extend(extract(filename + '.%d' % i))
+        result.append(filename + '.%d' % i)
+        result.append(extract(filename + '.%d' % i))
         i += 1
     return result
 

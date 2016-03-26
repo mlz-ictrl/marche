@@ -98,33 +98,33 @@ class Job(BaseJob):
         return True
 
     def get_services(self):
-        return [self.init_name]
+        return [(self.init_name, '')]
 
-    def start_service(self, name):
-        self._async_start(name, '/etc/init.d/%s start' % self.init_name)
+    def start_service(self, service, instance):
+        self._async_start(service, '/etc/init.d/%s start' % self.init_name)
 
-    def stop_service(self, name):
-        self._async_stop(name, '/etc/init.d/%s stop' % self.init_name)
+    def stop_service(self, service, instance):
+        self._async_stop(service, '/etc/init.d/%s stop' % self.init_name)
 
-    def restart_service(self, name):
-        self._async_start(name, '/etc/init.d/%s restart' % self.init_name)
+    def restart_service(self, service, instance):
+        self._async_start(service, '/etc/init.d/%s restart' % self.init_name)
 
-    def service_status(self, name):
-        return self._async_status(name, '/etc/init.d/%s status' %
+    def service_status(self, service, instance):
+        return self._async_status(service, '/etc/init.d/%s status' %
                                   self.init_name)
 
-    def service_logs(self, name):
+    def service_logs(self, service, instance):
         ret = []
         for log_file in self.log_files:
             ret.extend(extractLoglines(log_file))
         return ret
 
-    def receive_config(self, name):
+    def receive_config(self, service, instance):
         if not self.config_file:
             return []
         return [path.basename(self.config_file), readFile(self.config_file)]
 
-    def send_config(self, name, data):
-        if len(data) != 2 or data[0] != path.basename(self.config_file):
+    def send_config(self, service, instance, filename, contents):
+        if filename != path.basename(self.config_file):
             raise RuntimeError('invalid request')
-        writeFile(self.config_file, data[1])
+        writeFile(self.config_file, contents)

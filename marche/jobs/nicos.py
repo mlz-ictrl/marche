@@ -94,31 +94,31 @@ class Job(BaseJob):
             self._services = [entry.strip() for entry in
                               lines[-1][len('Possible services are '):].split(',')]
 
-        return ['nicos-system'] + ['nicos.%s' % s for s in self._services]
+        return [('nicos-system', '')] + [('nicos', s) for s in self._services]
 
-    def start_service(self, name):
-        if name == 'nicos-system':
+    def start_service(self, service, instance):
+        if service == 'nicos-system':
             return self._async_start(None, '%s start' % self._script)
         else:
-            return self._async_start(None, '%s start %s' % (self._script, name[6:]))
+            return self._async_start(None, '%s start %s' % (self._script, instance))
 
-    def stop_service(self, name):
-        if name == 'nicos-system':
+    def stop_service(self, service, instance):
+        if service == 'nicos-system':
             return self._async_stop(None, '%s stop' % self._script)
         else:
-            return self._async_stop(None, '%s stop %s' % (self._script, name[6:]))
+            return self._async_stop(None, '%s stop %s' % (self._script, instance))
 
-    def restart_service(self, name):
-        if name == 'nicos-system':
+    def restart_service(self, service, instance):
+        if service == 'nicos-system':
             return self._async_start(None, '%s restart' % self._script)
         else:
-            return self._async_start(None, '%s restart %s' % (self._script, name[6:]))
+            return self._async_start(None, '%s restart %s' % (self._script, instance))
 
-    def service_status(self, name):
+    def service_status(self, service, instance):
         async_st = self._async_status_only(None)
         if async_st is not None:
             return async_st
-        if name == 'nicos-system':
+        if service == 'nicos-system':
             output = self._sync_call('%s status' % self._script).stdout
             something_dead = something_running = False
             for line in output:
@@ -132,11 +132,11 @@ class Job(BaseJob):
                 return RUNNING
             return DEAD
         else:
-            retcode = self._sync_call('%s status %s' % (self._script, name[6:])).retcode
+            retcode = self._sync_call('%s status %s' % (self._script, instance)).retcode
             return RUNNING if retcode == 0 else DEAD
 
-    def service_logs(self, name):
-        if name == 'nicos-system':
+    def service_logs(self, service, instance):
+        if service == 'nicos-system':
             return []
         if self._logpath is None:
             # extract nicos log directory
@@ -146,4 +146,4 @@ class Job(BaseJob):
                 self._logpath = cfg.get('nicos', 'logging_path')
             else:
                 self._logpath = path.join(self._root, 'log')
-        return extractLoglines(path.join(self._logpath, name[6:], 'current'))
+        return extractLoglines(path.join(self._logpath, instance, 'current'))

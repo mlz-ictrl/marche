@@ -125,16 +125,16 @@ class Job(object):
         pass
 
     def get_services(self):
-        """Return a list of service names that this job supports.
+        """Return a list of ``(service, instance)`` names that this job
+        supports.
 
-        Sub-services should be of the form ``name.subname`` so that the client
-        can recognize and display them properly.
+        For jobs without sub-instances, return ``(service, '')``.
 
         The default returns no services.
         """
         return []
 
-    def start_service(self, name):
+    def start_service(self, service, instance):
         """Start the service with the given name.
 
         The method should not block; instead, if the service takes a while to
@@ -143,7 +143,7 @@ class Job(object):
         raise NotImplementedError('%s.start_service not implemented'
                                   % self.__class__.__name__)
 
-    def stop_service(self, name):
+    def stop_service(self, service, instance):
         """Stop the service with the given name.
 
         The method should not block; instead, if the service takes a while to
@@ -152,7 +152,7 @@ class Job(object):
         raise NotImplementedError('%s.stop_service not implemented'
                                   % self.__class__.__name__)
 
-    def restart_service(self, name):
+    def restart_service(self, service, instance):
         """Restart the service with the given name.
 
         The method should not block; instead, if the service takes a while to
@@ -161,7 +161,7 @@ class Job(object):
         raise NotImplementedError('%s.restart_service not implemented'
                                   % self.__class__.__name__)
 
-    def service_status(self, name):
+    def service_status(self, service, instance):
         """Return the status of the service with the given name.
 
         The status should be one of the constants defined in the
@@ -183,19 +183,19 @@ class Job(object):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
 
-    def service_description(self, name):
+    def service_description(self, service, instance):
         """Return a long string description of the service with the given
         name.
         """
         return '(no long description provided)'
 
-    def service_output(self, name):
+    def service_output(self, service, instance):
         """Return the console output of the last attempt to start/stop/restart
         the service, as a list of strings (lines).
         """
-        return list(self._output.get(name, []))
+        return list(self._output.get((service, instance), []))
 
-    def service_logs(self, name):
+    def service_logs(self, service, instance):
         """Return the contents of the logfile(s) of the service, if possible.
 
         The return value must be a list of strings (lines) with the name of the
@@ -204,7 +204,7 @@ class Job(object):
         """
         return []
 
-    def receive_config(self, name):
+    def receive_config(self, service, instance):
         """Return the contents of the config file(s) of the service, if
         possible.
 
@@ -214,7 +214,7 @@ class Job(object):
         raise NotImplementedError('%s.receive_config not implemented'
                                   % self.__class__.__name__)
 
-    def send_config(self, name, data):
+    def send_config(self, service, instance, data):
         """Transfer changed config file(s) to the service, and update them.
 
         Usually, this means that the new file is written to disk, but it could

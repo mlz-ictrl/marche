@@ -66,11 +66,12 @@ always be enabled.
 import base64
 import threading
 
+from marche.six import iteritems
 from marche.six.moves import xmlrpc_client, xmlrpc_server
 
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
-from marche.handler import JobHandler, VOID
+from marche.handler import PROTO_VERSION
 
 BUSY = 1
 FAULT = 2
@@ -100,12 +101,11 @@ class AuthRequestHandler(RequestHandler):
         return xmlrpc_server.SimpleXMLRPCRequestHandler.do_POST(self)
 
 
-def command(method, is_void):
+def command(method):
     def new_method(self, *args):
         try:
-            ret = method(self.jobhandler, *args)
-            # returning None is not possible in XMLRPC without special options
-            return True if is_void else ret
+            ret = method(self, *args)
+            return True if ret is None else ret
         except Busy as err:
             raise xmlrpc_client.Fault(BUSY, str(err))
         except Fault as err:
@@ -118,22 +118,99 @@ def command(method, is_void):
 
 class RPCFunctions(object):
 
-    def __init__(self, jobhandler, log):
+    def __init__(self, jobhandler, log, expect_event):
         self.jobhandler = jobhandler
         self.log = log
+        self.expect_event = expect_event
 
-    for mname in dir(JobHandler):
-        method = getattr(JobHandler, mname)
-        if not hasattr(method, 'is_command'):
-            continue
-        locals()[mname] = command(method, method.outtype == VOID)
+    def _split_name(self, name):
+        if '.' in name:
+            return name.split('.', 1)
+        else:
+            return name, ''
+
+    @command
+    def ReloadJobs(self):
+        self.jobhandler.triggerReload()
+
+    @command
+    def GetVersion(self):
+        return str(PROTO_VERSION)
+
+    @command
+    def GetDescription(self, name):
+        return ''
+
+    @command
+    def GetServices(self):
+        list_event = self.expect_event(self.jobhandler.requestServiceList)
+        result = []
+        for svcname, instances in iteritems(list_event.services):
+            for instance in instances:
+                if not instance:
+                    result.append(svcname)
+                else:
+                    result.append(svcname + '.' + instance)
+        return result
+
+    @command
+    def GetStatus(self, name):
+        status_event = self.expect_event(
+            lambda: self.jobhandler.requestServiceStatus(*self._split_name(name)))
+        return status_event.state
+
+    @command
+    def GetOutput(self, name):
+        out_event = self.expect_event(
+            lambda: self.jobhandler.requestControlOutput(*self._split_name(name)))
+        return out_event.content
+
+    @command
+    def GetLogs(self, name):
+        log_event = self.expect_event(
+            lambda: self.jobhandler.requestLogfiles(*self._split_name(name)))
+        ret = []
+        for name, contents in iteritems(log_event.files):
+            for line in contents.splitlines():
+                ret.append(name + ':' + line)
+        return ret
+
+    @command
+    def ReceiveConfig(self, name):
+        config_event = self.expect_event(
+            lambda: self.jobhandler.requestConffiles(*self._split_name(name)))
+        ret = []
+        for name, contents in iteritems(config_event.files):
+            ret.append(name)
+            ret.append(contents)
+        return ret
+
+    @command
+    def SendConfig(self, data):
+        service, instance = self._split_name(data[0])
+        self.jobhandler.sendConffile(service, instance, data[1], data[2])
+
+    @command
+    def Start(self, name):
+        self.jobhandler.startService(*self._split_name(name))
+
+    @command
+    def Stop(self, name):
+        self.jobhandler.stopService(*self._split_name(name))
+
+    @command
+    def Restart(self, name):
+        self.jobhandler.restartService(*self._split_name(name))
 
 
 class Interface(BaseInterface):
 
     iface_name = 'xmlrpc'
+    needs_events = True
 
     def init(self):
+        self._lock = threading.Lock()
+        self._events = []
         RequestHandler.log = self.log
 
     def run(self):
@@ -157,12 +234,22 @@ class Interface(BaseInterface):
         server = xmlrpc_server.SimpleXMLRPCServer(
             (host, port), requestHandler=request_handler)
         server.register_introspection_functions()
-        server.register_instance(RPCFunctions(self.jobhandler, self.log))
+        server.register_instance(RPCFunctions(self.jobhandler, self.log,
+                                              self.expect_event))
 
         thd = threading.Thread(target=self._thread, args=(server,))
         thd.setDaemon(True)
         thd.start()
         self.log.info('listening on %s:%s' % (host, port))
+
+    def expect_event(self, callback):
+        with self._lock:
+            self._events = []
+            callback()
+            return self._events[0]
+
+    def emit_event(self, event):
+        self._events.append(event)
 
     def _thread(self, server):
         server.serve_forever()
