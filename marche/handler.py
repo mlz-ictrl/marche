@@ -33,7 +33,7 @@ from marche.jobs import Busy, Fault
 from marche.permission import DISPLAY, CONTROL, ADMIN
 
 # Protocol version
-PROTO_VERSION = 1
+PROTO_VERSION = 2
 
 
 def command(silent=False):
