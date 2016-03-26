@@ -190,8 +190,12 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             state, ext_status = job.polled_service_status(service, instance)
-        self.emit_event(StatusEvent(state=state,
-                                    ext_status=ext_status))
+        self.emit_event(StatusEvent(
+            service=service,
+            instance=instance,
+            state=state,
+            ext_status=ext_status
+        ))
 
     @command(silent=True)
     def requestControlOutput(self, client, service, instance):
@@ -200,7 +204,11 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             output = job.service_output(service, instance)
-        self.emit_event(ControlOutputEvent(content=output))
+        self.emit_event(ControlOutputEvent(
+            service=service,
+            instance=instance,
+            content=output
+        ))
 
     @command()
     def requestLogfiles(self, client, service, instance):
@@ -209,7 +217,11 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             logfiles = job.service_logs(service, instance)
-        self.emit_event(LogfileEvent(files=logfiles))
+        self.emit_event(LogfileEvent(
+            service=service,
+            instance=instance,
+            files=logfiles
+        ))
 
     @command()
     def requestConffiles(self, client, service, instance):
@@ -221,7 +233,11 @@ class JobHandler(object):
         job.check_permission(ADMIN, client)
         with job.lock:
             confs = job.receive_config(service, instance)
-        self.emit_event(ConffileEvent(files=confs))
+        self.emit_event(ConffileEvent(
+            service=service,
+            instance=instance,
+            files=confs
+        ))
 
     @command()
     def sendConffile(self, client, service, instance, filename, contents):
