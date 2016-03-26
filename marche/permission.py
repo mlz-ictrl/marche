@@ -46,9 +46,6 @@ class ClientInfo(object):
 
 
 STRING_LEVELS = {
-    'd': DISPLAY,
-    'c': CONTROL,
-    'a': ADMIN,
     'display': DISPLAY,
     'control': CONTROL,
     'admin': ADMIN,

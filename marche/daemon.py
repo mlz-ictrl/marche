@@ -45,6 +45,7 @@ from marche.config import Config
 from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile
 from marche.loggers import ColoredConsoleHandler, LogfileHandler
 from marche.handler import JobHandler
+from marche.auth import AuthHandler
 from marche.colors import nocolor
 
 
@@ -110,6 +111,7 @@ def main():
     log.info('Starting marche %s ...' % __version__)
 
     jobhandler = JobHandler(config, log)
+    authhandler = AuthHandler(config, log)
 
     running_interfaces = []
 
@@ -121,7 +123,7 @@ def main():
             continue
         log.info('starting interface: %s', interface)
         try:
-            iface = mod.Interface(config, jobhandler, log)
+            iface = mod.Interface(config, jobhandler, authhandler, log)
             if iface.needs_events:
                 jobhandler.add_interface(iface)
             iface.run()

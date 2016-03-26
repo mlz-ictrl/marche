@@ -47,12 +47,11 @@ class Config(object):
     logdir = '/var/log'
 
     job_config = {}
+    auth_config = {}
     interface_config = {
         'xmlrpc': {
             'host': '0.0.0.0',
             'port': 8124,
-            'user': 'marche',
-            'passwd': '',
         },
         'udp': {
             'host': '0.0.0.0',
@@ -97,7 +96,17 @@ class Config(object):
                         parser.get('general', 'interfaces').split(',')]
             elif section.startswith('job.'):
                 self.job_config[section[4:]] = dict(parser.items(section))
+            elif section.startswith('auth.'):
+                self.auth_config[section[5:]] = dict(parser.items(section))
             elif section.startswith('interface.'):
-                if not section[10:] in self.interface_config:
+                if section[10:] not in self.interface_config:
                     self.interface_config[section[10:]] = {}
+                elif section[10:] == 'xmlrpc':
+                    # Legacy support for user/passwd in xmlrpc section
+                    if parser.has_option(section, 'user'):
+                        self.auth_config.setdefault('simple', {})['user'] = \
+                            parser.get(section, 'user')
+                    if parser.has_option(section, 'passwd'):
+                        self.auth_config.setdefault('simple', {})['passwd'] = \
+                            parser.get(section, 'passwd')
                 self.interface_config[section[10:]].update(dict(parser.items(section)))

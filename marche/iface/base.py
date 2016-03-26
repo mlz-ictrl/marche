@@ -33,8 +33,9 @@ class Interface(object):
     #: True if the interface can emit or otherwise handle events.
     needs_events = True
 
-    def __init__(self, config, jobhandler, log):
+    def __init__(self, config, jobhandler, authhandler, log):
         self.jobhandler = jobhandler
+        self.authhandler = authhandler
         self.config = config.interface_config.get(self.iface_name, {})
         self.log = log.getChild(self.iface_name)
         self.init()

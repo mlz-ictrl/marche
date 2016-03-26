@@ -48,19 +48,6 @@ always be enabled.
       **Default:** 0.0.0.0
 
       The host to bind to.
-
-   .. describe:: user
-
-      **Default:** marche
-
-      The user for remote authentication.
-
-   .. describe:: passwd
-
-      **Default:** None
-
-      The password for remote authentication.  If not password is given, no
-      authentication is used.
 """
 
 import base64
@@ -71,6 +58,7 @@ from six.moves import xmlrpc_client, xmlrpc_server
 
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
+from marche.auth import AuthFailed
 from marche.handler import PROTO_VERSION
 from marche.permission import ClientInfo, ADMIN
 
@@ -94,8 +82,13 @@ class AuthRequestHandler(RequestHandler):
             self.send_error(401)
             return
 
-        authHeader = self.headers['Authorization'].split()[-1].strip()
-        if authHeader != self.encoded_auth:
+        header = self.headers['Authorization'].split()[-1].strip()
+        decoded = base64.b64decode(header.encode()).decode('utf-8')
+        try:
+            user, passwd = decoded.split(':', 1)
+            # Not using the returned client info.
+            self.handler.authenticate(user, passwd)
+        except (ValueError, AuthFailed):
             self.send_error(401)
             return
 
@@ -226,20 +219,12 @@ class Interface(BaseInterface):
     def run(self):
         port = int(self.config['port'])
         host = self.config['host']
-        user = self.config['user']
-        passwd = self.config['passwd']
 
         request_handler = RequestHandler
-        if passwd:
+        if self.authhandler.needs_authentication():
             self.log.info('using authentication functionality')
+            AuthRequestHandler.handler = self.authhandler
             request_handler = AuthRequestHandler
-            try:
-                enc_auth = base64.b64encode(('%s:%s' % (user, passwd))
-                                            .encode('utf-8')).decode().strip()
-            except UnicodeError:
-                self.log.error('could not encode user/password')
-            else:
-                AuthRequestHandler.encoded_auth = enc_auth
 
         server = xmlrpc_server.SimpleXMLRPCServer(
             (host, port), requestHandler=request_handler)
