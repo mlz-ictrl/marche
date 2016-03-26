@@ -209,8 +209,7 @@ class Job(object):
         The return value must be a dict mapping the file name to the decoded
         string content for each file.
         """
-        raise NotImplementedError('%s.receive_config not implemented'
-                                  % self.__class__.__name__)
+        return {}
 
     def send_config(self, service, instance, data):
         """Transfer changed config file(s) to the service, and update them.
