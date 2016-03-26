@@ -25,8 +25,8 @@
 
 """.. index:: xmlrpc; interface
 
-XMLRPC interface
-----------------
+Legacy XMLRPC interface
+-----------------------
 
 This interface allows controlling sservice via remote procedure calls (RPC)
 over HTTP in the XML format.  This is the main interface of Marche and should
@@ -72,6 +72,7 @@ from marche.six.moves import xmlrpc_client, xmlrpc_server
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
 from marche.handler import PROTO_VERSION
+from marche.permission import ClientInfo, ADMIN
 
 BUSY = 1
 FAULT = 2
@@ -122,6 +123,9 @@ class RPCFunctions(object):
         self.jobhandler = jobhandler
         self.log = log
         self.expect_event = expect_event
+        # We don't know the current user's level, therefore always assign
+        # the highest user level.
+        self.client = ClientInfo(ADMIN)
 
     def _split_name(self, name):
         if '.' in name:
@@ -143,7 +147,8 @@ class RPCFunctions(object):
 
     @command
     def GetServices(self):
-        list_event = self.expect_event(self.jobhandler.requestServiceList)
+        list_event = self.expect_event(
+            lambda: self.jobhandler.requestServiceList(self.client))
         result = []
         for svcname, instances in iteritems(list_event.services):
             for instance in instances:
@@ -156,19 +161,22 @@ class RPCFunctions(object):
     @command
     def GetStatus(self, name):
         status_event = self.expect_event(
-            lambda: self.jobhandler.requestServiceStatus(*self._split_name(name)))
+            lambda: self.jobhandler.requestServiceStatus(
+                self.client, *self._split_name(name)))
         return status_event.state
 
     @command
     def GetOutput(self, name):
         out_event = self.expect_event(
-            lambda: self.jobhandler.requestControlOutput(*self._split_name(name)))
+            lambda: self.jobhandler.requestControlOutput(
+                self.client, *self._split_name(name)))
         return out_event.content
 
     @command
     def GetLogs(self, name):
         log_event = self.expect_event(
-            lambda: self.jobhandler.requestLogfiles(*self._split_name(name)))
+            lambda: self.jobhandler.requestLogfiles(self.client,
+                                                    *self._split_name(name)))
         ret = []
         for name, contents in iteritems(log_event.files):
             for line in contents.splitlines():
@@ -178,7 +186,8 @@ class RPCFunctions(object):
     @command
     def ReceiveConfig(self, name):
         config_event = self.expect_event(
-            lambda: self.jobhandler.requestConffiles(*self._split_name(name)))
+            lambda: self.jobhandler.requestConffiles(self.client,
+                                                     *self._split_name(name)))
         ret = []
         for name, contents in iteritems(config_event.files):
             ret.append(name)
@@ -188,19 +197,20 @@ class RPCFunctions(object):
     @command
     def SendConfig(self, data):
         service, instance = self._split_name(data[0])
-        self.jobhandler.sendConffile(service, instance, data[1], data[2])
+        self.jobhandler.sendConffile(self.client, service, instance,
+                                     data[1], data[2])
 
     @command
     def Start(self, name):
-        self.jobhandler.startService(*self._split_name(name))
+        self.jobhandler.startService(self.client, *self._split_name(name))
 
     @command
     def Stop(self, name):
-        self.jobhandler.stopService(*self._split_name(name))
+        self.jobhandler.stopService(self.client, *self._split_name(name))
 
     @command
     def Restart(self, name):
-        self.jobhandler.restartService(*self._split_name(name))
+        self.jobhandler.restartService(self.client, *self._split_name(name))
 
 
 class Interface(BaseInterface):

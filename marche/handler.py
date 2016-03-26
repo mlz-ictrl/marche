@@ -32,9 +32,7 @@ from marche.six import iteritems
 from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
     LogfileEvent, StatusEvent
 from marche.jobs import Busy, Fault
-
-# Input/output types
-VOID, STRING, STRINGLIST, INTEGER = range(4)
+from marche.permission import DISPLAY, CONTROL, ADMIN
 
 # Protocol version
 PROTO_VERSION = 1
@@ -140,7 +138,7 @@ class JobHandler(object):
             self._add_jobs()
 
     @command(silent=True)
-    def requestServiceList(self):
+    def requestServiceList(self, client):
         """Request a list of all services provided by jobs.
 
         The service list is sent back as a single ServiceListEvent."""
@@ -148,69 +146,83 @@ class JobHandler(object):
             svcs = {}
             for service, instance in self.servicecache:
                 job = self._get_job(service)
-                state, ext_status = job.service_status(service, instance)
-                info = {
-                    'desc': job.service_description(service, instance),
-                    'state': state,
-                    'ext_status': ext_status,
-                    'permissions': [],  # TODO: implement this
-                }
-                svcs.setdefault(service, {})[instance] = info
+                if job.has_permission(DISPLAY, client):
+                    state, ext_status = job.service_status(service, instance)
+                    info = {
+                        'desc': job.service_description(service, instance),
+                        'state': state,
+                        'ext_status': ext_status,
+                        'permissions': [],  # TODO: implement this
+                    }
+                    svcs.setdefault(service, {})[instance] = info
         self.emit_event(ServiceListEvent(services=svcs))
 
     @command()
-    def startService(self, service, instance):
+    def startService(self, client, service, instance):
         """Start a single service."""
         with self._lock:
-            self._get_job(service).start_service(service, instance)
+            job = self._get_job(service)
+            job.check_permission(CONTROL, client)
+            job.start_service(service, instance)
 
     @command()
-    def stopService(self, service, instance):
+    def stopService(self, client, service, instance):
         """Stop a single service."""
         with self._lock:
-            self._get_job(service).stop_service(service, instance)
+            job = self._get_job(service)
+            job.check_permission(CONTROL, client)
+            job.stop_service(service, instance)
 
     @command()
-    def restartService(self, service, instance):
+    def restartService(self, client, service, instance):
         """Restart a single service."""
         with self._lock:
-            self._get_job(service).restart_service(service, instance)
+            job = self._get_job(service)
+            job.check_permission(CONTROL, client)
+            job.restart_service(service, instance)
 
     @command(silent=True)
-    def requestServiceStatus(self, service, instance):
+    def requestServiceStatus(self, client, service, instance):
         """Return the status of a single service."""
         with self._lock:
-            state, ext_status = self._get_job(service).service_status(service,
-                                                                      instance)
+            job = self._get_job(service)
+            job.check_permission(DISPLAY, client)
+            state, ext_status = job.service_status(service, instance)
         self.emit_event(StatusEvent(state=state,
                                     ext_status=ext_status))
 
     @command(silent=True)
-    def requestControlOutput(self, service, instance):
+    def requestControlOutput(self, client, service, instance):
         """Return the last lines of output from starting/stopping."""
         with self._lock:
-            output = self._get_job(service).service_output(service, instance)
+            job = self._get_job(service)
+            job.check_permission(DISPLAY, client)
+            output = job.service_output(service, instance)
         self.emit_event(ControlOutputEvent(content=output))
 
     @command()
-    def requestLogfiles(self, service, instance):
+    def requestLogfiles(self, client, service, instance):
         """Return the most recent lines of the service's logfile."""
         with self._lock:
-            logfiles = self._get_job(service).service_logs(service, instance)
+            job = self._get_job(service)
+            job.check_permission(DISPLAY, client)
+            logfiles = job.service_logs(service, instance)
         self.emit_event(LogfileEvent(files=logfiles))
 
     @command()
-    def requestConffiles(self, service, instance):
+    def requestConffiles(self, client, service, instance):
         """Retrieve the relevant configuration file(s) for this service.
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
         with self._lock:
-            confs = self._get_job(service).receive_config(service, instance)
+            job = self._get_job(service)
+            job.check_permission(ADMIN, client)
+            confs = job.receive_config(service, instance)
         self.emit_event(ConffileEvent(files=confs))
 
     @command()
-    def sendConffile(self, service, instance, filename, contents):
+    def sendConffile(self, client, service, instance, filename, contents):
         """Send back the relevant configuration file(s) for this service
         and install them.  The service might require a restart afterwards.
 
@@ -220,5 +232,6 @@ class JobHandler(object):
         The contents are sent as a latin1-decoded string.
         """
         with self._lock:
-            self._get_job(service).send_config(service, instance,
-                                               filename, contents)
+            job = self._get_job(service)
+            job.check_permission(ADMIN, client)
+            job.send_config(service, instance, filename, contents)

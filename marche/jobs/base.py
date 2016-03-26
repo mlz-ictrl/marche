@@ -25,7 +25,8 @@
 
 import collections
 
-from marche.jobs import Busy, STARTING, STOPPING, RUNNING, DEAD
+from marche.jobs import Busy, Fault, STARTING, STOPPING, RUNNING, DEAD
+from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
 from marche.utils import AsyncProcess
 
 
@@ -62,6 +63,16 @@ class Job(object):
         self.log = log.getChild(name)
         self._processes = {}
         self._output = {}
+        self._permissions = {DISPLAY: DISPLAY,
+                             CONTROL: CONTROL,
+                             ADMIN: ADMIN}
+        if config.get('permissions'):
+            try:
+                self._permissions = parse_permissions(self._permissions,
+                                                      config['permissions'])
+            except ValueError:
+                self.log.error('could not parse permission string: %r' %
+                               config['permissions'])
 
     # Utilities
 
@@ -102,6 +113,17 @@ class Job(object):
         return DEAD
 
     # Public interface
+
+    def has_permission(self, level, client):
+        """Check if the client with *client_level* has permission to do an
+        action that would normally have *level*.
+        """
+        return client.level >= self._permissions[level]
+
+    def check_permission(self, level, client):
+        if self.has_permission(level, client):
+            return
+        raise Fault('permission denied by Marche')
 
     def check(self):
         """Check if the job can be used at all (on this system).
