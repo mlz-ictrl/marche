@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# marche - Server control daemon.
+# Marche - A server control daemon
 # Copyright (c) 2015-2016 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
