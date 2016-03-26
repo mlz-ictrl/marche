@@ -24,7 +24,7 @@
 
 """Event classes."""
 
-from marche.six import add_metaclass
+from six import add_metaclass
 
 
 class EventMeta(type):

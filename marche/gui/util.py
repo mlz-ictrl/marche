@@ -38,7 +38,7 @@ except ImportError:
     class QPyNullVariant(object):
         pass
 
-from marche.six import iteritems
+from six import iteritems
 
 
 uipath = path.dirname(__file__)

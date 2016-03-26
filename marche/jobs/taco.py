@@ -48,7 +48,7 @@ This job has the following configuration parameters:
 import os
 from os import path
 
-from marche.six import iteritems
+from six import iteritems
 
 from marche.utils import extractLoglines
 from marche.jobs.base import Job as BaseJob

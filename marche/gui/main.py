@@ -30,9 +30,9 @@ import tempfile
 import subprocess
 from os import path
 
-from marche.six import iteritems
-from marche.six.moves import range
-from marche.six.moves.xmlrpc_client import ProtocolError, Fault
+from six import iteritems
+from six.moves import range
+from six.moves.xmlrpc_client import ProtocolError, Fault
 
 import marche.gui.res  # noqa
 

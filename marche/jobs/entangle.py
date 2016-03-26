@@ -49,7 +49,7 @@ import os
 import ast
 from os import path
 
-from marche.six.moves import configparser
+from six.moves import configparser
 
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extractLoglines, readFile, writeFile

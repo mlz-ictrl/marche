@@ -29,8 +29,8 @@ from collections import OrderedDict
 
 from PyQt4.QtCore import QThread, pyqtSignal
 
-from marche.six import iteritems
-from marche.six.moves.xmlrpc_client import ServerProxy, Fault, Transport
+from six import iteritems
+from six.moves.xmlrpc_client import ServerProxy, Fault, Transport
 
 from marche.jobs import NOT_AVAILABLE
 from marche.gui.util import loadSetting

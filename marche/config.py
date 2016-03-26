@@ -28,7 +28,7 @@
 import os
 from os import path
 
-from marche.six.moves import configparser
+from six.moves import configparser
 
 from marche.iface.udp import UDP_PORT
 
