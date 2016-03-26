@@ -86,15 +86,18 @@ class Job(BaseJob):
             return False
         return True
 
-    def get_services(self):
+    def init(self):
         proc = self._async_call(STARTING, '%s 2>&1' % self._script)
         proc.join()
         lines = proc.stdout
+        self._services = [('nicos-system', '')]
         if len(lines) >= 2 and lines[-1].startswith('Possible services are'):
-            self._services = [entry.strip() for entry in
+            self._services = [('nicos', entry.strip()) for entry in
                               lines[-1][len('Possible services are '):].split(',')]
+        BaseJob.init(self)
 
-        return [('nicos-system', '')] + [('nicos', s) for s in self._services]
+    def get_services(self):
+        return self._services
 
     def start_service(self, service, instance):
         if service == 'nicos-system':

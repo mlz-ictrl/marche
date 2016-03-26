@@ -165,6 +165,7 @@ class Job(BaseJob):
     def init(self):
         if self.autostart:
             self.start_service(self.name, '')
+        BaseJob.init(self)
 
     def get_services(self):
         return [(self.name, '')]

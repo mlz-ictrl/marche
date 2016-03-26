@@ -60,6 +60,7 @@ class Job(BaseJob):
         BaseJob.__init__(self, name, config, log)
         self._initscripts = {}
         self._depends = set()
+        self._services = []
 
     def check(self):
         if any(fn.startswith('taco-server-')
@@ -68,7 +69,7 @@ class Job(BaseJob):
         self.log.warning('no TACO server init scripts found')
         return False
 
-    def get_services(self):
+    def init(self):
         servers = set()
         # get all servers for which we have an init script
         for fn in os.listdir('/etc/init.d'):
@@ -97,7 +98,11 @@ class Job(BaseJob):
                 '/etc/init.d/taco-server-%s' % server
             for instance in instances:
                 services.append(('taco-' + server, instance))
-        return services
+        self._services = services
+        BaseJob.init(self)
+
+    def get_services(self):
+        return self._services
 
     def start_service(self, service, instance):
         key = service, instance

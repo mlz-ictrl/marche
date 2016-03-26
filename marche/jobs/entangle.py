@@ -103,11 +103,15 @@ class Job(BaseJob):
 
     def __init__(self, name, config, log):
         BaseJob.__init__(self, name, config, log)
+        self._services = []
 
-        self._ok = (path.exists(CONFIG) and path.exists(INITSCR))
+    def check(self):
+        if not (path.exists(CONFIG) and path.exists(INITSCR)):
+            self.log.warning('%s or %s missing' % (CONFIG, INITSCR))
+            return False
+        return True
 
-        if not self._ok:
-            return
+    def init(self):
         cfg = configparser.RawConfigParser()
         cfg.read(CONFIG)
 
@@ -123,16 +127,11 @@ class Job(BaseJob):
         all_servers = [('entangle', base) for (base, ext) in
                        map(path.splitext, os.listdir(self._resdir))
                        if ext == '.res']
-        self._servers = sorted(all_servers)
-
-    def check(self):
-        if not self._ok:
-            self.log.warning('%s or %s missing' % (CONFIG, INITSCR))
-            return False
-        return True
+        self._services = sorted(all_servers)
+        BaseJob.init(self)
 
     def get_services(self):
-        return self._servers
+        return self._services
 
     def start_service(self, service, instance):
         self._async_start(instance, '%s start %s' % (INITSCR, instance))

@@ -25,8 +25,6 @@
 
 """Job control dispatcher."""
 
-from threading import Lock
-
 from marche.six import iteritems
 
 from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
@@ -72,7 +70,6 @@ class JobHandler(object):
         self.log = log
         self.jobs = {}
         self.service2job = {}
-        self.servicecache = []
         self.interfaces = []
         self._add_jobs()
 
@@ -104,7 +101,6 @@ class JobHandler(object):
                                            'provided by jobs %s and %s' %
                                            (service, name, other.name))
                     self.service2job[service] = job
-                    self.servicecache.append((service, instance))
                     self.log.info('found service: %s.%s' % (service, instance))
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' %
@@ -132,7 +128,6 @@ class JobHandler(object):
         self.config.reload()
         self.jobs = {}
         self.service2job = {}
-        self.servicecache = []
         self._add_jobs()
 
     @command(silent=True)
@@ -141,10 +136,11 @@ class JobHandler(object):
 
         The service list is sent back as a single ServiceListEvent."""
         svcs = {}
-        for service, instance in self.servicecache:
-            job = self._get_job(service)
+        for job in self.jobs.values():
             with job.lock:
-                if job.has_permission(DISPLAY, client):
+                for service, instance in job.get_services():
+                    if not job.has_permission(DISPLAY, client):
+                        continue
                     state, ext_status = job.service_status(service, instance)
                     info = {
                         'desc': job.service_description(service, instance),
