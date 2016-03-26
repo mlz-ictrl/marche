@@ -104,7 +104,8 @@ class Job(BaseJob):
         self._async_start(service, 'systemctl restart %s' % self.unit)
 
     def service_status(self, service, instance):
-        return self._async_status(service, 'systemctl is-active %s' % self.unit)
+        return self._async_status(service,
+                                  'systemctl is-active %s' % self.unit), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

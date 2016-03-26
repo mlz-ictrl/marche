@@ -145,7 +145,8 @@ class Job(BaseJob):
 
     def service_status(self, service, instance):
         # XXX check devices with Tango clients
-        return self._async_status(instance, '%s status %s' % (INITSCR, instance))
+        return self._async_status(instance,
+                                  '%s status %s' % (INITSCR, instance)), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))

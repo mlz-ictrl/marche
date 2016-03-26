@@ -192,10 +192,10 @@ class Job(BaseJob):
 
     def service_status(self, service, instance):
         if self._thread and self._thread.isAlive():
-            return RUNNING
+            return RUNNING, ''
         if self.one_shot:
-            return NOT_RUNNING
-        return DEAD
+            return NOT_RUNNING, ''
+        return DEAD, ''
 
     def service_logs(self, service, instance):
         ret = {}

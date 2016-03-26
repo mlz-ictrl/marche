@@ -117,7 +117,7 @@ class Job(BaseJob):
     def service_status(self, service, instance):
         async_st = self._async_status_only(None)
         if async_st is not None:
-            return async_st
+            return async_st, ''
         if service == 'nicos-system':
             output = self._sync_call('%s status' % self._script).stdout
             something_dead = something_running = False
@@ -127,14 +127,14 @@ class Job(BaseJob):
                 if 'running' in line:
                     something_running = True
             if something_dead and something_running:
-                return WARNING
+                return WARNING, 'only some services running'
             elif something_running:
-                return RUNNING
-            return DEAD
+                return RUNNING, ''
+            return DEAD, ''
         else:
             retcode = self._sync_call('%s status %s' %
                                       (self._script, instance)).retcode
-            return RUNNING if retcode == 0 else DEAD
+            return RUNNING if retcode == 0 else DEAD, ''
 
     def service_output(self, service, instance):
         return list(self._output.get(None, []))

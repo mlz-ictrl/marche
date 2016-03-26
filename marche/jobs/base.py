@@ -162,7 +162,8 @@ class Job(object):
                                   % self.__class__.__name__)
 
     def service_status(self, service, instance):
-        """Return the status of the service with the given name.
+        """Return the tuple of status constant and extended status of the
+        service with the given name.
 
         The status should be one of the constants defined in the
         :mod:`marche.jobs` module:
@@ -179,6 +180,9 @@ class Job(object):
 
         Not all states have to be supported; the most basic set of states to
         return is ``DEAD`` or ``RUNNING``.
+
+        The extended status is just a string with more information if needed
+        and available.
         """
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)

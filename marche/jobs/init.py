@@ -111,7 +111,7 @@ class Job(BaseJob):
 
     def service_status(self, service, instance):
         return self._async_status(service, '/etc/init.d/%s status' %
-                                  self.init_name)
+                                  self.init_name), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

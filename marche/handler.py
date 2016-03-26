@@ -148,10 +148,11 @@ class JobHandler(object):
             svcs = {}
             for service, instance in self.servicecache:
                 job = self._get_job(service)
+                state, ext_status = job.service_status(service, instance)
                 info = {
                     'desc': job.service_description(service, instance),
-                    'state': job.service_status(service, instance),
-                    'ext_state': '',  # TODO: implement this
+                    'state': state,
+                    'ext_status': ext_status,
                     'permissions': [],  # TODO: implement this
                 }
                 svcs.setdefault(service, {})[instance] = info
@@ -179,9 +180,10 @@ class JobHandler(object):
     def requestServiceStatus(self, service, instance):
         """Return the status of a single service."""
         with self._lock:
-            status = self._get_job(service).service_status(service, instance)
-        self.emit_event(StatusEvent(state=status,
-                                    ext_state=''))  # TODO: implement
+            state, ext_status = self._get_job(service).service_status(service,
+                                                                      instance)
+        self.emit_event(StatusEvent(state=state,
+                                    ext_status=ext_status))
 
     @command(silent=True)
     def requestControlOutput(self, service, instance):

@@ -118,7 +118,7 @@ class Job(BaseJob):
         key = service, instance
         initscript = self._initscripts[service]
         command = initscript + ' status ' + instance
-        return self._async_status(key, command)
+        return self._async_status(key, command), ''
 
     def service_output(self, service, instance):
         key = service, instance
