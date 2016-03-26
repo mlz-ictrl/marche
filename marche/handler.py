@@ -125,6 +125,8 @@ class JobHandler(object):
     @command()
     def triggerReload(self):
         """Trigger a reload of the jobs and list of their services."""
+        for job in list(self.jobs.values()):
+            job.shutdown()
         self.config.reload()
         self.jobs = {}
         self.service2job = {}
@@ -157,7 +159,9 @@ class JobHandler(object):
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
         with job.lock:
+            job.invalidate(service, instance)
             job.start_service(service, instance)
+            job.poll_now()
 
     @command()
     def stopService(self, client, service, instance):
@@ -165,7 +169,9 @@ class JobHandler(object):
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
         with job.lock:
+            job.invalidate(service, instance)
             job.stop_service(service, instance)
+            job.poll_now()
 
     @command()
     def restartService(self, client, service, instance):
@@ -173,7 +179,9 @@ class JobHandler(object):
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
         with job.lock:
+            job.invalidate(service, instance)
             job.restart_service(service, instance)
+            job.poll_now()
 
     @command(silent=True)
     def requestServiceStatus(self, client, service, instance):
@@ -181,7 +189,7 @@ class JobHandler(object):
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
         with job.lock:
-            state, ext_status = job.service_status(service, instance)
+            state, ext_status = job.polled_service_status(service, instance)
         self.emit_event(StatusEvent(state=state,
                                     ext_status=ext_status))
 

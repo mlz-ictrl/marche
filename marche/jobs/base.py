@@ -28,6 +28,7 @@ import threading
 
 from marche.jobs import Busy, Fault, STARTING, STOPPING, RUNNING, DEAD
 from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
+from marche.polling import Poller
 from marche.utils import AsyncProcess
 
 
@@ -68,13 +69,21 @@ class Job(object):
         self._permissions = {DISPLAY: DISPLAY,
                              CONTROL: CONTROL,
                              ADMIN: ADMIN}
-        if config.get('permissions'):
+        if 'permissions' in config:
             try:
                 self._permissions = parse_permissions(self._permissions,
                                                       config['permissions'])
             except ValueError:
                 self.log.error('could not parse permission string: %r' %
                                config['permissions'])
+        pollinterval = 3.0
+        if 'pollinterval' in config:
+            try:
+                pollinterval = float(config['pollinterval'])
+            except ValueError:
+                self.log.error('could not parse pollinterval: %r' %
+                               config['pollinterval'])
+        self.poller = Poller(self, pollinterval)
 
     # Utilities
 
@@ -144,13 +153,29 @@ class Job(object):
         """Initialize the job.
 
         This can further configure the job after the feasibility check has run.
-        By default, does nothing.
+        By default, this starts the poller.
         """
-        pass
+        self.poller.start()
+
+    def shutdown(self):
+        """Shut the job down.
+
+        By default, this will stop the poller.
+        """
+        self.poller.stop()
+
+    def invalidate(self, service, instance):
+        """Invalidate polled and cached status."""
+        self.poller.invalidate(service, instance)
+
+    def poll_now(self):
+        """Let the poller poll now, if possible."""
+        self.poller.queue.put(True)
 
     def get_services(self):
         """Return a list of ``(service, instance)`` names that this job
-        supports.
+        supports.  This should be very cheap, so the list of services should be
+        determined in the constructor and only returned here.
 
         For jobs without sub-instances, return ``(service, '')``.
 
@@ -184,6 +209,12 @@ class Job(object):
         """
         raise NotImplementedError('%s.restart_service not implemented'
                                   % self.__class__.__name__)
+
+    def polled_service_status(self, service, instance):
+        result = self.poller.get(service, instance)
+        if result is not None:
+            return result
+        return self.service_status(service, instance)
 
     def service_status(self, service, instance):
         """Return the tuple of status constant and extended status of the
