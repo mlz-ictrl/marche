@@ -52,6 +52,13 @@ class Interface(object):
            The logger for the interface.
         """
 
+    def emit_event(self, event):
+        """Emit an event to clients.
+
+        This method will be called from various threads; it is the interface's
+        job to ensure that this is safe.
+        """
+
     def run(self):
         """Run the interface.  This should start the main loop of the interface
         in a separate thread and return.

@@ -219,7 +219,7 @@ class Interface(BaseInterface):
     needs_events = True
 
     def init(self):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._events = []
         RequestHandler.log = self.log
 
@@ -253,13 +253,19 @@ class Interface(BaseInterface):
         self.log.info('listening on %s:%s' % (host, port))
 
     def expect_event(self, callback):
+        # We hold the RLock, and acquire it again during emit_event(), to
+        # ensure only events emitted during execution of the callback are
+        # added to the events list.
         with self._lock:
-            self._events = []
+            self._events = events = []
             callback()
-            return self._events[0]
+            self._events = None
+            return events[0]
 
     def emit_event(self, event):
-        self._events.append(event)
+        with self._lock:
+            if self._events is not None:
+                self._events.append(event)
 
     def _thread(self, server):
         server.serve_forever()

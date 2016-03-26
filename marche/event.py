@@ -19,7 +19,6 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
-#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
