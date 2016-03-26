@@ -29,7 +29,7 @@ from os import listdir, path
 import marche.version
 
 
-scripts = ['bin/marched', 'bin/marche-gui', 'bin/marche-gensyscfg']
+scripts = ['bin/marched', 'bin/marche-gui']
 
 srcdir =  path.dirname(__file__)
 uidir = path.join(srcdir, 'marche', 'gui', 'ui')
