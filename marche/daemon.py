@@ -111,12 +111,6 @@ def main():
 
     jobhandler = JobHandler(config, log)
 
-    # put tango at the end: its server loop needs to run in the foreground
-    if 'tango' in config.interfaces:
-        ifaces = [iface for iface in config.interfaces if iface != 'tango']
-        ifaces.append('tango')
-        config.interfaces = ifaces
-
     running_interfaces = []
 
     for interface in config.interfaces:
@@ -133,13 +127,12 @@ def main():
             continue
         running_interfaces.append(interface)
 
-    if 'tango' not in running_interfaces:
-        log.info('startup successful')
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            pass
+    log.info('startup successful')
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        pass
 
     if opts.daemonize:
         remove_pidfile(config.piddir)

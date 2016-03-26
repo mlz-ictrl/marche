@@ -45,7 +45,7 @@ The general configuration is usually placed into a single file named
 
    .. describe:: interfaces
 
-      **Default:** ``xmlrpc, tango, udp``
+      **Default:** ``xmlrpc, udp``
 
       A comma-separated list of the interfaces that should be started.  A list
       of all available interfaces is given in :doc:`iface`.

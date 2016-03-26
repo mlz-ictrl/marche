@@ -54,15 +54,12 @@ class Config(object):
             'user': 'marche',
             'passwd': '',
         },
-        'tango': {
-            'tango_host': '',
-        },
         'udp': {
             'host': '0.0.0.0',
             'port': UDP_PORT,
         }
     }
-    interfaces = ['xmlrpc', 'tango', 'udp']
+    interfaces = ['xmlrpc', 'udp']
 
     def __init__(self, confdir):
         self.confdir = confdir
