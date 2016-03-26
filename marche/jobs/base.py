@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import collections
+import threading
 
 from marche.jobs import Busy, Fault, STARTING, STOPPING, RUNNING, DEAD
 from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
@@ -61,6 +62,7 @@ class Job(object):
         self.name = name
         self.config = config
         self.log = log.getChild(name)
+        self.lock = threading.Lock()
         self._processes = {}
         self._output = {}
         self._permissions = {DISPLAY: DISPLAY,

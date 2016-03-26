@@ -70,7 +70,6 @@ class JobHandler(object):
     def __init__(self, config, log):
         self.config = config
         self.log = log
-        self._lock = Lock()
         self.jobs = {}
         self.service2job = {}
         self.servicecache = []
@@ -130,22 +129,21 @@ class JobHandler(object):
     @command()
     def triggerReload(self):
         """Trigger a reload of the jobs and list of their services."""
-        with self._lock:
-            self.config.reload()
-            self.jobs = {}
-            self.service2job = {}
-            self.servicecache = []
-            self._add_jobs()
+        self.config.reload()
+        self.jobs = {}
+        self.service2job = {}
+        self.servicecache = []
+        self._add_jobs()
 
     @command(silent=True)
     def requestServiceList(self, client):
         """Request a list of all services provided by jobs.
 
         The service list is sent back as a single ServiceListEvent."""
-        with self._lock:
-            svcs = {}
-            for service, instance in self.servicecache:
-                job = self._get_job(service)
+        svcs = {}
+        for service, instance in self.servicecache:
+            job = self._get_job(service)
+            with job.lock:
                 if job.has_permission(DISPLAY, client):
                     state, ext_status = job.service_status(service, instance)
                     info = {
@@ -160,33 +158,33 @@ class JobHandler(object):
     @command()
     def startService(self, client, service, instance):
         """Start a single service."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(CONTROL, client)
+        job = self._get_job(service)
+        job.check_permission(CONTROL, client)
+        with job.lock:
             job.start_service(service, instance)
 
     @command()
     def stopService(self, client, service, instance):
         """Stop a single service."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(CONTROL, client)
+        job = self._get_job(service)
+        job.check_permission(CONTROL, client)
+        with job.lock:
             job.stop_service(service, instance)
 
     @command()
     def restartService(self, client, service, instance):
         """Restart a single service."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(CONTROL, client)
+        job = self._get_job(service)
+        job.check_permission(CONTROL, client)
+        with job.lock:
             job.restart_service(service, instance)
 
     @command(silent=True)
     def requestServiceStatus(self, client, service, instance):
         """Return the status of a single service."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(DISPLAY, client)
+        job = self._get_job(service)
+        job.check_permission(DISPLAY, client)
+        with job.lock:
             state, ext_status = job.service_status(service, instance)
         self.emit_event(StatusEvent(state=state,
                                     ext_status=ext_status))
@@ -194,18 +192,18 @@ class JobHandler(object):
     @command(silent=True)
     def requestControlOutput(self, client, service, instance):
         """Return the last lines of output from starting/stopping."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(DISPLAY, client)
+        job = self._get_job(service)
+        job.check_permission(DISPLAY, client)
+        with job.lock:
             output = job.service_output(service, instance)
         self.emit_event(ControlOutputEvent(content=output))
 
     @command()
     def requestLogfiles(self, client, service, instance):
         """Return the most recent lines of the service's logfile."""
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(DISPLAY, client)
+        job = self._get_job(service)
+        job.check_permission(DISPLAY, client)
+        with job.lock:
             logfiles = job.service_logs(service, instance)
         self.emit_event(LogfileEvent(files=logfiles))
 
@@ -215,9 +213,9 @@ class JobHandler(object):
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(ADMIN, client)
+        job = self._get_job(service)
+        job.check_permission(ADMIN, client)
+        with job.lock:
             confs = job.receive_config(service, instance)
         self.emit_event(ConffileEvent(files=confs))
 
@@ -231,7 +229,7 @@ class JobHandler(object):
 
         The contents are sent as a latin1-decoded string.
         """
-        with self._lock:
-            job = self._get_job(service)
-            job.check_permission(ADMIN, client)
+        job = self._get_job(service)
+        job.check_permission(ADMIN, client)
+        with job.lock:
             job.send_config(service, instance, filename, contents)
