@@ -73,8 +73,8 @@ from marche.jobs.base import Job as BaseJob
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log):
-        BaseJob.__init__(self, name, config, log)
+    def __init__(self, name, config, log, event_callback):
+        BaseJob.__init__(self, name, config, log, event_callback)
         self.unit = config.get('unit', name)
         self.log_files = []
         multilog = config.get('logfiles', '').split(',')

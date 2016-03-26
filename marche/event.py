@@ -62,6 +62,9 @@ class Event(object):
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 
+    def __repr__(self):
+        return '<%s: %r>' % (self.__class__.__name__, vars(self))
+
 
 class ConnectedEvent(Event):
     name = 'Connected'

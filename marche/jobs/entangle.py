@@ -101,8 +101,8 @@ INITSCR = '/etc/init.d/entangle'
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log):
-        BaseJob.__init__(self, name, config, log)
+    def __init__(self, name, config, log, event_callback):
+        BaseJob.__init__(self, name, config, log, event_callback)
         self._services = []
 
     def check(self):

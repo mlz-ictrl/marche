@@ -75,8 +75,8 @@ _DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
 class Job(InitJob):
     """Special job for Tango servers not using Entangle."""
 
-    def __init__(self, name, config, log):
-        InitJob.__init__(self, name, config, log)
+    def __init__(self, name, config, log, event_callback):
+        InitJob.__init__(self, name, config, log, event_callback)
         self.init_name = config.get('script', 'tango-server-' + name.lower())
         self.srvname = config.get('srvname', name)
         resdir = config.get('resdir', '')

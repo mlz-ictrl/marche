@@ -29,14 +29,17 @@ import threading
 
 from six.moves import queue
 
+from marche.event import StatusEvent
+
 
 class Poller(object):
     """The poller object; each job instantiates a poller and can start it."""
 
-    def __init__(self, job, interval):
+    def __init__(self, job, interval, event_callback):
         self.job = job
         self.interval = interval
         self.queue = queue.Queue()
+        self.event_callback = event_callback
         self._thread = threading.Thread(target=self._entry)
         self._thread.setDaemon(True)
         self._stoprequest = False
@@ -77,6 +80,11 @@ class Poller(object):
                         continue
                     if result != self._cache.get(key, [0, None])[1]:
                         self._cache[key] = [time.time(), result]
-                        # XXX event!
+                        self.event_callback(StatusEvent(
+                            service=key[0],
+                            instance=key[1],
+                            state=result[0],
+                            ext_status=result[1]
+                        ))
                     else:
                         self._cache[key][0] = time.time()

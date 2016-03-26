@@ -47,7 +47,7 @@ class Job(object):
     .. automethod:: __init__
     """
 
-    def __init__(self, name, config, log):
+    def __init__(self, name, config, log, event_callback):
         """The constructor can be overridden, but the base class constructor
         should always be called.
 
@@ -83,7 +83,7 @@ class Job(object):
             except ValueError:
                 self.log.error('could not parse pollinterval: %r' %
                                config['pollinterval'])
-        self.poller = Poller(self, pollinterval)
+        self.poller = Poller(self, pollinterval, event_callback)
 
     # Utilities
 

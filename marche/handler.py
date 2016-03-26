@@ -91,7 +91,7 @@ class JobHandler(object):
                                    % (config['type'], name, err))
                 continue
             try:
-                job = mod.Job(name, config, self.log)
+                job = mod.Job(name, config, self.log, self.emit_event)
                 if not job.check():
                     raise RuntimeError('feasibility check failed')
                 for service, instance in job.get_services():
