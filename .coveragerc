@@ -1,0 +1,6 @@
+[run]
+source = marche
+omit =
+    marche/guing/*
+    marche/gui/*
+    marche/version.py

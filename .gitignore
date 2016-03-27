@@ -3,10 +3,11 @@
 *.egg-info
 RELEASE-VERSION
 
-.coverage
-cover/
 log/
-pid/
+
+.cache/
+.coverage
+htmlcov/
 
 *~
 \#*

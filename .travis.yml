@@ -6,8 +6,9 @@ python:
     - "3.4"
     - "3.5"
 
-install: 
-    pip install -r requirements.txt
+install:
+    - git fetch --unshallow  # to get tags for version.py
+    - pip install -r requirements.txt -r requirements-dev.txt
 
 script:
-    python setup.py build
+    - py.test -v --cov
