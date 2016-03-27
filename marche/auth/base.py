@@ -30,7 +30,13 @@ class Authenticator(object):
     def __init__(self, config, log):
         self.config = config
         self.log = log
+        self.init()
+
+    def init(self):
+        """Implement to do something on init."""
 
     def authenticate(self, user, password):
-        raise NotImplementedError('implement %s.authenticate()' %
-                                  self.__class__.__name__)
+        """Return a ClientInfo object if the user and password are correct.
+
+        Otherwise, return None to give other authenticators a chance.
+        """
