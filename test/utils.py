@@ -24,8 +24,14 @@
 
 """Utilities for the tests."""
 
-import logging
 import time
+import logging
+
+from marche.jobs import Fault, Busy, DEAD
+from marche.event import ServiceListEvent, StatusEvent, LogfileEvent, \
+    ConffileEvent, ControlOutputEvent
+from marche.auth import AuthFailed
+from marche.permission import ClientInfo, ADMIN
 
 
 def wait(n, callback):
@@ -35,10 +41,6 @@ def wait(n, callback):
         n += 1
         if n > 100:
             raise RuntimeError('wait timeout reached')
-
-
-class ErrorLogged(Exception):
-    pass
 
 
 class LogHandler(logging.Handler):
@@ -82,3 +84,69 @@ class MockAsyncProcess(object):
 
     def join(self):
         pass
+
+
+class MockJobHandler(object):
+
+    test_interface = None
+    test_reloaded = False
+
+    def emit_event(self, event):
+        if self.test_interface:
+            self.test_interface.emit_event(event)
+
+    def trigger_reload(self):
+        self.test_reloaded = True
+
+    def request_service_list(self, client):
+        svcs = {'svc': {'': {'desc': '', 'state': DEAD, 'ext_status': '',
+                             'permissions': [], 'jobtype': ''},
+                        'inst': {'desc': '', 'state': DEAD, 'ext_status': '',
+                                 'permissions': [], 'jobtype': ''}}}
+        self.emit_event(ServiceListEvent(services=svcs))
+
+    def request_service_status(self, client, service, instance):
+        self.emit_event(StatusEvent(service=service,
+                                    instance=instance,
+                                    state=DEAD,
+                                    ext_status='ext_status'))
+
+    def request_control_output(self, client, service, instance):
+        self.emit_event(ControlOutputEvent(service=service,
+                                           instance=instance,
+                                           content=['line1', 'line2']))
+
+    def request_logfiles(self, client, service, instance):
+        self.emit_event(LogfileEvent(service=service,
+                                     instance=instance,
+                                     files={'file1': 'line1\nline2\n',
+                                            'file2': 'line3\nline4\n'}))
+
+    def request_conffiles(self, client, service, instance):
+        self.emit_event(ConffileEvent(service=service,
+                                      instance=instance,
+                                      files={'file1': 'line1\nline2\n',
+                                             'file2': 'line3\nline4\n'}))
+
+    def start_service(self, client, service, instance):
+        pass
+
+    def stop_service(self, client, service, instance):
+        raise Busy
+
+    def restart_service(self, client, service, instance):
+        raise Fault('cannot do this')
+
+    def send_conffile(self, client, service, instance, filename, contents):
+        raise ValueError('no conf files')
+
+
+class MockAuthHandler(object):
+
+    def needs_authentication(self):
+        return True
+
+    def authenticate(self, user, passwd):
+        if user == passwd == 'test':
+            return ClientInfo(ADMIN)
+        raise AuthFailed

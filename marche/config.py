@@ -49,7 +49,7 @@ class Config(object):
     iface_config = {}
     interfaces = ['xmlrpc', 'udp']
 
-    def __init__(self, confdir):
+    def __init__(self, confdir=None):
         self.confdir = confdir
         self.reload()
 
@@ -58,7 +58,7 @@ class Config(object):
         self.__dict__.clear()
         self.confdir = confdir
         self.job_config = {}
-        if not path.isdir(self.confdir):
+        if confdir is None or not path.isdir(self.confdir):
             return
 
         for fn in os.listdir(self.confdir):
