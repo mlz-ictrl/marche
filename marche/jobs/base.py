@@ -76,14 +76,14 @@ class Job(object):
             except ValueError:
                 self.log.error('could not parse permission string: %r' %
                                config['permissions'])
-        pollinterval = 3.0
+        self.pollinterval = 3.0
         if 'pollinterval' in config:
             try:
-                pollinterval = float(config['pollinterval'])
+                self.pollinterval = float(config['pollinterval'])
             except ValueError:
                 self.log.error('could not parse pollinterval: %r' %
                                config['pollinterval'])
-        self.poller = Poller(self, pollinterval, event_callback)
+        self.poller = Poller(self, self.pollinterval, event_callback)
 
     # Utilities
 
@@ -155,7 +155,8 @@ class Job(object):
         This can further configure the job after the feasibility check has run.
         By default, this starts the poller.
         """
-        self.poller.start()
+        if self.pollinterval > 0:
+            self.poller.start()
 
     def shutdown(self):
         """Shut the job down.
