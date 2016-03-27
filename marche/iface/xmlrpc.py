@@ -59,7 +59,7 @@ from six.moves import xmlrpc_client, xmlrpc_server
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
 from marche.auth import AuthFailed
-from marche.handler import PROTO_VERSION
+from marche.protocol import PROTO_VERSION
 from marche.permission import ClientInfo, ADMIN
 
 BUSY = 1

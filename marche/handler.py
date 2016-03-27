@@ -32,9 +32,6 @@ from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
 from marche.jobs import Busy, Fault
 from marche.permission import DISPLAY, CONTROL, ADMIN
 
-# Protocol version
-PROTO_VERSION = 2
-
 
 def command(silent=False):
     def deco(f):

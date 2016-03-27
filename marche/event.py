@@ -26,12 +26,14 @@
 
 from six import add_metaclass
 
+from marche.protocol import Events
+
 
 class EventMeta(type):
     def __new__(mcs, name, bases, attrs):
         newtype = type.__new__(mcs, name, bases, attrs)
-        if newtype.name:
-            newtype.registry[newtype.name] = newtype
+        if newtype.event_type:
+            newtype.registry[newtype.event_type] = newtype
         return newtype
 
 
@@ -39,24 +41,24 @@ class EventMeta(type):
 class Event(object):
     registry = {}
 
-    #: Name of the event type.
-    name = ''
+    #: Designation of the event type.
+    event_type = None
 
     def serialize(self):
-        if not self.name:
+        if not self.event_type:
             raise RuntimeError('event base class cannot be serialized')
-        ret = {'name': self.name}
+        ret = {'type': self.event_type}
         ret.update(vars(self))
         return ret
 
     @staticmethod
     def unserialize(data):
-        if 'name' not in data:
-            raise RuntimeError('event name not given in event data')
-        if data['name'] not in Event.registry:
+        if 'type' not in data:
+            raise RuntimeError('event type not given in event data')
+        if data['type'] not in Event.registry:
             # event is not recognized; ignore it for compatibility
             return None
-        cls = Event.registry[data.pop('name')]
+        cls = Event.registry[data.pop('type')]
         return cls(**data)
 
     def __repr__(self):
@@ -64,7 +66,7 @@ class Event(object):
 
 
 class ConnectedEvent(Event):
-    name = 'Connected'
+    event_type = Events.CONNECTED
 
     def __init__(self, proto_version, daemon_version, unauth_permissions):
         self.proto_version = proto_version
@@ -73,14 +75,14 @@ class ConnectedEvent(Event):
 
 
 class ServiceListEvent(Event):
-    name = 'ServiceList'
+    event_type = Events.SERVICE_LIST
 
     def __init__(self, services):
         self.services = services
 
 
 class AuthEvent(Event):
-    name = 'Auth'
+    event_type = Events.AUTH_RESULT
 
     def __init__(self, success):
         self.success = success
@@ -93,7 +95,7 @@ class ServiceEvent(Event):
 
 
 class StatusEvent(ServiceEvent):
-    name = 'Status'
+    event_type = Events.STATUS
 
     def __init__(self, service, instance, state, ext_status):
         ServiceEvent.__init__(self, service, instance)
@@ -102,7 +104,7 @@ class StatusEvent(ServiceEvent):
 
 
 class ErrorEvent(ServiceEvent):
-    name = 'Error'
+    event_type = Events.ERROR
 
     def __init__(self, service, instance, code, desc):
         ServiceEvent.__init__(self, service, instance)
@@ -111,7 +113,7 @@ class ErrorEvent(ServiceEvent):
 
 
 class ControlOutputEvent(ServiceEvent):
-    name = 'ControlOutput'
+    event_type = Events.CONTROL_OUTPUT
 
     def __init__(self, service, instance, content):
         ServiceEvent.__init__(self, service, instance)
@@ -125,8 +127,8 @@ class FileEvent(ServiceEvent):
 
 
 class ConffileEvent(FileEvent):
-    name = 'Conffile'
+    event_type = Events.CONF_FILES
 
 
 class LogfileEvent(FileEvent):
-    name = 'Logfile'
+    event_type = Events.LOG_FILES
