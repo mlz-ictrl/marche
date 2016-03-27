@@ -26,11 +26,10 @@
 import os
 import sys
 import base64
-from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
+from PyQt4.QtCore import QSettings
 
 try:
     from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
@@ -41,12 +40,12 @@ except ImportError:
 from six import iteritems
 
 
-uipath = path.dirname(__file__)
+uipath = os.path.dirname(__file__)
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']
 
 
 def loadUi(widget, uiname, subdir='ui'):
-    uic.loadUi(path.join(uipath, subdir, uiname), widget)
+    uic.loadUi(os.path.join(uipath, subdir, uiname), widget)
 
 
 # as copied from Python 3.3

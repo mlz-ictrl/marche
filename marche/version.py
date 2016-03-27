@@ -31,6 +31,8 @@
 #
 #   include RELEASE-VERSION
 
+from __future__ import print_function
+
 import os.path
 from subprocess import Popen, PIPE
 

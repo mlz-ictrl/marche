@@ -26,8 +26,8 @@
 import sys
 import optparse
 
-from PyQt4.QtCore import Qt, QSettings, QByteArray
 from PyQt4.QtGui import QApplication, QMainWindow
+from PyQt4.QtCore import Qt, QSettings, QByteArray
 
 from marche.gui.main import MainWidget
 

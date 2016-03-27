@@ -36,7 +36,7 @@ from os import path
 logging.logMultiprocessing = False
 logging.logProcesses = False
 logging.logThreads = False
-logging._srcfile = None
+logging._srcfile = None  # pylint: disable=protected-access
 
 log = logging.getLogger('marche')
 
@@ -108,7 +108,7 @@ def main():
     if opts.daemonize:
         write_pidfile(config.piddir)
 
-    log.info('Starting marche %s ...' % __version__)
+    log.info('Starting marche %s ...', __version__)
 
     jobhandler = JobHandler(config, log)
     authhandler = AuthHandler(config, log)

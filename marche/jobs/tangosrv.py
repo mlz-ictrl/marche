@@ -103,8 +103,8 @@ class Job(InitJob):
         self.log_files = ['/var/log/tango/%s.out.log' % self.srvname,
                           '/var/log/tango/%s.err.log' % self.srvname]
 
-    def send_config(self, name, data):
-        InitJob.send_config(self, name, data)
+    def send_config(self, service, instance, filename, contents):
+        InitJob.send_config(self, service, instance, filename, contents)
         # transfer to Tango database
         self._update_db(self.config_file)
 
@@ -113,8 +113,8 @@ class Job(InitJob):
 
         def add_device(name, cls, srv):
             dev_info = DbDevInfo()
-            dev_info.name   = name
-            dev_info.klass  = cls
+            dev_info.name = name
+            dev_info.klass = cls
             dev_info.server = srv
             db.add_device(dev_info)
 

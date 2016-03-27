@@ -27,8 +27,8 @@ import time
 import socket
 import select
 
-from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QDialog
+from PyQt4.QtCore import QThread, pyqtSignal
 
 from marche.iface.udp import UDP_PORT
 from marche.gui.util import loadUi

@@ -121,9 +121,9 @@ class ProcessMonitor(Thread):
         elif self.oneshot:
             outfile = PIPE
         else:
-            outfile = sys.stdout
+            outfile = sys.stdout  # pylint: disable=redefined-variable-type
             if hasattr(outfile, 'buffer'):
-                outfile = outfile.buffer
+                outfile = outfile.buffer  # pylint: disable=no-member
         process = Popen(self._cmd, stdout=outfile, stderr=STDOUT, cwd=self._wd)
         while process.poll() is None:
             sleep(0.1)

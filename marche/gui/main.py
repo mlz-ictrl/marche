@@ -30,8 +30,14 @@ import tempfile
 import subprocess
 from os import path
 
+from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
+    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QMenu, \
+    QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
+    QByteArray
+
 from six import iteritems
-from six.moves import range
+from six.moves import range  # pylint: disable=redefined-builtin
 from six.moves.xmlrpc_client import ProtocolError, Fault
 
 import marche.gui.res  # noqa
@@ -45,12 +51,6 @@ from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
     STARTING, STOPPING, INITIALIZING
 from marche.utils import normalize_addr, read_file, write_file
 from marche.version import get_version
-
-from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
-    QByteArray
-from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
-    QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QMenu, \
-    QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
 
 
 class AuthDialog(QDialog):
@@ -253,9 +253,8 @@ class JobButtons(QWidget):
         if not result:
             return
         try:
-            config = self._client.sendServiceConfig(self._service,
-                                                    self._instance,
-                                                    result)
+            self._client.sendServiceConfig(self._service, self._instance,
+                                           result)
         except ClientError as err:
             self._item.setText(3, str(err))
             return
@@ -371,7 +370,7 @@ class HostTree(QTreeWidget):
         self.resizeColumnToContents(0)
         self.setColumnWidth(0, self.columnWidth(0) * 1.4)
         self.resizeColumnToContents(2)
-        width = sum([self.columnWidth(i) for i in range(self.columnCount())])
+        width = sum(self.columnWidth(i) for i in range(self.columnCount()))
         self.setMinimumWidth(width+25)
 
     def refresh(self):
@@ -542,7 +541,7 @@ class MainWidget(QWidget):
             for host, (user, passwd) in iteritems(dlg.credentials):
                 saveCredentials(host, user, passwd)
 
-            for host in (oldCredHosts - set(dlg.credentials)):
+            for host in oldCredHosts - set(dlg.credentials):
                 removeCredentials(host)
 
             if dlg.pollInterval != settings['pollInterval'] \

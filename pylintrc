@@ -1,18 +1,12 @@
 [MASTER]
 
-# Specify a configuration file.
-#rcfile=
-
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
 #init-hook=
 
-# Profiled execution.
-profile=no
-
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
-ignore = .git
+ignore=.git,res.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -22,7 +16,7 @@ persistent=yes
 load-plugins=
 
 # For some reason, Pylint cannot check members of these modules.
-extension-pkg-whitelist = numpy,scipy,PyQt4,sip,PyTango._PyTango
+extension-pkg-whitelist = numpy,scipy,PyQt4,PyQt5,sip,PyQt4.QtGui,PyQt4.QtCore
 
 
 [MESSAGES CONTROL]
@@ -35,15 +29,27 @@ extension-pkg-whitelist = numpy,scipy,PyQt4,sip,PyTango._PyTango
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time.
-disable=missing-docstring,star-args,locally-disabled,fixme,invalid-name,no-self-use,too-few-public-methods,broad-except,unused-argument,protected-access
+disable=locally-disabled
+    ,missing-docstring
+    ,star-args
+    ,fixme
+    ,invalid-name
+    ,broad-except
+    ,unused-argument
+    ,duplicate-code
+    ,ungrouped-imports
+    ,attribute-defined-outside-init
+    ,no-self-use
+    ,too-few-public-methods
+    ,wrong-import-position
 
 [REPORTS]
 
 # Set the output format. Available formats are text, parseable, colorized, msvs
 # (visual studio) and html
-#output-format=parseable
+output-format=colorized
 
-msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+#msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be
@@ -51,7 +57,7 @@ msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 files-output=no
 
 # Tells whether to display a full report or only the messages
-reports=yes
+reports=no
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note). You have access to the variables errors warning, statement which
@@ -59,10 +65,6 @@ reports=yes
 # number of statements analyzed. This is used by the global evaluation report
 # (R0004).
 evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
-
-# Add a comment according to your evaluation note. This is used by the global
-# evaluation report (R0004).
-comment=no
 
 
 [VARIABLES]
@@ -80,11 +82,7 @@ additional-builtins=device, setupname
 
 [BASIC]
 
-# Required attributes for module, separated by a comma
-required-attributes=
-
 # List of builtins function names that should not be used, separated by a comma
-#bad-functions=map,filter,apply,input
 bad-functions=input
 
 # Regular expression which should only match correct module names
@@ -167,10 +165,6 @@ ignore-mixin-members=yes
 # (useful for classes with attributes dynamically set).
 ignored-classes=SQLObject,numpy,CommandLineCell
 
-# When zope mode is activated, add a predefined set of Zope acquired attributes
-# to generated-members.
-zope=no
-
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E0201 when accessed.
 generated-members=REQUEST,acl_users,aq_parent
@@ -229,10 +223,6 @@ int-import-graph=
 
 
 [CLASSES]
-
-# List of interface methods to ignore, separated by a comma. This is used for
-# instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,__new__,setUp

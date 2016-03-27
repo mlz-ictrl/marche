@@ -52,7 +52,7 @@ class PollThread(QThread):
             try:
                 services = self._client.getServices()
             except Exception:
-                services = {}
+                services = OrderedDict()
 
             for service, instances in iteritems(services):
                 if not instances:
@@ -219,10 +219,10 @@ class Client(object):
         except Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
-    def sendServiceConfig(self, service, instance=None, data=[]):
+    def sendServiceConfig(self, service, instance=None, data=None):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
-                self._proxy.SendConfig([servicePath] + data)
+                self._proxy.SendConfig([servicePath] + (data or []))
         except Fault as f:
             raise ClientError(f.faultCode, f.faultString)
