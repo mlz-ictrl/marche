@@ -27,7 +27,8 @@
 import time
 import logging
 
-from marche.jobs import Fault, Busy, DEAD
+from marche.jobs import Fault, Busy, DEAD, RUNNING
+from marche.jobs.base import Job as BaseJob
 from marche.event import ServiceListEvent, StatusEvent, LogfileEvent, \
     ConffileEvent, ControlOutputEvent
 from marche.auth import AuthFailed
@@ -150,3 +151,71 @@ class MockAuthHandler(object):
         if user == passwd == 'test':
             return ClientInfo(ADMIN)
         raise AuthFailed
+
+
+class MockIface(object):
+    """Standin for an interface from the handler side."""
+
+    def __init__(self, events):
+        self.test_events = events
+
+    def emit_event(self, event):
+        self.test_events.append(event)
+
+
+class MockJob(BaseJob):
+    """Job for testing the handler class."""
+
+    def init(self):
+        # Does not call the base class init() to not start the poller thread
+        # (avoids async events to conflict with expected events).
+        self.test_started = []
+        self.test_stopped = []
+        self.test_restarted = []
+        self.test_configs = {}
+
+    def check(self):
+        return not self.config.get('fail')
+
+    def get_services(self):
+        return [
+            ('svc1', ''),       # A service without instances
+            ('svc2', 'inst1'),  # A service with only subinstances
+            ('svc3', ''),       # A service with a main and sub instance
+            ('svc3', 'inst2'),
+        ]
+
+    def service_description(self, service, instance):
+        return 'desc:' + instance
+
+    def service_status(self, service, instance):
+        if service == 'svc1':
+            return DEAD, 'ext:' + instance
+        return RUNNING, 'ext:' + instance
+
+    def service_output(self, service, instance):
+        return ['out:' + instance]
+
+    def service_logs(self, service, instance):
+        return {'log:' + instance: service}
+
+    def start_service(self, service, instance):
+        if service == 'svc1':
+            raise Busy
+        elif service == 'svc2':
+            raise Fault
+        self.test_started.append((service, instance))
+
+    def stop_service(self, service, instance):
+        self.test_stopped.append((service, instance))
+
+    def restart_service(self, service, instance):
+        if service == 'svc1':
+            raise ValueError
+        self.test_restarted.append((service, instance))
+
+    def receive_config(self, service, instance):
+        return {'conf:' + instance: service}
+
+    def send_config(self, service, instance, filename, contents):
+        self.test_configs[filename] = contents
