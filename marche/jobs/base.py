@@ -129,15 +129,35 @@ class Job(object):
     # Public interface
 
     def has_permission(self, level, client):
-        """Check if the client with *client_level* has permission to do an
+        """Query if the client with *client_level* has permission to do an
         action that would normally have *level*.
         """
         return client.level >= self._permissions[level]
 
     def check_permission(self, level, client):
+        """Ensure that the client with *client_level* has permission to do an
+        action that would normally have *level*.  If not, raises `Fault`.
+        """
         if self.has_permission(level, client):
             return
         raise Fault('permission denied by Marche')
+
+    def invalidate(self, service, instance):
+        """Invalidate polled and cached status."""
+        self.poller.invalidate(service, instance)
+
+    def poll_now(self):
+        """Let the poller poll now, if possible."""
+        self.poller.queue.put(True)
+
+    def polled_service_status(self, service, instance):
+        """Return the service status, if possible from the poller cache."""
+        result = self.poller.get(service, instance)
+        if result is not None:
+            return result
+        return self.service_status(service, instance)
+
+    # Public interface to be implemented by subclasses
 
     def configure(self, config):
         """Check and process the configuration in *config*.
@@ -162,7 +182,9 @@ class Job(object):
         """Initialize the job.
 
         This can further configure the job after the feasibility check has run.
-        By default, this starts the poller.
+
+        The default is to start the poller, so the base class method should be
+        normally called by subclasses.
         """
         if self.pollinterval > 0:
             self.poller.start()
@@ -170,17 +192,10 @@ class Job(object):
     def shutdown(self):
         """Shut the job down.
 
-        By default, this will stop the poller.
+        The default is to stop the poller, so the base class method should be
+        normally called by subclasses.
         """
         self.poller.stop()
-
-    def invalidate(self, service, instance):
-        """Invalidate polled and cached status."""
-        self.poller.invalidate(service, instance)
-
-    def poll_now(self):
-        """Let the poller poll now, if possible."""
-        self.poller.queue.put(True)
 
     def get_services(self):
         """Return a list of ``(service, instance)`` names that this job
@@ -189,15 +204,18 @@ class Job(object):
 
         For jobs without sub-instances, return ``(service, '')``.
 
-        The default returns no services.
+        This must be implemented by subclasses.
         """
-        return []
+        raise NotImplementedError('%s.get_services not implemented'
+                                  % self.__class__.__name__)
 
     def start_service(self, service, instance):
         """Start the service with the given name.
 
         The method should not block; instead, if the service takes a while to
         start the returned status should be ``STARTING`` during that time.
+
+        This must be implemented by subclasses.
         """
         raise NotImplementedError('%s.start_service not implemented'
                                   % self.__class__.__name__)
@@ -207,6 +225,8 @@ class Job(object):
 
         The method should not block; instead, if the service takes a while to
         stop the returned status should be ``STOPPING`` during that time.
+
+        This must be implemented by subclasses.
         """
         raise NotImplementedError('%s.stop_service not implemented'
                                   % self.__class__.__name__)
@@ -216,15 +236,11 @@ class Job(object):
 
         The method should not block; instead, if the service takes a while to
         restart the returned status should be ``STARTING`` during that time.
+
+        This must be implemented by subclasses.
         """
         raise NotImplementedError('%s.restart_service not implemented'
                                   % self.__class__.__name__)
-
-    def polled_service_status(self, service, instance):
-        result = self.poller.get(service, instance)
-        if result is not None:
-            return result
-        return self.service_status(service, instance)
 
     def service_status(self, service, instance):
         """Return the tuple of status constant and extended status of the
@@ -248,6 +264,8 @@ class Job(object):
 
         The extended status is just a string with more information if needed
         and available.
+
+        This must be implemented by subclasses.
         """
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
@@ -261,6 +279,8 @@ class Job(object):
     def service_output(self, service, instance):
         """Return the console output of the last attempt to start/stop/restart
         the service, as a list of strings (lines).
+
+        The default is to return no output.
         """
         return []
 
@@ -268,6 +288,8 @@ class Job(object):
         """Return the contents of the logfile(s) of the service, if possible.
 
         The return value must be a dictionary of file names and contents.
+
+        The default is to return no logfiles.
         """
         return {}
 
@@ -277,20 +299,20 @@ class Job(object):
 
         The return value must be a dict mapping the file name to the decoded
         string content for each file.
+
+        The default is to return no config files.
         """
         return {}
 
-    def send_config(self, service, instance, data):
-        """Transfer changed config file(s) to the service, and update them.
-
+    def send_config(self, service, instance, filename, contents):
+        """Transfer a changed config file to the service, and update it.
         Usually, this means that the new file is written to disk, but it could
         also take some further action.
 
         It should *not* restart the service, even if that is necessary for the
         config file to take effect.
 
-        The format of the ``data`` argument is the same as for the return value
-        of `receive_config`.
+        If `receive_config` returns files, this must be implemented.
         """
         raise NotImplementedError('%s.send_config not implemented'
                                   % self.__class__.__name__)
