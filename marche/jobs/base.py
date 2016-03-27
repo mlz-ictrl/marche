@@ -47,7 +47,7 @@ class Job(object):
     .. automethod:: __init__
     """
 
-    def __init__(self, name, config, log, event_callback):
+    def __init__(self, jobtype, name, config, log, event_callback):
         """The constructor should not be overridden, rather implement the
         configure() method.
 
@@ -60,6 +60,7 @@ class Job(object):
         ``log``
            A logger for the job (a child of the *log* argument).
         """
+        self.jobtype = jobtype
         self.name = name
         self.config = config
         self.log = log.getChild(name)

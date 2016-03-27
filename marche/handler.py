@@ -83,15 +83,15 @@ class JobHandler(object):
                 self.log.warning('job %r has no type assigned, '
                                  'ignoring' % name)
                 continue
+            jobtype = config['type']
             try:
-                mod = __import__('marche.jobs.%s' % config['type'], {}, {},
-                                 'Job')
+                mod = __import__('marche.jobs.%s' % jobtype, {}, {}, 'Job')
             except Exception as err:
                 self.log.exception('could not import module %r for job %s: %s'
-                                   % (config['type'], name, err))
+                                   % (jobtype, name, err))
                 continue
             try:
-                job = mod.Job(name, config, self.log, self.emit_event)
+                job = mod.Job(jobtype, name, config, self.log, self.emit_event)
                 if not job.check():
                     raise RuntimeError('feasibility check failed')
                 for service, instance in job.get_services():
@@ -149,6 +149,7 @@ class JobHandler(object):
                         'state': state,
                         'ext_status': ext,
                         'permissions': [],  # TODO: implement this
+                        'jobtype': job.jobtype,
                     }
                     svcs.setdefault(service, {})[instance] = info
         self.emit_event(ServiceListEvent(services=svcs))
