@@ -71,7 +71,7 @@ A typical section looks like this::
 
 from os import path
 
-from marche.utils import extractLoglines, readFile, writeFile
+from marche.utils import extract_loglines, read_file, write_file
 from marche.jobs.base import Job as BaseJob
 
 
@@ -118,15 +118,15 @@ class Job(BaseJob):
     def service_logs(self, service, instance):
         ret = {}
         for log_file in self.log_files:
-            ret.update(extractLoglines(log_file))
+            ret.update(extract_loglines(log_file))
         return ret
 
     def receive_config(self, service, instance):
         if not self.config_file:
             return {}
-        return {path.basename(self.config_file): readFile(self.config_file)}
+        return {path.basename(self.config_file): read_file(self.config_file)}
 
     def send_config(self, service, instance, filename, contents):
         if filename != path.basename(self.config_file):
             raise RuntimeError('invalid request')
-        writeFile(self.config_file, contents)
+        write_file(self.config_file, contents)

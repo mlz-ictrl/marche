@@ -123,7 +123,7 @@ class JobHandler(object):
             iface.emit_event(event)
 
     @command()
-    def triggerReload(self):
+    def trigger_reload(self):
         """Trigger a reload of the jobs and list of their services."""
         for job in list(self.jobs.values()):
             job.shutdown()
@@ -133,7 +133,7 @@ class JobHandler(object):
         self._add_jobs()
 
     @command(silent=True)
-    def requestServiceList(self, client):
+    def request_service_list(self, client):
         """Request a list of all services provided by jobs.
 
         The service list is sent back as a single ServiceListEvent."""
@@ -155,7 +155,7 @@ class JobHandler(object):
         self.emit_event(ServiceListEvent(services=svcs))
 
     @command()
-    def startService(self, client, service, instance):
+    def start_service(self, client, service, instance):
         """Start a single service."""
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
@@ -165,7 +165,7 @@ class JobHandler(object):
             job.poll_now()
 
     @command()
-    def stopService(self, client, service, instance):
+    def stop_service(self, client, service, instance):
         """Stop a single service."""
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
@@ -175,7 +175,7 @@ class JobHandler(object):
             job.poll_now()
 
     @command()
-    def restartService(self, client, service, instance):
+    def restart_service(self, client, service, instance):
         """Restart a single service."""
         job = self._get_job(service)
         job.check_permission(CONTROL, client)
@@ -185,7 +185,7 @@ class JobHandler(object):
             job.poll_now()
 
     @command(silent=True)
-    def requestServiceStatus(self, client, service, instance):
+    def request_service_status(self, client, service, instance):
         """Return the status of a single service."""
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
@@ -199,7 +199,7 @@ class JobHandler(object):
         ))
 
     @command(silent=True)
-    def requestControlOutput(self, client, service, instance):
+    def request_control_output(self, client, service, instance):
         """Return the last lines of output from starting/stopping."""
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
@@ -212,7 +212,7 @@ class JobHandler(object):
         ))
 
     @command()
-    def requestLogfiles(self, client, service, instance):
+    def request_logfiles(self, client, service, instance):
         """Return the most recent lines of the service's logfile."""
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
@@ -225,7 +225,7 @@ class JobHandler(object):
         ))
 
     @command()
-    def requestConffiles(self, client, service, instance):
+    def request_conffiles(self, client, service, instance):
         """Retrieve the relevant configuration file(s) for this service.
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
@@ -241,7 +241,7 @@ class JobHandler(object):
         ))
 
     @command()
-    def sendConffile(self, client, service, instance, filename, contents):
+    def send_conffile(self, client, service, instance, filename, contents):
         """Send back the relevant configuration file(s) for this service
         and install them.  The service might require a restart afterwards.
 

@@ -210,7 +210,7 @@ class LogfileHandler(StreamHandler):
         try:
             t = int(time.time())
             if t >= self.rollover_at:
-                self.doRollover()
+                self.do_rollover()
             if self.stream is None:
                 self.stream = self._open()
             StreamHandler.emit(self, record)
@@ -229,7 +229,7 @@ class LogfileHandler(StreamHandler):
         finally:
             self.release()
 
-    def doRollover(self):
+    def do_rollover(self):
         self.stream.close()
         self.baseFilename = self._pathnameprefix + '-' + \
             time.strftime(self._dayfmt) + '.log'

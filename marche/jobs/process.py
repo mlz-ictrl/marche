@@ -97,7 +97,7 @@ from time import sleep
 from threading import Thread
 from subprocess import Popen, STDOUT, PIPE
 
-from marche.utils import extractLoglines
+from marche.utils import extract_loglines
 from marche.jobs import RUNNING, NOT_RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob
 
@@ -199,7 +199,7 @@ class Job(BaseJob):
     def service_logs(self, service, instance):
         ret = {}
         for log_file in self.log_files:
-            ret.update(extractLoglines(log_file))
+            ret.update(extract_loglines(log_file))
         return ret
 
     def service_output(self, service, instance):

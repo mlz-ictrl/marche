@@ -57,7 +57,7 @@ from six.moves import configparser
 
 from marche.jobs import DEAD, STARTING, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extractLoglines
+from marche.utils import extract_loglines
 
 DEFAULT_INIT = '/etc/init.d/nicos-system'
 
@@ -150,4 +150,4 @@ class Job(BaseJob):
                 self._logpath = cfg.get('nicos', 'logging_path')
             else:
                 self._logpath = path.join(self._root, 'log')
-        return extractLoglines(path.join(self._logpath, instance, 'current'))
+        return extract_loglines(path.join(self._logpath, instance, 'current'))

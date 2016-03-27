@@ -43,7 +43,7 @@ from marche.gui.client import Client, ClientError
 from marche.gui.scan import Scanner
 from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
     STARTING, STOPPING, INITIALIZING
-from marche.utils import normalizeAddr, readFile, writeFile
+from marche.utils import normalize_addr, read_file, write_file
 from marche.version import get_version
 
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
@@ -241,7 +241,7 @@ class JobButtons(QWidget):
             fn = config[i]
             contents = config[i + 1]
             localfn = path.join(dtemp, fn)
-            writeFile(localfn, contents)
+            write_file(localfn, contents)
             if not self.editLocal(editor, localfn):
                 self._item.setText(3, 'Editor failed')
                 return
@@ -249,7 +249,7 @@ class JobButtons(QWidget):
                     self, 'Configure', 'Is the changed file ok to use?',
                     QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
                 result.append(fn)
-                result.append(readFile(localfn))
+                result.append(read_file(localfn))
         if not result:
             return
         try:
@@ -677,7 +677,7 @@ class MainWidget(QWidget):
 
     def addHost(self, addr):
         self.removeHost(addr)
-        host, port = normalizeAddr(addr, 8124)
+        host, port = normalize_addr(addr, 8124)
         addr = host + ':' + port
         if addr not in self._clients:
             item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
@@ -711,7 +711,7 @@ class MainWidget(QWidget):
             return client
 
         def negotiate(addr):
-            host, port = normalizeAddr(addr, 8124)
+            host, port = normalize_addr(addr, 8124)
 
             # try without credentials
             client = try_connect(host, port, None, None)

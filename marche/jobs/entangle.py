@@ -52,7 +52,7 @@ from os import path
 from six.moves import configparser
 
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extractLoglines, readFile, writeFile
+from marche.utils import extract_loglines, read_file, write_file
 
 
 def convert_value(value):
@@ -148,14 +148,14 @@ class Job(BaseJob):
 
     def service_logs(self, service, instance):
         logname = path.join(self._logdir, instance, 'current')
-        return extractLoglines(logname)
+        return extract_loglines(logname)
 
     def receive_config(self, service, instance):
         cfgname = path.join(self._resdir, instance + '.res')
-        return {instance + '.res': readFile(cfgname)}
+        return {instance + '.res': read_file(cfgname)}
 
     def send_config(self, service, instance, filename, contents):
         cfgname = path.join(self._resdir, instance + '.res')
         if filename != instance + '.res':
             raise RuntimeError('invalid request')
-        writeFile(cfgname, contents)
+        write_file(cfgname, contents)

@@ -165,7 +165,7 @@ class AsyncProcess(Thread):
         proc = None
         poller = None
 
-        def pollOutput():
+        def poll_output():
             """
             Read, log and store output (if any) from processes pipes.
             """
@@ -196,13 +196,13 @@ class AsyncProcess(Thread):
                 poller.register(proc.stdout, select.POLLIN)
                 poller.register(proc.stderr, select.POLLIN)
 
-            pollOutput()
+            poll_output()
 
             if proc.poll() is not None:  # proc finished
                 break
 
         # poll once after the process ended to collect all the missing output
-        pollOutput()
+        poll_output()
 
         # check return code
         self.retcode = proc.returncode
@@ -212,7 +212,7 @@ class AsyncProcess(Thread):
 nontext_re = re.compile(r'[^\n\t\x20-\x7e]')
 
 
-def extractLoglines(filename, n=500):
+def extract_loglines(filename, n=500):
     def extract(filename):
         lines = collections.deque(maxlen=n)
         with open(filename, 'rb') as fp:
@@ -232,7 +232,7 @@ def extractLoglines(filename, n=500):
     return result
 
 
-def normalizeAddr(addr, defport):
+def normalize_addr(addr, defport):
     if ':' not in addr:
         addr += ':' + str(defport)
     host, port = addr.split(':')
@@ -243,7 +243,7 @@ def normalizeAddr(addr, defport):
     return host, port
 
 
-def readFile(fname):
+def read_file(fname):
     """Read file as latin-1 str."""
     with open(fname, 'rb') as fp:
         contents = fp.read()
@@ -252,7 +252,7 @@ def readFile(fname):
     return contents
 
 
-def writeFile(fname, contents):
+def write_file(fname, contents):
     """Write file from latin-1 string."""
     if not isinstance(contents, bytes):
         contents = contents.encode('latin1')

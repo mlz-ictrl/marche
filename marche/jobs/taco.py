@@ -50,8 +50,8 @@ from os import path
 
 from six import iteritems
 
-from marche.utils import extractLoglines
 from marche.jobs.base import Job as BaseJob
+from marche.utils import extract_loglines
 
 
 class Job(BaseJob):
@@ -138,10 +138,10 @@ class Job(BaseJob):
             fullname = path.join('/var/log/taco', filename)
             # check for srvname_instance
             if filename.lower() == ('%s_%s.log' % (srvname, instance)).lower():
-                output.update(extractLoglines(fullname))
+                output.update(extract_loglines(fullname))
             # check for srvname only
             if filename.lower() == ('%s.log' % srvname).lower():
-                output.update(extractLoglines(fullname))
+                output.update(extract_loglines(fullname))
         return output
 
     # -- internal APIs --

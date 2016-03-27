@@ -128,7 +128,7 @@ class RPCFunctions(object):
 
     @command
     def ReloadJobs(self):
-        self.jobhandler.triggerReload()
+        self.jobhandler.trigger_reload()
 
     @command
     def GetVersion(self):
@@ -141,7 +141,7 @@ class RPCFunctions(object):
     @command
     def GetServices(self):
         list_event = self.expect_event(
-            lambda: self.jobhandler.requestServiceList(self.client))
+            lambda: self.jobhandler.request_service_list(self.client))
         result = []
         for svcname, instances in iteritems(list_event.services):
             for instance in instances:
@@ -154,22 +154,22 @@ class RPCFunctions(object):
     @command
     def GetStatus(self, name):
         status_event = self.expect_event(
-            lambda: self.jobhandler.requestServiceStatus(
+            lambda: self.jobhandler.request_service_status(
                 self.client, *self._split_name(name)))
         return status_event.state
 
     @command
     def GetOutput(self, name):
         out_event = self.expect_event(
-            lambda: self.jobhandler.requestControlOutput(
+            lambda: self.jobhandler.request_control_output(
                 self.client, *self._split_name(name)))
         return out_event.content
 
     @command
     def GetLogs(self, name):
         log_event = self.expect_event(
-            lambda: self.jobhandler.requestLogfiles(self.client,
-                                                    *self._split_name(name)))
+            lambda: self.jobhandler.request_logfiles(self.client,
+                                                     *self._split_name(name)))
         ret = []
         for name, contents in iteritems(log_event.files):
             for line in contents.splitlines(True):
@@ -179,8 +179,8 @@ class RPCFunctions(object):
     @command
     def ReceiveConfig(self, name):
         config_event = self.expect_event(
-            lambda: self.jobhandler.requestConffiles(self.client,
-                                                     *self._split_name(name)))
+            lambda: self.jobhandler.request_conffiles(self.client,
+                                                      *self._split_name(name)))
         ret = []
         for name, contents in iteritems(config_event.files):
             ret.append(name)
@@ -190,20 +190,20 @@ class RPCFunctions(object):
     @command
     def SendConfig(self, data):
         service, instance = self._split_name(data[0])
-        self.jobhandler.sendConffile(self.client, service, instance,
-                                     data[1], data[2])
+        self.jobhandler.send_conffile(self.client, service, instance,
+                                      data[1], data[2])
 
     @command
     def Start(self, name):
-        self.jobhandler.startService(self.client, *self._split_name(name))
+        self.jobhandler.start_service(self.client, *self._split_name(name))
 
     @command
     def Stop(self, name):
-        self.jobhandler.stopService(self.client, *self._split_name(name))
+        self.jobhandler.stop_service(self.client, *self._split_name(name))
 
     @command
     def Restart(self, name):
-        self.jobhandler.restartService(self.client, *self._split_name(name))
+        self.jobhandler.restart_service(self.client, *self._split_name(name))
 
 
 class Interface(BaseInterface):
