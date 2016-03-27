@@ -226,16 +226,19 @@ class Interface(BaseInterface):
             AuthRequestHandler.handler = self.authhandler
             request_handler = AuthRequestHandler
 
-        server = xmlrpc_server.SimpleXMLRPCServer(
+        self.server = xmlrpc_server.SimpleXMLRPCServer(
             (host, port), requestHandler=request_handler)
-        server.register_introspection_functions()
-        server.register_instance(RPCFunctions(self.jobhandler, self.log,
-                                              self.expect_event))
+        self.server.register_introspection_functions()
+        self.server.register_instance(RPCFunctions(self.jobhandler, self.log,
+                                                   self.expect_event))
 
-        thd = threading.Thread(target=self._thread, args=(server,))
+        thd = threading.Thread(target=self._thread)
         thd.setDaemon(True)
         thd.start()
         self.log.info('listening on %s:%s' % (host, port))
+
+    def shutdown(self):
+        self.server.shutdown()
 
     def expect_event(self, callback):
         # We hold the RLock, and acquire it again during emit_event(), to
@@ -252,5 +255,5 @@ class Interface(BaseInterface):
             if self._events is not None:
                 self._events.append(event)
 
-    def _thread(self, server):
-        server.serve_forever()
+    def _thread(self):
+        self.server.serve_forever()

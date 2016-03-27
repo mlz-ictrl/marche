@@ -66,3 +66,8 @@ class Interface(object):
         """
         raise NotImplementedError('implement %s.run()' %
                                   self.__class__.__name__)
+
+    def shutdown(self):
+        """Shutdown the interface.  This should stop the main loop of the
+        interface if possible.
+        """

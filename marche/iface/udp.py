@@ -69,17 +69,20 @@ class Interface(BaseInterface):
     def run(self):
         host = self.config.get('host', '0.0.0.0')
         port = int(self.config.get('port', UDP_PORT))
-        server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server.bind((host, port))
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((host, port))
         self.log.info('listening on %s:%s' % (host, port))
+        self._stoprequest = False
+        thread = threading.Thread(target=self._thread, args=())
+        thread.setDaemon(True)
+        thread.start()
 
-        thd = threading.Thread(target=self._thread, args=(server,))
-        thd.setDaemon(True)
-        thd.start()
+    def shutdown(self):
+        self._stoprequest = True
 
-    def _thread(self, server):
-        while True:
-            data, addr = server.recvfrom(1024)
+    def _thread(self):
+        while not self._stoprequest:
+            data, addr = self.server.recvfrom(1024)
             if data == b'PING':
-                server.sendto(b'PONG', addr)
+                self.server.sendto(b'PONG', addr)
