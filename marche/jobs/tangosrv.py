@@ -42,6 +42,11 @@ This job has the following configuration parameters:
 
       Must be ``tangosrv``.
 
+   .. describe:: srvname
+
+      Name of the server (for determining logfiles and config files).  Default
+      is the job name.
+
    .. describe:: resdir
 
       The configuration for the server is expected in a resource file located
@@ -53,7 +58,7 @@ other configuration parameters.
 
 A typical section looks like this::
 
-    [job.counter]
+    [job.Counter]
     type = tangosrv
 
 This will start/stop via ``/etc/init.d/tango-server-counter`` (the init script
@@ -75,10 +80,11 @@ _DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
 class Job(InitJob):
     """Special job for Tango servers not using Entangle."""
 
-    def __init__(self, name, config, log, event_callback):
-        InitJob.__init__(self, name, config, log, event_callback)
-        self.init_name = config.get('script', 'tango-server-' + name.lower())
-        self.srvname = config.get('srvname', name)
+    def configure(self, config):
+        InitJob.configure(self, config)
+        self.init_name = config.get('script', 'tango-server-' +
+                                    self.name.lower())
+        self.srvname = config.get('srvname', self.name)
         resdir = config.get('resdir', '')
         if not resdir:
             with open(_DEFAULT) as fd:

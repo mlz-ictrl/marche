@@ -77,9 +77,8 @@ from marche.jobs.base import Job as BaseJob
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log, event_callback):
-        BaseJob.__init__(self, name, config, log, event_callback)
-        self.init_name = config.get('script', name)
+    def configure(self, config):
+        self.init_name = config.get('script', self.name)
         self.log_files = []
         singlelog = config.get('logfile', '')
         if singlelog:

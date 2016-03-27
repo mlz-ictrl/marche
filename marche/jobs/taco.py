@@ -56,8 +56,7 @@ from marche.jobs.base import Job as BaseJob
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log, event_callback):
-        BaseJob.__init__(self, name, config, log, event_callback)
+    def configure(self, config):
         self._initscripts = {}
         self._depends = set()
         self._services = []

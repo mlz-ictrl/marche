@@ -48,8 +48,8 @@ class Job(object):
     """
 
     def __init__(self, name, config, log, event_callback):
-        """The constructor can be overridden, but the base class constructor
-        should always be called.
+        """The constructor should not be overridden, rather implement the
+        configure() method.
 
         It sets the following instance attributes:
 
@@ -66,6 +66,7 @@ class Job(object):
         self.lock = threading.Lock()
         self._processes = {}
         self._output = {}
+
         self._permissions = {DISPLAY: DISPLAY,
                              CONTROL: CONTROL,
                              ADMIN: ADMIN}
@@ -84,6 +85,8 @@ class Job(object):
                 self.log.error('could not parse pollinterval: %r' %
                                config['pollinterval'])
         self.poller = Poller(self, self.pollinterval, event_callback)
+
+        self.configure(config)
 
     # Utilities
 
@@ -135,6 +138,12 @@ class Job(object):
         if self.has_permission(level, client):
             return
         raise Fault('permission denied by Marche')
+
+    def configure(self, config):
+        """Check and process the configuration in *config*.
+
+        The default implementation does nothing.
+        """
 
     def check(self):
         """Check if the job can be used at all (on this system).

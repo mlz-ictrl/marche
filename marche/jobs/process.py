@@ -139,9 +139,8 @@ class ProcessMonitor(Thread):
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log, event_callback):
-        BaseJob.__init__(self, name, config, log, event_callback)
-        self.binary = config.get('binary', name)
+    def configure(self, config):
+        self.binary = config.get('binary', self.name)
         self.args = shlex.split(config.get('args', ''))
         self.working_dir = config.get('workingdir', None)
         self.output_file = config.get('outputfile', None)

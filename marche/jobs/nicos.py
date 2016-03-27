@@ -64,10 +64,7 @@ DEFAULT_INIT = '/etc/init.d/nicos-system'
 
 class Job(BaseJob):
 
-    def __init__(self, name, config, log, event_callback):
-        BaseJob.__init__(self, name, config, log, event_callback)
-        self.config = config
-        self.log = log.getChild(name)
+    def configure(self, config):
         self._services = []
         self._proc = None
         if 'root' in config:
