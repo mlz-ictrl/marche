@@ -174,12 +174,12 @@ class AsyncProcess(Thread):
 
             if proc.stdout.fileno() in fds:
                 for line in iter(proc.stdout.readline, b''):
-                    line = line.decode('utf-8', 'replace').strip('\r\n')
+                    line = line.decode('utf-8', 'replace')
                     self.log.debug(line)
                     self.stdout.append(line)
             if proc.stderr.fileno() in fds:
                 for line in iter(proc.stderr.readline, b''):
-                    line = line.decode('utf-8', 'replace').strip('\r\n')
+                    line = line.decode('utf-8', 'replace')
                     self.log.warning(line)
                     self.stderr.append(line)
 
@@ -209,7 +209,7 @@ class AsyncProcess(Thread):
         self.done = True
 
 
-nontext_re = re.compile('[^\n\t\x20-\x7e]')
+nontext_re = re.compile(r'[^\n\t\x20-\x7e]')
 
 
 def extractLoglines(filename, n=500):
@@ -219,7 +219,7 @@ def extractLoglines(filename, n=500):
             for line in fp:
                 line = line.decode('utf-8', 'replace')
                 lines.append(nontext_re.sub('', line))
-        return '\n'.join(lines)
+        return ''.join(lines)
     if not path.exists(filename):
         return {}
     filename = path.realpath(filename)

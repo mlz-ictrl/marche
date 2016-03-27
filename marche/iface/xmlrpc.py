@@ -172,7 +172,7 @@ class RPCFunctions(object):
                                                     *self._split_name(name)))
         ret = []
         for name, contents in iteritems(log_event.files):
-            for line in contents.splitlines():
+            for line in contents.splitlines(True):
                 ret.append(name + ':' + line)
         return ret
 
