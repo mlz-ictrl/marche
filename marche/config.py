@@ -30,8 +30,6 @@ from os import path
 
 from six.moves import configparser
 
-from marche.iface.udp import UDP_PORT
-
 
 class CasePreservingConfigParser(configparser.SafeConfigParser):
     def optionxform(self, key):
@@ -39,7 +37,7 @@ class CasePreservingConfigParser(configparser.SafeConfigParser):
 
 
 class Config(object):
-    """An object that represents all """
+    """An object that represents all merged Marche configuration files."""
 
     user = None
     group = None
@@ -48,16 +46,7 @@ class Config(object):
 
     job_config = {}
     auth_config = {}
-    interface_config = {
-        'xmlrpc': {
-            'host': '0.0.0.0',
-            'port': 8124,
-        },
-        'udp': {
-            'host': '0.0.0.0',
-            'port': UDP_PORT,
-        }
-    }
+    iface_config = {}
     interfaces = ['xmlrpc', 'udp']
 
     def __init__(self, confdir):
@@ -99,9 +88,7 @@ class Config(object):
             elif section.startswith('auth.'):
                 self.auth_config[section[5:]] = dict(parser.items(section))
             elif section.startswith('interface.'):
-                if section[10:] not in self.interface_config:
-                    self.interface_config[section[10:]] = {}
-                elif section[10:] == 'xmlrpc':
+                if section[10:] == 'xmlrpc':
                     # Legacy support for user/passwd in xmlrpc section
                     if parser.has_option(section, 'user'):
                         self.auth_config.setdefault('simple', {})['user'] = \
@@ -109,4 +96,4 @@ class Config(object):
                     if parser.has_option(section, 'passwd'):
                         self.auth_config.setdefault('simple', {})['passwd'] = \
                             parser.get(section, 'passwd')
-                self.interface_config[section[10:]].update(dict(parser.items(section)))
+                self.iface_config[section[10:]] = dict(parser.items(section))

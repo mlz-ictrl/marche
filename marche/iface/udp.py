@@ -67,8 +67,8 @@ class Interface(BaseInterface):
     needs_events = False
 
     def run(self):
-        host = self.config['host']
-        port = int(self.config['port'])
+        host = self.config.get('host', '0.0.0.0')
+        port = int(self.config.get('port', UDP_PORT))
         server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((host, port))

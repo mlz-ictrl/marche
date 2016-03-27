@@ -36,7 +36,7 @@ class Interface(object):
     def __init__(self, config, jobhandler, authhandler, log):
         self.jobhandler = jobhandler
         self.authhandler = authhandler
-        self.config = config.interface_config.get(self.iface_name, {})
+        self.config = config.iface_config.get(self.iface_name, {})
         self.log = log.getChild(self.iface_name)
         self.init()
 

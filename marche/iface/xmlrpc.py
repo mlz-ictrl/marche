@@ -217,8 +217,8 @@ class Interface(BaseInterface):
         RequestHandler.log = self.log
 
     def run(self):
-        port = int(self.config['port'])
-        host = self.config['host']
+        port = int(self.config.get('port', 8124))
+        host = self.config.get('host', '0.0.0.0')
 
         request_handler = RequestHandler
         if self.authhandler.needs_authentication():
