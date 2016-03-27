@@ -143,11 +143,11 @@ class JobHandler(object):
                 for service, instance in job.get_services():
                     if not job.has_permission(DISPLAY, client):
                         continue
-                    state, ext_status = job.service_status(service, instance)
+                    state, ext = job.service_status(service, instance)
                     info = {
                         'desc': job.service_description(service, instance),
                         'state': state,
-                        'ext_status': ext_status,
+                        'ext_status': ext,
                         'permissions': [],  # TODO: implement this
                     }
                     svcs.setdefault(service, {})[instance] = info
@@ -189,12 +189,12 @@ class JobHandler(object):
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
         with job.lock:
-            state, ext_status = job.polled_service_status(service, instance)
+            state, ext = job.polled_service_status(service, instance)
         self.emit_event(StatusEvent(
             service=service,
             instance=instance,
             state=state,
-            ext_status=ext_status
+            ext_status=ext,
         ))
 
     @command(silent=True)

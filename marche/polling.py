@@ -84,7 +84,7 @@ class Poller(object):
                             service=key[0],
                             instance=key[1],
                             state=result[0],
-                            ext_status=result[1]
+                            ext_status=result[1],
                         ))
                     else:
                         self._cache[key][0] = time.time()

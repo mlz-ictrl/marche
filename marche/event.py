@@ -59,9 +59,6 @@ class Event(object):
         cls = Event.registry[data.pop('name')]
         return cls(**data)
 
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
-
     def __repr__(self):
         return '<%s: %r>' % (self.__class__.__name__, vars(self))
 
@@ -69,33 +66,62 @@ class Event(object):
 class ConnectedEvent(Event):
     name = 'Connected'
 
+    def __init__(self, proto_version, daemon_version, unauth_permissions):
+        self.proto_version = proto_version
+        self.daemon_version = daemon_version
+        self.unauth_permissions = unauth_permissions
+
 
 class ServiceListEvent(Event):
     name = 'ServiceList'
+
+    def __init__(self, services):
+        self.services = services
 
 
 class AuthEvent(Event):
     name = 'Auth'
 
+    def __init__(self, success):
+        self.success = success
+
 
 class ServiceEvent(Event):
-    pass
+    def __init__(self, service, instance):
+        self.service = service
+        self.instance = instance
 
 
 class StatusEvent(ServiceEvent):
     name = 'Status'
 
+    def __init__(self, service, instance, state, ext_status):
+        ServiceEvent.__init__(self, service, instance)
+        self.state = state
+        self.ext_status = ext_status
+
 
 class ErrorEvent(ServiceEvent):
     name = 'Error'
 
+    def __init__(self, service, instance, code, desc):
+        ServiceEvent.__init__(self, service, instance)
+        self.code = code
+        self.desc = desc
+
 
 class ControlOutputEvent(ServiceEvent):
-    pass
+    name = 'ControlOutput'
+
+    def __init__(self, service, instance, content):
+        ServiceEvent.__init__(self, service, instance)
+        self.content = content
 
 
 class FileEvent(ServiceEvent):
-    pass
+    def __init__(self, service, instance, files):
+        ServiceEvent.__init__(self, service, instance)
+        self.files = files
 
 
 class ConffileEvent(FileEvent):
