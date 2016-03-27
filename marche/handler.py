@@ -148,7 +148,7 @@ class JobHandler(object):
                         'desc': job.service_description(service, instance),
                         'state': state,
                         'ext_status': ext,
-                        'permissions': [],  # TODO: implement this
+                        'permissions': job.determine_permissions(client),
                         'jobtype': job.jobtype,
                     }
                     svcs.setdefault(service, {})[instance] = info

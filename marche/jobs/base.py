@@ -130,18 +130,23 @@ class Job(object):
     # Public interface
 
     def has_permission(self, level, client):
-        """Query if the client with *client_level* has permission to do an
-        action that would normally have *level*.
+        """Query if the *client* has permission to do an action that would
+        normally have *level*.
         """
         return client.level >= self._permissions[level]
 
     def check_permission(self, level, client):
-        """Ensure that the client with *client_level* has permission to do an
-        action that would normally have *level*.  If not, raises `Fault`.
+        """Ensure that the *client* has permission to do an action that would
+        normally have *level*.  If not, raises `Fault`.
         """
         if self.has_permission(level, client):
             return
         raise Fault('permission denied by Marche')
+
+    def determine_permissions(self, client):
+        """Return which normal levels of actions this *client* can do."""
+        return [perm for perm in (DISPLAY, CONTROL, ADMIN)
+                if self.has_permission(perm, client)]
 
     def invalidate(self, service, instance):
         """Invalidate polled and cached status."""
