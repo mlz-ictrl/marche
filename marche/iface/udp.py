@@ -56,6 +56,7 @@ with UDP broadcasts that search all hosts within a network.
 import socket
 import threading
 
+from marche.protocol import PROTO_VERSION
 from marche.iface.base import Interface as BaseInterface
 
 UDP_PORT = 11691
@@ -82,7 +83,8 @@ class Interface(BaseInterface):
         self._stoprequest = True
 
     def _thread(self):
+        reply = ('PONG %s' % PROTO_VERSION).encode()
         while not self._stoprequest:
             data, addr = self.server.recvfrom(1024)
             if data == b'PING':
-                self.server.sendto(b'PONG', addr)
+                self.server.sendto(reply, addr)
