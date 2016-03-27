@@ -58,6 +58,8 @@ class Config(object):
         self.__dict__.clear()
         self.confdir = confdir
         self.job_config = {}
+        self.auth_config = {}
+        self.iface_config = {}
         if confdir is None or not path.isdir(self.confdir):
             return
 
