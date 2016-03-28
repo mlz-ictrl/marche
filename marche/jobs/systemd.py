@@ -70,13 +70,16 @@ from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):
 
+    SYSTEMCTL = 'systemctl'
+    JOURNALCTL = 'journalctl'
+
     def configure(self, config):
         self.unit = config.get('unit', self.name)
         self.configure_logfile_mixin(config)
         self.configure_config_mixin(config)
 
     def check(self):
-        proc = self._sync_call('systemctl is-enabled %s' % self.unit)
+        proc = self._sync_call(self.SYSTEMCTL + ' is-enabled %s' % self.unit)
         if not proc.stdout and proc.stderr:
             self.log.warning('unit file for %s does not exist' % self.unit)
             return False
@@ -86,23 +89,23 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         return [(self.unit, '')]
 
     def start_service(self, service, instance):
-        self._async_start(service, 'systemctl start %s' % self.unit)
+        self._async_start(service, self.SYSTEMCTL + ' start %s' % self.unit)
 
     def stop_service(self, service, instance):
-        self._async_stop(service, 'systemctl stop %s' % self.unit)
+        self._async_stop(service, self.SYSTEMCTL + ' stop %s' % self.unit)
 
     def restart_service(self, service, instance):
-        self._async_start(service, 'systemctl restart %s' % self.unit)
+        self._async_start(service, self.SYSTEMCTL + ' restart %s' % self.unit)
 
     def service_status(self, service, instance):
-        return self._async_status(service,
-                                  'systemctl is-active %s' % self.unit), ''
+        return self._async_status(service, self.SYSTEMCTL + ' is-active %s'
+                                  % self.unit), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))
 
     def service_logs(self, service, instance):
         if not self.log_files:
-            return {'journal':
-                    self._sync_call('journalctl -n 500 -u %s').stdout}
+            proc = self._sync_call(self.JOURNALCTL + ' -n 500 -u %s')
+            return {'journal': ''.join(proc.stdout)}
         return LogfileMixin.service_logs(self, service, instance)

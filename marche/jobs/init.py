@@ -76,15 +76,17 @@ from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):
 
+    INIT_BASE = '/etc/init.d/'
+
     def configure(self, config):
         self.init_name = config.get('script', self.name)
+        self.script = self.INIT_BASE + self.init_name
         self.configure_logfile_mixin(config)
         self.configure_config_mixin(config)
 
     def check(self):
-        script = '/etc/init.d/%s' % self.init_name
-        if not path.exists(script):
-            self.log.warning('%s missing' % script)
+        if not path.exists(self.script):
+            self.log.warning('%s missing' % self.script)
             return False
         return True
 
@@ -92,17 +94,16 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         return [(self.init_name, '')]
 
     def start_service(self, service, instance):
-        self._async_start(service, '/etc/init.d/%s start' % self.init_name)
+        self._async_start(service, self.script + ' start')
 
     def stop_service(self, service, instance):
-        self._async_stop(service, '/etc/init.d/%s stop' % self.init_name)
+        self._async_stop(service, self.script + ' stop')
 
     def restart_service(self, service, instance):
-        self._async_start(service, '/etc/init.d/%s restart' % self.init_name)
+        self._async_start(service, self.script + ' restart')
 
     def service_status(self, service, instance):
-        return self._async_status(service, '/etc/init.d/%s status' %
-                                  self.init_name), ''
+        return self._async_status(service, self.script + ' status'), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))
