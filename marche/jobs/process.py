@@ -131,7 +131,7 @@ class ProcessMonitor(Thread):
                 process.kill()
         if self._outfile is None and self.oneshot:
             for line in iter(process.stdout.readline, b''):
-                line = line.decode('utf-8', 'replace').strip('\r\n')
+                line = line.translate(None, b'\r').decode('utf-8', 'replace')
                 self.output.append(line)
         self.returncode = process.returncode
         self.log.info('worker %s: return %d' % (self._cmd, self.returncode))

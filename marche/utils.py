@@ -145,6 +145,25 @@ class lazy_property(object):
         return obj.__dict__[self.__name__]
 
 
+if os.name == 'nt':  # pragma: no cover
+    class Poller(object):
+        """A poor imitation of polling for Windows."""
+
+        def __init__(self):
+            self.fds = []
+
+        def register(self, fp, opt):
+            self.fds.append(fp.fileno())
+
+        def poll(self):
+            return [(fd, None) for fd in self.fds]
+    POLLIN = None
+
+else:
+    Poller = select.poll
+    POLLIN = select.POLLIN
+
+
 class AsyncProcess(Thread):
     def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None):
         Thread.__init__(self)
@@ -174,11 +193,13 @@ class AsyncProcess(Thread):
 
             if proc.stdout.fileno() in fds:
                 for line in iter(proc.stdout.readline, b''):
+                    line = line.translate(None, b'\r')
                     line = line.decode('utf-8', 'replace')
                     self.log.debug(line)
                     self.stdout.append(line)
             if proc.stderr.fileno() in fds:
                 for line in iter(proc.stderr.readline, b''):
+                    line = line.translate(None, b'\r')
                     line = line.decode('utf-8', 'replace')
                     self.log.warning(line)
                     self.stderr.append(line)
@@ -189,12 +210,12 @@ class AsyncProcess(Thread):
                 proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                              shell=self.use_sh)
 
-                # create poll select
-                poller = select.poll()
+                # create poller
+                poller = Poller()
 
                 # register pipes to polling
-                poller.register(proc.stdout, select.POLLIN)
-                poller.register(proc.stderr, select.POLLIN)
+                poller.register(proc.stdout, POLLIN)
+                poller.register(proc.stderr, POLLIN)
 
             poll_output()
 
@@ -217,7 +238,7 @@ def extract_loglines(filename, n=500):
         lines = collections.deque(maxlen=n)
         with open(filename, 'rb') as fp:
             for line in fp:
-                line = line.decode('utf-8', 'replace')
+                line = line.translate(None, b'\r').decode('utf-8', 'replace')
                 lines.append(nontext_re.sub('', line))
         return ''.join(lines)
     if not path.exists(filename):
