@@ -51,6 +51,7 @@ from os import path
 
 from six.moves import configparser
 
+from marche.jobs import Fault
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extract_loglines, read_file, write_file
 
@@ -157,5 +158,5 @@ class Job(BaseJob):
     def send_config(self, service, instance, filename, contents):
         cfgname = path.join(self._resdir, instance + '.res')
         if filename != instance + '.res':
-            raise RuntimeError('invalid request')
+            raise Fault('invalid request')
         write_file(cfgname, contents)

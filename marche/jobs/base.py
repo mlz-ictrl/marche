@@ -318,7 +318,7 @@ class Job(object):
         It should *not* restart the service, even if that is necessary for the
         config file to take effect.
 
-        If `receive_config` returns files, this must be implemented.
+        If `receive_config` returns files, this must be implemented.  The
+        default is to raise an exception that no files are accepted.
         """
-        raise NotImplementedError('%s.send_config not implemented'
-                                  % self.__class__.__name__)
+        raise Fault('no new configuration files accepted')

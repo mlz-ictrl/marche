@@ -71,6 +71,7 @@ def test_job_base():
     assert job.service_logs('foo', 'bar') == {}
     assert job.receive_config('foo', 'bar') == {}
     assert job.service_description('foo', 'bar').startswith('(no long')
+    assert raises(Fault, job.send_config, 'foo', 'bar', '', '')
 
     # Check required implementations
     assert raises(NotImplementedError, job.get_services)
@@ -79,7 +80,6 @@ def test_job_base():
     assert raises(NotImplementedError, job.restart_service, 'foo', 'bar')
     assert raises(NotImplementedError, job.service_status, 'foo', 'bar')
     assert raises(NotImplementedError, job.polled_service_status, 'foo', 'bar')
-    assert raises(NotImplementedError, job.send_config, 'foo', 'bar', '', '')
 
     job.shutdown()
 
