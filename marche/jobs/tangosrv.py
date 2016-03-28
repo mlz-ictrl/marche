@@ -97,16 +97,16 @@ class Job(InitJob):
                                 resdir = value.strip()
                                 break
         if resdir:
-            self.config_file = path.join(resdir, self.srvname + '.res')
+            self.config_files = [path.join(resdir, self.srvname + '.res')]
         else:
-            self.config_file = ''
+            self.config_files = []
         self.log_files = ['/var/log/tango/%s.out.log' % self.srvname,
                           '/var/log/tango/%s.err.log' % self.srvname]
 
     def send_config(self, service, instance, filename, contents):
         InitJob.send_config(self, service, instance, filename, contents)
         # transfer to Tango database
-        self._update_db(self.config_file)
+        self._update_db(self.config_files[0])
 
     def _update_db(self, fn):
         db = Database()

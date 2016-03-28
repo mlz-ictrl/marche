@@ -25,11 +25,12 @@
 
 import collections
 import threading
+from os import path
 
 from marche.jobs import Busy, Fault, STARTING, STOPPING, RUNNING, DEAD
 from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
 from marche.polling import Poller
-from marche.utils import AsyncProcess
+from marche.utils import AsyncProcess, read_file, write_file, extract_loglines
 
 
 class Job(object):
@@ -322,3 +323,64 @@ class Job(object):
         default is to raise an exception that no files are accepted.
         """
         raise Fault('no new configuration files accepted')
+
+
+class LogfileMixin(object):
+    """Mixin for configuring and sending a number of logfiles, stored as
+    self.log_files, without looking at the service/instance.
+    """
+
+    def configure_logfile_mixin(self, config):
+        self.log_files = []
+        if 'logfile' in config:
+            self.log_files.append(config['logfile'])
+        for logpath in config.get('logfiles', '').split(','):
+            logpath = logpath.strip()
+            if logpath:
+                self.log_files.append(logpath)
+
+    def service_logs(self, service, instance):
+        ret = {}
+        for log_file in self.log_files:
+            ret.update(extract_loglines(log_file))
+        return ret
+
+
+class ConfigMixin(object):
+    """Mixin for receiving and sending a number of config files, stored as
+    self.config_files, without looking at the service/instance.
+
+    Since only the basenames are transferred to the client as identifiers,
+    all configured config files must have different basenames.
+    """
+
+    def configure_config_mixin(self, config):
+        """To be called from the Job's configure()."""
+        self.config_files = []
+        basenames = set()
+        if 'configfile' in config:
+            basenames.add(path.basename(config['configfile']))
+            self.config_files.append(config['configfile'])
+        for configpath in config.get('configfiles', '').split(','):
+            configpath = configpath.strip()
+            if configpath:
+                if path.basename(configpath) in basenames:
+                    raise RuntimeError('two config files with the same '
+                                       'basename configured!')
+                basenames.add(path.basename(configpath))
+                self.config_files.append(configpath)
+
+    def receive_config(self, service, instance):
+        result = {}
+        for configpath in self.config_files:
+            if path.exists(configpath):
+                result[path.basename(configpath)] = read_file(configpath)
+        return result
+
+    def send_config(self, service, instance, filename, contents):
+        for configpath in self.config_files:
+            if filename == path.basename(configpath):
+                write_file(configpath, contents)
+                break
+        else:
+            raise RuntimeError('unknown file')

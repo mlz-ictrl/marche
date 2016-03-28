@@ -97,9 +97,8 @@ from time import sleep
 from threading import Thread
 from subprocess import Popen, STDOUT, PIPE
 
-from marche.utils import extract_loglines
 from marche.jobs import RUNNING, NOT_RUNNING, DEAD
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
 
 
 class ProcessMonitor(Thread):
@@ -141,7 +140,7 @@ class ProcessMonitor(Thread):
         self.log.info('worker %s: return %d' % (self._cmd, self.returncode))
 
 
-class Job(BaseJob):
+class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def configure(self, config):
         self.binary = config.get('binary', self.name)
@@ -152,10 +151,10 @@ class Job(BaseJob):
         if self.working_dir is None:
             self.working_dir = path.dirname(self.binary)
         self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
-        self.log_files = []
-        for log in config.get('logfiles', self.output_file or '').split(','):
-            if log.strip():
-                self.log_files.append(log.strip())
+        self.configure_logfile_mixin(config)
+        if not self.log_files and self.output_file:
+            self.log_files.append(self.output_file)
+        self.configure_config_mixin(config)
         self._thread = None
 
     def check(self):
@@ -199,12 +198,6 @@ class Job(BaseJob):
         if self.one_shot:
             return NOT_RUNNING, ''
         return DEAD, ''
-
-    def service_logs(self, service, instance):
-        ret = {}
-        for log_file in self.log_files:
-            ret.update(extract_loglines(log_file))
-        return ret
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

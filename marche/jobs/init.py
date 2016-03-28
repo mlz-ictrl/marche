@@ -71,23 +71,15 @@ A typical section looks like this::
 
 from os import path
 
-from marche.utils import extract_loglines, read_file, write_file
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
 
 
-class Job(BaseJob):
+class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def configure(self, config):
         self.init_name = config.get('script', self.name)
-        self.log_files = []
-        singlelog = config.get('logfile', '')
-        if singlelog:
-            self.log_files.append(singlelog)
-        multilog = config.get('logfiles', '').split(',')
-        for log in multilog:
-            if log.strip():
-                self.log_files.append(log.strip())
-        self.config_file = config.get('configfile', '')
+        self.configure_logfile_mixin(config)
+        self.configure_config_mixin(config)
 
     def check(self):
         script = '/etc/init.d/%s' % self.init_name
@@ -114,19 +106,3 @@ class Job(BaseJob):
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))
-
-    def service_logs(self, service, instance):
-        ret = {}
-        for log_file in self.log_files:
-            ret.update(extract_loglines(log_file))
-        return ret
-
-    def receive_config(self, service, instance):
-        if not self.config_file:
-            return {}
-        return {path.basename(self.config_file): read_file(self.config_file)}
-
-    def send_config(self, service, instance, filename, contents):
-        if filename != path.basename(self.config_file):
-            raise RuntimeError('invalid request')
-        write_file(self.config_file, contents)

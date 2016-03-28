@@ -65,22 +65,15 @@ A typical section looks like this::
     configfile = /etc/dhcp/dhcpd.conf
 """
 
-from os import path
-
-from marche.utils import extract_loglines, read_file, write_file
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
 
 
-class Job(BaseJob):
+class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def configure(self, config):
         self.unit = config.get('unit', self.name)
-        self.log_files = []
-        multilog = config.get('logfiles', '').split(',')
-        for log in multilog:
-            if log.strip():
-                self.log_files.append(log.strip())
-        self.config_file = config.get('configfile', '')
+        self.configure_logfile_mixin(config)
+        self.configure_config_mixin(config)
 
     def check(self):
         proc = self._sync_call('systemctl is-enabled %s' % self.unit)
@@ -109,20 +102,7 @@ class Job(BaseJob):
         return list(self._output.get(service, []))
 
     def service_logs(self, service, instance):
-        ret = {}
-        if self.log_files:
-            for log_file in self.log_files:
-                ret.update(extract_loglines(log_file))
-        else:
-            ret['journal'] = self._sync_call('journalctl -n 500 -u %s').stdout
-        return ret
-
-    def receive_config(self, service, instance):
-        if not self.config_file:
-            return {}
-        return {path.basename(self.config_file): read_file(self.config_file)}
-
-    def send_config(self, service, instance, filename, contents):
-        if filename != path.basename(self.config_file):
-            raise RuntimeError('invalid request')
-        write_file(self.config_file, contents)
+        if not self.log_files:
+            return {'journal':
+                    self._sync_call('journalctl -n 500 -u %s').stdout}
+        return LogfileMixin.service_logs(self, service, instance)
