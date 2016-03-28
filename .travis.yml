@@ -12,3 +12,4 @@ install:
 
 script:
     - py.test -v --cov
+    - pylint --ignore=gui,guing marche
