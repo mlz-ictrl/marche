@@ -120,8 +120,8 @@ class ProcessMonitor(Thread):
             outfile = open(self._outfile, 'wb')
         elif self.oneshot:
             outfile = PIPE
-        else:
-            outfile = sys.stdout  # pylint: disable=redefined-variable-type
+        else:  # pragma: no cover
+            outfile = sys.stdout
             if hasattr(outfile, 'buffer'):
                 outfile = outfile.buffer  # pylint: disable=no-member
         process = Popen(self._cmd, stdout=outfile, stderr=STDOUT, cwd=self._wd)

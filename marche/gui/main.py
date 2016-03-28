@@ -38,9 +38,9 @@ from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
 
 from six import iteritems
 from six.moves import range  # pylint: disable=redefined-builtin
-from six.moves.xmlrpc_client import ProtocolError, Fault
+from six.moves import xmlrpc_client as xmlrpc
 
-import marche.gui.res  # noqa
+import marche.gui.res  # noqa, pylint: disable=unused-import
 
 from marche.gui.util import loadUi, selectEditor, getAvailableEditors, \
     loadSettings, saveSettings, loadSetting, saveSetting, saveCredentials, \
@@ -703,7 +703,7 @@ class MainWidget(QWidget):
         def try_connect(host, port, user, passwd):
             try:
                 client = Client(host, port, user, passwd)
-            except ProtocolError as e:
+            except xmlrpc.ProtocolError as e:
                 if e.errcode != 401:
                     raise
                 return
@@ -745,7 +745,7 @@ class MainWidget(QWidget):
         if addr not in self._clients:
             try:
                 self._clients[addr] = negotiate(addr)
-            except Fault as err:
+            except xmlrpc.Fault as err:
                 QMessageBox.critical(self, 'Connection failed',
                                      'Could not connect to %s: %s' %
                                      (addr, err.faultString))
@@ -758,7 +758,7 @@ class MainWidget(QWidget):
 
         try:
             self._clients[addr].getVersion()
-        except ProtocolError as e:
+        except xmlrpc.ProtocolError as e:
             QMessageBox.critical(self, 'Connection failed',
                                  'Could not connect to %s: %s' %
                                  (addr, e.errmsg))

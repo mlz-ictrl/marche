@@ -30,7 +30,7 @@ from collections import OrderedDict
 from PyQt4.QtCore import QThread, pyqtSignal
 
 from six import iteritems
-from six.moves.xmlrpc_client import ServerProxy, Fault, Transport
+from six.moves import xmlrpc_client as xmlrpc
 
 from marche.jobs import NOT_AVAILABLE
 from marche.gui.util import loadSetting
@@ -78,9 +78,9 @@ class ClientError(Exception):
         Exception.__init__(self, string)
 
 
-class HttpTransport(Transport):
+class HttpTransport(xmlrpc.Transport):
     def make_connection(self, host):
-        retval = Transport.make_connection(self, host)
+        retval = xmlrpc.Transport.make_connection(self, host)
         self._connection[1].timeout = 2.0
         return retval
 
@@ -93,12 +93,13 @@ class Client(object):
         self.passwd = passwd
 
         if user is not None and passwd is not None:
-            self._proxy = ServerProxy('http://%s:%s@%s:%s/xmlrpc'
-                                      % (user, passwd, host, port),
-                                      transport=HttpTransport())
+            self._proxy = xmlrpc.ServerProxy('http://%s:%s@%s:%s/xmlrpc'
+                                             % (user, passwd, host, port),
+                                             transport=HttpTransport())
         else:
-            self._proxy = ServerProxy('http://%s:%s/xmlrpc' % (host, port),
-                                      transport=HttpTransport())
+            self._proxy = xmlrpc.ServerProxy('http://%s:%s/xmlrpc'
+                                             % (host, port),
+                                             transport=HttpTransport())
         self._lock = threading.Lock()
         self._pollThread = None
         self.version = self.getVersion()
@@ -158,7 +159,7 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Start(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -168,7 +169,7 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Stop(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -178,7 +179,7 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Restart(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -188,7 +189,7 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetStatus(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getServiceOutput(self, service, instance=None):
@@ -196,7 +197,7 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetOutput(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getServiceLogs(self, service, instance=None):
@@ -204,7 +205,7 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetLogs(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getVersion(self):
@@ -216,7 +217,7 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.ReceiveConfig(servicePath)
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def sendServiceConfig(self, service, instance=None, data=None):
@@ -224,5 +225,5 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.SendConfig([servicePath] + (data or []))
-        except Fault as f:
+        except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)

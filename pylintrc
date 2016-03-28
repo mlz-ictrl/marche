@@ -16,7 +16,7 @@ persistent=yes
 load-plugins=
 
 # For some reason, Pylint cannot check members of these modules.
-extension-pkg-whitelist = numpy,scipy,PyQt4,PyQt5,sip,PyQt4.QtGui,PyQt4.QtCore
+extension-pkg-whitelist=PyQt4,PyQt5,sip
 
 
 [MESSAGES CONTROL]
@@ -31,17 +31,17 @@ extension-pkg-whitelist = numpy,scipy,PyQt4,PyQt5,sip,PyQt4.QtGui,PyQt4.QtCore
 # multiple time.
 disable=locally-disabled
     ,missing-docstring
-    ,star-args
     ,fixme
-    ,invalid-name
-    ,broad-except
-    ,unused-argument
-    ,duplicate-code
     ,ungrouped-imports
-    ,attribute-defined-outside-init
-    ,no-self-use
-    ,too-few-public-methods
     ,wrong-import-position
+    ,too-few-public-methods
+    ,too-many-ancestors
+    ,star-args
+    ,no-self-use
+    ,unused-argument
+    ,attribute-defined-outside-init
+    ,broad-except
+    ,redefined-variable-type
 
 [REPORTS]
 
@@ -107,7 +107,7 @@ attr-rgx=[a-z_][A-Za-z0-9_]{0,30}$
 argument-rgx=[a-z_][a-z0-9_]{0,30}$
 
 # Regular expression which should only match correct variable names
-variable-rgx=[a-z_][a-z0-9_]{0,30}$
+variable-rgx=[a-z_][A-Za-z0-9_]{0,30}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names
