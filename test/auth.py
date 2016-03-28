@@ -27,6 +27,7 @@
 import sys
 import logging
 
+from mock import patch
 from pytest import raises
 
 from marche.config import Config
@@ -73,6 +74,32 @@ def test_simple():
                                      'level': 'display'}}
     handler = AuthHandler(config, logger)
     assert handler.authenticate('user', 'anypass').level == DISPLAY
+
+
+def test_pam():
+    config = Config()
+    config.auth_config = {'pam': {'service': 'marche',
+                                  'adminusers': 'admin',
+                                  'controlusers': 'ctrl',
+                                  'displayusers': 'disp',
+                                  'defaultlevel': 'control'}}
+
+    class Pamela:
+        def authenticate(self, user, password, service):
+            assert service == 'marche'
+            if password != 'pass':
+                raise self.PAMError
+
+        class PAMError(Exception):
+            pass
+
+    with patch('marche.auth.pam.pamela', Pamela()):
+        handler = AuthHandler(config, logger)
+        assert handler.authenticate('admin', 'pass').level == ADMIN
+        assert handler.authenticate('ctrl', 'pass').level == CONTROL
+        assert handler.authenticate('disp', 'pass').level == DISPLAY
+        assert handler.authenticate('user', 'pass').level == CONTROL
+        assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
 
 def test_parse_permissions():
