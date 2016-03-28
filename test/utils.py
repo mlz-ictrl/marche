@@ -123,30 +123,25 @@ class MockJobHandler(object):
                              'permissions': [], 'jobtype': ''},
                         'inst': {'desc': '', 'state': DEAD, 'ext_status': '',
                                  'permissions': [], 'jobtype': ''}}}
-        self.emit_event(ServiceListEvent(services=svcs))
+        return ServiceListEvent(services=svcs)
 
     def request_service_status(self, client, service, instance):
-        self.emit_event(StatusEvent(service=service,
-                                    instance=instance,
-                                    state=DEAD,
-                                    ext_status='ext_status'))
+        return StatusEvent(service=service, instance=instance,
+                           state=DEAD, ext_status='ext_status')
 
     def request_control_output(self, client, service, instance):
-        self.emit_event(ControlOutputEvent(service=service,
-                                           instance=instance,
-                                           content=['line1', 'line2']))
+        return ControlOutputEvent(service=service, instance=instance,
+                                  content=['line1', 'line2'])
 
     def request_logfiles(self, client, service, instance):
-        self.emit_event(LogfileEvent(service=service,
-                                     instance=instance,
-                                     files={'file1': 'line1\nline2\n',
-                                            'file2': 'line3\nline4\n'}))
+        return LogfileEvent(service=service, instance=instance,
+                            files={'file1': 'line1\nline2\n',
+                                   'file2': 'line3\nline4\n'})
 
     def request_conffiles(self, client, service, instance):
-        self.emit_event(ConffileEvent(service=service,
-                                      instance=instance,
-                                      files={'file1': 'line1\nline2\n',
-                                             'file2': 'line3\nline4\n'}))
+        return ConffileEvent(service=service, instance=instance,
+                             files={'file1': 'line1\nline2\n',
+                                    'file2': 'line3\nline4\n'})
 
     def start_service(self, client, service, instance):
         pass

@@ -112,10 +112,9 @@ def command(method):
 
 class RPCFunctions(object):
 
-    def __init__(self, jobhandler, log, expect_event):
+    def __init__(self, jobhandler, log):
         self.jobhandler = jobhandler
         self.log = log
-        self.expect_event = expect_event
         # We don't know the current user's level, therefore always assign
         # the highest user level.
         self.client = ClientInfo(ADMIN)
@@ -140,8 +139,7 @@ class RPCFunctions(object):
 
     @command
     def GetServices(self):
-        list_event = self.expect_event(
-            lambda: self.jobhandler.request_service_list(self.client))
+        list_event = self.jobhandler.request_service_list(self.client)
         result = []
         for svcname, instances in iteritems(list_event.services):
             for instance in instances:
@@ -153,23 +151,20 @@ class RPCFunctions(object):
 
     @command
     def GetStatus(self, name):
-        status_event = self.expect_event(
-            lambda: self.jobhandler.request_service_status(
-                self.client, *self._split_name(name)))
+        status_event = self.jobhandler.request_service_status(
+            self.client, *self._split_name(name))
         return status_event.state
 
     @command
     def GetOutput(self, name):
-        out_event = self.expect_event(
-            lambda: self.jobhandler.request_control_output(
-                self.client, *self._split_name(name)))
+        out_event = self.jobhandler.request_control_output(
+            self.client, *self._split_name(name))
         return out_event.content
 
     @command
     def GetLogs(self, name):
-        log_event = self.expect_event(
-            lambda: self.jobhandler.request_logfiles(self.client,
-                                                     *self._split_name(name)))
+        log_event = self.jobhandler.request_logfiles(
+            self.client, *self._split_name(name))
         ret = []
         for name, contents in iteritems(log_event.files):
             for line in contents.splitlines(True):
@@ -178,9 +173,8 @@ class RPCFunctions(object):
 
     @command
     def ReceiveConfig(self, name):
-        config_event = self.expect_event(
-            lambda: self.jobhandler.request_conffiles(self.client,
-                                                      *self._split_name(name)))
+        config_event = self.jobhandler.request_conffiles(
+            self.client, *self._split_name(name))
         ret = []
         for name, contents in iteritems(config_event.files):
             ret.append(name)
@@ -209,11 +203,10 @@ class RPCFunctions(object):
 class Interface(BaseInterface):
 
     iface_name = 'xmlrpc'
-    needs_events = True
+    needs_events = False
     poll_interval = 0.5
 
     def init(self):
-        self._lock = threading.RLock()
         self._events = []
         RequestHandler.log = self.log
 
@@ -230,8 +223,7 @@ class Interface(BaseInterface):
         self.server = xmlrpc_server.SimpleXMLRPCServer(
             (host, port), requestHandler=request_handler)
         self.server.register_introspection_functions()
-        self.server.register_instance(RPCFunctions(self.jobhandler, self.log,
-                                                   self.expect_event))
+        self.server.register_instance(RPCFunctions(self.jobhandler, self.log))
 
         thd = threading.Thread(target=self._thread)
         thd.setDaemon(True)
@@ -240,21 +232,6 @@ class Interface(BaseInterface):
 
     def shutdown(self):
         self.server.shutdown()
-
-    def expect_event(self, callback):
-        # We hold the RLock, and acquire it again during emit_event(), to
-        # ensure only events emitted during execution of the callback are
-        # added to the events list.
-        with self._lock:
-            self._events = events = []
-            callback()
-            self._events = None
-            return events[0]
-
-    def emit_event(self, event):
-        with self._lock:
-            if self._events is not None:
-                self._events.append(event)
 
     def _thread(self):
         self.server.serve_forever(poll_interval=self.poll_interval)

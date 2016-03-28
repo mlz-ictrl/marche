@@ -30,7 +30,7 @@ from six import iteritems
 from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
     LogfileEvent, StatusEvent
 from marche.jobs import Busy, Fault
-from marche.permission import DISPLAY, CONTROL, ADMIN
+from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
 
 
 def command(silent=False):
@@ -129,6 +129,9 @@ class JobHandler(object):
         self.jobs = {}
         self.service2job = {}
         self._add_jobs()
+        # This will contain all services.  It's up to the interface to filter
+        # the list when distributing to individual connected clients.
+        self.emit_event(self.request_service_list(ClientInfo(ADMIN)))
 
     @command(silent=True)
     def request_service_list(self, client):
@@ -150,7 +153,7 @@ class JobHandler(object):
                         'jobtype': job.jobtype,
                     }
                     svcs.setdefault(service, {})[instance] = info
-        self.emit_event(ServiceListEvent(services=svcs))
+        return ServiceListEvent(services=svcs)
 
     @command()
     def start_service(self, client, service, instance):
@@ -189,12 +192,8 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             state, ext = job.polled_service_status(service, instance)
-        self.emit_event(StatusEvent(
-            service=service,
-            instance=instance,
-            state=state,
-            ext_status=ext,
-        ))
+        return StatusEvent(service=service, instance=instance,
+                           state=state, ext_status=ext)
 
     @command(silent=True)
     def request_control_output(self, client, service, instance):
@@ -203,11 +202,8 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             output = job.service_output(service, instance)
-        self.emit_event(ControlOutputEvent(
-            service=service,
-            instance=instance,
-            content=output
-        ))
+        return ControlOutputEvent(service=service, instance=instance,
+                                  content=output)
 
     @command()
     def request_logfiles(self, client, service, instance):
@@ -216,11 +212,7 @@ class JobHandler(object):
         job.check_permission(DISPLAY, client)
         with job.lock:
             logfiles = job.service_logs(service, instance)
-        self.emit_event(LogfileEvent(
-            service=service,
-            instance=instance,
-            files=logfiles
-        ))
+        return LogfileEvent(service=service, instance=instance, files=logfiles)
 
     @command()
     def request_conffiles(self, client, service, instance):
@@ -232,11 +224,7 @@ class JobHandler(object):
         job.check_permission(ADMIN, client)
         with job.lock:
             confs = job.receive_config(service, instance)
-        self.emit_event(ConffileEvent(
-            service=service,
-            instance=instance,
-            files=confs
-        ))
+        return ConffileEvent(service=service, instance=instance, files=confs)
 
     @command()
     def send_conffile(self, client, service, instance, filename, contents):
