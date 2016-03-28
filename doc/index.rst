@@ -14,6 +14,7 @@ Contents:
    start
    config
    iface
+   auth
    jobs
    gui
    api

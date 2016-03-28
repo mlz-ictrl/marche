@@ -40,6 +40,11 @@ This job has the following configuration parameters:
 
       Must be ``entangle``.
 
+   .. describe:: permissions
+                 pollinterval
+
+      The :ref:`standard parameters <standard-params>` present for all jobs.
+
    No further configuration is necessary; the job will read the Entangle
    configuration file ``/etc/entangle/entangle.conf`` and derive parameters
    like available servers and their logfiles from there.

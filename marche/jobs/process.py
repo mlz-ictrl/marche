@@ -78,8 +78,19 @@ This job has the following configuration parameters:
 
    .. describe:: logfiles
 
-      A comma-separated list of logfiles to transfer to the client on request.
-      If not given, the ``outputfile`` is the default.
+      Comma-separated full paths of logfiles to read and show to the client
+      when requested.  If not given, the ``outputfile`` is the default.
+
+   .. describe:: configfiles
+
+      Comma-separated full paths of config files to transfer to the client and
+      write back when updates are received.  If not given, no configs are
+      transferred.
+
+   .. describe:: permissions
+                 pollinterval
+
+      The :ref:`standard parameters <standard-params>` present for all jobs.
 
 A typical section looks like this::
 

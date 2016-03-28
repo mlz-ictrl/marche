@@ -33,10 +33,15 @@ class Authenticator(object):
         self.init()
 
     def init(self):
-        """Implement to do something on init."""
+        """Implement to do something on init.
+
+        The constructor has stored the configuration in ``self.config``, and
+        created a logger in ``self.log``.
+        """
 
     def authenticate(self, user, password):
-        """Return a ClientInfo object if the user and password are correct.
+        """Return a `marche.permission.ClientInfo` object with the assigned
+        permission level if the user and password are correct.
 
         Otherwise, return None to give other authenticators a chance.
         """

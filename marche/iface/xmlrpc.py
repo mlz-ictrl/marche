@@ -28,7 +28,7 @@
 Legacy XMLRPC interface
 -----------------------
 
-This interface allows controlling sservice via remote procedure calls (RPC)
+This interface allows controlling services via remote procedure calls (RPC)
 over HTTP in the XML format.  This is the main interface of Marche and should
 always be enabled.
 

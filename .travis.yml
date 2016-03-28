@@ -1,4 +1,5 @@
 language: python
+cache: pip
 
 python:
     - "2.7"
@@ -13,3 +14,4 @@ install:
 script:
     - py.test -v --cov
     - pylint --ignore=gui,guing marche
+    - cd doc; make html SPHINXOPTS=-W

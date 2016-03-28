@@ -50,19 +50,26 @@ This job has the following configuration parameters:
 
    .. describe:: logfiles
 
-      Comma-separated paths of logfiles to read and show to the client when
-      requested.  If not given, the systemd journal is queried for log lines.
+      Comma-separated full paths of logfiles to read and show to the client
+      when requested.  If not given, the systemd journal is queried for log
+      lines.
 
-   .. describe:: configfile
+   .. describe:: configfiles
 
-      The full path of the config file to transfer to the client and write back
-      when updates are received.  If not given, no config is transferred.
+      Comma-separated full paths of config files to transfer to the client and
+      write back when updates are received.  If not given, no configs are
+      transferred.
+
+   .. describe:: permissions
+                 pollinterval
+
+      The :ref:`standard parameters <standard-params>` present for all jobs.
 
 A typical section looks like this::
 
     [job.dhcpd]
     type = systemd
-    configfile = /etc/dhcp/dhcpd.conf
+    configfiles = /etc/dhcp/dhcpd.conf
 """
 
 from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin

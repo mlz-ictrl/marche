@@ -65,6 +65,22 @@ The interface configuration is usually also done in **general.conf**.
    <iface>`.
 
 
+Authenticator configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The management of user/password pairs and their respective permission levels is
+done by *authenticators*, of which multiple types can be configured in sections.
+
+If no authenticators are configured, the daemon will accept any clients and
+assign them the highest permission level.
+
+.. describe:: [auth.xxx]
+
+   Each section called ``auth.xxx`` configures an authenticator with the name
+   ``xxx``.  For details about different authenticators, see :doc:`the
+   authenticator documentation <auth>`.
+
+
 Job configuration
 ~~~~~~~~~~~~~~~~~
 

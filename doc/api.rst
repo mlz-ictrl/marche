@@ -12,6 +12,14 @@ Base Job class
    :undoc-members:
 
 
+Base Authenticator class
+------------------------
+
+.. automodule:: marche.auth.base
+   :members:
+   :undoc-members:
+
+
 Base Interface class
 --------------------
 

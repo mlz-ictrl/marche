@@ -22,7 +22,39 @@
 #
 # *****************************************************************************
 
-"""Authenticator with users/passwords configured in config file."""
+""".. index:: simple; authenticator
+
+Simple authenticator
+--------------------
+
+This authenticator allows the configuration of a single user/password pair and
+a user permission level right in the config file.  It is the most basic
+authenticator and useful for simple services.
+
+.. describe:: [auth.simple]
+
+   The configuration settings that can be set within the **auth.simple**
+   section are:
+
+   .. describe:: user
+
+      **Default:** marche
+
+      The username to accept for authentication.
+
+   .. describe:: passwd
+
+      **Default:** no password
+
+      The password matching the username.
+
+   .. describe:: level
+
+      **Default:** admin
+
+      The permission level to return (one of ``display``, ``control`` and
+      ``admin``).
+"""
 
 from marche.auth.base import Authenticator as BaseAuthenticator
 from marche.permission import ClientInfo, STRING_LEVELS
@@ -34,7 +66,7 @@ class Authenticator(BaseAuthenticator):
         BaseAuthenticator.__init__(self, config, log)
         self.username = config.get('user', 'marche')
         self.password = config.get('passwd', '')
-        self.level = STRING_LEVELS[config.get('level', 'admin')]
+        self.level = STRING_LEVELS[config.get('level', 'admin').lower()]
 
     def authenticate(self, user, passwd):
         if not self.password:

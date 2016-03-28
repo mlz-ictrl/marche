@@ -46,6 +46,11 @@ This job has the following configuration parameters:
       ``/etc/init.d/nicos-system``, which is normally a symbolic link to the
       file below the NICOS root.
 
+   .. describe:: permissions
+                 pollinterval
+
+      The :ref:`standard parameters <standard-params>` present for all jobs.
+
    No further configuration is necessary; the job will read the NICOS
    configuration file ``nicos.conf`` and derive parameters like available
    services and their logfiles from there.
