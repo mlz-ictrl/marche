@@ -44,6 +44,25 @@ def wait(n, callback):
             raise RuntimeError('wait timeout reached')
 
 
+def job_call_check(job, service, instance, cmdlinesuffix, output):
+    for action in ('start', 'stop', 'restart'):
+        if action == 'start':
+            job.start_service(service, instance)
+        elif action == 'stop':
+            job.stop_service(service, instance)
+        elif action == 'restart':
+            job.restart_service(service, instance)
+        wait(100, lambda: job.service_status(service, instance)[0] == RUNNING)
+        out = job.service_output(service, instance)
+        outlen = len(output)
+        assert out[-outlen-1].startswith('$ ')
+        assert out[-outlen-1].endswith(' %s\n' %
+                                       cmdlinesuffix.replace('action', action))
+        assert out[-outlen:] == [l.replace('action', action) + '\n'
+                                 for l in output]
+
+
+
 class LogHandler(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)

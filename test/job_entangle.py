@@ -32,7 +32,7 @@ from pytest import raises
 from marche.jobs import Fault, RUNNING
 from marche.jobs.entangle import Job
 
-from test.utils import wait
+from test.utils import job_call_check
 
 logger = logging.getLogger('testentangle')
 
@@ -77,23 +77,8 @@ def test_job(tmpdir):
 
     assert job.service_status('entangle', 'mysrv') == (RUNNING, '')
 
-    job.start_service('entangle', 'mysrv')
-    wait(100, lambda: job.service_status('entangle', 'mysrv')[0] == RUNNING)
-    out = job.service_output('entangle', 'mysrv')
-    assert out[0].startswith('$ ') and out[0].endswith(' start mysrv\n')
-    assert out[1:] == ['mysrv\n', 'start\n']
-
-    job.stop_service('entangle', 'mysrv')
-    wait(100, lambda: job.service_status('entangle', 'mysrv')[0] == RUNNING)
-    out = job.service_output('entangle', 'mysrv')
-    assert out[-3].startswith('$ ') and out[-3].endswith(' stop mysrv\n')
-    assert out[-2:] == ['mysrv\n', 'stop\n']
-
-    job.restart_service('entangle', 'mysrv')
-    wait(100, lambda: job.service_status('entangle', 'mysrv')[0] == RUNNING)
-    out = job.service_output('entangle', 'mysrv')
-    assert out[-3].startswith('$ ') and out[-3].endswith(' restart mysrv\n')
-    assert out[-2:] == ['mysrv\n', 'restart\n']
+    job_call_check(job, 'entangle', 'mysrv',
+                   'action mysrv', ['mysrv', 'action'])
 
     logs = job.service_logs('entangle', 'mysrv')
     assert list(logs.values()) == ['log1\nlog2\n']

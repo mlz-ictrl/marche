@@ -30,7 +30,7 @@ import logging
 from marche.jobs import RUNNING
 from marche.jobs.init import Job
 
-from test.utils import wait
+from test.utils import job_call_check
 
 logger = logging.getLogger('testinit')
 
@@ -56,28 +56,10 @@ def test_job(tmpdir):
     assert not job.check()
     job.script = str(scriptfile)
     assert job.check()
-    job.script = real_script
 
+    job.script = real_script
     job.init()
 
     assert job.get_services() == [('foo', '')]
-
     assert job.service_status('foo', '') == (RUNNING, '')
-
-    job.start_service('foo', '')
-    wait(100, lambda: job.service_status('foo', '')[0] == RUNNING)
-    out = job.service_output('foo', '')
-    assert out[0].startswith('$ ') and out[0].endswith(' start\n')
-    assert out[1:] == ['foo\n', 'start\n']
-
-    job.stop_service('foo', '')
-    wait(100, lambda: job.service_status('foo', '')[0] == RUNNING)
-    out = job.service_output('foo', '')
-    assert out[-3].startswith('$ ') and out[-3].endswith(' stop\n')
-    assert out[-2:] == ['foo\n', 'stop\n']
-
-    job.restart_service('foo', '')
-    wait(100, lambda: job.service_status('foo', '')[0] == RUNNING)
-    out = job.service_output('foo', '')
-    assert out[-3].startswith('$ ') and out[-3].endswith(' restart\n')
-    assert out[-2:] == ['foo\n', 'restart\n']
+    job_call_check(job, 'foo', '', 'action', ['foo', 'action'])
