@@ -41,6 +41,9 @@ authhandler = MockAuthHandler()
 logger = logging.getLogger('testxmlrpc')
 logger.addHandler(LogHandler())
 
+# Make waiting for shutdown faster.
+Interface.poll_interval = 0.05
+
 
 @fixture(scope='module')
 def xmlrpc_iface(request):

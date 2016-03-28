@@ -210,6 +210,7 @@ class Interface(BaseInterface):
 
     iface_name = 'xmlrpc'
     needs_events = True
+    poll_interval = 0.5
 
     def init(self):
         self._lock = threading.RLock()
@@ -256,4 +257,4 @@ class Interface(BaseInterface):
                 self._events.append(event)
 
     def _thread(self):
-        self.server.serve_forever()
+        self.server.serve_forever(poll_interval=self.poll_interval)
