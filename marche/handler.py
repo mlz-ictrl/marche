@@ -90,7 +90,8 @@ class JobHandler(object):
             try:
                 job = mod.Job(jobtype, name, config, self.log, self.emit_event)
                 if not job.check():
-                    raise RuntimeError('feasibility check failed')
+                    job.log.error('feasibility check failed')
+                    continue
                 for service, instance in job.get_services():
                     other = self.service2job.get(service)
                     if other and other is not job:

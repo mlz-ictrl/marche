@@ -50,13 +50,7 @@ class ConsoleFormatter(Formatter):
 
     def __init__(self, fmt=None, datefmt=None, colorize=None):
         Formatter.__init__(self, fmt, datefmt)
-        if colorize:
-            self.colorize = colorize
-        else:
-            self.colorize = lambda c, s: s
-
-    def formatException(self, exc_info):
-        return traceback.format_exception_only(*exc_info[0:2])[-1]
+        self.colorize = colorize if colorize else lambda c, s: s
 
     def formatTime(self, record, datefmt=None):
         return time.strftime(datefmt or DATEFMT,
@@ -81,8 +75,8 @@ class ConsoleFormatter(Formatter):
         if not getattr(record, 'nonl', False):
             fmtstr += '\n'
         record.asctime = self.formatTime(record, self.datefmt)
-        s = fmtstr % record.__dict__
-        return s
+        # Note: no exception info, it only goes to the logfile.
+        return fmtstr % record.__dict__
 
 
 def format_extended_frame(frame):
@@ -143,10 +137,8 @@ class LogfileFormatter(Formatter):
 class StreamHandler(Handler):
     """Reimplemented from logging: remove cruft, remove bare excepts."""
 
-    def __init__(self, stream=None):
+    def __init__(self, stream):
         Handler.__init__(self)
-        if stream is None:
-            stream = sys.stderr
         self.stream = stream
 
     def flush(self):
@@ -162,10 +154,10 @@ class StreamHandler(Handler):
             msg = self.format(record)
             try:
                 self.stream.write('%s\n' % msg)
-            except UnicodeEncodeError:
+            except UnicodeEncodeError:  # pragma: no cover
                 self.stream.write('%s\n' % msg.encode('utf-8'))
             self.flush()
-        except Exception:
+        except Exception:  # pragma: no cover
             self.handleError(record)
 
 
@@ -184,7 +176,7 @@ class LogfileHandler(StreamHandler):
         self._dayfmt = dayfmt
         # today's logfile name
         basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + '.log'
-        self.baseFilename = path.abspath(basefn)
+        self.base_filename = path.abspath(basefn)
         self.mode = 'a'
         StreamHandler.__init__(self, self._open())
         # determine time of first midnight from now on
@@ -202,9 +194,9 @@ class LogfileHandler(StreamHandler):
             # should happen at most once per installation....
             pass
         if hasattr(os, 'symlink'):
-            os.symlink(path.basename(self.baseFilename), self._currentsymlink)
+            os.symlink(path.basename(self.base_filename), self._currentsymlink)
         # finally open the new logfile....
-        return open(self.baseFilename, self.mode)
+        return open(self.base_filename, self.mode)
 
     def emit(self, record):
         try:
@@ -214,7 +206,7 @@ class LogfileHandler(StreamHandler):
             if self.stream is None:
                 self.stream = self._open()
             StreamHandler.emit(self, record)
-        except Exception:
+        except Exception:  # pragma: no cover
             self.handleError(record)
 
     def close(self):
@@ -231,7 +223,7 @@ class LogfileHandler(StreamHandler):
 
     def do_rollover(self):
         self.stream.close()
-        self.baseFilename = self._pathnameprefix + '-' + \
+        self.base_filename = self._pathnameprefix + '-' + \
             time.strftime(self._dayfmt) + '.log'
         self.stream = self._open()
         self.rollover_at += SECONDS_PER_DAY
@@ -242,8 +234,8 @@ class ColoredConsoleHandler(StreamHandler):
     A handler class that writes colorized records to standard output.
     """
 
-    def __init__(self):
-        StreamHandler.__init__(self, sys.stdout)
+    def __init__(self, stream=None):
+        StreamHandler.__init__(self, stream or sys.stdout)
         self.setFormatter(ConsoleFormatter(datefmt=DATEFMT,
                                            colorize=colors.colorize))
 
@@ -251,6 +243,6 @@ class ColoredConsoleHandler(StreamHandler):
         msg = self.format(record)
         try:
             self.stream.write(msg)
-        except UnicodeEncodeError:
+        except UnicodeEncodeError:  # pragma: no cover
             self.stream.write(msg.encode('utf-8'))
         self.stream.flush()

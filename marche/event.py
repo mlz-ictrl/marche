@@ -61,6 +61,11 @@ class Event(object):
         cls = Event.registry[data.pop('type')]
         return cls(**data)
 
+    def __eq__(self, other):
+        return isinstance(other, Event) and \
+            self.event_type == other.event_type and \
+            vars(self) == vars(other)
+
     def __repr__(self):
         return '<%s: %r>' % (self.__class__.__name__, vars(self))
 

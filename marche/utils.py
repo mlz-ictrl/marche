@@ -40,7 +40,7 @@ from subprocess import Popen, PIPE
 try:
     import pwd
     import grp
-except ImportError:
+except ImportError:  # pragma: no cover
     pwd = grp = None
 
 
@@ -50,7 +50,7 @@ def ensure_directory(dirname):
         os.makedirs(dirname)
 
 
-def daemonize(user, group):
+def daemonize(user, group):  # pragma: no cover
     """Daemonize the current process."""
     # finish up with the current stdout/stderr
     sys.stdout.flush()
@@ -96,7 +96,7 @@ def daemonize(user, group):
     sys.stdout = sys.stderr = open('/dev/null', 'wb')
 
 
-def setuser(user, group, recover=True):
+def setuser(user, group, recover=True):  # pragma: no cover
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
     """
@@ -140,7 +140,7 @@ class lazy_property(object):
 
     def __get__(self, obj, obj_class):
         if obj is None:
-            return obj
+            return self
         obj.__dict__[self.__name__] = self._func(obj)
         return obj.__dict__[self.__name__]
 
@@ -259,7 +259,7 @@ def normalize_addr(addr, defport):
     host, port = addr.split(':')
     try:
         host = socket.getfqdn(host)
-    except socket.error:
+    except socket.error:  # pragma: no cover
         pass
     return host, port
 
@@ -269,7 +269,7 @@ def read_file(fname):
     with open(fname, 'rb') as fp:
         contents = fp.read()
     if not isinstance(contents, str):
-        return contents.decode('latin1')
+        contents = contents.decode('latin1')  # pragma: no cover
     return contents
 
 
