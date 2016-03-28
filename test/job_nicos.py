@@ -76,7 +76,7 @@ def test_job(tmpdir):
     job = Job('nicos', 'name', {'root': str(tmpdir)},
               logger, lambda event: None)
     assert job.check()
-    job._script = sys.executable + ' ' + job._script
+    job._script = sys.executable + ' -S ' + job._script
     job.init()
 
     assert job.get_services() == [('nicos-system', ''), ('nicos', 'cache')]
@@ -92,8 +92,8 @@ def test_job(tmpdir):
     assert job.receive_config('nicos', 'cache') == {}
     assert raises(Fault, job.send_config, 'nicos', 'cache', 'file', 'contents')
 
-    job._script = '%s %s' % (sys.executable, tmpdir.join('nicos-system2'))
+    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system2'))
     assert job.service_status('nicos-system', '')[0] == WARNING
 
-    job._script = '%s %s' % (sys.executable, tmpdir.join('nicos-system3'))
+    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system3'))
     assert job.service_status('nicos-system', '')[0] == DEAD

@@ -119,7 +119,7 @@ def test_async_process(tmpdir):
     sys.stderr.write("stderr\\n")
     sys.exit(3)
     '''
-    proc = utils.AsyncProcess(42, logger, [sys.executable, '-c', code],
+    proc = utils.AsyncProcess(42, logger, [sys.executable, '-S', '-c', code],
                               sh=False)
     proc.start()
     proc.join()

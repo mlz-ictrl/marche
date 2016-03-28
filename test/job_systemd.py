@@ -53,8 +53,8 @@ def test_job(tmpdir):
     scriptfile = tmpdir.join('script.py')
     scriptfile.write(SCRIPT)
 
-    Job.SYSTEMCTL = sys.executable + ' ' + str(scriptfile) + ' systemctl'
-    Job.JOURNALCTL = sys.executable + ' ' + str(scriptfile) + ' journalctl'
+    Job.SYSTEMCTL = '%s -S %s systemctl' % (sys.executable, scriptfile)
+    Job.JOURNALCTL = '%s -S %s journalctl' % (sys.executable, scriptfile)
 
     job = Job('systemd', 'name', {'unit': 'nope'}, logger, lambda event: None)
     assert not job.check()

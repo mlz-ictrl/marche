@@ -70,7 +70,7 @@ def test_job(tmpdir):
 
     job = Job('entangle', 'name', {}, logger, lambda event: None)
     assert job.check()
-    Job.INITSCR = sys.executable + ' ' + str(scriptfile)
+    Job.INITSCR = sys.executable + ' -S ' + str(scriptfile)
     job.init()
 
     assert job.get_services() == [('entangle', 'mysrv')]

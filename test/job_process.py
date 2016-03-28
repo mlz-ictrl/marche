@@ -51,7 +51,7 @@ def test_job(tmpdir):
 
     config = {
         'binary': sys.executable,
-        'args': '-c "%s"' % SUBPROCESS,
+        'args': '-S -c "%s"' % SUBPROCESS,
         'outputfile': str(outputfile),
         'oneshot': 'false',
         'autostart': 'true',
@@ -86,7 +86,7 @@ def test_job(tmpdir):
 def test_oneshot():
     config = {
         'binary': sys.executable,
-        'args': '-c "print(\'output\')"',
+        'args': '-S -c "print(\'output\')"',
         'oneshot': 'true',
     }
 

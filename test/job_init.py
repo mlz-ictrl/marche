@@ -45,7 +45,7 @@ def test_job(tmpdir):
     scriptfile = tmpdir.join('script.py')
     scriptfile.write(SCRIPT)
 
-    Job.INIT_BASE = sys.executable + ' ' + str(scriptfile) + ' '
+    Job.INIT_BASE = sys.executable + ' -S ' + str(scriptfile) + ' '
 
     config = {
         'script': 'foo',
