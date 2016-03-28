@@ -55,14 +55,14 @@ from os import path
 
 from six.moves import configparser
 
-from marche.jobs import DEAD, STARTING, RUNNING, WARNING
+from marche.jobs import DEAD, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extract_loglines
 
-DEFAULT_INIT = '/etc/init.d/nicos-system'
-
 
 class Job(BaseJob):
+
+    DEFAULT_INIT = '/etc/init.d/nicos-system'
 
     def configure(self, config):
         self._services = []
@@ -73,8 +73,9 @@ class Job(BaseJob):
         else:
             # determine the NICOS root from the init script, which is a symlink
             # to the init script in the NICOS root
-            self._root = path.dirname(path.dirname(path.realpath(DEFAULT_INIT)))
-            self._script = DEFAULT_INIT
+            real_init = path.realpath(self.DEFAULT_INIT)
+            self._root = path.dirname(path.dirname(real_init))
+            self._script = self.DEFAULT_INIT
         self._logpath = None
 
     def check(self):
@@ -84,13 +85,12 @@ class Job(BaseJob):
         return True
 
     def init(self):
-        proc = self._async_call(STARTING, '%s 2>&1' % self._script)
-        proc.join()
-        lines = proc.stdout
         self._services = [('nicos-system', '')]
-        if len(lines) >= 2 and lines[-1].startswith('Possible services are'):
-            self._services = [('nicos', entry.strip()) for entry in
-                              lines[-1][len('Possible services are '):].split(',')]
+        lines = self._sync_call('%s 2>&1' % self._script).stdout
+        prefix = 'Possible services are '
+        if len(lines) >= 2 and lines[-1].startswith(prefix):
+            self._services.extend(('nicos', entry.strip()) for entry in
+                                  lines[-1][len(prefix):].split(','))
         BaseJob.init(self)
 
     def get_services(self):
@@ -98,21 +98,18 @@ class Job(BaseJob):
 
     def start_service(self, service, instance):
         if service == 'nicos-system':
-            return self._async_start(None, '%s start' % self._script)
-        else:
-            return self._async_start(None, '%s start %s' % (self._script, instance))
+            return self._async_start(None, self._script + ' start')
+        return self._async_start(None, self._script + ' start %s' % instance)
 
     def stop_service(self, service, instance):
         if service == 'nicos-system':
-            return self._async_stop(None, '%s stop' % self._script)
-        else:
-            return self._async_stop(None, '%s stop %s' % (self._script, instance))
+            return self._async_stop(None, self._script + ' stop')
+        return self._async_stop(None, self._script + ' stop %s' % instance)
 
     def restart_service(self, service, instance):
         if service == 'nicos-system':
-            return self._async_start(None, '%s restart' % self._script)
-        else:
-            return self._async_start(None, '%s restart %s' % (self._script, instance))
+            return self._async_start(None, self._script + ' restart')
+        return self._async_start(None, self._script + ' restart %s' % instance)
 
     def service_status(self, service, instance):
         async_st = self._async_status_only(None)
@@ -132,9 +129,8 @@ class Job(BaseJob):
                 return RUNNING, ''
             return DEAD, ''
         else:
-            retcode = self._sync_call('%s status %s' %
-                                      (self._script, instance)).retcode
-            return RUNNING if retcode == 0 else DEAD, ''
+            proc = self._sync_call(self._script + ' status %s' % instance)
+            return RUNNING if proc.retcode == 0 else DEAD, ''
 
     def service_output(self, service, instance):
         return list(self._output.get(None, []))
@@ -146,7 +142,7 @@ class Job(BaseJob):
             # extract nicos log directory
             cfg = configparser.RawConfigParser()
             cfg.read([path.join(self._root, 'nicos.conf')])
-            if cfg.has_option('nicos', 'logging_path'):
+            if cfg.has_option('nicos', 'logging_path'):  # pragma: no cover
                 self._logpath = cfg.get('nicos', 'logging_path')
             else:
                 self._logpath = path.join(self._root, 'log')
