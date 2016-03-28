@@ -103,6 +103,8 @@ from marche.jobs.base import Job as BaseJob
 
 
 class ProcessMonitor(Thread):
+    DELAY = 0.1
+
     def __init__(self, cmd, wd, outfile, oneshot, output, log):
         Thread.__init__(self)
         self.returncode = None
@@ -126,9 +128,11 @@ class ProcessMonitor(Thread):
                 outfile = outfile.buffer  # pylint: disable=no-member
         process = Popen(self._cmd, stdout=outfile, stderr=STDOUT, cwd=self._wd)
         while process.poll() is None:
-            sleep(0.1)
+            sleep(self.DELAY)
             if self.stopflag:
                 process.kill()
+                if outfile != PIPE:
+                    outfile.flush()
         if self._outfile is None and self.oneshot:
             for line in iter(process.stdout.readline, b''):
                 line = line.translate(None, b'\r').decode('utf-8', 'replace')
