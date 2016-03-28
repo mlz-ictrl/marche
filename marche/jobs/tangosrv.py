@@ -70,24 +70,28 @@ names of potential logfiles are also automatically determined.
 
 from os import path
 
-from PyTango import Database, DbDatum, DbDevInfo
-
+from marche.jobs import Fault
 from marche.jobs.init import Job as InitJob
 
-_DEFAULT = path.join(path.sep, 'etc', 'default', 'tango')
+try:
+    import PyTango
+except ImportError:  # pragma: no cover
+    PyTango = None
 
 
 class Job(InitJob):
-    """Special job for Tango servers not using Entangle."""
+
+    LOG_DIR = '/var/log/tango'
+    DEFAULT_FILE = '/etc/default/tango'
 
     def configure(self, config):
         InitJob.configure(self, config)
-        self.init_name = config.get('script', 'tango-server-' +
-                                    self.name.lower())
         self.srvname = config.get('srvname', self.name)
+        self.init_name = config.get('script', 'tango-server-' +
+                                    self.srvname.lower())
         resdir = config.get('resdir', '')
         if not resdir:
-            with open(_DEFAULT) as fd:
+            with open(self.DEFAULT_FILE) as fd:
                 for line in fd:
                     if not line.startswith('#'):
                         (key, sep, value) = line.partition('=')
@@ -98,47 +102,28 @@ class Job(InitJob):
                                 break
         if resdir:
             self.config_files = [path.join(resdir, self.srvname + '.res')]
-        else:
+        else:  # pragma: no cover
             self.config_files = []
-        self.log_files = ['/var/log/tango/%s.out.log' % self.srvname,
-                          '/var/log/tango/%s.err.log' % self.srvname]
+        self.log_files = [path.join(self.LOG_DIR, '%s.out.log' % self.srvname),
+                          path.join(self.LOG_DIR, '%s.err.log' % self.srvname)]
 
     def send_config(self, service, instance, filename, contents):
+        db = self._connect_db()
         InitJob.send_config(self, service, instance, filename, contents)
         # transfer to Tango database
-        self._update_db(self.config_files[0])
+        self._update_db(db, self.config_files[0])
 
-    def _update_db(self, fn):
-        db = Database()
-
-        def add_device(name, cls, srv):
-            dev_info = DbDevInfo()
-            dev_info.name = name
-            dev_info.klass = cls
-            dev_info.server = srv
-            db.add_device(dev_info)
-
-        def add_property(dev, name, vals):
-            if dev.startswith(("cmds/", "error/")):
-                return
-            prop = DbDatum()
-            prop.name = name
-            for val in vals:
-                val = val.strip()
-                prop.value_string.append(val)
-            if dev[0:6] == "class/":
-                db.put_class_property(dev.split("/")[1], prop)
-            else:
-                db.put_device_property(dev, prop)
-
+    def _update_db(self, db, fn):
         def processvalue(dev, res, val):
+            if dev.startswith(('cmds/', 'error/')):
+                return
             if val.startswith('"'):
-                add_property(dev, res, [val.strip('"')])
+                self._add_property(db, dev, res, [val.strip('"').strip()])
             elif ',' not in val:
-                add_property(dev, res, [val])
+                self._add_property(db, dev, res, [val.strip()])
             else:
                 arr = val.split(',')
-                add_property(dev, res, [v for v in arr if v])
+                self._add_property(db, dev, res, [v.strip() for v in arr if v])
 
         def processdevice(key, valpar):
             klass = key[0].title()
@@ -148,11 +133,13 @@ class Job(InitJob):
                 valarr = val.strip().split('/')
                 srv = klass  + '/' + valarr[0] + '_' + key[1]
                 name = val.strip()
-                add_device(name, valarr[1], srv)
+                self._add_device(db, name, valarr[1], srv)
 
         with open(fn) as fp:
-            for line in fp:
-                line = line.decode('utf-8', 'replace').expandtabs(1).strip()
+            for line in iter(fp.readline, ''):
+                if not isinstance(line, str):  # pragma: no cover
+                    line = line.decode('utf-8', 'replace')
+                line = line.expandtabs(1).strip()
                 while line.endswith('\\'):
                     line = line.rstrip('\\ ')
                     if not line.endswith(':'):
@@ -171,3 +158,25 @@ class Job(InitJob):
                                  key[3], val[1].strip())
                 elif len(key) == 3 and key[2] == 'device':
                     processdevice(key, val[1].strip().split(','))
+
+    def _connect_db(self):  # pragma: no cover
+        if PyTango is None:
+            raise Fault('cannot update database: PyTango missing')
+        return PyTango.Database()
+
+    def _add_device(self, db, name, cls, srv):  # pragma: no cover
+        dev_info = PyTango.DbDevInfo()
+        dev_info.name = name
+        dev_info.klass = cls
+        dev_info.server = srv
+        db.add_device(dev_info)
+
+    def _add_property(self, db, dev, name, vals):  # pragma: no cover
+        prop = PyTango.DbDatum()
+        prop.name = name
+        for val in vals:
+            prop.value_string.append(val)
+        if dev[0:6] == 'class/':
+            db.put_class_property(dev.split('/')[1], prop)
+        else:
+            db.put_device_property(dev, prop)
