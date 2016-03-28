@@ -56,25 +56,30 @@ from marche.utils import extract_loglines
 
 class Job(BaseJob):
 
+    INIT_DIR = '/etc/init.d'
+    LOG_DIR = '/var/log/taco'
+    DB_DEVLIST = '. /etc/tacoenv.sh; db_devicelist'
+    DB_DEVRES = '. /etc/tacoenv.sh; db_devres'
+
     def configure(self, config):
         self._initscripts = {}
         self._depends = set()
         self._services = []
 
     def check(self):
-        if any(fn.startswith('taco-server-')
-               for fn in os.listdir('/etc/init.d')):
-            return True
+        if path.isdir(self.INIT_DIR):
+            if any(fn.startswith('taco-server-')
+                   for fn in os.listdir(self.INIT_DIR)):
+                return True
         self.log.warning('no TACO server init scripts found')
         return False
 
     def init(self):
         servers = set()
         # get all servers for which we have an init script
-        for fn in os.listdir('/etc/init.d'):
+        for fn in os.listdir(self.INIT_DIR):
             if fn.startswith('taco-server-'):
-                name = 'taco.' + fn[len('taco-server-'):]
-                servers.add(name[5:])
+                servers.add(fn[len('taco-server-'):])
         # read device info for servers
         serverinfo, alldevs, dev2server = self._read_devices(servers)
         # collect device dependency info for servers
@@ -94,7 +99,7 @@ class Job(BaseJob):
         services = []
         for server, instances in iteritems(serverinfo):
             self._initscripts['taco-' + server] = \
-                '/etc/init.d/taco-server-%s' % server
+                path.join(self.INIT_DIR, 'taco-server-%s' % server)
             for instance in instances:
                 services.append(('taco-' + server, instance))
         self._services = services
@@ -129,13 +134,13 @@ class Job(BaseJob):
         return list(self._output.get(key, []))
 
     def service_logs(self, service, instance):
-        if not path.isdir('/var/log/taco'):
+        if not path.isdir(self.LOG_DIR):
             return {}
         srvname = service[5:]  # strip "taco-"
-        candidates = os.listdir('/var/log/taco')
+        candidates = os.listdir(self.LOG_DIR)
         output = {}
         for filename in candidates:
-            fullname = path.join('/var/log/taco', filename)
+            fullname = path.join(self.LOG_DIR, filename)
             # check for srvname_instance
             if filename.lower() == ('%s_%s.log' % (srvname, instance)).lower():
                 output.update(extract_loglines(fullname))
@@ -147,13 +152,13 @@ class Job(BaseJob):
     # -- internal APIs --
 
     def _read_devices(self, restrict_servers):
-        p = self._sync_call('. /etc/tacoenv.sh; db_devicelist').stdout
         servers = {}
         alldevices = set()
         dev2server = {}
         curserver = None
         curinstance = None
-        for line in p:
+        proc = self._sync_call(self.DB_DEVLIST)
+        for line in proc.stdout:
             if not line.strip():
                 continue
             if line.startswith('\t'):
@@ -176,8 +181,8 @@ class Job(BaseJob):
     def _get_dependencies(self, devs, alldevices, dev2server):
         depends = set()
         for dev in devs:
-            p = self._sync_call('. /etc/tacoenv.sh; db_devres %s' % dev).stdout
-            for line in p:
+            proc = self._sync_call(self.DB_DEVRES + ' ' + dev)
+            for line in proc.stdout:
                 if ':' not in line.strip():
                     continue
                 key, value = line.strip().split(':', 1)
