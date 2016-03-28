@@ -29,16 +29,8 @@ import os
 import sys
 import time
 import logging
-import optparse
+import argparse
 from os import path
-
-# configure logging library: we don't need process/thread ids and callers
-logging.logMultiprocessing = False
-logging.logProcesses = False
-logging.logThreads = False
-logging._srcfile = None  # pylint: disable=protected-access
-
-log = logging.getLogger('marche')
 
 from marche import __version__
 from marche.config import Config
@@ -48,97 +40,118 @@ from marche.handler import JobHandler
 from marche.auth import AuthHandler
 from marche.colors import nocolor
 
+# configure logging library: we don't need process/thread ids and callers
+logging.logMultiprocessing = False
+logging.logProcesses = False
+logging.logThreads = False
+logging._srcfile = None  # pylint: disable=protected-access
 
-def main():
-    inplace = path.exists(path.join(path.dirname(__file__), '..', '.git'))
-    inplaceCfg = path.join(path.dirname(__file__), '..', 'etc')
 
-    parser = optparse.OptionParser(
-        usage='%prog [options]',
-        version='Marche daemon version %s' % __version__)
-    parser.add_option('-c',
-                      dest='configdir',
-                      action='store',
-                      default=(inplaceCfg if inplace else '/etc/marche'),
-                      help='configuration directory (default /etc/marche)')
-    parser.add_option('-d', dest='daemonize', action='store_true',
-                      help='daemonize the process')
-    parser.add_option('-v', dest='verbose', action='store_true',
-                      help='verbose (debug) output')
-    opts, args = parser.parse_args()
+class Daemon(object):
+    def __init__(self):
+        self.log = logging.getLogger('marche')
+        if os.name == 'nt':  # pragma: no cover
+            nocolor()
 
-    if args:
-        parser.print_usage()
-        return 1
-
-    if os.name == 'nt':
-        nocolor()
-
-    config = Config(opts.configdir)
-
-    if opts.daemonize:
-        daemonize(config.user, config.group)
-    else:
-        setuser(config.user, config.group)
-
-    log.setLevel(logging.DEBUG if opts.verbose else logging.INFO)
-    if not opts.daemonize:
-        log.addHandler(ColoredConsoleHandler())
-    try:
-        log.addHandler(LogfileHandler(config.logdir, 'marche'))
-    except Exception as err:
-        if opts.daemonize:
-            print('cannot open logfile:', err, file=sys.stderr)
+    def parse_args(self, args):
+        rootdir = path.join(path.dirname(__file__), '..')
+        if path.exists(path.join(rootdir, '.git')):
+            default_cfgdir = path.abspath(path.join(rootdir, 'etc'))
         else:
-            log.exception('cannot open logfile: %s', err)
-            if opts.configdir == '/etc/marche' and os.path.isdir('etc'):
-                log.info('consider using `-c etc` from a checkout')
-        return 1
+            default_cfgdir = '/etc/marche'  # pragma: no cover
 
-    if not config.interfaces:
-        log.error('no interfaces configured, the daemon will not do '
-                  'anything useful!')
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--version', action='version',
+                            version='Marche daemon version %s' % __version__)
+        parser.add_argument('-c', dest='configdir', action='store',
+                            default=default_cfgdir, help='configuration '
+                            'directory (default %s)' % default_cfgdir)
+        parser.add_argument('-d', dest='daemonize', action='store_true',
+                            help='daemonize the process')
+        parser.add_argument('-v', dest='verbose', action='store_true',
+                            help='verbose (debug) output')
+        return parser.parse_args(args)
+
+    def apply_config(self):
+        self.config = Config(self.args.configdir)
+
+        if self.args.daemonize:  # pragma: no cover
+            daemonize(self.config.user, self.config.group)
+        else:
+            setuser(self.config.user, self.config.group)
+
+        self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
+        del self.log.handlers[:]
+        if not self.args.daemonize:
+            self.log.addHandler(ColoredConsoleHandler())
+        try:
+            self.log.addHandler(LogfileHandler(self.config.logdir, 'marche'))
+        except Exception as err:  # pragma: no cover
+            if self.args.daemonize:
+                print('cannot open logfile:', err, file=sys.stderr)
+            else:
+                self.log.exception('cannot open logfile: %s', err)
+            return False
+
+        if not self.config.interfaces:
+            self.log.error('no interfaces configured, the daemon will not do '
+                           'anything useful!')
+            return False
+
+        if not self.config.job_config:
+            self.log.error('no jobs configured, the daemon will not do '
+                           'anything useful!')
+            return False
+
+        if not self.config.auth_config:
+            self.log.warning('no authenticators configured, everyone will be '
+                             'able to execute any action!')
+
+        if self.args.daemonize:  # pragma: no cover
+            write_pidfile(self.config.piddir)
+
+        return True
+
+    def run(self, args=None):
+        self.args = self.parse_args(args)
+        if not self.apply_config():
+            return 1
+
+        self.log.info('Starting marche %s ...', __version__)
+
+        jobhandler = JobHandler(self.config, self.log)
+        authhandler = AuthHandler(self.config, self.log)
+
+        for interface in self.config.interfaces:
+            try:
+                mod = __import__('marche.iface.%s' % interface, {}, {},
+                                 ['Interface'])
+            except Exception as err:
+                self.log.exception('could not import interface %r: %s',
+                                   interface, err)
+                continue
+            self.log.info('starting interface: %s', interface)
+            try:
+                iface = mod.Interface(self.config, jobhandler, authhandler,
+                                      self.log)
+                if iface.needs_events:
+                    jobhandler.add_interface(iface)
+                iface.run()
+            except Exception as err:
+                self.log.exception('could not start interface %r: %s',
+                                   interface, err)
+                continue
+
+        self.log.info('startup successful')
+        self.wait()
+
+        if self.args.daemonize:  # pragma: no cover
+            remove_pidfile(self.config.piddir)
         return 0
 
-    if not config.job_config:
-        log.error('no jobs configured, the daemon will not do '
-                  'anything useful!')
-        return 0
-
-    if opts.daemonize:
-        write_pidfile(config.piddir)
-
-    log.info('Starting marche %s ...', __version__)
-
-    jobhandler = JobHandler(config, log)
-    authhandler = AuthHandler(config, log)
-
-    running_interfaces = []
-
-    for interface in config.interfaces:
+    def wait(self):  # pragma: no cover
         try:
-            mod = __import__('marche.iface.%s' % interface, {}, {}, ['Interface'])
-        except Exception as err:
-            log.exception('could not import interface %r: %s', interface, err)
-            continue
-        log.info('starting interface: %s', interface)
-        try:
-            iface = mod.Interface(config, jobhandler, authhandler, log)
-            if iface.needs_events:
-                jobhandler.add_interface(iface)
-            iface.run()
-        except Exception as err:
-            log.exception('could not start interface %r: %s', interface, err)
-            continue
-        running_interfaces.append(interface)
-
-    log.info('startup successful')
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        pass
-
-    if opts.daemonize:
-        remove_pidfile(config.piddir)
-    return 0
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass

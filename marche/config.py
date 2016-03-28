@@ -84,7 +84,7 @@ class Config(object):
                 if parser.has_option('general', 'interfaces'):
                     self.interfaces = [
                         i.strip() for i in
-                        parser.get('general', 'interfaces').split(',')]
+                        parser.get('general', 'interfaces').split(',') if i]
             elif section.startswith('job.'):
                 self.job_config[section[4:]] = dict(parser.items(section))
             elif section.startswith('auth.'):
