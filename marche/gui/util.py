@@ -32,6 +32,12 @@ from PyQt4 import uic
 from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
 
+try:
+    from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
+except ImportError:
+    class QPyNullVariant(object):
+        pass
+
 from marche.six import iteritems
 
 
@@ -135,6 +141,8 @@ def loadSetting(name, default=None, valType=str, settings=None):
 
     raw = settings.value(name, default)
 
+    if isinstance(raw, QPyNullVariant):
+        raw = None
     if raw is None:
         raw = default
     if raw is None:
@@ -210,4 +218,3 @@ def removeCredentials(host):
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], valType=list)
     return dict((host, loadCredentials(host)) for host in hosts)
-
