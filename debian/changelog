@@ -1,3 +1,112 @@
+marche (0.6.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: add "multi-start/stop" buttons for groups
+  * client: connection timeout
+  * remove old gensyscfg script
+  * NICOS: support custom NICOS root, and transferring logfiles
+  * copyright update
+  * Tango job: allow resdir to be configured
+  * init job: make sure config files are exchanged as bytes
+  * Move tango_host value to interface_config, remove "extended" section.
+  * Doc overhaul.
+  * Add interface base class, add it to the docs.
+  * Fully document the base Job API.
+
+  [ Alexander Lenz ]
+  * doc: fix version.
+  * doc: display version on landing page.
+  * Add manifest.
+  * Fix debian control files.
+  * Fix version script (for py3).
+
+  [ Georg Brandl ]
+  * Fix tangosrv job
+  * Python 3 port.
+  * If polling fails, do not abort poll thread, but show a status info.
+  * Small doc fixes.
+  * Process job: use the job name as service name.
+  * Add one-shot processes, and the notion of "NOT RUNNING" jobs which are not displayed in red.
+  * Make log messages for check() warnings.
+  * Add a job for systemd units.
+  * Slight reorg of main doc page.
+  * Try to fix QPyNullVariant settings.
+
+  [ Alexander Lenz ]
+  * Create requirements file.
+  * Add travis cfg.
+  * Update readme.
+  * travis cfg: add dummy script.
+
+  [ Georg Brandl ]
+  * Remove unused tango interface.
+  * Add event classes.
+
+  [ Alexander Lenz ]
+  * Fully remove gensyscfg.
+
+  [ Georg Brandl ]
+  * Refactor job handler.
+  * Change the job API to map better to the new protocol.
+  * Just return no configs by default.
+  * Implement extended status. Currently jobs just return nothing.
+  * First steps of the permission system.
+  * Ensure that only "synchronous events" are returned to xmlrpc.
+  * Switch locking to per-job.
+  * Refactor jobs a little: use the init() method to determine services.
+  * Implement continuous polling of service status.
+  * Use six as a dependency.
+  * File header update.
+  * Increment protocol version.
+  * Actually send events in the case of status updates.
+  * Add service/instance data to synchronously generated events.
+  * Add pluggable authentication modules.
+  * Pollinterval zero is no polling.
+  * Job: refactor so that the constructor is not overridden.
+  * Better document base Job API.
+  * Fix newline handling in logfiles and output.
+  * Slight config refactor: keep no defaults in the Config object.
+  * Allow interfaces to shut down.
+  * Give the Event classes nicer constructors.
+  * Return jobtype in service list.
+  * Return permissions in service list.
+  * Make the daemon's naming scheme consistent.
+  * Use symbolic constants for protocol commands/events.
+  * Update pylintrc, fix various pylint issues.
+  * UDP: return proto version with PONG reply.
+  * Set up testing with py.test.
+  * Add a test for the base job and the poller.
+  * Add a test for the XMLRPC interface.
+  * Add a test for the UDP interface.
+  * Add a test for the job handler.
+  * Add a test for the config class.
+  * Add a test for the authenticators.
+  * Fix some more pylint issues.
+  * Use the Fault exception instead of generic RuntimeError.
+  * Minor fixes to run the tests on Windows.
+  * Make the XML-RPC test faster to shutdown.
+  * Add a test for the event class and other utils.
+  * Refactor daemon into a class, port to argparse, and add a test for it.
+  * Add a test for the process job.
+  * Refactor common log and config file handling into mixins.
+  * Add a test for the init and systemd jobs.
+  * Add a test for the entangle job, remove unused functions.
+  * Add a utility tester for repetitive start-stop-restart tests.
+  * Add a test for the NICOS job.
+  * Pass -S to subprocess Pythons to avoid initializing the coverage machinery.
+  * Add a test for the TACO job.
+  * Add a test for the Tango server job.
+  * Add pylint to requirements and travis run.
+  * Change handler behavior: return events directly from methods.
+  * Update the docs; add building the docs to the Travis config.
+  * Add Debian dep on python-six.
+  * Implement GetDescription for XMLRPC and in the standalone jobs.
+  * Use description in the GUI.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 08 Apr 2016 09:08:49 +0200
+
 marche (0.5.11) unstable; urgency=low
 
   [ Georg Brandl ]
