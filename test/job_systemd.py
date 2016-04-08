@@ -64,6 +64,7 @@ def test_job(tmpdir):
     job.init()
 
     assert job.get_services() == [('foo', '')]
+    assert job.service_description('foo', '') == 'name'
     assert job.service_status('foo', '') == (RUNNING, '')
     job_call_check(job, 'foo', '', 'action foo', ['foo', 'action'])
 

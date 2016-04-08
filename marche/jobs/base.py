@@ -278,10 +278,8 @@ class Job(object):
                                   % self.__class__.__name__)
 
     def service_description(self, service, instance):
-        """Return a long string description of the service with the given
-        name.
-        """
-        return '(no long description provided)'
+        """Return a string description of the service with the given name."""
+        return ''
 
     def service_output(self, service, instance):
         """Return the console output of the last attempt to start/stop/restart

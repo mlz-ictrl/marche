@@ -88,12 +88,14 @@ def test_oneshot():
         'binary': sys.executable,
         'args': '-S -c "print(\'output\')"',
         'oneshot': 'true',
+        'description': 'descr',
     }
 
     job = Job('process', 'name', config, logger, lambda event: None)
     assert job.check()
     job.init()
 
+    assert job.service_description('name', '') == 'descr'
     job.start_service('name', '')
     wait(100, lambda: job.service_status('name', '')[0] == NOT_RUNNING)
     job.stop_service('name', '')

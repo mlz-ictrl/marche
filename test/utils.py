@@ -125,6 +125,9 @@ class MockJobHandler(object):
                                  'permissions': [], 'jobtype': ''}}}
         return ServiceListEvent(services=svcs)
 
+    def get_service_description(self, client, service, instance):
+        return 'desc'
+
     def request_service_status(self, client, service, instance):
         return StatusEvent(service=service, instance=instance,
                            state=DEAD, ext_status='ext_status')

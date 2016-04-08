@@ -124,6 +124,9 @@ def test_service_list(handler):
 def test_requests(handler):
     client = ClientInfo(CONTROL)
 
+    desc = handler.get_service_description(client, 'svc2', 'inst1')
+    assert desc == 'desc:inst1'
+
     ev = handler.request_service_status(client, 'svc2', 'inst1')
     assert isinstance(ev, StatusEvent)
     assert ev.service == 'svc2'

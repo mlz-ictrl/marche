@@ -92,6 +92,8 @@ class JobHandler(object):
                 if not job.check():
                     job.log.error('feasibility check failed')
                     continue
+                job.init()
+                self.log.info('job %s initialized' % name)
                 for service, instance in job.get_services():
                     other = self.service2job.get(service)
                     if other and other is not job:
@@ -100,13 +102,10 @@ class JobHandler(object):
                                            (service, name, other.name))
                     self.service2job[service] = job
                     self.log.info('found service: %s.%s' % (service, instance))
+                self.jobs[name] = job
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' %
                                    (name, err))
-            else:
-                self.jobs[name] = job
-                job.init()
-                self.log.info('job %s initialized' % name)
 
     def _get_job(self, service):
         """Return the job the service belongs to."""
@@ -154,6 +153,13 @@ class JobHandler(object):
                     }
                     svcs.setdefault(service, {})[instance] = info
         return ServiceListEvent(services=svcs)
+
+    # Not a command, but needed for XMLRPC.
+    def get_service_description(self, client, service, instance):
+        job = self._get_job(service)
+        job.check_permission(DISPLAY, client)
+        with job.lock:
+            return job.service_description(service, instance)
 
     @command()
     def start_service(self, client, service, instance):

@@ -87,6 +87,11 @@ This job has the following configuration parameters:
       write back when updates are received.  If not given, no configs are
       transferred.
 
+   .. describe:: description
+
+      A nicer description for the job, to be displayed in the GUI.  Default is
+      no description, and the job name will be displayed.
+
    .. describe:: permissions
                  pollinterval
 
@@ -162,6 +167,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         if self.working_dir is None:
             self.working_dir = path.dirname(self.binary)
         self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
+        self.description = config.get('description', self.name)
         self.configure_logfile_mixin(config)
         if not self.log_files and self.output_file:
             self.log_files.append(self.output_file)
@@ -181,6 +187,9 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def get_services(self):
         return [(self.name, '')]
+
+    def service_description(self, service, instance):
+        return self.description
 
     def start_service(self, service, instance):
         if self._thread and self._thread.isAlive():

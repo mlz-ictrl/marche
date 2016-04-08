@@ -49,6 +49,7 @@ def test_job(tmpdir):
 
     config = {
         'script': 'foo',
+        'description': 'descr',
     }
 
     job = Job('init', 'name', config, logger, lambda event: None)
@@ -61,5 +62,6 @@ def test_job(tmpdir):
     job.init()
 
     assert job.get_services() == [('foo', '')]
+    assert job.service_description('foo', '') == 'descr'
     assert job.service_status('foo', '') == (RUNNING, '')
     job_call_check(job, 'foo', '', 'action', ['foo', 'action'])

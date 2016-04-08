@@ -77,7 +77,7 @@ def test_authentication(xmlrpc_iface):
 
 def test_simple_queries(proxy):
     assert proxy.GetVersion() == str(PROTO_VERSION)
-    assert proxy.GetDescription('svc.inst') == ''
+    assert proxy.GetDescription('svc.inst') == 'desc'
     assert set(proxy.GetServices()) == set(['svc.inst', 'svc'])
 
 

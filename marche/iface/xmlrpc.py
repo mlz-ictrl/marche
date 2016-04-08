@@ -134,10 +134,6 @@ class RPCFunctions(object):
         return str(PROTO_VERSION)
 
     @command
-    def GetDescription(self, name):
-        return ''
-
-    @command
     def GetServices(self):
         list_event = self.jobhandler.request_service_list(self.client)
         result = []
@@ -148,6 +144,11 @@ class RPCFunctions(object):
                 else:
                     result.append(svcname + '.' + instance)
         return result
+
+    @command
+    def GetDescription(self, name):
+        return self.jobhandler.get_service_description(
+            self.client, *self._split_name(name))
 
     @command
     def GetStatus(self, name):

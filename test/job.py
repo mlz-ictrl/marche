@@ -70,7 +70,7 @@ def test_job_base():
     assert job.service_output('foo', 'bar') == []
     assert job.service_logs('foo', 'bar') == {}
     assert job.receive_config('foo', 'bar') == {}
-    assert job.service_description('foo', 'bar').startswith('(no long')
+    assert job.service_description('foo', 'bar') == ''
     assert raises(Fault, job.send_config, 'foo', 'bar', '', '')
 
     # Check required implementations
