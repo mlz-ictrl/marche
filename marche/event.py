@@ -24,20 +24,9 @@
 
 """Event classes."""
 
-from six import add_metaclass
-
 from marche.protocol import Events
 
 
-class EventMeta(type):
-    def __new__(mcs, name, bases, attrs):
-        newtype = type.__new__(mcs, name, bases, attrs)
-        if newtype.event_type:
-            newtype.registry[newtype.event_type] = newtype
-        return newtype
-
-
-@add_metaclass(EventMeta)
 class Event(object):
     registry = {}
 
@@ -137,3 +126,8 @@ class ConffileEvent(FileEvent):
 
 class LogfileEvent(FileEvent):
     event_type = Events.LOG_FILES
+
+
+for cls in globals().values():
+    if getattr(cls, 'event_type', None):
+        Event.registry[cls.event_type] = cls
