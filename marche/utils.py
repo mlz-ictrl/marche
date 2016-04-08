@@ -195,13 +195,13 @@ class AsyncProcess(Thread):
                 for line in iter(proc.stdout.readline, b''):
                     line = line.translate(None, b'\r')
                     line = line.decode('utf-8', 'replace')
-                    self.log.debug(line)
+                    self.log.debug(line.rstrip())
                     self.stdout.append(line)
             if proc.stderr.fileno() in fds:
                 for line in iter(proc.stderr.readline, b''):
                     line = line.translate(None, b'\r')
                     line = line.decode('utf-8', 'replace')
-                    self.log.warning(line)
+                    self.log.warning(line.rstrip())
                     self.stderr.append(line)
 
         while True:
