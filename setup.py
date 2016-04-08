@@ -46,7 +46,7 @@ setup(
     author = 'Georg Brandl',
     author_email = 'g.brandl@fz-juelich.de',
     description = 'Server control daemon',
-    packages = find_packages(),
+    packages = find_packages(exclude=['test']),
     package_data = {'marche': ['RELEASE-VERSION'] + uis},
     data_files = [
         ('/etc/init.d', ['etc/marched']),
