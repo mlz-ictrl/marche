@@ -151,6 +151,20 @@ class Client(object):
 
         return result
 
+    def getServiceDescriptions(self, services):
+        result = {}
+        with self._lock:
+            for service, instances in iteritems(services):
+                if instances:
+                    for instance in instances:
+                        path = self.getServicePath(service, instance)
+                        result[service, instance] = \
+                            self._proxy.GetDescription(path)
+                else:
+                    path = self.getServicePath(service, None)
+                    result[service] = self._proxy.GetDescription(path)
+        return result
+
     def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
 

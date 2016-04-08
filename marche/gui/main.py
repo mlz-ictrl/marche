@@ -385,6 +385,10 @@ class HostTree(QTreeWidget):
     def fill(self):
         self.clear()
         services = self._client.getServices()
+        try:
+            descrs = self._client.getServiceDescriptions(services)
+        except Exception:
+            descrs = {}
         self._client.startPoller(self.updateStatus)
 
         for service, instances in iteritems(services):
@@ -399,6 +403,8 @@ class HostTree(QTreeWidget):
                 self._items[service] = serviceItem
                 btn = JobButtons(self._client, service, None, serviceItem)
                 self.setItemWidget(serviceItem, 2, btn)
+                if descrs.get(service):
+                    serviceItem.setText(0, descrs[service])
             else:
                 self._items[service] = (serviceItem, {})
                 btns = []
@@ -408,6 +414,8 @@ class HostTree(QTreeWidget):
                     instanceItem.setTextAlignment(1, Qt.AlignCenter)
                     instanceItem.setFlags(Qt.ItemIsEnabled)
                     instanceItem.setForeground(3, QBrush(QColor('red')))
+                    if descrs.get((service, instance)):
+                        instanceItem.setText(0, descrs[service, instance])
                     serviceItem.addChild(instanceItem)
 
                     btn = JobButtons(self._client, service, instance,
