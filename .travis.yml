@@ -13,5 +13,5 @@ install:
 
 script:
     - py.test -v --cov
-    - pylint --ignore=gui,guing marche
+    - pylint --ignore=gui,guing,six.py marche
     - cd doc; make html SPHINXOPTS=-W
