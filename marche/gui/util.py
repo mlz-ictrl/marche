@@ -134,7 +134,7 @@ def saveSetting(name, value, settings=None):
     settings.setValue(name, value)
 
 
-def loadSetting(name, default=None, valType=str, settings=None):
+def loadSetting(name, default=None, valtype=str, settings=None):
     if settings is None:
         settings = _getSettingsObj()
 
@@ -147,12 +147,12 @@ def loadSetting(name, default=None, valType=str, settings=None):
     if raw is None:
         return raw
 
-    return valType(raw)
+    return valtype(raw)
 
 
-def saveSettings(settingsDict):
+def saveSettings(settings_dict):
     settings = _getSettingsObj()
-    for key, value in iteritems(settingsDict):
+    for key, value in iteritems(settings_dict):
         saveSetting(key, value, settings=settings)
 
 
@@ -173,7 +173,7 @@ def loadSettings(request):
 def saveCredentials(host, user, passwd):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], valType=list,
+    hosts = loadSetting('creds/hosts', default=[], valtype=list,
                         settings=settings)
     hosts.append(host)
 
@@ -190,7 +190,7 @@ def saveCredentials(host, user, passwd):
 def loadCredentials(host):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], valType=list,
+    hosts = loadSetting('creds/hosts', default=[], valtype=list,
                         settings=settings)
     if host not in hosts:
         return (None, None)
@@ -206,7 +206,8 @@ def loadCredentials(host):
 def removeCredentials(host):
     settings = _getSettingsObj()
 
-    hosts = loadSetting('creds/hosts', default=[], valType=list, settings=settings)
+    hosts = loadSetting('creds/hosts', default=[], valtype=list,
+                        settings=settings)
     hosts.remove(host)
 
     saveSetting('creds/hosts', hosts, settings=settings)
@@ -215,5 +216,5 @@ def removeCredentials(host):
 
 
 def loadAllCredentials():
-    hosts = loadSetting('creds/hosts', default=[], valType=list)
+    hosts = loadSetting('creds/hosts', default=[], valtype=list)
     return dict((host, loadCredentials(host)) for host in hosts)

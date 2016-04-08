@@ -2,11 +2,11 @@
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-#init-hook=
+init-hook=
 
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
-ignore=.git,res.py
+ignore=.git,res.py,six.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -160,6 +160,8 @@ ignore-docstrings=yes
 # Tells whether missing members accessed in mixin class should be ignored. A
 # mixin class is detected if its name ends with "mixin" (case insensitive).
 ignore-mixin-members=yes
+
+ignored-modules=marche.six.moves
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).

@@ -118,7 +118,7 @@ class Client(object):
                                       self.passwd,
                                       loadSetting('pollInterval',
                                                   3,
-                                                  valType=float))
+                                                  valtype=float))
         self._pollThread.newData.connect(slot)
         self._pollThread.start()
 

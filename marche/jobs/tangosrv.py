@@ -70,13 +70,13 @@ names of potential logfiles are also automatically determined.
 
 from os import path
 
-from marche.jobs import Fault
-from marche.jobs.init import Job as InitJob
-
 try:
     import PyTango
 except ImportError:  # pragma: no cover
     PyTango = None
+
+from marche.jobs import Fault
+from marche.jobs.init import Job as InitJob
 
 
 class Job(InitJob):
