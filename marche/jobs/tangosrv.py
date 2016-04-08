@@ -89,6 +89,9 @@ class Job(InitJob):
         self.srvname = config.get('srvname', self.name)
         self.init_name = config.get('script', 'tango-server-' +
                                     self.srvname.lower())
+        self.script = self.INIT_BASE + self.init_name
+        self.description = config.get('description',
+                                      '%s server' % self.srvname)
         resdir = config.get('resdir', '')
         if not resdir:
             with open(self.DEFAULT_FILE) as fd:
