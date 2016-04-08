@@ -29,7 +29,7 @@ import logging
 
 from marche.jobs import Fault, Busy, DEAD, RUNNING
 from marche.jobs.base import Job as BaseJob
-from marche.event import ServiceListEvent, StatusEvent, LogfileEvent, \
+from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
     ConffileEvent, ControlOutputEvent
 from marche.auth import AuthFailed
 from marche.permission import ClientInfo, ADMIN

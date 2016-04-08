@@ -27,8 +27,8 @@
 
 from marche.six import iteritems
 
-from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
-    LogfileEvent, StatusEvent
+from marche.protocol import ServiceListEvent, ControlOutputEvent, \
+    ConffileEvent, LogfileEvent, StatusEvent
 from marche.jobs import Busy, Fault
 from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
 

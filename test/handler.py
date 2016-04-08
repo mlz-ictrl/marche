@@ -33,8 +33,8 @@ from marche.jobs import Fault, Busy
 from marche.jobs.base import DEAD, RUNNING
 from marche.config import Config
 from marche.handler import JobHandler
-from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
-    LogfileEvent, StatusEvent, ErrorEvent
+from marche.protocol import ServiceListEvent, ControlOutputEvent, \
+    ConffileEvent, LogfileEvent, StatusEvent, ErrorEvent
 from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
 
 from test.utils import LogHandler, MockIface, MockJob

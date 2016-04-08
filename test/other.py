@@ -26,6 +26,7 @@
 
 import os
 import sys
+import json
 import time
 import socket
 import logging
@@ -33,8 +34,7 @@ import logging
 from pytest import raises
 from marche.six import StringIO
 
-from marche.protocol import Events
-from marche.event import Event, AuthEvent
+from marche.protocol import Events, Event, AuthEvent
 from marche import utils, colors, loggers
 
 from test.utils import LogHandler
@@ -46,12 +46,11 @@ logger.addHandler(testhandler)
 
 def test_event_class():
     assert raises(RuntimeError, Event().serialize)
-    assert raises(RuntimeError, Event.unserialize, {})
-    assert Event.unserialize({'type': 1423}) is None
+    assert raises(RuntimeError, Event.unserialize, b'{}')
+    assert Event.unserialize(json.dumps({'type': 1423}).encode()) is None
 
     ev = AuthEvent(success=True)
     serialized = ev.serialize()
-    assert serialized == {'type': Events.AUTH_RESULT, 'success': True}
     assert Event.unserialize(serialized) == ev
 
     assert repr(Event()) == '<Event: {}>'

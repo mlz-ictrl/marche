@@ -24,11 +24,16 @@
 
 """Constants for use with the new Marche protocol."""
 
+import json
+
+from marche.six import add_metaclass
+
 # Increment this when making changes to the protocol.
 PROTO_VERSION = 2
 
 
 class Commands(object):
+    AUTHENTICATE = 'auth'
     TRIGGER_RELOAD = 'reload'
     START_SERVICE = 'start'
     STOP_SERVICE = 'stop'
@@ -50,3 +55,184 @@ class Events(object):
     CONTROL_OUTPUT = 'output'
     CONF_FILES = 'conffiles'
     LOG_FILES = 'logfiles'
+
+
+class RegistryMeta(type):
+    def __new__(mcs, name, bases, attrs):
+        newtype = type.__new__(mcs, name, bases, attrs)
+        if newtype.type:
+            newtype.registry[newtype.type] = newtype
+        return newtype
+
+
+@add_metaclass(RegistryMeta)
+class SerializableMessage(object):
+    registry = {}
+
+    #: Designation of the type of message.
+    type = None
+
+    def serialize(self):
+        if not self.type:
+            raise RuntimeError('base class cannot be serialized')
+        ret = {'type': self.type}
+        ret.update(vars(self))
+        return json.dumps(ret).encode('utf-8')
+
+    @classmethod
+    def unserialize(cls, data):
+        data = json.loads(data.decode('utf-8'))
+        if 'type' not in data:
+            raise RuntimeError('type not given in data')
+        if data['type'] not in cls.registry:
+            # command is not recognized; ignore it for compatibility
+            return None
+        cls = cls.registry[data.pop('type')]
+        return cls(**data)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+            vars(self) == vars(other)
+
+    def __repr__(self):
+        return '<%s: %r>' % (self.__class__.__name__, vars(self))
+
+
+# -----------------------------------------------------------------------------
+
+class Command(SerializableMessage):
+    registry = {}
+
+
+class AuthenticateCommand(Command):
+    type = Commands.AUTHENTICATE
+
+    def __init__(self, user, passwd):
+        self.user = user
+        self.passwd = passwd
+
+
+class ReloadCommand(Command):
+    type = Commands.TRIGGER_RELOAD
+
+
+class RequestServiceListCommand(Command):
+    type = Commands.REQUEST_SERVICE_LIST
+
+
+class ServiceCommand(Command):
+    def __init__(self, service, instance):
+        self.service = service
+        self.instance = instance
+
+
+class StartCommand(ServiceCommand):
+    type = Commands.START_SERVICE
+
+
+class StopCommand(ServiceCommand):
+    type = Commands.STOP_SERVICE
+
+
+class RestartCommand(ServiceCommand):
+    type = Commands.RESTART_SERVICE
+
+
+class RequestServiceStatusCommand(ServiceCommand):
+    type = Commands.REQUEST_SERVICE_STATUS
+
+
+class RequestControlOutputCommand(ServiceCommand):
+    type = Commands.REQUEST_CONTROL_OUTPUT
+
+
+class RequestLogFilesCommand(ServiceCommand):
+    type = Commands.REQUEST_LOG_FILES
+
+
+class RequestConfigFilesCommand(ServiceCommand):
+    type = Commands.REQUEST_CONF_FILES
+
+
+class SendConfigFilesCommand(ServiceCommand):
+    type = Commands.SEND_CONF_FILE
+
+    def __init__(self, service, instance, filename, contents):
+        ServiceCommand.__init__(self, service, instance)
+        self.filename = filename
+        self.contents = contents
+
+
+# -----------------------------------------------------------------------------
+
+class Event(SerializableMessage):
+    registry = {}
+
+
+class ConnectedEvent(Event):
+    type = Events.CONNECTED
+
+    def __init__(self, proto_version, daemon_version, unauth_permissions):
+        self.proto_version = proto_version
+        self.daemon_version = daemon_version
+        self.unauth_permissions = unauth_permissions
+
+
+class ServiceListEvent(Event):
+    type = Events.SERVICE_LIST
+
+    def __init__(self, services):
+        self.services = services
+
+
+class AuthEvent(Event):
+    type = Events.AUTH_RESULT
+
+    def __init__(self, success):
+        self.success = success
+
+
+class ServiceEvent(Event):
+    def __init__(self, service, instance):
+        self.service = service
+        self.instance = instance
+
+
+class StatusEvent(ServiceEvent):
+    type = Events.STATUS
+
+    def __init__(self, service, instance, state, ext_status):
+        ServiceEvent.__init__(self, service, instance)
+        self.state = state
+        self.ext_status = ext_status
+
+
+class ErrorEvent(ServiceEvent):
+    type = Events.ERROR
+
+    def __init__(self, service, instance, code, desc):
+        ServiceEvent.__init__(self, service, instance)
+        self.code = code
+        self.desc = desc
+
+
+class ControlOutputEvent(ServiceEvent):
+    type = Events.CONTROL_OUTPUT
+
+    def __init__(self, service, instance, content):
+        ServiceEvent.__init__(self, service, instance)
+        self.content = content
+
+
+class FileEvent(ServiceEvent):
+    def __init__(self, service, instance, files):
+        ServiceEvent.__init__(self, service, instance)
+        self.files = files
+
+
+class ConffileEvent(FileEvent):
+    type = Events.CONF_FILES
+
+
+class LogfileEvent(FileEvent):
+    type = Events.LOG_FILES

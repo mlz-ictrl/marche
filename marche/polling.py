@@ -29,7 +29,7 @@ import threading
 
 from marche.six.moves import queue
 
-from marche.event import StatusEvent
+from marche.protocol import StatusEvent
 
 
 class Poller(object):

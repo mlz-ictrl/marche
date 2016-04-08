@@ -31,7 +31,7 @@ from pytest import raises
 
 from marche.jobs import Fault, Busy, DEAD, RUNNING, STARTING, STOPPING
 from marche.jobs.base import Job as BaseJob
-from marche.event import StatusEvent
+from marche.protocol import StatusEvent
 from marche.permission import ClientInfo, ADMIN, CONTROL, DISPLAY
 
 from test.utils import wait, LogHandler, MockAsyncProcess
