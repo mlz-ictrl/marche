@@ -53,7 +53,7 @@ This job has the following configuration parameters:
 import os
 from os import path
 
-from six.moves import configparser
+from marche.six.moves import configparser
 
 from marche.jobs import Fault
 from marche.jobs.base import Job as BaseJob

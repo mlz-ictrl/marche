@@ -30,8 +30,8 @@ import time
 import socket
 import logging
 
-from six import StringIO
 from pytest import raises
+from marche.six import StringIO
 
 from marche.protocol import Events
 from marche.event import Event, AuthEvent

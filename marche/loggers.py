@@ -30,7 +30,7 @@ import traceback
 from os import path
 from logging import Formatter, Handler, DEBUG, INFO, WARNING, ERROR
 
-from six import iteritems
+from marche.six import iteritems
 
 from marche import colors
 

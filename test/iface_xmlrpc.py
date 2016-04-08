@@ -27,7 +27,7 @@
 import logging
 
 from pytest import raises, fixture
-from six.moves import xmlrpc_client
+from marche.six.moves import xmlrpc_client
 
 from marche.jobs import DEAD
 from marche.config import Config

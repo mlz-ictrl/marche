@@ -25,7 +25,7 @@
 
 """Job control dispatcher."""
 
-from six import iteritems
+from marche.six import iteritems
 
 from marche.event import ServiceListEvent, ControlOutputEvent, ConffileEvent, \
     LogfileEvent, StatusEvent

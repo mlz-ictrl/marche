@@ -28,7 +28,7 @@
 import os
 from os import path
 
-from six.moves import configparser
+from marche.six.moves import configparser
 
 
 class CasePreservingConfigParser(configparser.SafeConfigParser):

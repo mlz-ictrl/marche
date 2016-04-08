@@ -3,4 +3,5 @@ source = marche
 omit =
     marche/guing/*
     marche/gui/*
+    marche/six.py
     marche/version.py

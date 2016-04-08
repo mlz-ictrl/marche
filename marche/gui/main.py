@@ -36,9 +36,9 @@ from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
     QByteArray
 
-from six import iteritems
-from six.moves import range  # pylint: disable=redefined-builtin
-from six.moves import xmlrpc_client as xmlrpc
+from marche.six import iteritems
+from marche.six.moves import range  # pylint: disable=redefined-builtin
+from marche.six.moves import xmlrpc_client as xmlrpc
 
 import marche.gui.res  # noqa, pylint: disable=unused-import
 
