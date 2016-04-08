@@ -143,7 +143,7 @@ class JobHandler(object):
                 for service, instance in job.get_services():
                     if not job.has_permission(DISPLAY, client):
                         continue
-                    state, ext = job.service_status(service, instance)
+                    state, ext = job.polled_service_status(service, instance)
                     info = {
                         'desc': job.service_description(service, instance),
                         'state': state,
