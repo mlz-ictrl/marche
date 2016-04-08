@@ -1,3 +1,12 @@
+marche (0.6.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix tangosrv job description.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 08 Apr 2016 09:19:31 +0200
+
 marche (0.6.0) unstable; urgency=low
 
   [ Georg Brandl ]
