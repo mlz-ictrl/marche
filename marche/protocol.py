@@ -59,6 +59,12 @@ class Events(object):
     FOUND_HOST = 'host'
 
 
+class Errors(object):
+    BUSY = 1
+    FAULT = 2
+    EXCEPTION = 9
+
+
 class RegistryMeta(type):
     def __new__(mcs, name, bases, attrs):
         newtype = type.__new__(mcs, name, bases, attrs)

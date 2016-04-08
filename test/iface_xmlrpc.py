@@ -31,8 +31,8 @@ from marche.six.moves import xmlrpc_client
 
 from marche.jobs import DEAD
 from marche.config import Config
-from marche.protocol import PROTO_VERSION
-from marche.iface.xmlrpc import Interface, BUSY, FAULT, EXCEPTION
+from marche.protocol import Errors, PROTO_VERSION
+from marche.iface.xmlrpc import Interface
 
 from test.utils import MockJobHandler, MockAuthHandler, LogHandler
 
@@ -101,21 +101,21 @@ def test_commands(proxy):
     # wrong arguments
     with raises(xmlrpc_client.Fault) as exc_info:
         proxy.Start()
-    assert exc_info.value.faultCode == EXCEPTION
+    assert exc_info.value.faultCode == Errors.EXCEPTION
     assert exc_info.value.faultString.startswith('Unexpected exception: ')
 
     # errors raised by handler
     with raises(xmlrpc_client.Fault) as exc_info:
         proxy.Stop('svc.inst')
-    assert exc_info.value.faultCode == BUSY
+    assert exc_info.value.faultCode == Errors.BUSY
     assert exc_info.value.faultString == 'job is already busy, retry later'
 
     with raises(xmlrpc_client.Fault) as exc_info:
         proxy.Restart('svc.inst')
-    assert exc_info.value.faultCode == FAULT
+    assert exc_info.value.faultCode == Errors.FAULT
     assert exc_info.value.faultString == 'cannot do this'
 
     with raises(xmlrpc_client.Fault) as exc_info:
         proxy.SendConfig('svc.inst')
-    assert exc_info.value.faultCode == EXCEPTION
+    assert exc_info.value.faultCode == Errors.EXCEPTION
     assert exc_info.value.faultString == 'Unexpected exception: no conf files'

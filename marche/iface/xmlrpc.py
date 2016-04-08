@@ -59,12 +59,8 @@ from marche.six.moves import xmlrpc_client, xmlrpc_server
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
 from marche.auth import AuthFailed
-from marche.protocol import PROTO_VERSION
+from marche.protocol import PROTO_VERSION, Errors
 from marche.permission import ClientInfo, ADMIN
-
-BUSY = 1
-FAULT = 2
-EXCEPTION = 9
 
 
 class RequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
@@ -101,11 +97,12 @@ def command(method):
             ret = method(self, *args)
             return True if ret is None else ret
         except Busy as err:
-            raise xmlrpc_client.Fault(BUSY, str(err))
+            raise xmlrpc_client.Fault(Errors.BUSY, str(err))
         except Fault as err:
-            raise xmlrpc_client.Fault(FAULT, str(err))
+            raise xmlrpc_client.Fault(Errors.FAULT, str(err))
         except Exception as err:
-            raise xmlrpc_client.Fault(EXCEPTION, 'Unexpected exception: %s' % err)
+            raise xmlrpc_client.Fault(Errors.EXCEPTION,
+                                      'Unexpected exception: %s' % err)
     new_method.__name__ = method.__name__
     return new_method
 
