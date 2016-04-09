@@ -112,7 +112,7 @@ class AuthenticateCommand(Command):
         self.passwd = passwd
 
 
-class ReloadCommand(Command):
+class TriggerReloadCommand(Command):
     type = Commands.TRIGGER_RELOAD
 
 
@@ -150,11 +150,11 @@ class RequestLogFilesCommand(ServiceCommand):
     type = Commands.REQUEST_LOG_FILES
 
 
-class RequestConfigFilesCommand(ServiceCommand):
+class RequestConfFilesCommand(ServiceCommand):
     type = Commands.REQUEST_CONF_FILES
 
 
-class SendConfigFilesCommand(ServiceCommand):
+class SendConfFileCommand(ServiceCommand):
     type = Commands.SEND_CONF_FILE
 
     def __init__(self, service, instance, filename, contents):
