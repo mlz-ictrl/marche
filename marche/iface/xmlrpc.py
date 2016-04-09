@@ -137,8 +137,8 @@ class RPCFunctions(object):
     def GetServices(self):
         list_event = self.jobhandler.request_service_list(self.client)
         result = []
-        for svcname, instances in iteritems(list_event.services):
-            for instance in instances:
+        for svcname, info in iteritems(list_event.services):
+            for instance in info['instances']:
                 if not instance:
                     result.append(svcname)
                 else:

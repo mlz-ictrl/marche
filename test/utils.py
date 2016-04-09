@@ -110,6 +110,7 @@ class MockJobHandler(object):
 
     test_interface = None
     test_reloaded = False
+    test_svc_list_error = False
     unauth_level = NONE
 
     def emit_event(self, event):
@@ -120,10 +121,14 @@ class MockJobHandler(object):
         self.test_reloaded = True
 
     def request_service_list(self, client):
-        svcs = {'svc': {'': {'desc': '', 'state': DEAD, 'ext_status': '',
-                             'permissions': [], 'jobtype': ''},
-                        'inst': {'desc': '', 'state': DEAD, 'ext_status': '',
-                                 'permissions': [], 'jobtype': ''}}}
+        if self.test_svc_list_error:
+            raise Fault('uh oh')
+        svcs = {'svc': {
+            'jobtype': '',
+            'permissions': [],
+            'instances': {
+                '': {'desc': '', 'state': DEAD, 'ext_status': ''},
+                'inst': {'desc': '', 'state': DEAD, 'ext_status': ''}}}}
         return ServiceListEvent(services=svcs)
 
     def get_service_description(self, client, service, instance):

@@ -103,18 +103,25 @@ def test_service_list(handler):
     ev = handler.request_service_list(ClientInfo(CONTROL))
     assert isinstance(ev, ServiceListEvent)
     assert ev.services == {
-        'svc1': {'':      {'desc': 'desc:', 'jobtype': 'test',
-                           'state': DEAD, 'ext_status': 'ext:',
-                           'permissions': [DISPLAY, CONTROL]}},
-        'svc2': {'inst1': {'desc': 'desc:inst1', 'jobtype': 'test',
-                           'state': RUNNING, 'ext_status': 'ext:inst1',
-                           'permissions': [DISPLAY, CONTROL]}},
-        'svc3': {'':      {'desc': 'desc:', 'jobtype': 'test',
-                           'state': RUNNING, 'ext_status': 'ext:',
-                           'permissions': [DISPLAY, CONTROL]},
-                 'inst2': {'desc': 'desc:inst2', 'jobtype': 'test',
-                           'state': RUNNING, 'ext_status': 'ext:inst2',
-                           'permissions': [DISPLAY, CONTROL]}},
+        'svc1': {
+            'jobtype': 'test',
+            'permissions': [DISPLAY, CONTROL],
+            'instances': {'': {'desc': 'desc:',
+                               'state': DEAD, 'ext_status': 'ext:'}}},
+        'svc2': {
+            'jobtype': 'test',
+            'permissions': [DISPLAY, CONTROL],
+            'instances': {'inst1': {'desc': 'desc:inst1',
+                                    'state': RUNNING,
+                                    'ext_status': 'ext:inst1'}}},
+        'svc3': {
+            'jobtype': 'test',
+            'permissions': [DISPLAY, CONTROL],
+            'instances': {'':      {'desc': 'desc:',
+                                    'state': RUNNING, 'ext_status': 'ext:'},
+                          'inst2': {'desc': 'desc:inst2',
+                                    'state': RUNNING,
+                                    'ext_status': 'ext:inst2'}}},
     }
     # Request the same with insufficient permission level.
     ev = handler.request_service_list(ClientInfo(DISPLAY))

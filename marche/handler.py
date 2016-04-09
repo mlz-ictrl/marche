@@ -144,15 +144,18 @@ class JobHandler(object):
                 for service, instance in job.get_services():
                     if not job.has_permission(DISPLAY, client):
                         continue
+                    if service not in svcs:
+                        svcs[service] = {
+                            'instances': {},
+                            'permissions': job.determine_permissions(client),
+                            'jobtype': job.jobtype,
+                        }
                     state, ext = job.polled_service_status(service, instance)
-                    info = {
+                    svcs[service]['instances'][instance] = {
                         'desc': job.service_description(service, instance),
                         'state': state,
                         'ext_status': ext,
-                        'permissions': job.determine_permissions(client),
-                        'jobtype': job.jobtype,
                     }
-                    svcs.setdefault(service, {})[instance] = info
         return ServiceListEvent(services=svcs)
 
     # Not a command, but needed for XMLRPC.
