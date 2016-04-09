@@ -13,8 +13,9 @@ There are two standard parameters supported by all jobs:
 
    This selects the permissions for users who want to query or control the job.
 
-   There are three permission levels with increasing capabilities.  Each client
-   is assigned one of the levels when it authenticates against the daemon.
+   There are three basic permission levels with increasing capabilities.  Each
+   client is assigned one of the levels when it authenticates against the
+   daemon.
 
    * DISPLAY: to see the job's services, and to query its status, output and log
      files.
@@ -34,6 +35,14 @@ There are two standard parameters supported by all jobs:
    On the other hand, ``admin=control, control=display`` means that a user who
    has only CONTROL level can configure the service, and a user who has only
    DISPLAY level can start/stop it.
+
+   There are also two special levels that are only used in certain situations:
+
+   * NONE: is a level below DISPLAY that can be given to unauthenticated users
+     (see :ref:`here <unauth_level>`), so that they cannot even see services.
+
+   * DISABLED: is a level above ADMIN that can be given to job actions, so that
+     nobody can execute the action on this job (e.g. ``admin=disabled``).
 
 .. describe:: pollinterval
 

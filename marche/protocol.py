@@ -172,10 +172,10 @@ class Event(SerializableMessage):
 class ConnectedEvent(Event):
     type = Events.CONNECTED
 
-    def __init__(self, proto_version, daemon_version, unauth_permissions):
+    def __init__(self, proto_version, daemon_version, unauth_level):
         self.proto_version = proto_version
         self.daemon_version = daemon_version
-        self.unauth_permissions = unauth_permissions
+        self.unauth_level = unauth_level
 
 
 class ServiceListEvent(Event):

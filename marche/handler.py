@@ -68,6 +68,7 @@ class JobHandler(object):
         self.jobs = {}
         self.service2job = {}
         self.interfaces = []
+        self.unauth_level = config.unauth_level
         self._add_jobs()
 
     def add_interface(self, iface):

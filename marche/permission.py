@@ -33,10 +33,22 @@
 # The level required for a certain action on any job can be overridden to
 # a different level in the configuration.  For example, a job could specify
 # that its normally CONTROL level actions actually require ADMIN level.
+#
+# There are two special levels, NONE and DISABLED.
+#
+# NONE is the level that a user can be given when unauthorized, so that these
+# users cannot even see any services.  No service action should ever require
+# that level.
+#
+# DISABLED is a level that can be selected for actions of jobs, so that no
+# user, not even an admin, can execute them.  No user should ever have that
+# level.
 
+NONE = -10
 DISPLAY = 0
 CONTROL = 10
 ADMIN = 20
+DISABLED = 30
 
 
 class ClientInfo(object):
@@ -49,15 +61,19 @@ class ClientInfo(object):
 
 
 STRING_LEVELS = {
+    'none': NONE,
     'display': DISPLAY,
     'control': CONTROL,
     'admin': ADMIN,
+    'disabled': DISABLED,
 }
 
 LEVEL_STRINGS = {
+    NONE: 'none',
     DISPLAY: 'display',
     CONTROL: 'control',
     ADMIN: 'admin',
+    DISABLED: 'disabled',
 }
 
 

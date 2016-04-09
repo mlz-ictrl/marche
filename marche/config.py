@@ -30,6 +30,8 @@ from os import path
 
 from marche.six.moves import configparser
 
+from marche.permission import DISPLAY, STRING_LEVELS
+
 
 class CasePreservingConfigParser(configparser.SafeConfigParser):
     def optionxform(self, key):
@@ -48,6 +50,7 @@ class Config(object):
     auth_config = {}
     iface_config = {}
     interfaces = ['xmlrpc', 'udp']
+    unauth_level = DISPLAY
 
     def __init__(self, confdir=None):
         self.confdir = confdir
@@ -85,6 +88,10 @@ class Config(object):
                     self.interfaces = [
                         i.strip() for i in
                         parser.get('general', 'interfaces').split(',') if i]
+                if parser.has_option('general', 'unauth_level'):
+                    perm = parser.get('general', 'unauth_level')
+                    self.unauth_level = STRING_LEVELS.get(perm.lower().strip(),
+                                                          DISPLAY)
             elif section.startswith('job.'):
                 self.job_config[section[4:]] = dict(parser.items(section))
             elif section.startswith('auth.'):

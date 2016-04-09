@@ -50,6 +50,17 @@ The general configuration is usually placed into a single file named
       A comma-separated list of the interfaces that should be started.  A list
       of all available interfaces is given in :doc:`iface`.
 
+   .. _unauth_level:
+
+   .. describe:: unauth_level
+
+      **Default:** ``display``
+
+      A permission level (see :ref:`the description of permissions
+      <standard-params>`) to assign to users that are not authenticated.
+
+      Can be the special ``none`` level to disable everything for these users.
+
 
 Interface configuration
 ~~~~~~~~~~~~~~~~~~~~~~~

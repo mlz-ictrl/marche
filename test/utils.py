@@ -32,7 +32,7 @@ from marche.jobs.base import Job as BaseJob
 from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
     ConffileEvent, ControlOutputEvent
 from marche.auth import AuthFailed
-from marche.permission import ClientInfo, ADMIN
+from marche.permission import ClientInfo, ADMIN, NONE
 
 
 def wait(n, callback):
@@ -110,6 +110,7 @@ class MockJobHandler(object):
 
     test_interface = None
     test_reloaded = False
+    unauth_level = NONE
 
     def emit_event(self, event):
         if self.test_interface:
