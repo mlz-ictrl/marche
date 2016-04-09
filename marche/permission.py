@@ -44,11 +44,20 @@ class ClientInfo(object):
     def __init__(self, level):
         self.level = level
 
+    def __repr__(self):
+        return '<%s>' % LEVEL_STRINGS[self.level]
+
 
 STRING_LEVELS = {
     'display': DISPLAY,
     'control': CONTROL,
     'admin': ADMIN,
+}
+
+LEVEL_STRINGS = {
+    DISPLAY: 'display',
+    CONTROL: 'control',
+    ADMIN: 'admin',
 }
 
 
