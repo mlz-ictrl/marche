@@ -28,8 +28,9 @@
 from marche.six import iteritems
 
 from marche.protocol import ServiceListEvent, ControlOutputEvent, \
-    ConffileEvent, LogfileEvent, StatusEvent
+    ConffileEvent, LogfileEvent, StatusEvent, FoundHostEvent
 from marche.jobs import Busy, Fault
+from marche.scan import scan_async
 from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
 
 
@@ -132,6 +133,11 @@ class JobHandler(object):
         # This will contain all services.  It's up to the interface to filter
         # the list when distributing to individual connected clients.
         self.emit_event(self.request_service_list(ClientInfo(ADMIN)))
+
+    @command(silent=True)
+    def scan_network(self):
+        """Scan the current network for daemons using UDP broadcast."""
+        scan_async(lambda host: self.emit_event(FoundHostEvent(host)))
 
     @command(silent=True)
     def request_service_list(self, client):

@@ -35,6 +35,7 @@ PROTO_VERSION = 2
 class Commands(object):
     AUTHENTICATE = 'auth'
     TRIGGER_RELOAD = 'reload'
+    SCAN_NETWORK = 'scan'
     START_SERVICE = 'start'
     STOP_SERVICE = 'stop'
     RESTART_SERVICE = 'restart'
@@ -55,6 +56,7 @@ class Events(object):
     CONTROL_OUTPUT = 'output'
     CONF_FILES = 'conffiles'
     LOG_FILES = 'logfiles'
+    FOUND_HOST = 'host'
 
 
 class RegistryMeta(type):
@@ -110,6 +112,10 @@ class AuthenticateCommand(Command):
     def __init__(self, user, passwd):
         self.user = user
         self.passwd = passwd
+
+
+class ScanNetworkCommand(Command):
+    type = Commands.SCAN_NETWORK
 
 
 class TriggerReloadCommand(Command):
@@ -236,3 +242,10 @@ class ConffileEvent(FileEvent):
 
 class LogfileEvent(FileEvent):
     type = Events.LOG_FILES
+
+
+class FoundHostEvent(Event):
+    type = Events.FOUND_HOST
+
+    def __init__(self, host):
+        self.host = host
