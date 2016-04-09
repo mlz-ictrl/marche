@@ -23,14 +23,10 @@
 #
 # *****************************************************************************
 
-import time
-import socket
-import select
-
 from PyQt4.QtGui import QDialog
 from PyQt4.QtCore import QThread, pyqtSignal
 
-from marche.iface.udp import UDP_PORT
+from marche.scan import scan
 from marche.gui.util import loadUi
 
 
@@ -43,23 +39,9 @@ class ScanThread(QThread):
         self.hosts = []
 
     def run(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
-        start = time.time()
-        while time.time() - start < 1.0:  # wait 1 sec max
-            res = select.select([s], [], [], 0.1)
-            if res[0]:
-                try:
-                    _msg, addr = s.recvfrom(1024)
-                except socket.error:
-                    continue
-                try:
-                    addr = socket.gethostbyaddr(addr[0])[0]
-                except socket.error:
-                    addr = addr[0]
-                self.hosts.append(addr + ':8124')
-                self.foundHosts.emit(len(self.hosts))
+        for host in scan():
+            self.hosts.append(host + ':8124')
+            self.foundHosts.emit(len(self.hosts))
         self.finished.emit()
 
 

@@ -1,0 +1,60 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# Marche - A server control daemon
+# Copyright (c) 2015-2016 by the authors, see LICENSE
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <g.brandl@fz-juelich.de>
+#
+# *****************************************************************************
+
+"""Utils for scanning for Marche daemons within the network."""
+
+import socket
+import select
+import threading
+from time import time as currenttime
+
+from marche.iface.udp import UDP_PORT
+
+
+def scan(max_wait=1.0):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
+    start = currenttime()
+    while currenttime() < start + max_wait:
+        res = select.select([s], [], [], 0.1)
+        if res[0]:
+            try:
+                _msg, addr = s.recvfrom(1024)
+            except socket.error:
+                continue
+            try:
+                addr = socket.gethostbyaddr(addr[0])[0]
+            except socket.error:
+                addr = addr[0]
+            yield addr
+
+
+def scan_async(callback, max_wait=1.0):
+    def thread():
+        for host in scan(max_wait):
+            callback(host)
+    thd = threading.Thread(target=thread)
+    thd.setDaemon(True)
+    thd.start()
