@@ -47,6 +47,10 @@ class Fault(Exception):
     pass
 
 
+class Unauthorized(Fault):
+    pass
+
+
 class Busy(Exception):
     def __str__(self):
         s = Exception.__str__(self)

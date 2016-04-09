@@ -62,6 +62,7 @@ class Events(object):
 class Errors(object):
     BUSY = 1
     FAULT = 2
+    UNAUTH = 3
     EXCEPTION = 9
 
 

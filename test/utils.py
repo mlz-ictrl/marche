@@ -27,7 +27,7 @@
 import time
 import logging
 
-from marche.jobs import Fault, Busy, DEAD, RUNNING
+from marche.jobs import Fault, Busy, Unauthorized, DEAD, RUNNING
 from marche.jobs.base import Job as BaseJob
 from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
     ConffileEvent, ControlOutputEvent, FoundHostEvent
@@ -166,7 +166,9 @@ class MockJobHandler(object):
             raise Fault('no permission')
 
     def stop_service(self, client, service, instance):
-        raise Busy
+        if instance == 'inst':
+            raise Busy
+        raise Unauthorized
 
     def restart_service(self, client, service, instance):
         raise Fault('cannot do this')

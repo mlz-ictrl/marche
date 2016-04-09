@@ -27,7 +27,8 @@ import collections
 import threading
 from os import path
 
-from marche.jobs import Busy, Fault, STARTING, STOPPING, RUNNING, DEAD
+from marche.jobs import Busy, Fault, Unauthorized, STARTING, STOPPING, \
+    RUNNING, DEAD
 from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, read_file, write_file, extract_loglines
@@ -142,7 +143,7 @@ class Job(object):
         """
         if self.has_permission(level, client):
             return
-        raise Fault('permission denied by Marche')
+        raise Unauthorized('permission denied by Marche')
 
     def determine_permissions(self, client):
         """Return which normal levels of actions this *client* can do."""
