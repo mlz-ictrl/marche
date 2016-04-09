@@ -39,7 +39,7 @@ class ScanThread(QThread):
         self.hosts = []
 
     def run(self):
-        for host in scan():
+        for host, version in scan(''):
             self.hosts.append(host + ':8124')
             self.foundHosts.emit(len(self.hosts))
         self.finished.emit()

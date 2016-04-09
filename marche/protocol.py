@@ -253,5 +253,6 @@ class LogfileEvent(FileEvent):
 class FoundHostEvent(Event):
     type = Events.FOUND_HOST
 
-    def __init__(self, host):
+    def __init__(self, host, version):
         self.host = host
+        self.version = version

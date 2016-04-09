@@ -32,7 +32,7 @@ from time import time as currenttime
 from marche.iface.udp import UDP_PORT
 
 
-def scan(max_wait=1.0):
+def scan(my_uid, max_wait=1.0):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
@@ -41,20 +41,34 @@ def scan(max_wait=1.0):
         res = select.select([s], [], [], 0.1)
         if res[0]:
             try:
-                _msg, addr = s.recvfrom(1024)
-            except socket.error:
+                msg, addr = s.recvfrom(1024)
+            except socket.error:  # pragma: no cover
+                continue
+            msg = msg.decode().split()
+            if msg[0] != 'PONG':
+                continue
+            if len(msg) < 2:
+                msg.append(1)
+            if len(msg) < 3:
+                msg.append('')
+            try:
+                version = int(msg[1])
+                uid = msg[2]
+            except Exception:
+                continue
+            if uid == my_uid:
                 continue
             try:
                 addr = socket.gethostbyaddr(addr[0])[0]
-            except socket.error:
+            except socket.error:  # pragma: no cover
                 addr = addr[0]
-            yield addr
+            yield addr, version
 
 
-def scan_async(callback, max_wait=1.0):
+def scan_async(callback, my_uid, max_wait=1.0):
     def thread():
-        for host in scan(max_wait):
-            callback(host)
+        for host, version in scan(my_uid, max_wait):
+            callback(host, version)
     thd = threading.Thread(target=thread)
     thd.setDaemon(True)
     thd.start()

@@ -215,9 +215,13 @@ class MockSocket(object):
         self.i += 1
         if self.i == 1:
             return b'boo', ('127.0.0.1', 12345)  # wrong reply
-        if self.i == 2:
+        elif self.i == 2:
             return b'PONG', ('127.0.0.1', 12345)  # old
         elif self.i == 3:
+            return b'PONG 2', ('127.0.0.1', 12345)  # old
+        elif self.i == 4:
+            return b'PONG x', ('127.0.0.1', 12345)  # broken
+        elif self.i == 5:
             return ('PONG 41 %s' % self.uid).encode(), ('127.0.0.1', 12345)
         else:
             return b'PONG 42 other', ('127.0.0.1', 12345)
@@ -230,7 +234,7 @@ def mock_select(rlist, wlist, xlist, timeout):
 def mock_time():
     n = getattr(mock_time, 'n', 0)
     mock_time.n = n + 1
-    if n < 5:
+    if n <= 6:
         return 0.0
     return 2.0
 
@@ -240,6 +244,9 @@ def test_scanning(handler):
     with patch('socket.socket', MockSocket):
         with patch('select.select', mock_select):
             with patch('marche.scan.currenttime', mock_time):
+                del handler.test_events[:]
                 handler.scan_network()
-                wait(100, lambda: handler.test_events)
-                assert handler.test_events[0].version == 42
+                wait(100, lambda: len(handler.test_events) == 3)
+                assert handler.test_events[0].version == 1
+                assert handler.test_events[1].version == 2
+                assert handler.test_events[2].version == 42

@@ -25,6 +25,8 @@
 
 """Job control dispatcher."""
 
+import uuid
+
 from marche.six import iteritems
 
 from marche.protocol import ServiceListEvent, ControlOutputEvent, \
@@ -66,6 +68,7 @@ class JobHandler(object):
     def __init__(self, config, log):
         self.config = config
         self.log = log
+        self.uid = uuid.uuid4().hex
         self.jobs = {}
         self.service2job = {}
         self.interfaces = []
@@ -137,7 +140,9 @@ class JobHandler(object):
     @command(silent=True)
     def scan_network(self):
         """Scan the current network for daemons using UDP broadcast."""
-        scan_async(lambda host: self.emit_event(FoundHostEvent(host)))
+        def callback(host, version):
+            self.emit_event(FoundHostEvent(host, version))
+        scan_async(callback, self.uid)
 
     @command(silent=True)
     def request_service_list(self, client):

@@ -30,7 +30,7 @@ import logging
 from marche.jobs import Fault, Busy, DEAD, RUNNING
 from marche.jobs.base import Job as BaseJob
 from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
-    ConffileEvent, ControlOutputEvent
+    ConffileEvent, ControlOutputEvent, FoundHostEvent
 from marche.auth import AuthFailed
 from marche.permission import ClientInfo, DISPLAY, ADMIN, NONE
 
@@ -111,6 +111,7 @@ class MockJobHandler(object):
     test_reloaded = False
     test_svc_list_error = False
     unauth_level = NONE
+    uid = 'deadcafe'
 
     def emit_event(self, event):
         if self.test_interface:
@@ -118,6 +119,9 @@ class MockJobHandler(object):
 
     def trigger_reload(self):
         self.test_reloaded = True
+
+    def scan_network(self):
+        self.emit_event(FoundHostEvent('testhost', 2))
 
     def request_service_list(self, client):
         if self.test_svc_list_error:

@@ -83,7 +83,7 @@ class Interface(BaseInterface):
         self._stoprequest = True
 
     def _thread(self):
-        reply = ('PONG %s' % PROTO_VERSION).encode()
+        reply = ('PONG %s %s' % (PROTO_VERSION, self.jobhandler.uid)).encode()
         while not self._stoprequest:
             data, addr = self.server.recvfrom(1024)
             if data == b'PING':

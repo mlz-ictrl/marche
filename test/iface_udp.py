@@ -48,7 +48,7 @@ def test_interface():
     port = iface.server.getsockname()[1]
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client.sendto(b'PING', ('127.0.0.1', port))
-    reply = ('PONG %s' % PROTO_VERSION).encode()
+    reply = ('PONG %s deadcafe' % PROTO_VERSION).encode()
     assert client.recvfrom(1024) == (reply, ('127.0.0.1', port))
 
     iface.shutdown()
