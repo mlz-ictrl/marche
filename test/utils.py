@@ -130,6 +130,12 @@ class MockJobHandler(object):
                 'inst': {'desc': '', 'state': DEAD, 'ext_status': ''}}}}
         return ServiceListEvent(services=svcs)
 
+    def filter_services(self, client, event):
+        return ServiceListEvent(services={})
+
+    def can_see_status(self, client, event):
+        return True
+
     def get_service_description(self, client, service, instance):
         return 'desc'
 

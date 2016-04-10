@@ -27,6 +27,7 @@
 import os
 
 from marche.config import Config
+from marche.permission import DISPLAY, ADMIN
 
 
 def test_defaults():
@@ -36,6 +37,7 @@ def test_defaults():
     assert config.group is None
     assert config.piddir == '/var/run'
     assert config.logdir == '/var/log'
+    assert config.unauth_level == DISPLAY
 
 
 def test_config():
@@ -45,6 +47,7 @@ def test_config():
     assert config.group == 'marchegroup'
     assert config.piddir == '/tmp/pid'
     assert config.logdir == '/tmp/log'
+    assert config.unauth_level == ADMIN
 
     assert config.job_config == {'myjob': {'type': 'init'}}
     assert config.auth_config == {'simple': {'user': 'simple',

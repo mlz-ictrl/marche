@@ -25,8 +25,10 @@
 """Test for the central job handler class."""
 
 import sys
+import socket
 import logging
 
+from mock import patch
 from pytest import fixture, raises
 
 from marche.jobs import Fault, Busy
@@ -37,7 +39,7 @@ from marche.protocol import ServiceListEvent, ControlOutputEvent, \
     ConffileEvent, LogfileEvent, StatusEvent, ErrorEvent
 from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
 
-from test.utils import LogHandler, MockIface, MockJob
+from test.utils import LogHandler, MockIface, MockJob, wait
 
 # Pretend that we are a job module.
 sys.modules['marche.jobs.test'] = sys.modules[__name__]
@@ -178,3 +180,66 @@ def test_commands(handler):
 
     handler.send_conffile(ClientInfo(ADMIN), 'svc1', '', 'file', 'contents')
     assert job.test_configs['file'] == 'contents'
+
+
+def test_filtering(handler):
+    event = handler.request_service_list(ClientInfo(ADMIN))
+    new_event = handler.filter_services(ClientInfo(ADMIN), event)
+    assert event == new_event
+
+    new_event = handler.filter_services(ClientInfo(DISPLAY), event)
+    assert not new_event.services
+
+    new_event = handler.filter_services(ClientInfo(CONTROL), event)
+    assert event == new_event
+
+    event = handler.request_service_status(ClientInfo(ADMIN), 'svc3', '')
+    assert not handler.can_see_status(ClientInfo(DISPLAY), event)
+
+
+class MockSocket(object):
+    def __init__(self, proto, family):
+        self.i = 0
+        assert proto == socket.AF_INET
+        assert family == socket.SOCK_DGRAM
+
+    def setsockopt(self, sol, opt, val):
+        assert sol == socket.SOL_SOCKET
+        assert opt == socket.SO_BROADCAST
+        assert val
+
+    def sendto(self, msg, addr):
+        assert msg == b'PING'
+
+    def recvfrom(self, bufsize):
+        self.i += 1
+        if self.i == 1:
+            return b'boo', ('127.0.0.1', 12345)  # wrong reply
+        if self.i == 2:
+            return b'PONG', ('127.0.0.1', 12345)  # old
+        elif self.i == 3:
+            return ('PONG 41 %s' % self.uid).encode(), ('127.0.0.1', 12345)
+        else:
+            return b'PONG 42 other', ('127.0.0.1', 12345)
+
+
+def mock_select(rlist, wlist, xlist, timeout):
+    return [[rlist[0]]], [], []
+
+
+def mock_time():
+    n = getattr(mock_time, 'n', 0)
+    mock_time.n = n + 1
+    if n < 5:
+        return 0.0
+    return 2.0
+
+
+def test_scanning(handler):
+    MockSocket.uid = handler.uid
+    with patch('socket.socket', MockSocket):
+        with patch('select.select', mock_select):
+            with patch('marche.scan.currenttime', mock_time):
+                handler.scan_network()
+                wait(100, lambda: handler.test_events)
+                assert handler.test_events[0].version == 42

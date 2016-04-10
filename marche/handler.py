@@ -164,6 +164,20 @@ class JobHandler(object):
                     }
         return ServiceListEvent(services=svcs)
 
+    def filter_services(self, client, event):
+        """Filter a service list event to only jobs that the client can see."""
+        if client.level == ADMIN:
+            return event
+        new_svcs = {}
+        for service in event.services:
+            if self._get_job(service).has_permission(DISPLAY, client):
+                new_svcs[service] = event.services[service]
+        return ServiceListEvent(services=new_svcs)
+
+    def can_see_status(self, client, event):
+        """Check if the client can see this status event."""
+        return self._get_job(event.service).has_permission(DISPLAY, client)
+
     # Not a command, but needed for XMLRPC.
     def get_service_description(self, client, service, instance):
         job = self._get_job(service)
