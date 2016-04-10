@@ -32,7 +32,7 @@ from marche.jobs.base import Job as BaseJob
 from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
     ConffileEvent, ControlOutputEvent
 from marche.auth import AuthFailed
-from marche.permission import ClientInfo, ADMIN, NONE
+from marche.permission import ClientInfo, DISPLAY, ADMIN, NONE
 
 
 def wait(n, callback):
@@ -60,7 +60,6 @@ def job_call_check(job, service, instance, cmdlinesuffix, output):
                                        cmdlinesuffix.replace('action', action))
         assert out[-outlen:] == [l.replace('action', action) + '\n'
                                  for l in output]
-
 
 
 class LogHandler(logging.Handler):
@@ -153,7 +152,8 @@ class MockJobHandler(object):
                                     'file2': 'line3\nline4\n'})
 
     def start_service(self, client, service, instance):
-        pass
+        if client.level < ADMIN:
+            raise Fault('no permission')
 
     def stop_service(self, client, service, instance):
         raise Busy
@@ -173,6 +173,8 @@ class MockAuthHandler(object):
     def authenticate(self, user, passwd):
         if user == passwd == 'test':
             return ClientInfo(ADMIN)
+        if user == passwd == 'guest':
+            return ClientInfo(DISPLAY)
         raise AuthFailed
 
 

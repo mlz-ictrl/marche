@@ -73,12 +73,18 @@ def test_authentication(xmlrpc_iface):
     proxy = xmlrpc_client.ServerProxy(
         'http://wrong:creds@localhost:%d/xmlrpc' % port)
     assert raises(xmlrpc_client.ProtocolError, proxy.GetVersion)
+    proxy = xmlrpc_client.ServerProxy(
+        'http://guest:guest@localhost:%d/xmlrpc' % port)
+    with raises(xmlrpc_client.Fault) as exc_info:
+        proxy.Start('svc.inst')
+    assert 'no permission' in exc_info.value.faultString
 
 
 def test_simple_queries(proxy):
     assert proxy.GetVersion() == str(PROTO_VERSION)
     assert proxy.GetDescription('svc.inst') == 'desc'
     assert set(proxy.GetServices()) == set(['svc.inst', 'svc'])
+    assert raises(xmlrpc_client.Fault, proxy.NonexistingMethod)
 
 
 def test_event_queries(proxy):

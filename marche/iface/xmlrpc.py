@@ -60,21 +60,22 @@ from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface
 from marche.auth import AuthFailed
 from marche.protocol import PROTO_VERSION, Errors
-from marche.permission import ClientInfo, ADMIN
+from marche.permission import ClientInfo, DISPLAY
 
 
-class RequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
+class AuthRequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/xmlrpc',)
+    needs_auth = False
+    unauth_level = DISPLAY
 
     def log_message(self, fmt, *args):
         self.log.debug('[%s] %s' % (self.client_address[0], fmt % args))
 
-
-class AuthRequestHandler(RequestHandler):
-    encoded_auth = ''
-
     def do_POST(self):
-        if 'Authorization' not in self.headers:
+        self.client_info = ClientInfo(self.unauth_level)
+
+        # Backwards compatibility: if we *can* auth, we make it required.
+        if self.needs_auth and 'Authorization' not in self.headers:
             self.send_error(401)
             return
 
@@ -82,13 +83,19 @@ class AuthRequestHandler(RequestHandler):
         decoded = base64.b64decode(header.encode()).decode('utf-8')
         try:
             user, passwd = decoded.split(':', 1)
-            # Not using the returned client info.
-            self.handler.authenticate(user, passwd)
+            self.client_info = self.authhandler.authenticate(user, passwd)
         except (ValueError, AuthFailed):
             self.send_error(401)
             return
 
         return xmlrpc_server.SimpleXMLRPCRequestHandler.do_POST(self)
+
+    def _dispatch(self, method, params):
+        try:
+            func = getattr(self.server.instance, method)
+        except AttributeError:
+            raise Exception('method "%s" is not supported' % method)
+        return func(self.client_info, *params)
 
 
 def command(method):
@@ -112,9 +119,6 @@ class RPCFunctions(object):
     def __init__(self, jobhandler, log):
         self.jobhandler = jobhandler
         self.log = log
-        # We don't know the current user's level, therefore always assign
-        # the highest user level.
-        self.client = ClientInfo(ADMIN)
 
     def _split_name(self, name):
         if '.' in name:
@@ -123,16 +127,16 @@ class RPCFunctions(object):
             return name, ''
 
     @command
-    def ReloadJobs(self):
+    def ReloadJobs(self, client_info):
         self.jobhandler.trigger_reload()
 
     @command
-    def GetVersion(self):
+    def GetVersion(self, client_info):
         return str(PROTO_VERSION)
 
     @command
-    def GetServices(self):
-        list_event = self.jobhandler.request_service_list(self.client)
+    def GetServices(self, client_info):
+        list_event = self.jobhandler.request_service_list(client_info)
         result = []
         for svcname, info in iteritems(list_event.services):
             for instance in info['instances']:
@@ -143,26 +147,26 @@ class RPCFunctions(object):
         return result
 
     @command
-    def GetDescription(self, name):
+    def GetDescription(self, client_info, name):
         return self.jobhandler.get_service_description(
-            self.client, *self._split_name(name))
+            client_info, *self._split_name(name))
 
     @command
-    def GetStatus(self, name):
+    def GetStatus(self, client_info, name):
         status_event = self.jobhandler.request_service_status(
-            self.client, *self._split_name(name))
+            client_info, *self._split_name(name))
         return status_event.state
 
     @command
-    def GetOutput(self, name):
+    def GetOutput(self, client_info, name):
         out_event = self.jobhandler.request_control_output(
-            self.client, *self._split_name(name))
+            client_info, *self._split_name(name))
         return out_event.content
 
     @command
-    def GetLogs(self, name):
+    def GetLogs(self, client_info, name):
         log_event = self.jobhandler.request_logfiles(
-            self.client, *self._split_name(name))
+            client_info, *self._split_name(name))
         ret = []
         for name, contents in iteritems(log_event.files):
             for line in contents.splitlines(True):
@@ -170,9 +174,9 @@ class RPCFunctions(object):
         return ret
 
     @command
-    def ReceiveConfig(self, name):
+    def ReceiveConfig(self, client_info, name):
         config_event = self.jobhandler.request_conffiles(
-            self.client, *self._split_name(name))
+            client_info, *self._split_name(name))
         ret = []
         for name, contents in iteritems(config_event.files):
             ret.append(name)
@@ -180,22 +184,22 @@ class RPCFunctions(object):
         return ret
 
     @command
-    def SendConfig(self, data):
+    def SendConfig(self, client_info, data):
         service, instance = self._split_name(data[0])
-        self.jobhandler.send_conffile(self.client, service, instance,
+        self.jobhandler.send_conffile(client_info, service, instance,
                                       data[1], data[2])
 
     @command
-    def Start(self, name):
-        self.jobhandler.start_service(self.client, *self._split_name(name))
+    def Start(self, client_info, name):
+        self.jobhandler.start_service(client_info, *self._split_name(name))
 
     @command
-    def Stop(self, name):
-        self.jobhandler.stop_service(self.client, *self._split_name(name))
+    def Stop(self, client_info, name):
+        self.jobhandler.stop_service(client_info, *self._split_name(name))
 
     @command
-    def Restart(self, name):
-        self.jobhandler.restart_service(self.client, *self._split_name(name))
+    def Restart(self, client_info, name):
+        self.jobhandler.restart_service(client_info, *self._split_name(name))
 
 
 class Interface(BaseInterface):
@@ -206,21 +210,18 @@ class Interface(BaseInterface):
 
     def init(self):
         self._events = []
-        RequestHandler.log = self.log
+        AuthRequestHandler.log = self.log
 
     def run(self):
         port = int(self.config.get('port', 8124))
         host = self.config.get('host', '0.0.0.0')
 
-        request_handler = RequestHandler
-        if self.authhandler.needs_authentication():
-            self.log.info('using authentication functionality')
-            AuthRequestHandler.handler = self.authhandler
-            request_handler = AuthRequestHandler
+        AuthRequestHandler.authhandler = self.authhandler
+        AuthRequestHandler.unauth_level = self.jobhandler.unauth_level
+        AuthRequestHandler.needs_auth = self.authhandler.needs_authentication()
 
         self.server = xmlrpc_server.SimpleXMLRPCServer(
-            (host, port), requestHandler=request_handler)
-        self.server.register_introspection_functions()
+            (host, port), requestHandler=AuthRequestHandler)
         self.server.register_instance(RPCFunctions(self.jobhandler, self.log))
 
         thd = threading.Thread(target=self._thread)
