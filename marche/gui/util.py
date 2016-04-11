@@ -175,7 +175,9 @@ def saveCredentials(host, user, passwd):
 
     hosts = loadSetting('creds/hosts', default=[], valtype=list,
                         settings=settings)
-    hosts.append(host)
+    hosts = set(hosts)
+    hosts.add(host)
+    hosts = list(hosts)
 
     saveSetting('creds/%s/user' % host,
                 base64.b64encode(user.encode('utf-8')).decode(),
@@ -208,7 +210,8 @@ def removeCredentials(host):
 
     hosts = loadSetting('creds/hosts', default=[], valtype=list,
                         settings=settings)
-    hosts.remove(host)
+    while host in hosts:
+        hosts.remove(host)
 
     saveSetting('creds/hosts', hosts, settings=settings)
     settings.remove('creds/%s/user' % host)
