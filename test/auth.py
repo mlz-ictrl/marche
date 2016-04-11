@@ -24,11 +24,12 @@
 
 """Test for the authentication and permission classes."""
 
+import os
 import sys
 import logging
 
 from mock import patch
-from pytest import raises
+from pytest import raises, mark
 
 from marche.config import Config
 from marche.auth.base import Authenticator as BaseAuthenticator
@@ -76,6 +77,7 @@ def test_simple():
     assert handler.authenticate('user', 'anypass').level == DISPLAY
 
 
+@mark.skipif(os.name == 'nt', reason='PAM not available on Windows')
 def test_pam():
     config = Config()
     config.auth_config = {'pam': {'service': 'marche',
