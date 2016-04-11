@@ -1,3 +1,32 @@
+marche (0.7.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Strip newlines from logged output from subprocesses.
+  * Fix pylint warnings (mostly because of bundled six).
+  * Also ignore six.py in travis.
+  * Return polled status in service list query.
+  * Add Command classes akin to Event classes.
+  * Give the permissions a better __repr__.
+  * Rename some command classes to match other names.
+  * Use yield fixture.
+  * Implement unauth_level configuration, and add two useful permission levels.
+  * Change structure of service list event slightly.
+  * Factor out scanning.
+  * Implement a "scan network" command.
+  * Add a PAM authenticator module.
+  * Put error codes in protocol module.
+  * Make the XMLRPC interface aware of the client userlevel.
+  * Update the handler with event filtering, test scanning.
+  * Add a UID to the UDP response to avoid returning ourselves in scan results.
+  * Use a different error code for "unauthorized".
+  * Skip PAM test on Windows.
+  * pam auth: fix defaultlevel handling.
+  * Default cfgdir under Windows is sys.prefix/etc/marche.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 11 Apr 2016 10:26:38 +0200
+
 marche (0.6.4) unstable; urgency=low
 
   [ Georg Brandl ]
