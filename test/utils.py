@@ -35,12 +35,12 @@ from marche.auth import AuthFailed
 from marche.permission import ClientInfo, DISPLAY, ADMIN, NONE
 
 
-def wait(n, callback):
+def wait(nmax, callback):
     n = 0
     while not callback():
         time.sleep(0.01)
         n += 1
-        if n > 100:
+        if n > nmax:
             raise RuntimeError('wait timeout reached')
 
 
