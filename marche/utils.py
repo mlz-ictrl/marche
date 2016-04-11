@@ -279,3 +279,11 @@ def write_file(fname, contents):
         contents = contents.encode('latin1')
     with open(fname, 'wb') as fp:
         fp.write(contents)
+
+
+def get_default_cfgdir():  # pragma: no cover
+    """Return the default config dir for the current platform."""
+    if os.name == 'nt':
+        return path.join(sys.prefix, 'etc', 'marche')
+    else:
+        return path.join(os.sep, 'etc', 'marche')

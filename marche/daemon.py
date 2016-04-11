@@ -34,7 +34,8 @@ from os import path
 
 from marche import __version__
 from marche.config import Config
-from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile
+from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile, \
+    get_default_cfgdir
 from marche.loggers import ColoredConsoleHandler, LogfileHandler
 from marche.handler import JobHandler
 from marche.auth import AuthHandler
@@ -57,8 +58,8 @@ class Daemon(object):
         rootdir = path.join(path.dirname(__file__), '..')
         if path.exists(path.join(rootdir, '.git')):
             default_cfgdir = path.abspath(path.join(rootdir, 'etc'))
-        else:
-            default_cfgdir = '/etc/marche'  # pragma: no cover
+        else:  # pragma: no cover
+            default_cfgdir = get_default_cfgdir()
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--version', action='version',

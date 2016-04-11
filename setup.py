@@ -22,22 +22,27 @@
 #
 # *****************************************************************************
 
+import os
 import glob
 from setuptools import setup, find_packages
 from os import listdir, path
 
+import marche.utils
 import marche.version
-
 
 scripts = ['bin/marched', 'bin/marche-gui']
 
-srcdir =  path.dirname(__file__)
+srcdir = path.dirname(__file__)
 uidir = path.join(srcdir, 'marche', 'gui', 'ui')
 uis = [path.join('gui', 'ui', entry) for entry in listdir(uidir)]
 
 configs = glob.glob(path.join(srcdir, 'etc', '*.conf'))
 configs += glob.glob(path.join(srcdir, 'etc', 'dist', '*.conf'))
-configs.remove('etc/general.conf')
+configs.remove(path.join('etc', 'general.conf'))
+
+data_files = [(marche.utils.get_default_cfgdir(), configs)]
+if os.name == 'posix':
+    data_files.append(('/etc/init.d', ['etc/marched']))
 
 setup(
     name = 'marche',
@@ -48,10 +53,7 @@ setup(
     description = 'Server control daemon',
     packages = find_packages(exclude=['test']),
     package_data = {'marche': ['RELEASE-VERSION'] + uis},
-    data_files = [
-        ('/etc/init.d', ['etc/marched']),
-        ('/etc/marche', configs)
-    ],
+    data_files = data_files,
     scripts = scripts,
     classifiers = [
         'Development Status :: 3 - Alpha',
