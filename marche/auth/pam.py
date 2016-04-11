@@ -73,7 +73,7 @@ import pamela
 
 from marche.auth.base import Authenticator as BaseAuthenticator
 from marche.permission import ClientInfo, STRING_LEVELS, DISPLAY, \
-    CONTROL, ADMIN
+    CONTROL, ADMIN, NONE
 
 
 class Authenticator(BaseAuthenticator):
@@ -88,7 +88,7 @@ class Authenticator(BaseAuthenticator):
         self.displayusers = [u.strip() for u in
                              config.get('displayusers', '').split(',')]
         self.defaultlevel = STRING_LEVELS[
-            config.get('defaultlevel', 'admin').lower()]
+            config.get('defaultlevel', 'display').lower()]
 
     def authenticate(self, user, passwd):
         try:
@@ -102,4 +102,6 @@ class Authenticator(BaseAuthenticator):
             return ClientInfo(CONTROL)
         elif user in self.displayusers:
             return ClientInfo(DISPLAY)
+        elif self.defaultlevel == NONE:
+            return None
         return ClientInfo(self.defaultlevel)
