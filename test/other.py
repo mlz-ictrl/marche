@@ -177,7 +177,7 @@ def test_loggers(tmpdir):
     assert sum(1 for line in lines if 'cannot be displayed' in line) == 1
     assert sum(1 for line in lines if 'nästy' in line) == 4
 
-    if hasattr(os, 'symlink'):
+    if hasattr(os, 'symlink') and hasattr(tmpdir, 'readlink'):
         assert tmpdir.join('log', 'current').check(link=True)
         assert tmpdir.join('log', 'current').readlink() == 'log-second.log'
 
