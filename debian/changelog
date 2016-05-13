@@ -1,3 +1,13 @@
+marche (0.7.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: avoid duplicates in saved host credentials list
+  * Fix test wait().
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 13 May 2016 14:21:57 +0200
+
 marche (0.7.0) unstable; urgency=low
 
   [ Georg Brandl ]
