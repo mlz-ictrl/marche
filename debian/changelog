@@ -1,3 +1,12 @@
+marche (0.7.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Cache PAM auth, it can be slow.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 17 May 2016 09:42:45 +0200
+
 marche (0.7.1) unstable; urgency=low
 
   [ Georg Brandl ]
