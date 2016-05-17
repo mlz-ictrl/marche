@@ -69,17 +69,21 @@ This authenticator checks credentials against Linux' PAM.
       Can be "none" to deny any other users.
 """
 
+import hashlib
+
 import pamela
 
 from marche.auth.base import Authenticator as BaseAuthenticator
 from marche.permission import ClientInfo, STRING_LEVELS, DISPLAY, \
     CONTROL, ADMIN, NONE
+from marche.utils import bytencode
 
 
 class Authenticator(BaseAuthenticator):
 
     def __init__(self, config, log):
         BaseAuthenticator.__init__(self, config, log)
+        self._cache = set()
         self.service = config.get('service', 'login')
         self.adminusers = [u.strip() for u in
                            config.get('adminusers', 'root').split(',')]
@@ -91,11 +95,14 @@ class Authenticator(BaseAuthenticator):
             config.get('defaultlevel', 'display').lower()]
 
     def authenticate(self, user, passwd):
-        try:
-            pamela.authenticate(user, passwd, self.service)
-        except pamela.PAMError:
-            self.log.exception('could not authenticate %s' % user)
-            return None
+        key = hashlib.sha1(bytencode(user + ':' + passwd)).digest()
+        if key not in self._cache:
+            try:
+                pamela.authenticate(user, passwd, self.service)
+            except pamela.PAMError:
+                self.log.exception('could not authenticate %s' % user)
+                return None
+            self._cache.add(key)
         if user in self.adminusers:
             return ClientInfo(ADMIN)
         elif user in self.controlusers:

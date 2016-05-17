@@ -287,3 +287,10 @@ def get_default_cfgdir():  # pragma: no cover
         return path.join(sys.prefix, 'etc', 'marche')
     else:
         return path.join(os.sep, 'etc', 'marche')
+
+
+def bytencode(s):
+    """Encode to bytes if not already."""
+    if not isinstance(s, bytes):
+        return s.encode('utf-8')
+    return s

@@ -38,6 +38,7 @@ except ImportError:
         pass
 
 from marche.six import iteritems
+from marche.utils import bytencode
 
 
 uipath = os.path.dirname(__file__)
@@ -180,10 +181,10 @@ def saveCredentials(host, user, passwd):
     hosts = list(hosts)
 
     saveSetting('creds/%s/user' % host,
-                base64.b64encode(user.encode('utf-8')).decode(),
+                base64.b64encode(bytencode(user)).decode(),
                 settings=settings)
     saveSetting('creds/%s/passwd' % host,
-                base64.b64encode(passwd.encode('utf-8')).decode(),
+                base64.b64encode(bytencode(passwd)).decode(),
                 settings=settings)
 
     saveSetting('creds/hosts', hosts, settings=settings)
