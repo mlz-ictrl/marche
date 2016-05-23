@@ -41,6 +41,11 @@ This job has the following configuration parameters:
 
       Must be ``taco``.
 
+   .. describe:: envfile
+
+      The shell script with the TACO environment.  The default is
+      ``/etc/tacoenv.sh``.
+
    .. describe:: permissions
                  pollinterval
 
@@ -70,6 +75,9 @@ class Job(BaseJob):
         self._initscripts = {}
         self._depends = set()
         self._services = []
+        if 'envfile' in config:
+            self.DB_DEVLIST = '. "%s"; db_devicelist' % config['envfile']
+            self.DB_DEVRES = '. "%s"; db_devres' % config['envfile']
 
     def check(self):
         if path.isdir(self.INIT_DIR):
