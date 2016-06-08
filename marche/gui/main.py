@@ -372,6 +372,7 @@ class HostTree(QTreeWidget):
         self.resizeColumnToContents(2)
         width = sum(self.columnWidth(i) for i in range(self.columnCount()))
         self.setMinimumWidth(width+25)
+        self.itemClicked.connect(self.on_itemClicked)
 
     def refresh(self):
         self.clear()
@@ -489,6 +490,12 @@ class HostTree(QTreeWidget):
     def reloadJobs(self):
         self._client.reloadJobs()
         self.fill()
+
+    def on_itemClicked(self, item, index):
+        # when clicking on the error column, show the whole error in a dialog
+        if index == 3:
+            if item.text(3):
+                QMessageBox.warning(self, 'Error view', item.text(3))
 
 
 class MainWidget(QWidget):
