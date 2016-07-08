@@ -117,16 +117,20 @@ class Job(InitJob):
         self._update_db(db, self.config_files[0])
 
     def _update_db(self, db, fn):
+        devices = set()
+
         def processvalue(dev, res, val):
             if dev.startswith(('cmds/', 'error/')):
                 return
             if val.startswith('"'):
-                self._add_property(db, dev, res, [val.strip('"').strip()])
+                self._add_property(db, dev, res, [val.strip('"').strip()],
+                                   devices)
             elif ',' not in val:
-                self._add_property(db, dev, res, [val.strip()])
+                self._add_property(db, dev, res, [val.strip()], devices)
             else:
                 arr = val.split(',')
-                self._add_property(db, dev, res, [v.strip() for v in arr if v])
+                self._add_property(db, dev, res, [v.strip() for v in arr if v],
+                                   devices)
 
         def processdevice(key, valpar):
             klass = key[0].title()
@@ -137,6 +141,7 @@ class Job(InitJob):
                 srv = klass  + '/' + valarr[0] + '_' + key[1]
                 name = val.strip()
                 self._add_device(db, name, valarr[1], srv)
+                devices.add(name)
 
         with open(fn) as fp:
             for line in iter(fp.readline, ''):
@@ -174,12 +179,14 @@ class Job(InitJob):
         dev_info.server = srv
         db.add_device(dev_info)
 
-    def _add_property(self, db, dev, name, vals):  # pragma: no cover
+    def _add_property(self, db, dev, name, vals, devices):  # pragma: no cover
         prop = PyTango.DbDatum()
         prop.name = name
         for val in vals:
             prop.value_string.append(val)
         if dev[0:6] == 'class/':
             db.put_class_property(dev.split('/')[1], prop)
+        elif dev not in devices:
+            db.put_property(dev, prop)
         else:
             db.put_device_property(dev, prop)
