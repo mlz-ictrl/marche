@@ -1,3 +1,13 @@
+marche (0.7.4) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Show whole error when clicking into error column.
+  * Tango: allow free properties.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 08 Jul 2016 13:16:20 +0200
+
 marche (0.7.3) unstable; urgency=low
 
   [ Georg Brandl ]
