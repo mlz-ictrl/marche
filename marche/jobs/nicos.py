@@ -56,6 +56,7 @@ This job has the following configuration parameters:
    services and their logfiles from there.
 """
 
+import os
 from os import path
 
 from marche.six.moves import configparser
@@ -90,7 +91,7 @@ class Job(BaseJob):
         return True
 
     def init(self):
-        self._services = [('nicos-system', '')]
+        self._services = [('nicos', '')]
         lines = self._sync_call('%s 2>&1' % self._script).stdout
         prefix = 'Possible services are '
         if len(lines) >= 2 and lines[-1].startswith(prefix):
@@ -102,25 +103,19 @@ class Job(BaseJob):
         return self._services
 
     def start_service(self, service, instance):
-        if service == 'nicos-system':
-            return self._async_start(None, self._script + ' start')
-        return self._async_start(None, self._script + ' start %s' % instance)
+        return self._async_start(instance, self._script + ' start %s' % instance)
 
     def stop_service(self, service, instance):
-        if service == 'nicos-system':
-            return self._async_stop(None, self._script + ' stop')
-        return self._async_stop(None, self._script + ' stop %s' % instance)
+        return self._async_stop(instance, self._script + ' stop %s' % instance)
 
     def restart_service(self, service, instance):
-        if service == 'nicos-system':
-            return self._async_start(None, self._script + ' restart')
-        return self._async_start(None, self._script + ' restart %s' % instance)
+        return self._async_start(instance, self._script + ' restart %s' % instance)
 
     def service_status(self, service, instance):
-        async_st = self._async_status_only(None)
+        async_st = self._async_status_only(instance)
         if async_st is not None:
             return async_st, ''
-        if service == 'nicos-system':
+        if not instance:
             output = self._sync_call('%s status' % self._script).stdout
             something_dead = something_running = False
             for line in output:
@@ -138,11 +133,9 @@ class Job(BaseJob):
             return RUNNING if proc.retcode == 0 else DEAD, ''
 
     def service_output(self, service, instance):
-        return list(self._output.get(None, []))
+        return list(self._output.get(instance, []))
 
     def service_logs(self, service, instance):
-        if service == 'nicos-system':
-            return {}
         if self._logpath is None:
             # extract nicos log directory
             cfg = configparser.RawConfigParser()
@@ -151,4 +144,11 @@ class Job(BaseJob):
                 self._logpath = cfg.get('nicos', 'logging_path')
             else:
                 self._logpath = path.join(self._root, 'log')
+        if not instance:
+            result = {}
+            for subdir in os.listdir(self._logpath):
+                logfile = path.join(self._logpath, subdir, 'current')
+                if path.islink(logfile):
+                    result.update(extract_loglines(logfile))
+            return result
         return extract_loglines(path.join(self._logpath, instance, 'current'))
