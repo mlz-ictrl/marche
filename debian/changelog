@@ -1,3 +1,12 @@
+marche (0.8.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Try last used credentials for logging in.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 13 Jul 2016 17:28:11 +0200
+
 marche (0.8.0) unstable; urgency=low
 
   [ Georg Brandl ]
