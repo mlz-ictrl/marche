@@ -1,3 +1,13 @@
+marche (0.8.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: handle service with/without subinstances more uniformly
+  * nicos: move nicos-system job to be called just nicos
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 13 Jul 2016 17:23:39 +0200
+
 marche (0.7.5) unstable; urgency=low
 
   [ Georg Brandl ]
