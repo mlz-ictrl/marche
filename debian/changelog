@@ -1,3 +1,12 @@
+marche (0.7.5) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * tangosrv: device names are case insensitive
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 13 Jul 2016 10:05:09 +0200
+
 marche (0.7.4) unstable; urgency=low
 
   [ Georg Brandl ]
