@@ -141,7 +141,7 @@ class Job(InitJob):
                 srv = klass  + '/' + valarr[0] + '_' + key[1]
                 name = val.strip()
                 self._add_device(db, name, valarr[1], srv)
-                devices.add(name)
+                devices.add(name.lower())
 
         with open(fn) as fp:
             for line in iter(fp.readline, ''):
@@ -186,7 +186,7 @@ class Job(InitJob):
             prop.value_string.append(val)
         if dev[0:6] == 'class/':
             db.put_class_property(dev.split('/')[1], prop)
-        elif dev not in devices:
+        elif dev.lower() not in devices:
             db.put_property(dev, prop)
         else:
             db.put_device_property(dev, prop)
