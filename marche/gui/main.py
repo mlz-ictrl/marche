@@ -361,6 +361,7 @@ class HostTree(QTreeWidget):
         self.headerItem().setText(2, 'Control')
         self.headerItem().setText(3, 'Last error')
         self._items = {}
+        self._virt_items = {}
         try:
             self.fill()
         except Exception as err:
@@ -400,47 +401,47 @@ class HostTree(QTreeWidget):
             serviceItem.setForeground(3, QBrush(QColor('red')))
             self.addTopLevelItem(serviceItem)
 
-            if not instances:
-                self._items[service] = serviceItem
-                btn = JobButtons(self._client, service, None, serviceItem)
-                self.setItemWidget(serviceItem, 2, btn)
-                if descrs.get(service):
-                    serviceItem.setText(0, descrs[service])
-            else:
-                self._items[service] = (serviceItem, {})
-                btns = []
-                for instance in instances:
-                    instanceItem = QTreeWidgetItem([instance])
-                    instanceItem.setForeground(1, QBrush(QColor('white')))
-                    instanceItem.setTextAlignment(1, Qt.AlignCenter)
-                    instanceItem.setFlags(Qt.ItemIsEnabled)
-                    instanceItem.setForeground(3, QBrush(QColor('red')))
-                    if descrs.get((service, instance)):
-                        instanceItem.setText(0, descrs[service, instance])
-                    serviceItem.addChild(instanceItem)
+            btns = []
+            has_empty_instance = None
+            for instance in instances:
+                if not instance:
+                    has_empty_instance = True
+                    continue
+                instanceItem = QTreeWidgetItem([instance])
+                instanceItem.setForeground(1, QBrush(QColor('white')))
+                instanceItem.setTextAlignment(1, Qt.AlignCenter)
+                instanceItem.setFlags(Qt.ItemIsEnabled)
+                instanceItem.setForeground(3, QBrush(QColor('red')))
+                if descrs.get((service, instance)):
+                    instanceItem.setText(0, descrs[service, instance])
+                serviceItem.addChild(instanceItem)
 
-                    btn = JobButtons(self._client, service, instance,
-                                     instanceItem)
-                    btns.append(btn)
-                    self.setItemWidget(instanceItem, 2, btn)
-                    self._items[service][1][instance] = instanceItem
+                btn = JobButtons(self._client, service, instance,
+                                 instanceItem)
+                btns.append(btn)
+                self.setItemWidget(instanceItem, 2, btn)
+                self._items[service, instance] = instanceItem
+            if has_empty_instance:
+                btn = JobButtons(self._client, service, '',
+                                 serviceItem)
+                btn.setMinimumSize(QSize(30, 40))
+                self.setItemWidget(serviceItem, 2, btn)
+                if descrs.get((service, '')):
+                    serviceItem.setText(0, descrs[service, ''])
+                self._items[service, ''] = serviceItem
+            else:
+                # create "virtual" job with buttons that start/stop all
+                # instances of the service
+                self._virt_items[service] = serviceItem
                 multibtn = MultiJobButtons(btns)
                 self.setItemWidget(serviceItem, 2, multibtn)
 
         self.expandAll()
 
     def updateStatus(self, service, instance, status, info):
-        if service not in self._items:
+        if (service, instance) not in self._items:
             return
-
-        if instance:
-            if instance not in self._items[service][1]:
-                return
-            parentitem = self._items[service][0]
-            item = self._items[service][1][instance]
-        else:
-            parentitem = None
-            item = self._items[service]
+        item = self._items[service, instance]
 
         colors = self.STATE_COLORS.get(status, ('gray', ''))
         item.setForeground(1, QBrush(QColor(colors[0]))
@@ -457,8 +458,8 @@ class HostTree(QTreeWidget):
         else:
             item.setIcon(1, QIcon())
 
-        if parentitem:
-            self.updateParentItem(parentitem)
+        if service in self._virt_items:
+            self.updateParentItem(self._virt_items[service])
 
     def updateParentItem(self, item):
         statuses = {}

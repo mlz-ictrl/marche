@@ -55,11 +55,8 @@ class PollThread(QThread):
                 services = OrderedDict()
 
             for service, instances in iteritems(services):
-                if not instances:
-                    self.poll(service, None)
-                else:
-                    for instance in instances:
-                        self.poll(service, instance)
+                for instance in instances:
+                    self.poll(service, instance)
 
             time.sleep(self._loopDelay)
 
@@ -147,7 +144,10 @@ class Client(object):
 
         # sort single jobs to the end
         for entry in singleJobs:
-            result[entry] = None
+            if entry in result:
+                result[entry].append('')
+            else:
+                result[entry] = ['']
 
         return result
 
@@ -155,20 +155,16 @@ class Client(object):
         result = {}
         with self._lock:
             for service, instances in iteritems(services):
-                if instances:
-                    for instance in instances:
-                        path = self.getServicePath(service, instance)
-                        result[service, instance] = \
-                            self._proxy.GetDescription(path)
-                else:
-                    path = self.getServicePath(service, None)
-                    result[service] = self._proxy.GetDescription(path)
+                for instance in instances:
+                    path = self.getServicePath(service, instance)
+                    result[service, instance] = \
+                        self._proxy.GetDescription(path)
         return result
 
     def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
 
-    def startService(self, service, instance=None):
+    def startService(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -178,7 +174,7 @@ class Client(object):
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
-    def stopService(self, service, instance=None):
+    def stopService(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -188,7 +184,7 @@ class Client(object):
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
-    def restartService(self, service, instance=None):
+    def restartService(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -198,7 +194,7 @@ class Client(object):
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
-    def getServiceStatus(self, service, instance=None):
+    def getServiceStatus(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -206,7 +202,7 @@ class Client(object):
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
-    def getServiceOutput(self, service, instance=None):
+    def getServiceOutput(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -214,7 +210,7 @@ class Client(object):
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
-    def getServiceLogs(self, service, instance=None):
+    def getServiceLogs(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -226,7 +222,7 @@ class Client(object):
         with self._lock:
             return int(self._proxy.GetVersion().strip('v')[:1])
 
-    def receiveServiceConfig(self, service, instance=None):
+    def receiveServiceConfig(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
@@ -234,7 +230,7 @@ class Client(object):
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
-    def sendServiceConfig(self, service, instance=None, data=None):
+    def sendServiceConfig(self, service, instance='', data=None):
         servicePath = self.getServicePath(service, instance)
         try:
             with self._lock:
