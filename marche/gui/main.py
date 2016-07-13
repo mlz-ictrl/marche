@@ -515,6 +515,8 @@ class MainWidget(QWidget):
         self._clients = {}
         self._cur_tree = None
 
+        self._last_creds = None
+
         if loadSetting('defaultSession'):
             self.loadDefaultSession()
         elif scan_on_startup:
@@ -739,6 +741,13 @@ class MainWidget(QWidget):
             if client:
                 return client
 
+            # try last used credentials
+            if self._last_creds:
+                user, passwd = self._last_creds
+                client = try_connect(host, port, user, passwd)
+                if client:
+                    return client
+
             # ask for credentials
             while True:
                 dlg = AuthDialog(self, 'Authenticate at %s' % addr)
@@ -752,6 +761,7 @@ class MainWidget(QWidget):
 
                 client = try_connect(host, port, user, passwd)
                 if client:
+                    self._last_creds = user, passwd
                     return client
 
             # no luck!
