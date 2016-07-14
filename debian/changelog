@@ -1,3 +1,12 @@
+marche (0.8.2) unstable; urgency=low
+
+  [ Christian Felder ]
+  * Show last cached credentials in GUI and add option to clear them.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 14 Jul 2016 15:50:17 +0200
+
 marche (0.8.1) unstable; urgency=low
 
   [ Georg Brandl ]
