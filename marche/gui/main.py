@@ -504,6 +504,7 @@ class MainWidget(QWidget):
         QWidget.__init__(self, parent)
         loadUi(self, 'main.ui')
 
+        self.setCachedCredsVisible(False)
         self.splitter.setStretchFactor(0, 2)
         self.splitter.setStretchFactor(1, 3)
         self.leftlayout.setContentsMargins(6, 6, 0, 6)
@@ -529,6 +530,14 @@ class MainWidget(QWidget):
         settings = QSettings('marche-gui')
         settings.setValue('split', self.splitter.saveState())
         # settings.setValue('last_hosts', [])
+
+    def setCachedCredsVisible(self, flag):
+        flag = bool(flag and self._last_creds)
+        if flag:
+            self.lblCachedUserCreds.setText(self._last_creds[0])
+        for itm in [self.lblCached, self.lblCachedUserCreds,
+                    self.clearCredBtn]:
+            itm.setVisible(flag)
 
     @qtsig('')
     def on_actionPreferences_triggered(self):
@@ -669,6 +678,11 @@ class MainWidget(QWidget):
     def on_reloadBtn_clicked(self):
         self.on_actionReload_triggered()
 
+    @qtsig('')
+    def on_clearCredBtn_clicked(self):
+        self._last_creds = None
+        self.setCachedCredsVisible(False)
+
     def on_hostList_itemClicked(self, item):
         if item:
             self.openHost(item.text(), False)
@@ -762,6 +776,7 @@ class MainWidget(QWidget):
                 client = try_connect(host, port, user, passwd)
                 if client:
                     self._last_creds = user, passwd
+                    self.setCachedCredsVisible(True)
                     return client
 
             # no luck!
