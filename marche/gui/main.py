@@ -52,6 +52,8 @@ from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
 from marche.utils import normalize_addr, read_file, write_file
 from marche.version import get_version
 
+ADDR_ROLE = 32
+
 
 class AuthDialog(QDialog):
     def __init__(self, parent, title):
@@ -603,7 +605,7 @@ class MainWidget(QWidget):
             with open(filename) as fp:
                 firstline = fp.readline()
                 if firstline.startswith('Marche session v1'):
-                    hosts = [h.strip() for h in fp]
+                    hosts = [h for h in (h.strip() for h in fp) if h]
                 else:
                     raise RuntimeError('Unrecognized file format.')
         except Exception as err:
@@ -685,7 +687,9 @@ class MainWidget(QWidget):
 
     def on_hostList_itemClicked(self, item):
         if item:
-            self.openHost(item.text(), False)
+            data = item.data(ADDR_ROLE)
+            if data:
+                self.openHost(item.text(), False)
         else:
             self.closeHost()
 
@@ -707,13 +711,25 @@ class MainWidget(QWidget):
             self.removeHost(addr)
 
     def addHost(self, addr):
+        if addr.startswith('Heading: '):
+            self.addHeading(addr[9:])
+            return
         self.removeHost(addr)
         host, port = normalize_addr(addr, 8124)
         addr = host + ':' + port
         if addr not in self._clients:
-            item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
+            item = QListWidgetItem(QIcon(':/marche/server-big.png'), host)
+            item.setData(ADDR_ROLE, addr)
             self.hostList.addItem(item)
         return addr
+
+    def addHeading(self, heading):
+        item = QListWidgetItem(heading)
+        item.setSizeHint(QSize(10, 25))
+        fnt = item.font()
+        fnt.setBold(True)
+        item.setFont(fnt)
+        self.hostList.addItem(item)
 
     def removeHost(self, addr):
         if addr in self._clients:
