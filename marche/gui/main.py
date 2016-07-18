@@ -32,7 +32,7 @@ from os import path
 
 from PyQt4.QtGui import QWidget, QInputDialog, QColor, QTreeWidget, QDialog, \
     QTreeWidgetItem, QBrush, QMessageBox, QIcon, QListWidgetItem, QMenu, \
-    QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication
+    QPlainTextEdit, QFileDialog, QDialogButtonBox, QApplication, QTextCursor
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt, QSize, QSettings, \
     QByteArray
 
@@ -286,6 +286,8 @@ class JobButtons(QWidget):
         dlg = QDialog(self)
         loadUi(dlg, 'details.ui')
         dlg.outEdit.setPlainText(''.join(output))
+        dlg.outEdit.moveCursor(QTextCursor.End)
+        dlg.outEdit.ensureCursorVisible()
         dlg.exec_()
 
     @qtsig('')
@@ -315,6 +317,8 @@ class JobButtons(QWidget):
             font.setFamily('Monospace')
             widget.setFont(font)
             widget.setPlainText(''.join(content))
+            widget.moveCursor(QTextCursor.End)
+            widget.ensureCursorVisible()
             dlg.tabber.addTab(widget, filename)
         dlg.exec_()
 
