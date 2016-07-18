@@ -62,6 +62,7 @@ class AuthDialog(QDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
         self.nameLbl.setText(title)
         self.setWindowTitle(title)
+        self.passwdLineEdit.setFocus()
 
     @property
     def user(self):

@@ -75,10 +75,10 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>userLineEdit</tabstop>
   <tabstop>passwdLineEdit</tabstop>
   <tabstop>saveBox</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>userLineEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>
