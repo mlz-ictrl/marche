@@ -538,9 +538,7 @@ class MainWidget(QWidget):
         flag = bool(flag and self._last_creds)
         if flag:
             self.lblCachedUserCreds.setText(self._last_creds[0])
-        for itm in [self.lblCached, self.lblCachedUserCreds,
-                    self.clearCredBtn]:
-            itm.setVisible(flag)
+        self.cachePanel.setVisible(flag)
 
     @qtsig('')
     def on_actionPreferences_triggered(self):
