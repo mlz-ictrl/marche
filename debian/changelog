@@ -1,3 +1,17 @@
+marche (0.8.3) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: add heading hack for saved sessions
+  * test: py.path does not have readlink on Win even if os has symlink
+  * Add an AppVeyor CI configuration.
+  * authdlg: use more "normal" tab order
+  * gui: move "cached credentials" below buttons
+  * Scroll to bottom on output/logfiles.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 18 Jul 2016 11:01:35 +0200
+
 marche (0.8.2) unstable; urgency=low
 
   [ Christian Felder ]
