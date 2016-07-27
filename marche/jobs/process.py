@@ -185,6 +185,9 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
             self.start_service(self.name, '')
         BaseJob.init(self)
 
+    def shutdown(self):
+        self.stop_service(self.name, '')
+
     def get_services(self):
         return [(self.name, '')]
 
