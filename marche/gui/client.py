@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import time
+import socket
 import threading
 from collections import OrderedDict
 
@@ -53,6 +54,7 @@ class PollThread(QThread):
                 services = self._client.getServices()
             except Exception:
                 services = OrderedDict()
+                self.newData.emit(None, None, NOT_AVAILABLE, '')
 
             for service, instances in iteritems(services):
                 for instance in instances:
@@ -169,6 +171,8 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Start(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
@@ -179,6 +183,8 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Stop(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
@@ -189,6 +195,8 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.Restart(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
@@ -199,6 +207,8 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetStatus(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
@@ -207,6 +217,8 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetOutput(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
@@ -215,6 +227,8 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.GetLogs(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
@@ -227,6 +241,8 @@ class Client(object):
         try:
             with self._lock:
                 return self._proxy.ReceiveConfig(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
@@ -235,5 +251,7 @@ class Client(object):
         try:
             with self._lock:
                 self._proxy.SendConfig([servicePath] + (data or []))
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e)
         except xmlrpc.Fault as f:
             raise ClientError(f.faultCode, f.faultString)

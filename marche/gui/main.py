@@ -446,6 +446,10 @@ class HostTree(QTreeWidget):
         self.expandAll()
 
     def updateStatus(self, service, instance, status, info):
+        if service is instance is None:
+            for (service, instance) in self._items:
+                self.updateStatus(service, instance, status, info)
+            return
         if (service, instance) not in self._items:
             return
         item = self._items[service, instance]
