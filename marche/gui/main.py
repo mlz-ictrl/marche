@@ -840,8 +840,11 @@ class MainWidget(QWidget):
         widget.show()
 
         if select_item:
-            item = self.hostList.findItems(addr, Qt.MatchExactly)[0]
-            self.hostList.setCurrentItem(item)
+            for row in range(self.hostList.count()):
+                item = self.hostList.item(row)
+                if item.data(ADDR_ROLE) == addr:
+                    self.hostList.setCurrentItem(item)
+                    break
 
     def scanNetwork(self):
         hosts = Scanner(self).run()
