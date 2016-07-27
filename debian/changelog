@@ -1,3 +1,15 @@
+marche (0.8.5) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: display NOT AVAILABLE when connection lost, display socket errors
+  * gui: fix finding items in list
+  * process job: stop job on shutdown
+  * daemon: shutdown jobs properly on finish, reload on SIGUSR1
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 27 Jul 2016 12:27:12 +0200
+
 marche (0.8.4) unstable; urgency=low
 
   [ Georg Brandl ]
