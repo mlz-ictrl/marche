@@ -687,6 +687,8 @@ class MainWidget(QWidget):
     def on_clearCredBtn_clicked(self):
         self._last_creds = None
         self.setCachedCredsVisible(False)
+        self.closeHost()
+        self._clients.clear()
 
     def on_hostList_itemClicked(self, item):
         if item:
@@ -737,9 +739,11 @@ class MainWidget(QWidget):
     def removeHost(self, addr):
         if addr in self._clients:
             del self._clients[addr]
-        items = self.hostList.findItems(addr, Qt.MatchExactly)
-        if items:
-            self.hostList.takeItem(self.hostList.row(items[0]))
+        for row in range(self.hostList.count()):
+            item = self.hostList.item(row)
+            if item.data(ADDR_ROLE) == addr:
+                self.hostList.takeItem(row)
+                break
 
     def closeHost(self):
         if self._cur_tree:
