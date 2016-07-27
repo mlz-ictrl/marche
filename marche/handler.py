@@ -75,6 +75,12 @@ class JobHandler(object):
         self.unauth_level = config.unauth_level
         self._add_jobs()
 
+    def shutdown(self):
+        for job in list(self.jobs.values()):
+            job.shutdown()
+        self.jobs = {}
+        self.service2job = {}
+
     def add_interface(self, iface):
         self.interfaces.append(iface)
 

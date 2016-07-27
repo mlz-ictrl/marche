@@ -28,6 +28,7 @@ from __future__ import print_function
 import os
 import sys
 import time
+import signal
 import logging
 import argparse
 from os import path
@@ -50,6 +51,7 @@ logging._srcfile = None  # pylint: disable=protected-access
 
 class Daemon(object):
     def __init__(self):
+        self.stop = False
         self.log = logging.getLogger('marche')
         if os.name == 'nt':  # pragma: no cover
             nocolor()
@@ -143,8 +145,13 @@ class Daemon(object):
                                    interface, err)
                 continue
 
+        signal.signal(signal.SIGTERM, lambda *a: setattr(self, 'stop', True))
+        signal.signal(signal.SIGUSR1, lambda *a: jobhandler.trigger_reload())
+
         self.log.info('startup successful')
         self.wait()
+
+        jobhandler.shutdown()
 
         if self.args.daemonize:  # pragma: no cover
             remove_pidfile(self.config.piddir)
@@ -152,7 +159,7 @@ class Daemon(object):
 
     def wait(self):  # pragma: no cover
         try:
-            while True:
+            while not self.stop:
                 time.sleep(1)
         except KeyboardInterrupt:
             pass
