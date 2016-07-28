@@ -46,6 +46,12 @@ This job has the following configuration parameters:
       The shell script with the TACO environment.  The default is
       ``/etc/tacoenv.sh``.
 
+   .. describe:: logconffile
+
+      The TACO logging configuration file
+
+      ``/etc/taco_log.conf``.
+
    .. describe:: permissions
                  pollinterval
 
@@ -67,7 +73,7 @@ from marche.utils import extract_loglines
 class Job(BaseJob):
 
     INIT_DIR = '/etc/init.d'
-    LOG_DIR = '/var/log/taco'
+    LOG_CONF_FILE = '/etc/taco_log.cfg'
     DB_DEVLIST = '. /etc/tacoenv.sh; db_devicelist'
     DB_DEVRES = '. /etc/tacoenv.sh; db_devres'
 
@@ -78,6 +84,7 @@ class Job(BaseJob):
         if 'envfile' in config:
             self.DB_DEVLIST = '. "%s"; db_devicelist' % config['envfile']
             self.DB_DEVRES = '. "%s"; db_devres' % config['envfile']
+            self.LOG_CONF_FILE = config['logconffile']
 
     def check(self):
         if path.isdir(self.INIT_DIR):
@@ -89,6 +96,7 @@ class Job(BaseJob):
 
     def init(self):
         servers = set()
+        self._logfiles = self._determine_logfiles()
         # get all servers for which we have an init script
         for fn in os.listdir(self.INIT_DIR):
             if fn.startswith('taco-server-'):
@@ -147,22 +155,48 @@ class Job(BaseJob):
         return list(self._output.get(key, []))
 
     def service_logs(self, service, instance):
-        if not path.isdir(self.LOG_DIR):
-            return {}
         srvname = service[5:]  # strip "taco-"
-        candidates = os.listdir(self.LOG_DIR)
-        output = {}
-        for filename in candidates:
-            fullname = path.join(self.LOG_DIR, filename)
-            # check for srvname_instance
-            if filename.lower() == ('%s_%s.log' % (srvname, instance)).lower():
-                output.update(extract_loglines(fullname))
-            # check for srvname only
-            if filename.lower() == ('%s.log' % srvname).lower():
-                output.update(extract_loglines(fullname))
-        return output
+        if srvname in self._logfiles and instance in self._logfiles[srvname]:
+            return extract_loglines(self._logfiles[srvname][instance])
+        return {}
 
     # -- internal APIs --
+
+    def _determine_logfiles(self):
+        if not path.isfile(self.LOG_CONF_FILE):
+            return []
+
+        logfiles = {}
+        logcfgs = {}
+        lines = []
+        with open(self.LOG_CONF_FILE) as f:
+            lines = list(f)
+
+        for line in lines:
+            if not line.startswith('log4j.category.taco.server.'):
+                continue
+            line = line[27:].strip()
+            subj, conf = line.split('=')
+            conf = conf.split(',')[1].strip()
+            logcfgs[conf] = tuple(subj.split('.'))
+
+        for line in lines:
+            if not line.startswith('log4j.appender.') or 'fileName' not in line:
+                continue
+
+            conf = line.split('.')[2]
+            if conf not in logcfgs:
+                continue
+
+            service, instance = logcfgs[conf]
+            service = service[:-6]
+            logfile = line.split('=')[1].strip()
+
+            if service not in logfiles:
+                logfiles[service] = {}
+            logfiles[service][instance] = logfile
+        return logfiles
+
 
     def _read_devices(self, restrict_servers):
         servers = {}
