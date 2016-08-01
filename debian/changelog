@@ -1,3 +1,15 @@
+marche (0.8.6) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: maybe fix job buttons being squished
+
+  [ Alexander Lenz ]
+  * jobs/taco: get logfiles from taco_log.cfg.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 01 Aug 2016 14:00:54 +0200
+
 marche (0.8.5) unstable; urgency=low
 
   [ Georg Brandl ]
