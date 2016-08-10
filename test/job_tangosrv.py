@@ -95,7 +95,7 @@ def test_job(tmpdir):
     def new_add_device(self, db, name, cls, srv):
         devices.append((name, cls, srv))
 
-    def new_add_property(self, db, dev, name, vals):
+    def new_add_property(self, db, dev, name, vals, devices):
         properties.append((dev, name, vals))
 
     Job._connect_db = lambda self: None
