@@ -40,6 +40,21 @@ print(sys.argv[2])
 print(sys.argv[1])
 '''
 
+TACO_LOG_CFG = '''
+#
+# mysrv/inst
+#
+log4j.category.taco.server.mysrvserver.inst=WARN, mysrvserver_inst
+
+log4j.appender.mysrvserver_inst=org.apache.log4j.RollingFileAppender
+log4j.appender.mysrvserver_inst.layout=org.apache.log4j.PatternLayout
+log4j.appender.mysrvserver_inst.layout.ConversionPattern=%d %c %-6p : %m%n
+log4j.appender.mysrvserver_inst.fileName={tmpdir}/log/mysrvserver_inst.log
+log4j.appender.mysrvserver_inst.maxFileSize=100000
+log4j.appender.mysrvserver_inst.maxBackupIndex=10
+log4j.appender.mysrvserver_inst.append=true
+'''
+
 DB_DEVLIST = '''\
 print('\\tstrange/dev/1')
 print('mysrvserver/inst :')
@@ -65,15 +80,15 @@ def test_job(tmpdir):
     tmpdir.join('taco-server-mysrv').write(SCRIPT)
     tmpdir.join('db_devlist').write(DB_DEVLIST)
     tmpdir.join('db_devres').write(DB_DEVRES)
-    tmpdir.mkdir('log').join('Mysrv_inst.log').write('log1\nlog2\n')
-    tmpdir.join('log', 'Mysrv.log').write('log3\nlog4\n')
+    tmpdir.join('taco_log.cfg').write(TACO_LOG_CFG.format(tmpdir=tmpdir))
+    tmpdir.mkdir('log').join('mysrvserver_inst.log').write('log1\nlog2\n')
 
     Job.INIT_DIR = 'does/not/exist'
     job = Job('taco', 'name', {}, logger, lambda event: None)
     assert not job.check()
 
     Job.INIT_DIR = str(tmpdir)
-    Job.LOG_DIR = str(tmpdir.join('log'))
+    Job.LOG_CONF_FILE = str(tmpdir.join('taco_log.cfg'))
     Job.DB_DEVLIST = '%s -S %s' % (sys.executable, tmpdir.join('db_devlist'))
     Job.DB_DEVRES = '%s -S %s' % (sys.executable, tmpdir.join('db_devres'))
 
@@ -90,14 +105,13 @@ def test_job(tmpdir):
                    'action inst', ['inst', 'action'])
 
     logs = job.service_logs('taco-mysrv', 'inst')
-    assert len(logs) == 2
+    assert len(logs) == 1
     for key, value in logs.items():
-        if key.endswith('Mysrv_inst.log'):
+        if key.endswith('mysrvserver_inst.log'):
             assert value == 'log1\nlog2\n'
-        elif key.endswith('Mysrv.log'):
-            assert value == 'log3\nlog4\n'
         else:
             assert False, 'unknown logfile returned'
 
-    Job.LOG_DIR = 'does/not/exist'
+    Job.LOG_CONF_FILE = 'does/not/exist'
+    job.init()
     assert job.service_logs('taco-mysrv', 'inst') == {}
