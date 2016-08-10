@@ -84,6 +84,7 @@ class Job(BaseJob):
         if 'envfile' in config:
             self.DB_DEVLIST = '. "%s"; db_devicelist' % config['envfile']
             self.DB_DEVRES = '. "%s"; db_devres' % config['envfile']
+        if 'logconffile' in config:
             self.LOG_CONF_FILE = config['logconffile']
 
     def check(self):
