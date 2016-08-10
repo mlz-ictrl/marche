@@ -79,13 +79,13 @@ def test_job(tmpdir):
     job._script = sys.executable + ' -S ' + job._script
     job.init()
 
-    assert job.get_services() == [('nicos-system', ''), ('nicos', 'cache')]
+    assert job.get_services() == [('nicos', ''), ('nicos', 'cache')]
     assert job.service_status('nicos', 'cache') == (RUNNING, '')
 
-    job_call_check(job, 'nicos-system', '', 'action', ['action'])
+    job_call_check(job, 'nicos', '', 'action ', ['action'])
     job_call_check(job, 'nicos', 'cache', 'action cache', ['cache', 'action'])
 
-    assert job.service_logs('nicos-system', '') == {}
+    assert job.service_logs('nicos', '') == {}
     logs = job.service_logs('nicos', 'cache')
     assert list(logs.values()) == ['log1\nlog2\n']
 
@@ -93,7 +93,7 @@ def test_job(tmpdir):
     assert raises(Fault, job.send_config, 'nicos', 'cache', 'file', 'contents')
 
     job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system2'))
-    assert job.service_status('nicos-system', '')[0] == WARNING
+    assert job.service_status('nicos', '')[0] == WARNING
 
     job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system3'))
-    assert job.service_status('nicos-system', '')[0] == DEAD
+    assert job.service_status('nicos', '')[0] == DEAD
