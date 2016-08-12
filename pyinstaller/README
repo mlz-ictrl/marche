@@ -1,0 +1,2 @@
+To build the exe file, invoke:
+pyinstaller -F -w marche-gui.spec
