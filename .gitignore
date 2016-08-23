@@ -17,3 +17,7 @@ TAGS
 build/
 dist/
 doc/_build/
+
+# IDE related
+## Netbeans IDEs
+.idea
