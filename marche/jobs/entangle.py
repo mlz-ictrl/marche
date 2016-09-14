@@ -55,7 +55,7 @@ from os import path
 
 from marche.six.moves import configparser
 
-from marche.jobs import Fault
+from marche.jobs import Fault, RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extract_loglines, read_file, write_file
 
@@ -106,6 +106,22 @@ class Job(BaseJob):
         # XXX check devices with Tango clients
         return self._async_status(instance, '%s status %s' %
                                   (self.INITSCR, instance)), ''
+
+    def all_service_status(self):
+        result = {}
+        initstates = {}
+        for line in self._sync_call('%s status' % self.INITSCR).stdout:
+            if ':' not in line:
+                continue
+            name, state = line.split(':', 1)
+            initstates[name.strip()] = DEAD if 'dead' in state else RUNNING
+        for service, instance in self._services:
+            async_st = self._async_status_only(instance)
+            if async_st is not None:
+                result[service, instance] = async_st, ''
+            else:
+                result[service, instance] = initstates.get(instance, DEAD), ''
+        return result
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))

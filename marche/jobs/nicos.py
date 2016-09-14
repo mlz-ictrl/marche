@@ -132,6 +132,34 @@ class Job(BaseJob):
             proc = self._sync_call(self._script + ' status %s' % instance)
             return RUNNING if proc.retcode == 0 else DEAD, ''
 
+    def all_service_status(self):
+        result = {}
+        initstates = {}
+        something_dead = something_running = False
+        for line in self._sync_call('%s status' % self._script).stdout:
+            if ':' not in line:
+                continue
+            if 'dead' in line:
+                something_dead = True
+            if 'running' in line:
+                something_running = True
+            name, state = line.split(':', 1)
+            initstates[name.strip()] = DEAD if 'dead' in state else RUNNING
+        for service, instance in self._services:
+            async_st = self._async_status_only(instance)
+            if async_st is not None:
+                result[service, instance] = async_st, ''
+            elif instance == '':
+                if something_dead and something_running:
+                    result[service, ''] = WARNING, 'only some services running'
+                elif something_running:
+                    result[service, ''] = RUNNING, ''
+                else:
+                    result[service, ''] = DEAD, ''
+            else:
+                result[service, instance] = initstates.get(instance, DEAD), ''
+        return result
+
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))
 

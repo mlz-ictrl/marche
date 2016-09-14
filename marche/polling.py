@@ -75,12 +75,12 @@ class Poller(object):
                     continue
             except queue.Empty:
                 pass
-            for key in self.job.get_services():
-                try:
-                    with self.job.lock:
-                        result = self.job.service_status(*key)
-                except Exception:
-                    continue
+            try:
+                with self.job.lock:
+                    states = self.job.all_service_status()
+            except Exception:
+                continue
+            for key, result in states.items():
                 if result != self._cache.get(key, [0, None])[1]:
                     self._cache[key] = [time.time(), result]
                     self.event_callback(StatusEvent(

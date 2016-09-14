@@ -294,6 +294,20 @@ class Job(object):
         raise NotImplementedError('%s.service_status not implemented'
                                   % self.__class__.__name__)
 
+    def all_service_status(self):
+        """Return a dict with the tuple of status constants of all
+        services/instances.
+
+        Used by the poller to get the status of all services faster
+        if possible.
+
+        By default, this just loops through the services.
+        """
+        states = {}
+        for service, instance in self.get_services():
+            states[service, instance] = self.service_status(service, instance)
+        return states
+
     def service_description(self, service, instance):
         """Return a string description of the service with the given name.
 
