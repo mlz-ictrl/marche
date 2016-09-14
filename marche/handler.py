@@ -157,22 +157,21 @@ class JobHandler(object):
         The service list is sent back as a single ServiceListEvent."""
         svcs = {}
         for job in self.jobs.values():
-            with job.lock:
-                for service, instance in job.get_services():
-                    if not job.has_permission(DISPLAY, client):
-                        continue
-                    if service not in svcs:
-                        svcs[service] = {
-                            'instances': {},
-                            'permissions': job.determine_permissions(client),
-                            'jobtype': job.jobtype,
-                        }
-                    state, ext = job.polled_service_status(service, instance)
-                    svcs[service]['instances'][instance] = {
-                        'desc': job.service_description(service, instance),
-                        'state': state,
-                        'ext_status': ext,
+            for service, instance in job.get_services():
+                if not job.has_permission(DISPLAY, client):
+                    continue
+                if service not in svcs:
+                    svcs[service] = {
+                        'instances': {},
+                        'permissions': job.determine_permissions(client),
+                        'jobtype': job.jobtype,
                     }
+                state, ext = job.polled_service_status(service, instance)
+                svcs[service]['instances'][instance] = {
+                    'desc': job.service_description(service, instance),
+                    'state': state,
+                    'ext_status': ext,
+                }
         return ServiceListEvent(services=svcs)
 
     def filter_services(self, client, event):
@@ -193,8 +192,7 @@ class JobHandler(object):
     def get_service_description(self, client, service, instance):
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
-        with job.lock:
-            return job.service_description(service, instance)
+        return job.service_description(service, instance)
 
     @command()
     def start_service(self, client, service, instance):
@@ -231,8 +229,7 @@ class JobHandler(object):
         """Return the status of a single service."""
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
-        with job.lock:
-            state, ext = job.polled_service_status(service, instance)
+        state, ext = job.polled_service_status(service, instance)
         return StatusEvent(service=service, instance=instance,
                            state=state, ext_status=ext)
 

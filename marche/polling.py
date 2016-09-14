@@ -69,24 +69,25 @@ class Poller(object):
         while not self._stoprequest:
             try:
                 # Wait interval or until something arrives in the queue.
+                # XXX: diff to next interval instead
                 req = self.queue.get(True, self.interval)
                 if req is None:
                     continue
             except queue.Empty:
                 pass
-            with self.job.lock:
-                for key in self.job.get_services():
-                    try:
+            for key in self.job.get_services():
+                try:
+                    with self.job.lock:
                         result = self.job.service_status(*key)
-                    except Exception:
-                        continue
-                    if result != self._cache.get(key, [0, None])[1]:
-                        self._cache[key] = [time.time(), result]
-                        self.event_callback(StatusEvent(
-                            service=key[0],
-                            instance=key[1],
-                            state=result[0],
-                            ext_status=result[1],
-                        ))
-                    else:
-                        self._cache[key][0] = time.time()
+                except Exception:
+                    continue
+                if result != self._cache.get(key, [0, None])[1]:
+                    self._cache[key] = [time.time(), result]
+                    self.event_callback(StatusEvent(
+                        service=key[0],
+                        instance=key[1],
+                        state=result[0],
+                        ext_status=result[1],
+                    ))
+                else:
+                    self._cache[key][0] = time.time()

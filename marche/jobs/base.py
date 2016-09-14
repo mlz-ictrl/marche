@@ -46,6 +46,9 @@ class Job(object):
     to indicate that the operation cannot be done at the moment, because a job
     is already starting/stopping.
 
+    The job has a thread-lock, which needs to be held for operations where it
+    is not documented that they are safe without locking.
+
     .. automethod:: __init__
     """
 
@@ -134,19 +137,26 @@ class Job(object):
     def has_permission(self, level, client):
         """Query if the *client* has permission to do an action that would
         normally have *level*.
+
+        Safe to call without the job lock held.
         """
         return client.level >= self._permissions[level]
 
     def check_permission(self, level, client):
         """Ensure that the *client* has permission to do an action that would
         normally have *level*.  If not, raises `Fault`.
+
+        Safe to call without the job lock held.
         """
         if self.has_permission(level, client):
             return
         raise Unauthorized('permission denied by Marche')
 
     def determine_permissions(self, client):
-        """Return which normal levels of actions this *client* can do."""
+        """Return which normal levels of actions this *client* can do.
+
+        Safe to call without the job lock held.
+        """
         return [perm for perm in (DISPLAY, CONTROL, ADMIN)
                 if self.has_permission(perm, client)]
 
@@ -159,11 +169,15 @@ class Job(object):
         self.poller.queue.put(True)
 
     def polled_service_status(self, service, instance):
-        """Return the service status, if possible from the poller cache."""
+        """Return the service status, if possible from the poller cache.
+
+        Must be called without the job lock held.
+        """
         result = self.poller.get(service, instance)
         if result is not None:
             return result
-        return self.service_status(service, instance)
+        with self.lock:
+            return self.service_status(service, instance)
 
     # Public interface to be implemented by subclasses
 
@@ -213,6 +227,8 @@ class Job(object):
         For jobs without sub-instances, return ``(service, '')``.
 
         This must be implemented by subclasses.
+
+        Must be safe to call without the job lock held.
         """
         raise NotImplementedError('%s.get_services not implemented'
                                   % self.__class__.__name__)
@@ -279,7 +295,10 @@ class Job(object):
                                   % self.__class__.__name__)
 
     def service_description(self, service, instance):
-        """Return a string description of the service with the given name."""
+        """Return a string description of the service with the given name.
+
+        Must be safe to call without the job lock held.
+        """
         return ''
 
     def service_output(self, service, instance):
