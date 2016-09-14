@@ -118,7 +118,7 @@ class Job(BaseJob):
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
             if async_st is not None:
-                result[service, instance] = async_st, ''
+                result[service, instance] = async_st, ''  # pragma: no cover
             else:
                 result[service, instance] = initstates.get(instance, DEAD), ''
         return result

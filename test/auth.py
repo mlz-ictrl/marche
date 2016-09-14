@@ -103,6 +103,12 @@ def test_pam():
         assert handler.authenticate('user', 'pass').level == CONTROL
         assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
+    config.auth_config = {'pam': {'service': 'marche', 'defaultlevel': 'none'}}
+
+    with patch('marche.auth.pam.pamela', Pamela()):
+        handler = AuthHandler(config, logger)
+        assert raises(AuthFailed, handler.authenticate, 'admin', 'pass')
+
 
 def test_parse_permissions():
     pdict = {DISPLAY: DISPLAY, CONTROL: CONTROL, ADMIN: ADMIN}

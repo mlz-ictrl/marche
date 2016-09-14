@@ -53,13 +53,21 @@ else:
 '''
 
 SCRIPT2 = '''\
+print('status ...')
 print('cache: running')
 print('poller: dead')
 '''
 
 SCRIPT3 = '''\
+print('status ...')
 print('cache: dead')
 print('poller: dead')
+'''
+
+SCRIPT4 = '''\
+print('status ...')
+print('cache: running')
+print('poller: running')
 '''
 
 
@@ -67,6 +75,7 @@ def test_job(tmpdir):
     tmpdir.mkdir('etc').join('nicos-system').write(SCRIPT)
     tmpdir.join('nicos-system2').write(SCRIPT2)
     tmpdir.join('nicos-system3').write(SCRIPT3)
+    tmpdir.join('nicos-system4').write(SCRIPT4)
     tmpdir.mkdir('log').mkdir('cache').join('current').write('log1\nlog2\n')
 
     Job.DEFAULT_INIT = 'does/not/exist'
@@ -95,5 +104,21 @@ def test_job(tmpdir):
     job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system2'))
     assert job.service_status('nicos', '')[0] == WARNING
 
+    assert job.all_service_status() == {
+        ('nicos', ''): (WARNING, 'only some services running'),
+        ('nicos', 'cache'): (RUNNING, '')
+    }
+
     job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system3'))
     assert job.service_status('nicos', '')[0] == DEAD
+
+    assert job.all_service_status() == {
+        ('nicos', ''): (DEAD, ''),
+        ('nicos', 'cache'): (DEAD, '')
+    }
+
+    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system4'))
+    assert job.all_service_status() == {
+        ('nicos', ''): (RUNNING, ''),
+        ('nicos', 'cache'): (RUNNING, '')
+    }

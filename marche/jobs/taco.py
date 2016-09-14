@@ -179,7 +179,10 @@ class Job(BaseJob):
             line = line[27:].strip()
             subj, conf = line.split('=')
             conf = conf.split(',')[1].strip()
-            logcfgs[conf] = tuple(subj.split('.'))
+            parts = subj.split('.')
+            if len(parts) != 2:
+                continue
+            logcfgs[conf] = parts
 
         for line in lines:
             if not line.startswith('log4j.appender.') or 'fileName' not in line:
@@ -197,7 +200,6 @@ class Job(BaseJob):
                 logfiles[service] = {}
             logfiles[service][instance] = logfile
         return logfiles
-
 
     def _read_devices(self, restrict_servers):
         servers = {}

@@ -148,7 +148,7 @@ class Job(BaseJob):
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
             if async_st is not None:
-                result[service, instance] = async_st, ''
+                result[service, instance] = async_st, ''  # pragma: no cover
             elif instance == '':
                 if something_dead and something_running:
                     result[service, ''] = WARNING, 'only some services running'
@@ -177,6 +177,6 @@ class Job(BaseJob):
             for subdir in os.listdir(self._logpath):
                 logfile = path.join(self._logpath, subdir, 'current')
                 if path.islink(logfile):
-                    result.update(extract_loglines(logfile))
+                    result.update(extract_loglines(logfile))  # pragma: no cover
             return result
         return extract_loglines(path.join(self._logpath, instance, 'current'))

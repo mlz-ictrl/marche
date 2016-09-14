@@ -38,8 +38,12 @@ logger = logging.getLogger('testentangle')
 
 SCRIPT = '''\
 import sys
-print(sys.argv[2])
-print(sys.argv[1])
+if len(sys.argv) < 3:
+    print('status...')
+    print('mysrv : running')
+else:
+    print(sys.argv[2])
+    print(sys.argv[1])
 '''
 
 CONFIG = '''\
@@ -76,6 +80,7 @@ def test_job(tmpdir):
     assert job.get_services() == [('entangle', 'mysrv')]
 
     assert job.service_status('entangle', 'mysrv') == (RUNNING, '')
+    assert job.all_service_status() == {('entangle', 'mysrv'): (RUNNING, '')}
 
     job_call_check(job, 'entangle', 'mysrv',
                    'action mysrv', ['mysrv', 'action'])

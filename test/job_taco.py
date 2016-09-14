@@ -53,6 +53,10 @@ log4j.appender.mysrvserver_inst.fileName={tmpdir}/log/mysrvserver_inst.log
 log4j.appender.mysrvserver_inst.maxFileSize=100000
 log4j.appender.mysrvserver_inst.maxBackupIndex=10
 log4j.appender.mysrvserver_inst.append=true
+
+# ignored
+log4j.category.taco.server.otherserver=WARN, mysrvserver_inst
+log4j.appender.other.fileName=true
 '''
 
 DB_DEVLIST = '''\
@@ -84,7 +88,8 @@ def test_job(tmpdir):
     tmpdir.mkdir('log').join('mysrvserver_inst.log').write('log1\nlog2\n')
 
     Job.INIT_DIR = 'does/not/exist'
-    job = Job('taco', 'name', {}, logger, lambda event: None)
+    config = {'envfile': '/does/not/exist', 'logconffile': '/does/not/exist'}
+    job = Job('taco', 'name', config, logger, lambda event: None)
     assert not job.check()
 
     Job.INIT_DIR = str(tmpdir)
