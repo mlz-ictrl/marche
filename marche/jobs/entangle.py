@@ -76,11 +76,11 @@ class Job(BaseJob):
         cfg.read(self.CONFIG)
 
         if cfg.has_option('entangle', 'resdir'):
-            self._resdir = cfg.get('entangle', 'resdir')
+            self._resdir = cfg.get('entangle', 'resdir').strip('"\'')
         else:
             self._resdir = '/etc/entangle'  # pragma: no cover
         if cfg.has_option('entangle', 'logdir'):
-            self._logdir = cfg.get('entangle', 'logdir')
+            self._logdir = cfg.get('entangle', 'logdir').strip('"\'')
         else:
             self._logdir = '/var/log/entangle'  # pragma: no cover
 
