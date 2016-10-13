@@ -1,3 +1,12 @@
+marche (1.0.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * utils: fix file coding issue with Py2
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 13 Oct 2016 12:46:59 +0200
+
 marche (1.0.1) unstable; urgency=low
 
   [ Georg Brandl ]
