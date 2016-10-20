@@ -51,6 +51,7 @@ This job has the following configuration parameters:
 """
 
 import os
+import socket
 from os import path
 
 from marche.six.moves import configparser
@@ -72,11 +73,16 @@ class Job(BaseJob):
         return True
 
     def init(self):
-        cfg = configparser.RawConfigParser()
+        substitutions = {
+            'hostname': socket.gethostname().split('.')[0]
+        }
+
+        cfg = configparser.SafeConfigParser(defaults=substitutions)
         cfg.read(self.CONFIG)
 
         if cfg.has_option('entangle', 'resdir'):
             self._resdir = cfg.get('entangle', 'resdir').strip('"\'')
+            self._resdir = self._resdir.format(**substitutions)
         else:
             self._resdir = '/etc/entangle'  # pragma: no cover
         if cfg.has_option('entangle', 'logdir'):
