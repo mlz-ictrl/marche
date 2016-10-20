@@ -1,3 +1,12 @@
+marche (1.0.3) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * jobs/entangle: support hostname subst in conf.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 20 Oct 2016 14:08:24 +0200
+
 marche (1.0.2) unstable; urgency=low
 
   [ Georg Brandl ]
