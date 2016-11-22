@@ -1,0 +1,14 @@
+[Unit]
+Description=Marche server control daemon
+Requires=network-online.target
+After=network-online.target rpcbind.service taco-db.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/marched
+Restart=on-abnormal
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+

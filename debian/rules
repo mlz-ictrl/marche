@@ -15,7 +15,22 @@ DEBPYTHON_SUPPORTED=2.7
 export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
 
 override_dh_installinit:
-	dh_installinit --onlyscripts --name=marched --no-start
+	if [ "$$(lsb_release -s -c)" = "wheezy" ] ; then \
+		dh_installinit --onlyscripts --name=marched --no-start; \
+	fi
+
+override_dh_install:
+	# List files that are installed by the upstream build system
+	# but not part of the debian package.
+	dh_install --list-missing
+	if [ "$$(lsb_release -s -c)" != "wheezy" ] ; then \
+		rm debian/marche/etc/init.d/marched; \
+	fi
+
 
 %:
-	dh $@ --with python2 --buildsystem=python_distutils
+	if [ "$$(lsb_release -s -c)" = "wheezy" ] ; then \
+		dh $@ --with python2 --buildsystem=python_distutils; \
+	else \
+		dh $@ --with python2 --buildsystem=python_distutils --with systemd; \
+	fi
