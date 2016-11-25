@@ -1,3 +1,12 @@
+marche (1.1.1) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * jobs/taco: optimize performance (fancy magic).
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 25 Nov 2016 12:30:28 +0100
+
 marche (1.1.0) unstable; urgency=low
 
   [ Alexander Lenz ]
