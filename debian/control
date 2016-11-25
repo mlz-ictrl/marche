@@ -12,6 +12,6 @@ Standards-Version: 3.9.3
 
 Package: marche
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.7)
+Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.7), python-psutil (>= 0.4)
 Description: Marche is a server control daemon with multiple interfaces.
 
