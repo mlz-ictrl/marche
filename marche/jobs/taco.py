@@ -64,9 +64,11 @@ This job has the following configuration parameters:
 import os
 from os import path
 
+import psutil
+
 from marche.six import iteritems
 
-from marche.jobs.base import Job as BaseJob
+from marche.jobs.base import Job as BaseJob, RUNNING, DEAD
 from marche.utils import extract_loglines
 
 
@@ -160,6 +162,30 @@ class Job(BaseJob):
         if srvname in self._logfiles and instance in self._logfiles[srvname]:
             return extract_loglines(self._logfiles[srvname][instance])
         return {}
+
+    def all_service_status(self):
+        result = {}
+        for proc in psutil.process_iter():
+            cmdline = proc.cmdline()
+
+            if not cmdline:
+                continue
+
+            if cmdline[0].endswith('Server'):
+                entry = ('taco-' + cmdline[0].rpartition('/')[2].lower()[:-6],
+                         cmdline[1])
+
+                if entry in self._services:
+                    result[entry] = RUNNING, ''
+
+        for service, instance in self._services:
+            async_st = self._async_status_only((service, instance))
+            if async_st is not None:
+                result[service, instance] = async_st, ''  # pragma: no cover
+            elif (service, instance) not in result:
+                result[service, instance] = DEAD, ''
+
+        return result
 
     # -- internal APIs --
 
