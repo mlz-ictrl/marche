@@ -57,7 +57,7 @@ setup(
     data_files = data_files,
     scripts = scripts,
     classifiers = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Natural Language :: English',
