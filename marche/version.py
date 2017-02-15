@@ -1,15 +1,37 @@
-# -*- coding: utf-8 -*-
-# Author: Douglas Creager <dcreager@dcreager.net>
-# This file is placed into the public domain.
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# Marche - A server control daemon
+# Copyright (c) 2015-2016 by the authors, see LICENSE
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Douglas Creager <dcreager@dcreager.net>
+#   This file is placed into the public domain.
+#
+# *****************************************************************************
 
 from __future__ import print_function
 
 import os.path
 from subprocess import Popen, PIPE
 
-__all__ = ["get_git_version"]
+__all__ = ['get_version']
 
-RELEASE_VERSION_FILE = os.path.join(os.path.dirname(__file__), 'RELEASE-VERSION')
+RELEASE_VERSION_FILE = os.path.join(os.path.dirname(__file__),
+                                    'RELEASE-VERSION')
 GIT_REPO = os.path.join(os.path.dirname(__file__), '..', '.git')
 
 
@@ -50,7 +72,9 @@ def get_version(abbrev=4):
     elif release_version:
         return release_version
     else:
-        raise ValueError('Cannot find a version number!')
+        raise ValueError('Cannot find a version number - make sure that '
+                         'git is installed or a RELEASE-VERSION file is '
+                         'present!')
 
 
 if __name__ == "__main__":
