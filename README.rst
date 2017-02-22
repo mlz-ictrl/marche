@@ -55,3 +55,7 @@ See http://p.yusukekamiyamane.com/.
 GUI application icon by Claire Jones.
 Licensed under a Creative Commons Attribution 3.0 License.
 See https://thenounproject.com/hivernoir/.
+
+Uses Material Design CSS, script and icons from Google.
+Licensed under the Apache 2.0 License.
+See the marche/iface/web/static/LICENSE-APACHE file.

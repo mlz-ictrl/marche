@@ -35,6 +35,12 @@ scripts = ['bin/marched', 'bin/marche-gui']
 srcdir = path.dirname(__file__)
 uidir = path.join(srcdir, 'marche', 'gui', 'ui')
 uis = [path.join('gui', 'ui', entry) for entry in listdir(uidir)]
+webdir = path.join(srcdir, 'marche', 'iface', 'web', 'static')
+webstuff = [path.join('iface', 'web', 'static', entry)
+            for entry in listdir(webdir)]
+tmpldir = path.join(srcdir, 'marche', 'iface', 'web', 'templates')
+templates = [path.join('iface', 'web', 'templates', entry)
+             for entry in listdir(tmpldir)]
 
 configs = glob.glob(path.join(srcdir, 'etc', '*.conf'))
 configs += glob.glob(path.join(srcdir, 'etc', 'dist', '*.conf'))
@@ -53,7 +59,7 @@ setup(
     author_email = 'g.brandl@fz-juelich.de',
     description = 'Server control daemon',
     packages = find_packages(exclude=['test']),
-    package_data = {'marche': ['RELEASE-VERSION'] + uis},
+    package_data = {'marche': ['RELEASE-VERSION'] + uis + webstuff + templates},
     data_files = data_files,
     scripts = scripts,
     classifiers = [

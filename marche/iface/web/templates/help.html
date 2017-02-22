@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mdl-cell mdl-cell--12-col mdl-grid" align="center">
+    <div class="mdl-card-wide mdl-card mdl-shadow--8dp">
+        <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">About Marche Webinterface</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <p><i>© 2015-2017 MLZ instrument control</i><br>
+                Marche Webinterface is a graphical interface for the
+                Marche process control system.
+            </p>
+            <b>Authors:</b>
+            <p>
+                Copyright © 2015-2017
+                <a href="mailto:g.brandl@fz-juelich.de?Subject=Marche">
+                    Georg Brandl</a> <br>Copyright © 2015-2017
+                <a href="mailto:alexander.lenz@frm2.tum.de?Subject=Marche">
+                    Alexander Lenz</a> <br>Copyright © 2016-2017
+                <a href="mailto:lea.kleesattel@frm2.tum.de?Subject=Marche">
+                    Lea Kleesattel</a> <br>
+            </p>
+            Marche is published under the GPL<br>
+            <a href="https://www.gnu.org/licenses/gpl.html">
+                (GNU General Public License)
+            </a>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+            <form action="help" class="mdl-card__supporting-text">
+                <b>Version: {{ number }}</b>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

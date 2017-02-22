@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mdl-cell mdl-cell--12-col mdl-grid">
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--8dp" align="center">
+    <thead>
+    <tr>
+        <th class="mdl-data-table__cell--non-numeric"><h6>Service</h6></th>
+        <th class="mdl-data-table__cell--non-numeric"><h6>Status</h6></th>
+        <th class="mdl-data-table__cell--non-numeric"><h6>Control</h6></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for svc, state in svc_sts.iteritems() %}
+    <tr>
+        <td class="mdl-data-table__cell--non-numeric" id="{{ svc }}"
+            width="40%">{{ svc }}</td>
+        <td class="mdl-data-table__cell--non-numeric" id="{{ svc }}_status"
+            width="40%">{{ state }}</td>
+        <td class="mdl-data-table__cell--non-numeric" id="{{ svc }}_ctlBtn"
+            width="40%">
+            <form action="button_action" id="buttonForm" method="post"
+                  accept-charset="utf-8">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
+                mdl-button--icon" id="start_{{ svc }}" type="button"
+                    data-button='{"startButton": "{{ svc }}"}' disabled>
+                <i class="material-icons md-36">play_arrow</i>
+                <div class="mdl-tooltip" data-mdl-for="start_{{ svc }}">
+                    Start Server</div>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
+                mdl-button--icon" id="stop_{{ svc }}" type="button"
+                    data-button='{"stopButton": "{{ svc }}"}' disabled>
+                <i class="material-icons md-36">stop</i>
+                <div class="mdl-tooltip" data-mdl-for="stop_{{ svc }}">
+                    Stop Server</div>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
+                mdl-button--icon" id="restart_{{ svc }}" type="button"
+                    data-button='{"restartButton": "{{ svc }}"}' disabled>
+                <i class="material-icons md-36">replay</i>
+                <div class="mdl-tooltip" data-mdl-for="restart_{{ svc }}">
+                    Restart Server</div>
+            </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
