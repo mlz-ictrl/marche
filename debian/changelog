@@ -1,3 +1,13 @@
+marche (1.1.4) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * update all version.py to the same code base
+  * Add normal resolution window icons.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 09 Mar 2017 09:02:33 +0100
+
 marche (1.1.3) unstable; urgency=low
 
   [ Georg Brandl ]
