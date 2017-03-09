@@ -1,8 +1,10 @@
 <RCC>
   <qresource prefix="marche">
+    <file>logo-16.png</file>
+    <file>logo-32.png</file>
+    <file>logo-48.png</file>
     <file>gear.png</file>
     <file>arrow-circle-225.png</file>
-    <file>logo-old.svg</file>
     <file>logo-new.svg</file>
     <file>control.png</file>
     <file>control-stop-square.png</file>

@@ -26,8 +26,8 @@
 import sys
 import optparse
 
-from PyQt4.QtGui import QApplication, QMainWindow
 from PyQt4.QtCore import Qt, QSettings, QByteArray
+from PyQt4.QtGui import QApplication, QMainWindow, QIcon
 
 from marche.gui.main import MainWidget
 
@@ -41,6 +41,13 @@ class MainWindow(QMainWindow):
         settings = QSettings()
         self.restoreGeometry(settings.value('geometry', b'', QByteArray))
         self.setWindowTitle('Marche')
+
+        # set app icon in multiple sizes
+        icon = QIcon()
+        icon.addFile(':/marche/logo-32.png')
+        icon.addFile(':/marche/logo-16.png')
+        icon.addFile(':/marche/logo-48.png')
+        self.setWindowIcon(icon)
 
         menu = self.menuBar()
         menuFile = menu.addMenu('File')
