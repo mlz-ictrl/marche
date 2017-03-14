@@ -146,7 +146,9 @@ class Daemon(object):
                 continue
 
         signal.signal(signal.SIGTERM, lambda *a: setattr(self, 'stop', True))
-        signal.signal(signal.SIGUSR1, lambda *a: jobhandler.trigger_reload())
+        if hasattr(signal, 'SIGUSR1'):
+            signal.signal(signal.SIGUSR1,
+                          lambda *a: jobhandler.trigger_reload())
 
         self.log.info('startup successful')
         self.wait()
