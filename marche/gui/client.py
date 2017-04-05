@@ -84,6 +84,11 @@ class HttpTransport(xmlrpc.Transport):
         return retval
 
 
+class ServerProxy(xmlrpc.ServerProxy):
+    def __del__(self):
+        self('close')()
+
+
 class Client(object):
     def __init__(self, host, port, user=None, passwd=None):
         self.host = host
@@ -92,13 +97,13 @@ class Client(object):
         self.passwd = passwd
 
         if user is not None and passwd is not None:
-            self._proxy = xmlrpc.ServerProxy('http://%s:%s@%s:%s/xmlrpc'
-                                             % (user, passwd, host, port),
-                                             transport=HttpTransport())
+            self._proxy = ServerProxy('http://%s:%s@%s:%s/xmlrpc'
+                                      % (user, passwd, host, port),
+                                      transport=HttpTransport())
         else:
-            self._proxy = xmlrpc.ServerProxy('http://%s:%s/xmlrpc'
-                                             % (host, port),
-                                             transport=HttpTransport())
+            self._proxy = ServerProxy('http://%s:%s/xmlrpc'
+                                      % (host, port),
+                                      transport=HttpTransport())
         self._lock = threading.Lock()
         self._pollThread = None
         self.version = self.getVersion()
@@ -106,7 +111,7 @@ class Client(object):
     def stopPoller(self, join=False):
         if self._pollThread:
             self._pollThread.running = False
-
+            del self._pollThread._client
             if join:
                 self._pollThread.wait()
 
@@ -115,8 +120,7 @@ class Client(object):
                                       self.port,
                                       self.user,
                                       self.passwd,
-                                      loadSetting('pollInterval',
-                                                  3,
+                                      loadSetting('pollInterval', 3,
                                                   valtype=float))
         self._pollThread.newData.connect(slot)
         self._pollThread.start()

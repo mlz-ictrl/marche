@@ -77,6 +77,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         self._widget.saveSettings()
+        self._widget.clear()
         settings = QSettings()
         settings.setValue('geometry', self.saveGeometry())
         return QMainWindow.closeEvent(self, event)

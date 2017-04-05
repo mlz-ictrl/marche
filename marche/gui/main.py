@@ -740,6 +740,12 @@ class MainWidget(QWidget):
         item.setFont(fnt)
         self.hostList.addItem(item)
 
+    def clear(self):
+        while self._clients:
+            addr, client = self._clients.popitem()
+            client.stopPoller()
+            self.removeHost(addr)
+
     def removeHost(self, addr):
         if addr in self._clients:
             del self._clients[addr]
