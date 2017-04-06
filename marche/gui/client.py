@@ -44,11 +44,13 @@ class PollThread(QThread):
     def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0,
                  parent=None):
         QThread.__init__(self, parent)
-        self._client = Client(host, port, user, passwd)
         self._loopDelay = loopDelay
+        self._creds = (host, port, user, passwd)
+        self._client = None
         self.running = True
 
     def run(self):
+        self._client = Client(*self._creds)
         while self.running:
             try:
                 services = self._client.getServices()
@@ -111,7 +113,7 @@ class Client(object):
     def stopPoller(self, join=False):
         if self._pollThread:
             self._pollThread.running = False
-            del self._pollThread._client
+            self._pollThread._client = None
             if join:
                 self._pollThread.wait()
 
