@@ -1,3 +1,12 @@
+marche (1.1.7) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Fix closing client.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 06 Apr 2017 08:19:19 +0200
+
 marche (1.1.6) unstable; urgency=low
 
   [ Georg Brandl ]
