@@ -26,10 +26,49 @@
 
 import sys
 from os import path
+import optparse
+import argparse
 
 # Add import path for inplace usage
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-import marche.gui.standalone
+from marche.gui.mainwindow import MainWindow
 
-sys.exit(marche.gui.standalone.main())
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication
+
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser(description='Marche control GUI',
+                                     conflict_handler='resolve')
+    parser.add_argument('-B', '--noscan', action='store_true',
+                        help='Do not scan local network for hosts',
+                        default=False)
+    parser.add_argument('session_or_host', type=str,
+                        help='Session or host to load', nargs='*')
+    return parser.parse_args(argv)
+
+
+def main(argv):
+    args = parse_args(argv[1:])
+
+    app = QApplication(argv)
+    app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
+    app.setOrganizationName('mlz')
+    app.setApplicationName('marche-gui')
+
+    win = MainWindow(scan_on_startup=not args.noscan)
+
+    for arg in args.session_or_host:
+        if arg.endswith('.marche'):
+            win.loadSession(arg)
+        else:
+            win.addHost(arg)
+
+    win.show()
+
+    return app.exec_()
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
