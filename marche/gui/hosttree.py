@@ -25,7 +25,7 @@
 
 
 from PyQt4.QtGui import QColor, QTreeWidget, QTreeWidgetItem, QBrush,\
-    QMessageBox, QIcon
+    QMessageBox, QIcon, QHeaderView
 from PyQt4.QtCore import Qt, QSize
 
 from marche.six import iteritems
@@ -52,6 +52,8 @@ class HostTree(QTreeWidget):
     def __init__(self, parent, client):
         QTreeWidget.__init__(self, parent)
         self._client = client
+
+        self.header().setResizeMode(QHeaderView.ResizeToContents)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
