@@ -25,10 +25,9 @@ import socket
 
 from PyQt4.QtCore import QThread, pyqtSignal, QSettings, pyqtSignature as qtsig
 from PyQt4.QtGui import QDialog
-from quango.utils import loadUi, getSubnetHostsAddrs, determineSubnet
 
+from marche.gui.util import loadUi, getSubnetHostsAddrs, determineSubnet
 from marche.scan import scan
-from marche.gui.util import loadUi
 
 
 class SubnetInputDialog(QDialog):
