@@ -73,7 +73,7 @@ class HostTree(QTreeWidget):
                     for i in range(self.columnCount()))
         width = max(width, self.header().minimumSectionSize()
                     * self.columnCount())
-        print(width)
+
         self.setMinimumWidth(width+50)
         self.itemClicked.connect(self.on_itemClicked)
 
