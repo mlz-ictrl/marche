@@ -57,8 +57,8 @@ class MainWindow(QMainWindow):
         self.resize(800, 500)
 
         self.setCachedCredsVisible(False)
-        self.splitter.setStretchFactor(0, 2)
-        self.splitter.setStretchFactor(1, 3)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 5)
         self.leftlayout.setContentsMargins(6, 6, 0, 6)
         self.surface.layout().setContentsMargins(0, 6, 6, 6)
 
@@ -215,9 +215,9 @@ class MainWindow(QMainWindow):
             </p>
             <h3>Authors:</h3>
             <ul>
-              <li>Copyright (C) 2015-2016
+              <li>Copyright (C) 2015-2017
                 <a href="mailto:g.brandl@fz-juelich.de">Georg Brandl</a></li>
-              <li>Copyright (C) 2015-2016
+              <li>Copyright (C) 2015-2017
                 <a href="mailto:alexander.lenz@frm2.tum.de">Alexander
                 Lenz</a></li>
             </ul>
