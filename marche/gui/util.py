@@ -26,6 +26,13 @@
 import os
 import sys
 import base64
+import socket
+import psutil
+
+try:
+    import ipaddress
+except ImportError:
+    import ipaddr as ipaddress
 
 from PyQt4 import uic
 from PyQt4.QtGui import QDialog
@@ -222,3 +229,30 @@ def removeCredentials(host):
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], valtype=list)
     return dict((host, loadCredentials(host)) for host in hosts)
+
+
+def determineSubnet():
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except socket.gaierror:
+        # no hostname set, or weird hosts configuration
+        return None
+    ifs = psutil.net_if_addrs()
+
+    for _, addrs in ifs.items():
+        for addr in addrs:
+            if addr.address == ip:
+                return str(ipaddress.ip_network(u'%s/%s' %
+                                                (ip, addr.netmask), False))
+    return None
+
+
+def getSubnetHostsAddrs(subnet):
+    net = ipaddress.IPv4Network(unicode(subnet))
+
+    # ipaddr compatiblity
+    if hasattr(net, 'iterhosts'):
+        net.hosts = net.iterhosts
+
+    return [str(entry) for entry in net.hosts()]
+

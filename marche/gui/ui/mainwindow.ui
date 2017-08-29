@@ -98,6 +98,9 @@
             <height>24</height>
            </size>
           </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -128,7 +131,8 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionAdd_host"/>
-    <addaction name="actionScan_network"/>
+    <addaction name="actionAdd_network"/>
+    <addaction name="actionScan_local_network"/>
     <addaction name="separator"/>
     <addaction name="actionSave_session_as"/>
     <addaction name="actionLoad_session"/>
@@ -173,9 +177,11 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionAdd_host"/>
-   <addaction name="actionScan_network"/>
+   <addaction name="actionAdd_network"/>
+   <addaction name="actionScan_local_network"/>
    <addaction name="actionReload"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAdd_host">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
@@ -218,13 +224,13 @@
     <string>About Qt</string>
    </property>
   </action>
-  <action name="actionScan_network">
+  <action name="actionScan_local_network">
    <property name="icon">
     <iconset resource="../res/marche-gui.qrc">
      <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
    </property>
    <property name="text">
-    <string>Scan network</string>
+    <string>Scan local network</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
@@ -273,6 +279,15 @@
    </property>
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionAdd_network">
+   <property name="icon">
+    <iconset resource="../res/marche-gui.qrc">
+     <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add network</string>
    </property>
   </action>
  </widget>

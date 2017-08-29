@@ -42,6 +42,7 @@ from marche.gui.client import Client
 from marche.gui.dialogs import AuthDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
 from marche.gui.scan import Scanner
+from marche.gui.subnet import SubnetInputDialog, SubnetScanner
 from marche.utils import normalize_addr
 from marche.version import get_version
 
@@ -67,10 +68,15 @@ class MainWindow(QMainWindow):
         self._cur_tree = None
         self._last_creds = None
 
+        self._subnet_scanner = SubnetScanner(self)
+        self._subnet_scanner.hostFound.connect(self.addHost)
+        self._subnet_scanner.scanNotify.connect(self.statusBar.showMessage)
+        self._subnet_scanner.finished.connect(self.subnetScanFinished)
+
         if loadSetting('defaultSession'):
             self.loadDefaultSession()
         elif scan_on_startup:
-            self.scanNetwork()
+            self.scanLocalNetwork()
 
     def closeEvent(self, event):
         self.saveSettings()
@@ -138,8 +144,14 @@ class MainWindow(QMainWindow):
             self.openHost(self.addHost(addr))
 
     @qtsig('')
-    def on_actionScan_network_triggered(self):
-        self.scanNetwork()
+    def on_actionAdd_network_triggered(self):
+        dlg = SubnetInputDialog(self)
+        if dlg.exec_():
+            self.addNetwork(dlg.subnet)
+
+    @qtsig('')
+    def on_actionScan_local_network_triggered(self):
+        self.scanLocalNetwork()
 
     @qtsig('')
     def on_actionReload_triggered(self):
@@ -224,18 +236,6 @@ class MainWindow(QMainWindow):
         QMessageBox.aboutQt(self, 'About Qt')
 
     @qtsig('')
-    def on_addHostBtn_clicked(self):
-        self.on_actionAdd_host_triggered()
-
-    @qtsig('')
-    def on_rescanBtn_clicked(self):
-        self.on_actionScan_network_triggered()
-
-    @qtsig('')
-    def on_reloadBtn_clicked(self):
-        self.on_actionReload_triggered()
-
-    @qtsig('')
     def on_clearCredBtn_clicked(self):
         self._last_creds = None
         self.setCachedCredsVisible(False)
@@ -267,15 +267,24 @@ class MainWindow(QMainWindow):
             addr = item.text()
             self.removeHost(addr)
 
+    def addNetwork(self, subnet):
+        self.actionAdd_network.setEnabled(False)
+        self._subnet_scanner.setSubnet(subnet)
+        self._subnet_scanner.start()
+
+    def subnetScanFinished(self):
+        self.actionAdd_network.setEnabled(True)
+        self.statusBar.showMessage('Scan finished!')
+
     def addHost(self, addr):
         if addr.startswith('Heading: '):
             self.addHeading(addr[9:])
             return
-        self.removeHost(addr)
         host, port = normalize_addr(addr, 8124)
         addr = host + ':' + port
+        self.removeHost(addr)
         if addr not in self._clients:
-            item = QListWidgetItem(QIcon(':/marche/server-big.png'), host)
+            item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
             item.setData(ADDR_ROLE, addr)
             self.hostList.addItem(item)
         return addr
@@ -400,7 +409,7 @@ class MainWindow(QMainWindow):
                     self.hostList.setCurrentItem(item)
                     break
 
-    def scanNetwork(self):
+    def scanLocalNetwork(self):
         hosts = Scanner(self).run()
         if not hosts:
             return
