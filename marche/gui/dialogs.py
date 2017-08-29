@@ -27,6 +27,7 @@ from PyQt4.QtGui import QInputDialog, QDialog, QFileDialog, QDialogButtonBox
 
 from marche.six import iteritems
 from marche.gui.util import loadUi, getAvailableEditors
+from marche.gui.scan import PassiveScanner
 
 
 class AuthDialog(QDialog):
@@ -145,3 +146,22 @@ class PreferencesDialog(QDialog):
         self.hostsListWidget.takeItem(self.hostsListWidget.currentRow())
 
         del self._creds[host]
+
+
+class PassiveScanDialog(QDialog):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'scan.ui')
+        self.foundLbl.setText('Found 0 hosts running Marche.')
+
+    def update(self, n):
+        self.foundLbl.setText('Found %d host(s) running Marche.' % n)
+
+    def run(self):
+        scanner = PassiveScanner()
+        scanner.foundHosts.connect(self.update)
+        scanner.finished.connect(self.accept)
+        scanner.start()
+        if self.exec_() == QDialog.Accepted:
+            return scanner.hosts
+        return []

@@ -39,10 +39,9 @@ from marche.gui.util import loadUi, \
     loadSettings, saveSettings, loadSetting, saveCredentials, \
     loadCredentials, loadAllCredentials, removeCredentials
 from marche.gui.client import Client
-from marche.gui.dialogs import AuthDialog, PreferencesDialog
+from marche.gui.dialogs import AuthDialog, PreferencesDialog, PassiveScanDialog
 from marche.gui.hosttree import HostTree
-from marche.gui.scan import Scanner
-from marche.gui.subnet import SubnetInputDialog, SubnetScanner
+from marche.gui.scan import SubnetInputDialog, ActiveScanner
 from marche.utils import normalize_addr
 from marche.version import get_version
 
@@ -68,7 +67,7 @@ class MainWindow(QMainWindow):
         self._cur_tree = None
         self._last_creds = None
 
-        self._subnet_scanner = SubnetScanner(self)
+        self._subnet_scanner = ActiveScanner(self)
         self._subnet_scanner.hostFound.connect(self.addHost)
         self._subnet_scanner.scanNotify.connect(self.statusBar.showMessage)
         self._subnet_scanner.finished.connect(self.subnetScanFinished)
@@ -410,7 +409,7 @@ class MainWindow(QMainWindow):
                     break
 
     def scanLocalNetwork(self):
-        hosts = Scanner(self).run()
+        hosts = PassiveScanDialog(self).run()
         if not hosts:
             return
         for host in hosts:
