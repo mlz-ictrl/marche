@@ -53,8 +53,8 @@ class HostTree(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self._client = client
 
+        self.header().setMinimumSectionSize(125)
         self.header().setResizeMode(QHeaderView.ResizeToContents)
-        self.header().setMinimumSectionSize(150)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
@@ -69,11 +69,12 @@ class HostTree(QTreeWidget):
             print(err)
 
         self.expandAll()
-        self.resizeColumnToContents(0)
-        self.setColumnWidth(0, self.columnWidth(0) * 1.4)
-        self.resizeColumnToContents(2)
-        width = sum(self.columnWidth(i) for i in range(self.columnCount()))
-        self.setMinimumWidth(width+25)
+        width = sum(self.header().sectionSize(i)
+                    for i in range(self.columnCount()))
+        width = max(width, self.header().minimumSectionSize()
+                    * self.columnCount())
+        print(width)
+        self.setMinimumWidth(width+50)
         self.itemClicked.connect(self.on_itemClicked)
 
     def refresh(self):
