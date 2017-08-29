@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>146</width>
+    <width>189</width>
     <height>29</height>
    </rect>
   </property>
@@ -118,6 +118,9 @@
    </item>
    <item>
     <widget class="QStackedWidget" name="stacker">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="page">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="margin">
@@ -153,6 +156,19 @@
      </widget>
      <widget class="QWidget" name="page_2"/>
     </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
   <action name="actionShow_output">

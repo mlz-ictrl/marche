@@ -54,6 +54,7 @@ class HostTree(QTreeWidget):
         self._client = client
 
         self.header().setResizeMode(QHeaderView.ResizeToContents)
+        self.header().setMinimumSectionSize(150)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
