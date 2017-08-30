@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>886</width>
-    <height>691</height>
+    <height>701</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,6 +95,12 @@
         </item>
         <item>
          <widget class="QListWidget" name="hostList">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
@@ -114,8 +120,8 @@
       <widget class="QWidget" name="surface" native="true">
        <property name="minimumSize">
         <size>
-         <width>0</width>
-         <height>0</height>
+         <width>410</width>
+         <height>610</height>
         </size>
        </property>
        <property name="autoFillBackground">
@@ -125,6 +131,9 @@
         <string notr="true"/>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <property name="margin">
          <number>0</number>
         </property>
@@ -132,8 +141,8 @@
          <widget class="QLabel" name="logoLabel">
           <property name="minimumSize">
            <size>
-            <width>400</width>
-            <height>600</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
