@@ -283,7 +283,7 @@ class MainWindow(QMainWindow):
         addr = host + ':' + port
         self.removeHost(addr)
         if addr not in self._clients:
-            item = QListWidgetItem(QIcon(':/marche/server-big.png'), addr)
+            item = QListWidgetItem(QIcon(':/marche/server-big.png'), host)
             item.setData(ADDR_ROLE, addr)
             self.hostList.addItem(item)
         return addr
