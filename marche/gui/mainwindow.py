@@ -307,7 +307,7 @@ class MainWindow(QMainWindow):
             del self._clients[addr]
         for row in range(self.hostList.count()):
             item = self.hostList.item(row)
-            if item.data(ADDR_ROLE) == addr:
+            if item.data(ADDR_ROLE).split(':')[0] == addr.split(':')[0]:
                 self.hostList.takeItem(row)
                 break
 
