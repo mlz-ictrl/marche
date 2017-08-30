@@ -1,3 +1,24 @@
+marche (2.0.0) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * gui: general refactoring
+  * Add active subnet scan.
+  * Minor improvements.
+  * gui: move/rename subnet scanning.
+  * gui: fix cp error.
+  * Add missing deps.
+  * gui: hosttree: disable resizing.
+  * gui: hosttree: fix default section size.
+  * gui: hosttree: fix width.
+  * Remove debug output.
+  * gui: remove ports in hosttree.
+  * gui: Add watermark.
+  * gui: min size fixes.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 30 Aug 2017 14:13:05 +0200
+
 marche (1.1.7) unstable; urgency=low
 
   [ Georg Brandl ]
