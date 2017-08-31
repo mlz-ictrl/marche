@@ -1,3 +1,13 @@
+marche (2.1.0) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * utils: add function to determine init system.
+  * jobs/entangle: support systemd.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 31 Aug 2017 12:45:39 +0200
+
 marche (2.0.0) unstable; urgency=low
 
   [ Alexander Lenz ]
