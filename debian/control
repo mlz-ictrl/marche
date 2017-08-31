@@ -18,3 +18,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  python-ipaddress | python-ipaddr
 Description: Marche is a server control daemon with multiple interfaces.
 
+Package: marche-gui
+Architecture: all
+Depends: marche,
+ python-qt4,
+Description: Marche is a server control daemon with multiple interfaces.
+
