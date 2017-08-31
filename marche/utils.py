@@ -35,7 +35,7 @@ import select
 import collections
 from os import path
 from threading import Thread
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 
 from marche.six import text_type
 
@@ -296,3 +296,29 @@ def bytencode(s):  # pragma: no cover
     if not isinstance(s, bytes):
         return s.encode('utf-8')
     return s
+
+
+INIT_PKG_REQUESTS = [
+    'dpkg -S /sbin/init',
+    'rpm -qf /sbin/init'
+]
+
+
+def determine_init_system():
+    init_pkg = ''
+
+    for entry in INIT_PKG_REQUESTS:
+        try:
+            init_pkg = check_output(entry.split()).lower()
+            break
+        except OSError:
+            pass
+
+    if 'systemd' in init_pkg:
+        return 'systemd'
+    elif 'upstart' in init_pkg:
+        return 'upstart'
+    elif 'sysvinit' in init_pkg:
+        return 'sysvinit'
+
+    return 'unknown'
