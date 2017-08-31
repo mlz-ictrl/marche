@@ -1,2 +1,4 @@
 usr
-etc
+etc/marche
+etc/init.d
+lib
