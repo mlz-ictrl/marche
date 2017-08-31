@@ -58,17 +58,26 @@ from marche.six.moves import configparser
 
 from marche.jobs import Fault, RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extract_loglines, read_file, write_file
+from marche.utils import extract_loglines, read_file, write_file,\
+    determine_init_system
 
 
-class Job(BaseJob):
-
+class EntangleBaseJob(BaseJob):
     CONFIG = '/etc/entangle/entangle.conf'
-    INITSCR = '/etc/init.d/entangle'
+    CONTROL_TOOL = '/etc/init.d/entangle'
+
+    START_CMD = '{control_tool} start {instance}'
+    STOP_CMD = '{control_tool} stop {instance}'
+    RESTART_CMD = '{control_tool} restart {instance}'
+    STATUS_CMD = '{control_tool} status {instance}'
 
     def check(self):
-        if not (path.exists(self.CONFIG) and path.exists(self.INITSCR)):
-            self.log.warning('%s or %s missing' % (self.CONFIG, self.INITSCR))
+        if not path.exists(self.CONFIG):
+            self.log.warning('Configuration file %s missing'
+                             % self.CONFIG)
+            return False
+        elif not path.exists(self.CONTROL_TOOL):
+            self.log.warning('Control tool %s missing' % self.CONTROL_TOOL)
             return False
         return True
 
@@ -100,34 +109,22 @@ class Job(BaseJob):
         return self._services
 
     def start_service(self, service, instance):
-        self._async_start(instance, '%s start %s' % (self.INITSCR, instance))
+        self._async_start(instance, self._format_cmd(self.START_CMD, service,
+                                                     instance))
 
     def stop_service(self, service, instance):
-        self._async_stop(instance, '%s stop %s' % (self.INITSCR, instance))
+        self._async_stop(instance, self._format_cmd(self.STOP_CMD, service,
+                                                     instance))
 
     def restart_service(self, service, instance):
-        self._async_start(instance, '%s restart %s' % (self.INITSCR, instance))
+        self._async_start(instance, self._format_cmd(self.RESTART_CMD, service,
+                                                     instance))
 
     def service_status(self, service, instance):
         # XXX check devices with Tango clients
-        return self._async_status(instance, '%s status %s' %
-                                  (self.INITSCR, instance)), ''
-
-    def all_service_status(self):
-        result = {}
-        initstates = {}
-        for line in self._sync_call('%s status' % self.INITSCR).stdout:
-            if ':' not in line:
-                continue
-            name, state = line.split(':', 1)
-            initstates[name.strip()] = DEAD if 'dead' in state else RUNNING
-        for service, instance in self._services:
-            async_st = self._async_status_only(instance)
-            if async_st is not None:
-                result[service, instance] = async_st, ''  # pragma: no cover
-            else:
-                result[service, instance] = initstates.get(instance, DEAD), ''
-        return result
+        return self._async_status(instance, self._format_cmd(self.STATUS_CMD,
+                                                             service, instance)
+                                  ), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))
@@ -145,3 +142,40 @@ class Job(BaseJob):
         if filename != instance + '.res':
             raise Fault('invalid request')
         write_file(cfgname, contents)
+
+    def _format_cmd(self, cmd, service, instance):
+        return cmd.format(control_tool=self.CONTROL_TOOL, service=service,
+                          instance=instance)
+
+
+class InitJob(EntangleBaseJob):
+    def all_service_status(self):
+        result = {}
+        initstates = {}
+        for line in self._sync_call('%s status' % self.INITSCR).stdout:
+            if ':' not in line:
+                continue
+            name, state = line.split(':', 1)
+            initstates[name.strip()] = DEAD if 'dead' in state else RUNNING
+        for service, instance in self._services:
+            async_st = self._async_status_only(instance)
+            if async_st is not None:
+                result[service, instance] = async_st, ''  # pragma: no cover
+            else:
+                result[service, instance] = initstates.get(instance, DEAD), ''
+        return result
+
+
+class SystemdJob(EntangleBaseJob):
+    CONTROL_TOOL = '/bin/systemctl'
+    START_CMD = '{control_tool} start entangle@{instance}'
+    STOP_CMD = '{control_tool} stop entangle@{instance}'
+    RESTART_CMD = '{control_tool} restart entangle@{instance}'
+    STATUS_CMD = '{control_tool} is-active entangle@{instance}'
+
+
+def Job(*args, **kwargs):
+    if determine_init_system() == 'systemd':
+        return SystemdJob(*args, **kwargs)
+    return InitJob(*args, **kwargs)
+
