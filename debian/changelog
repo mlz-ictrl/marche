@@ -1,3 +1,13 @@
+marche (2.2.0) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * [deb] add marche-gui dep pkg.
+  * [deb] fix installation.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 31 Aug 2017 15:48:11 +0200
+
 marche (2.1.0) unstable; urgency=low
 
   [ Alexander Lenz ]
