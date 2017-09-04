@@ -23,7 +23,6 @@
 #
 # *****************************************************************************
 
-
 from PyQt4.QtGui import QColor, QTreeWidget, QTreeWidgetItem, QBrush,\
     QMessageBox, QIcon, QHeaderView
 from PyQt4.QtCore import Qt, QSize

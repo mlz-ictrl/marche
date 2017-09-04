@@ -23,10 +23,8 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtGui import QMainWindow
-
-from PyQt4.QtGui import QInputDialog, QMessageBox, QIcon, QListWidgetItem,\
-    QMenu, QFileDialog
+from PyQt4.QtGui import QMainWindow, QInputDialog, QMessageBox, QIcon, QMenu, \
+    QListWidgetItem, QFileDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize, QSettings, QByteArray
 
 from marche.six import iteritems
@@ -99,6 +97,10 @@ class MainWindow(QMainWindow):
         if flag:
             self.lblCachedUserCreds.setText(self._last_creds[0])
         self.cachePanel.setVisible(flag)
+
+    @qtsig('')
+    def on_actionExit_triggered(self):
+        self.close()
 
     @qtsig('')
     def on_actionPreferences_triggered(self):
@@ -307,7 +309,8 @@ class MainWindow(QMainWindow):
             del self._clients[addr]
         for row in range(self.hostList.count()):
             item = self.hostList.item(row)
-            if item.data(ADDR_ROLE).split(':')[0] == addr.split(':')[0]:
+            if item.data(ADDR_ROLE) and \
+               item.data(ADDR_ROLE).split(':')[0] == addr.split(':')[0]:
                 self.hostList.takeItem(row)
                 break
 
@@ -404,7 +407,8 @@ class MainWindow(QMainWindow):
         if select_item:
             for row in range(self.hostList.count()):
                 item = self.hostList.item(row)
-                if item.data(ADDR_ROLE) == addr:
+                if item.data(ADDR_ROLE) and \
+                   item.data(ADDR_ROLE).split(':')[0] == addr.split(':')[0]:
                     self.hostList.setCurrentItem(item)
                     break
 

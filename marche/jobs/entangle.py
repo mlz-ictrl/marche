@@ -58,7 +58,7 @@ from marche.six.moves import configparser
 
 from marche.jobs import Fault, RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extract_loglines, read_file, write_file,\
+from marche.utils import extract_loglines, read_file, write_file, \
     determine_init_system
 
 
@@ -114,7 +114,7 @@ class EntangleBaseJob(BaseJob):
 
     def stop_service(self, service, instance):
         self._async_stop(instance, self._format_cmd(self.STOP_CMD, service,
-                                                     instance))
+                                                    instance))
 
     def restart_service(self, service, instance):
         self._async_start(instance, self._format_cmd(self.RESTART_CMD, service,
@@ -178,4 +178,3 @@ def Job(*args, **kwargs):
     if determine_init_system() == 'systemd':
         return SystemdJob(*args, **kwargs)
     return InitJob(*args, **kwargs)
-

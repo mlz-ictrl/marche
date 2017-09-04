@@ -25,15 +25,15 @@
 # *****************************************************************************
 
 import sys
-from os import path
-import optparse
 import argparse
+from os import path
 
 # Add import path for inplace usage
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
 from marche.gui.mainwindow import MainWindow
 
+# imported later to get correct SIP API
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 
