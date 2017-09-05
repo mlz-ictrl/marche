@@ -35,7 +35,7 @@ from pytest import raises
 from marche.six import StringIO
 
 from marche.protocol import Events, Event, AuthEvent
-from marche import utils, colors, loggers
+from marche import utils
 
 from test.utils import LogHandler
 
@@ -127,59 +127,8 @@ def test_async_process(tmpdir):
     assert proc.retcode == 3
     assert proc.done
 
-
-def test_colors():
-    blue = colors.colorcode('blue')
-    reset = colors.colorcode('reset')
-    if os.name != 'nt':
-        assert blue == '\x1b[34;01m'
-        assert reset == '\x1b[39;49;00m'
-        assert colors.colorize('blue', 'text') == blue + 'text' + reset
-    colors.nocolor()
-    assert colors.colorize('blue', 'text') == 'text'
-
-
 class Unrepr(object):
     """An object whose repr() raises."""
 
     def __repr__(self):
         raise RuntimeError
-
-
-def test_loggers(tmpdir):
-    logfile_hdlr = loggers.LogfileHandler(str(tmpdir), 'log', dayfmt='first')
-    logger = logging.getLogger('testloggers')
-    logger.addHandler(loggers.ColoredConsoleHandler(StringIO()))
-    logger.addHandler(logfile_hdlr)
-    logger.setLevel(logging.DEBUG)
-
-    logger.debug('debüg')
-    logger.info('infö')
-    logger.warn('wärn')
-    logfile_hdlr._dayfmt = 'second'
-    logfile_hdlr.rollover_at = time.time() - 2
-    logger.error(u'ärror')
-    _unrepr = Unrepr()
-    try:
-        raise ZeroDivisionError('nästy')
-    except Exception:
-        logger.exception('caught äxception')
-        logfile_hdlr.formatter.extended_traceback = False
-        logger.exception('caught äxception')
-
-    assert tmpdir.join('log', 'log-first.log').check(file=True)
-    lines = tmpdir.join('log', 'log-first.log').readlines()
-    assert 'debüg' in lines[0]
-    assert 'infö' in lines[1]
-    assert 'wärn' in lines[2]
-    assert tmpdir.join('log', 'log-second.log').check(file=True)
-    lines = tmpdir.join('log', 'log-second.log').readlines()
-    assert sum(1 for line in lines if 'cannot be displayed' in line) == 1
-    assert sum(1 for line in lines if 'nästy' in line) == 4
-
-    if hasattr(os, 'symlink') and hasattr(tmpdir, 'readlink'):
-        assert tmpdir.join('log', 'current').check(link=True)
-        assert tmpdir.join('log', 'current').readlink() == 'log-second.log'
-
-    logfile_hdlr.close()
-    logger.info('another message, still works')

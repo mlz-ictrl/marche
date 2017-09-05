@@ -33,14 +33,14 @@ import logging
 import argparse
 from os import path
 
+import mlzlog
+
 from marche import __version__
 from marche.config import Config
 from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile, \
     get_default_cfgdir
-from marche.loggers import ColoredConsoleHandler, LogfileHandler
 from marche.handler import JobHandler
 from marche.auth import AuthHandler
-from marche.colors import nocolor
 
 # configure logging library: we don't need process/thread ids and callers
 logging.logMultiprocessing = False
@@ -52,9 +52,9 @@ logging._srcfile = None  # pylint: disable=protected-access
 class Daemon(object):
     def __init__(self):
         self.stop = False
-        self.log = logging.getLogger('marche')
+        self.log = None
         if os.name == 'nt':  # pragma: no cover
-            nocolor()
+            mlzlog.colors.nocolor()
 
     def parse_args(self, args):
         rootdir = path.join(path.dirname(__file__), '..')
@@ -83,18 +83,10 @@ class Daemon(object):
         else:
             setuser(self.config.user, self.config.group)
 
+        mlzlog.initLogging('marche', 'debug' if self.args.verbose else 'info',
+                           self.config.logdir)
+        self.log = mlzlog.log
         self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
-        del self.log.handlers[:]
-        if not self.args.daemonize:
-            self.log.addHandler(ColoredConsoleHandler())
-        try:
-            self.log.addHandler(LogfileHandler(self.config.logdir, 'marche'))
-        except Exception as err:  # pragma: no cover
-            if self.args.daemonize:
-                print('cannot open logfile:', err, file=sys.stderr)
-            else:
-                self.log.exception('cannot open logfile: %s', err)
-            return False
 
         if not self.config.interfaces:
             self.log.error('no interfaces configured, the daemon will not do '
