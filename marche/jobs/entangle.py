@@ -76,7 +76,7 @@ class EntangleBaseJob(BaseJob):
             self.log.warning('Configuration file %s missing'
                              % self.CONFIG)
             return False
-        elif not path.exists(self.CONTROL_TOOL):
+        if not path.exists(self.CONTROL_TOOL):
             self.log.warning('Control tool %s missing' % self.CONTROL_TOOL)
             return False
         return True
@@ -152,7 +152,7 @@ class InitJob(EntangleBaseJob):
     def all_service_status(self):
         result = {}
         initstates = {}
-        for line in self._sync_call('%s status' % self.INITSCR).stdout:
+        for line in self._sync_call('%s status' % self.CONTROL_TOOL).stdout:
             if ':' not in line:
                 continue
             name, state = line.split(':', 1)

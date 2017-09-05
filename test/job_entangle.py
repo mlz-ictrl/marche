@@ -27,10 +27,11 @@
 import sys
 import logging
 
-from pytest import raises
+from pytest import raises, fixture
 
 from marche.jobs import Fault, RUNNING
-from marche.jobs.entangle import Job
+from marche.jobs.entangle import Job, InitJob, SystemdJob
+from marche.utils import determine_init_system
 
 from test.utils import job_call_check
 
@@ -56,8 +57,8 @@ RES = '''\
 test/my/dev/type: rs232.StringIO
 '''
 
-
-def test_job(tmpdir):
+@fixture(scope='function')
+def tempconf(tmpdir):
     scriptfile = tmpdir.join('script.py')
     scriptfile.write(SCRIPT)
     configfile = tmpdir.join('entangle.conf')
@@ -65,16 +66,38 @@ def test_job(tmpdir):
     tmpdir.join('mysrv.res').write_binary(RES.encode())
     tmpdir.mkdir('mysrv').join('current').write('log1\nlog2\n')
 
-    Job.INITSCR = 'does/not/exist'
+    return tmpdir, scriptfile, configfile
+
+
+def test_init_job(tempconf):
+    _test_job_cls(InitJob, tempconf)
+
+
+def test_systemd_job(tempconf):
+    _test_job_cls(SystemdJob, tempconf)
+
+
+def test_job():
     job = Job('entangle', 'name', {}, logger, lambda event: None)
+    if determine_init_system() == 'systemd':
+        assert isinstance(job, SystemdJob)
+    else:
+        assert isinstance(job, InitJob)
+
+
+def _test_job_cls(jobcls, tempconf):
+    tmpdir, scriptfile, configfile = tempconf
+
+    InitJob.CONTROL_TOOL = 'does/not/exist'
+    job = InitJob('entangle', 'name', {}, logger, lambda event: None)
     assert not job.check()
 
-    Job.CONFIG = str(configfile)
-    Job.INITSCR = sys.executable
+    InitJob.CONFIG = str(configfile)
+    InitJob.CONTROL_TOOL = sys.executable
 
-    job = Job('entangle', 'name', {}, logger, lambda event: None)
+    job = InitJob('entangle', 'name', {}, logger, lambda event: None)
     assert job.check()
-    Job.INITSCR = sys.executable + ' -S ' + str(scriptfile)
+    InitJob.CONTROL_TOOL = sys.executable + ' -S ' + str(scriptfile)
     job.init()
 
     assert job.get_services() == [('entangle', 'mysrv')]
