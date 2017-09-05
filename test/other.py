@@ -69,7 +69,7 @@ def test_utils(tmpdir):
 
     tmpfile = tmpdir.join('tmp')
     tmpfile.write_binary(b'a\xf0b')
-    assert utils.read_file(str(tmpfile)) == 'a\xf0b'
+    assert utils.read_file(str(tmpfile)) == u'a\xf0b'
 
     utils.write_file(str(tmpfile), b'a\xf0b')
     assert tmpfile.read_binary() == b'a\xf0b'
