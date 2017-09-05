@@ -1,3 +1,15 @@
+marche (2.2.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * all: fixups after refactorings
+
+  [ Alexander Lenz ]
+  * Fix entangle job & test.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 05 Sep 2017 13:33:52 +0200
+
 marche (2.2.0) unstable; urgency=low
 
   [ Alexander Lenz ]
