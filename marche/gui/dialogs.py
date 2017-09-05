@@ -108,6 +108,14 @@ class PreferencesDialog(QDialog):
         for host, _ in iteritems(value):
             self.hostsListWidget.addItem(host)
 
+    @property
+    def sortHostListEnabled(self):
+        return self.sortHostListCheckBox.isChecked()
+
+    @sortHostListEnabled.setter
+    def sortHostListEnabled(self, value):
+        return self.sortHostListCheckBox.setChecked(value)
+
     def selectCred(self, host):
         if not host:
             self.userLineEdit.clear()

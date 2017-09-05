@@ -91,6 +91,8 @@ class MainWindow(QMainWindow):
         settings = QSettings('marche-gui')
         self.restoreGeometry(settings.value('geometry', b'', QByteArray))
         self.splitter.restoreState(settings.value('split', b'', QByteArray))
+        self.hostList.setSortingEnabled(loadSetting('sortHostListEnabled',
+                                                    'false') == 'true')
 
     def setCachedCredsVisible(self, flag):
         flag = bool(flag and self._last_creds)
@@ -109,7 +111,8 @@ class MainWindow(QMainWindow):
         # load and enter settings
         settings = loadSettings(['defaultEditor',
                                  'pollInterval',
-                                 'defaultSession'])
+                                 'defaultSession',
+                                 'sortHostListEnabled'])
 
         if settings['defaultEditor']:
             dlg.defaultEditor = settings['defaultEditor']
@@ -117,6 +120,9 @@ class MainWindow(QMainWindow):
             dlg.pollInterval = settings['pollInterval']
         if settings['defaultSession']:
             dlg.defaultSession = settings['defaultSession']
+        if settings['sortHostListEnabled']:
+            dlg.sortHostListEnabled = settings['sortHostListEnabled'] \
+                                      == 'true'
 
         dlg.credentials = loadAllCredentials()
         oldCredHosts = set(dlg.credentials.keys())
@@ -126,6 +132,7 @@ class MainWindow(QMainWindow):
                 'defaultEditor': dlg.defaultEditor,
                 'pollInterval': dlg.pollInterval,
                 'defaultSession': dlg.defaultSession,
+                'sortHostListEnabled': dlg.sortHostListEnabled
             })
 
             for host, (user, passwd) in iteritems(dlg.credentials):
@@ -137,6 +144,10 @@ class MainWindow(QMainWindow):
             if dlg.pollInterval != settings['pollInterval'] \
                and self._cur_tree is not None:
                 self._cur_tree.refresh()
+
+            self.hostList.setSortingEnabled(dlg.sortHostListEnabled)
+            if dlg.sortHostListEnabled:
+                self.hostList.sortItems()
 
     @qtsig('')
     def on_actionAdd_host_triggered(self):
