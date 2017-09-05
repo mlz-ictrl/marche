@@ -1,3 +1,14 @@
+marche (2.2.2) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * tests: fix unicode problem.
+  * Add convenience Makefile.
+  * Add pytest randomizer plugin dep (dev).
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 05 Sep 2017 13:37:42 +0200
+
 marche (2.2.1) unstable; urgency=low
 
   [ Georg Brandl ]
