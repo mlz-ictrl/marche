@@ -1,3 +1,13 @@
+marche (2.3.1) unstable; urgency=low
+
+  [ Alexander Lenz ]
+  * Use mlzlog.
+  * Remove default cfg for openbsd-inetd.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 15 Sep 2017 10:59:42 +0200
+
 marche (2.3.0) unstable; urgency=low
 
   [ Alexander Lenz ]
