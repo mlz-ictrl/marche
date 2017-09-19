@@ -1,4 +1,72 @@
 {% extends "base.html" %}
+{% block extrahead %}
+<script type="text/javascript">
+ function colorStatus(service) {
+     var statuslbl = $("#" + service + "_status");
+     switch (statuslbl.text()) {
+         case "DEAD":
+         case "NOT RUNNING":
+             statuslbl.css("color", "rgb(255, 0, 0)");
+             $("#start_" + service).show();
+             $("#stop_" + service).hide();
+             break;
+         case "RUNNING":
+         case "INITIALIZING":
+         case "WARNING":
+             statuslbl.css("color", "rgb(0, 128, 0)");
+             $("#start_" + service).hide();
+             $("#stop_" + service).show();
+             break;
+         case "STARTING":
+         case "STOPPING":
+             statuslbl.css("color", "rgb(0, 0, 255)");
+             $("#start_" + service).show();
+             $("#stop_" + service).hide();
+             break;
+         default:  // NOT AVAILABLE
+             statuslbl.css("color", "rgb(128, 128, 128)");
+             $("#start_" + service).hide();
+             $("#stop_" + service).hide();
+     }
+ }
+
+ function triggerStatus() {
+     $.get("get_status", function (data) {
+         for (var service in data) {
+             $("#" + service + "_status").text(data[service]);
+             colorStatus(service);
+         }
+     }, "json");
+ }
+
+ function setHostname() {
+     $.get("get_hostname", function (hostname) {
+         $("#titleHostname").text("Marche services: " + hostname);
+         $("title").text("Marche: " + hostname);
+     }, "json");
+ }
+
+ $(document).ready(function() {
+     setInterval(triggerStatus, 3000);
+     setHostname();
+     for (var service in {{ svc_sts }}) {
+         colorStatus(service);
+         {% if logged_in %}
+         $("#start_" + service).attr("disabled", false);
+         $("#stop_" + service).attr("disabled", false);
+         $("#restart_" + service).attr("disabled", false);
+         {% endif %}
+     }
+
+     $(".action-btn").click(function() {
+         const url = $("#buttonForm").attr("action");
+         const data = $.parseJSON($(this).attr("data-button"));
+         $.post(url, data, triggerStatus);
+     });
+ });
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="mdl-cell mdl-cell--12-col mdl-grid">
     <table class="mdl-data-table mdl-js-data-table mdl-shadow--8dp" align="center">
@@ -16,31 +84,23 @@
             width="40%">{{ svc }}</td>
         <td class="mdl-data-table__cell--non-numeric" id="{{ svc }}_status"
             width="40%">{{ state }}</td>
-        <td class="mdl-data-table__cell--non-numeric" id="{{ svc }}_ctlBtn"
-            width="40%">
-            <form action="button_action" id="buttonForm" method="post"
-                  accept-charset="utf-8">
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
-                mdl-button--icon" id="start_{{ svc }}" type="button"
-                    data-button='{"startButton": "{{ svc }}"}' disabled>
-                <i class="material-icons md-36">play_arrow</i>
-                <div class="mdl-tooltip" data-mdl-for="start_{{ svc }}">
-                    Start Server</div>
-            </button>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
-                mdl-button--icon" id="stop_{{ svc }}" type="button"
-                    data-button='{"stopButton": "{{ svc }}"}' disabled>
-                <i class="material-icons md-36">stop</i>
-                <div class="mdl-tooltip" data-mdl-for="stop_{{ svc }}">
-                    Stop Server</div>
-            </button>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect //
-                mdl-button--icon" id="restart_{{ svc }}" type="button"
-                    data-button='{"restartButton": "{{ svc }}"}' disabled>
-                <i class="material-icons md-36">replay</i>
-                <div class="mdl-tooltip" data-mdl-for="restart_{{ svc }}">
-                    Restart Server</div>
-            </button>
+        <td class="mdl-data-table__cell--non-numeric" width="40%">
+            <form action="control" id="buttonForm" method="post" accept-charset="utf-8">
+                <button class="action-btn mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        id="start_{{ svc }}" type="button" data-button='{"start": "{{ svc }}"}' disabled>
+                    <i class="material-icons md-36">play_arrow</i>
+                    <div class="mdl-tooltip" data-mdl-for="start_{{ svc }}">Start Server</div>
+                </button>
+                <button class="action-btn mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        id="stop_{{ svc }}" type="button" data-button='{"stop": "{{ svc }}"}' disabled>
+                    <i class="material-icons md-36">stop</i>
+                    <div class="mdl-tooltip" data-mdl-for="stop_{{ svc }}">Stop Server</div>
+                </button>
+                <button class="action-btn mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        id="restart_{{ svc }}" type="button" data-button='{"restart": "{{ svc }}"}' disabled>
+                    <i class="material-icons md-36">replay</i>
+                    <div class="mdl-tooltip" data-mdl-for="restart_{{ svc }}">Restart Server</div>
+                </button>
             </form>
         </td>
     </tr>

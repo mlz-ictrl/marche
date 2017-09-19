@@ -209,7 +209,6 @@ class Interface(BaseInterface):
     poll_interval = 0.5
 
     def init(self):
-        self._events = []
         AuthRequestHandler.log = self.log
 
     def run(self):

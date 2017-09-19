@@ -48,10 +48,14 @@ This interface allows controlling services via a graphical interface.
 from __future__ import print_function
 
 import os
-import cherrypy
 import json
+import socket
+from os import path
+
+import cherrypy
 from cherrypy import log
 from jinja2 import Environment, FileSystemLoader
+
 from marche.version import get_version
 from marche.iface.base import Interface as BaseInterface
 from marche.six import iteritems
@@ -60,8 +64,8 @@ from marche.jobs import STATE_STR
 from marche.auth import AuthFailed
 
 
-ENV = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(
-    __file__)) + '/templates'))
+ENV = Environment(loader=FileSystemLoader(
+    path.join(path.dirname(__file__), 'templates')))
 
 CONFIG = {
     '/': {
@@ -72,11 +76,14 @@ CONFIG = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': 'static'
     },
-    '/favicon.ico': {
-        'tools.staticdir.on': True,
-        'tools.staticdir.dir': '../../gui/res'
-    }
 }
+
+
+def split_service_instance(service_instance):
+    if '_' in service_instance:
+        return service_instance.split('_', 1)
+    else:
+        return service_instance, ''
 
 
 class Webinterface(object):
@@ -84,11 +91,10 @@ class Webinterface(object):
         self.jobhandler = jobhandler
         self.log = log
         self.auth = authhandler
-        self.service_status = {}
 
     def get_login(self, key):
         if 'logged_in' not in cherrypy.session:
-            cherrypy.session['logged_in'] = 'false'
+            cherrypy.session['logged_in'] = False
             cherrypy.session['client_info'] = ClientInfo(DISPLAY)
         return cherrypy.session[key]
 
@@ -96,55 +102,53 @@ class Webinterface(object):
         cherrypy.session['logged_in'] = logged_in
         cherrypy.session['client_info'] = client_info
 
-    def service_instance_status(self):
+    def update_status(self):
+        result = {}
         for service, info in iteritems(self.jobhandler.request_service_list(
                 self.get_login('client_info')).services):
             for instance in info['instances']:
                 if not instance:
-                    self.service_status[service] = \
+                    result[service] = \
                         STATE_STR[info['instances'][instance]['state']]
                 else:
-                    self.service_status[service + '_' + instance] = \
+                    result[service + '_' + instance] = \
                         STATE_STR[info['instances'][instance]['state']]
-
-    def split_service_instance(self, service_instance):
-        if '_' in service_instance:
-            return service_instance.split('_', 1)
-        else:
-            return service_instance, ''
-
-    def check_buttons(self, buttons):
-        if 'startButton' in buttons:
-            self.jobhandler.start_service(self.get_login('client_info'),
-                                          *self.split_service_instance(
-                                              buttons['startButton']))
-        elif 'stopButton' in buttons:
-            self.jobhandler.stop_service(self.get_login('client_info'),
-                                         *self.split_service_instance(
-                                             buttons['stopButton']))
-        elif 'restartButton' in buttons:
-            self.jobhandler.restart_service(self.get_login('client_info'),
-                                            *self.split_service_instance(
-                                                buttons['restartButton']))
+        return result
 
     @cherrypy.expose
-    def button_action(self, **kwargs):
-        self.check_buttons(kwargs)
+    def control(self, **actions):
+        if 'start' in actions:
+            self.jobhandler.start_service(
+                self.get_login('client_info'),
+                *split_service_instance(actions['start']))
+        elif 'stop' in actions:
+            self.jobhandler.stop_service(
+                self.get_login('client_info'),
+                *split_service_instance(actions['stop']))
+        elif 'restart' in actions:
+            self.jobhandler.restart_service(
+                self.get_login('client_info'),
+                *split_service_instance(actions['restart']))
 
     @cherrypy.expose
     def get_status(self):
-        self.service_instance_status()
-        return json.dumps(self.service_status)
+        return json.dumps(self.update_status())
 
     @cherrypy.expose
     def get_hostname(self):
-        return json.dumps(cherrypy.server.socket_host)
+        return json.dumps(socket.getfqdn())
 
     @cherrypy.expose
     def index(self):
         tmpl = ENV.get_template('index.html')
-        self.service_instance_status()
-        return tmpl.render(number=get_version(), svc_sts=self.service_status,
+        return tmpl.render(number=get_version(),
+                           svc_sts=self.update_status(),
+                           logged_in=self.get_login('logged_in'))
+
+    @cherrypy.expose
+    def help(self):
+        tmpl = ENV.get_template('help.html')
+        return tmpl.render(version=get_version(),
                            logged_in=self.get_login('logged_in'))
 
     @cherrypy.expose
@@ -152,44 +156,38 @@ class Webinterface(object):
         tmpl = ENV.get_template('login.html')
         if 'passwd' in kwargs and 'user' in kwargs:
             try:
-                self.set_login('true', self.auth.authenticate(kwargs['user'],
-                                                              kwargs['passwd']))
+                self.set_login(True, self.auth.authenticate(kwargs['user'],
+                                                            kwargs['passwd']))
                 raise cherrypy.HTTPRedirect('index')
             except AuthFailed:
-                self.set_login('false', ClientInfo(DISPLAY))
+                self.set_login(False, ClientInfo(DISPLAY))
                 raise cherrypy.HTTPRedirect('login')
-        return tmpl.render(number=get_version(), svc_sts=self.service_status,
-                           logged_in=self.get_login('logged_in'))
+        return tmpl.render(logged_in=self.get_login('logged_in'))
 
     @cherrypy.expose
     def logout(self):
-        self.set_login('false', ClientInfo(DISPLAY))
+        self.set_login(False, ClientInfo(DISPLAY))
         raise cherrypy.HTTPRedirect('login')
-
-    @cherrypy.expose
-    def help(self):
-        tmpl = ENV.get_template('help.html')
-        return tmpl.render(number=get_version(), svc_sts=self.service_status,
-                           logged_in=self.get_login('logged_in'))
 
 
 class Interface(BaseInterface):
+
     iface_name = 'web'
     needs_events = False
-    port = 8080
-    host = '0.0.0.0'
 
     def init(self):
-        self._events = []
+        pass
 
     def run(self):
         cherrypy.tree.mount(Webinterface(self.jobhandler, self.authhandler,
                                          self.log), config=CONFIG)
-        cherrypy.config.update({'server.socket_port': self.port,
-                                'server.socket_host': self.host,
-                                'log.screen': False,
-                                'log.access_file': '',
-                                'log.error_file': ''})
+        cherrypy.config.update({
+            'server.socket_port': self.config.get('port', 8080),
+            'server.socket_host': self.config.get('host', '0.0.0.0'),
+            'log.screen': False,
+            'log.access_file': '',
+            'log.error_file': '',
+        })
         # using marche logger
         log.access_log.addHandler(self.log)
         log.error_log.addHandler(self.log)
