@@ -26,6 +26,7 @@
 """Job control dispatcher."""
 
 import uuid
+from collections import OrderedDict
 
 from marche.six import iteritems
 
@@ -69,7 +70,7 @@ class JobHandler(object):
         self.config = config
         self.log = log
         self.uid = uuid.uuid4().hex
-        self.jobs = {}
+        self.jobs = OrderedDict()
         self.service2job = {}
         self.interfaces = []
         self.unauth_level = config.unauth_level
@@ -78,7 +79,7 @@ class JobHandler(object):
     def shutdown(self):
         for job in list(self.jobs.values()):
             job.shutdown()
-        self.jobs = {}
+        self.jobs = OrderedDict()
         self.service2job = {}
 
     def add_interface(self, iface):
@@ -136,7 +137,7 @@ class JobHandler(object):
         for job in list(self.jobs.values()):
             job.shutdown()
         self.config.reload()
-        self.jobs = {}
+        self.jobs = OrderedDict()
         self.service2job = {}
         self._add_jobs()
         # This will contain all services.  It's up to the interface to filter
@@ -155,7 +156,7 @@ class JobHandler(object):
         """Request a list of all services provided by jobs.
 
         The service list is sent back as a single ServiceListEvent."""
-        svcs = {}
+        svcs = OrderedDict()
         for job in self.jobs.values():
             for service, instance in job.get_services():
                 if not job.has_permission(DISPLAY, client):

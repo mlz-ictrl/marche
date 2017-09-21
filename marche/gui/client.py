@@ -140,7 +140,7 @@ class Client(object):
 
         result = OrderedDict()
         singleJobs = []
-        for entry in sorted(lst):
+        for entry in lst:
             parts = entry.split('.')
 
             if len(parts) > 1:
@@ -149,6 +149,10 @@ class Client(object):
                 result[parts[0]].append(parts[1])
             else:
                 singleJobs.append(parts[0])
+
+        # sort job instances
+        for entry in result.values():
+            entry.sort()
 
         # sort single jobs to the end
         for entry in singleJobs:

@@ -27,6 +27,7 @@
 
 import os
 from os import path
+from collections import OrderedDict
 
 from marche.six.moves import configparser
 
@@ -60,13 +61,13 @@ class Config(object):
         confdir = self.confdir
         self.__dict__.clear()
         self.confdir = confdir
-        self.job_config = {}
+        self.job_config = OrderedDict()
         self.auth_config = {}
         self.iface_config = {}
         if confdir is None or not path.isdir(self.confdir):
             return
 
-        for fn in os.listdir(self.confdir):
+        for fn in sorted(os.listdir(self.confdir)):
             if fn.endswith('.conf'):
                 self._read_one(path.join(self.confdir, fn))
 
