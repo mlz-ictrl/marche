@@ -1,3 +1,12 @@
+marche (2.5.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * sort jobs by config file name
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 21 Sep 2017 08:13:23 +0200
+
 marche (2.5.1) unstable; urgency=low
 
   [ Georg Brandl ]
