@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+import socket
+
 from PyQt4.QtGui import QMainWindow, QInputDialog, QMessageBox, QIcon, QMenu, \
     QListWidgetItem, QFileDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize, QSettings, QByteArray
@@ -402,6 +404,11 @@ class MainWindow(QMainWindow):
 
         try:
             self._clients[addr].getVersion()
+        except socket.timeout:
+            QMessageBox.critical(self, 'Connection failed',
+                                 'Could not connect to %s: timeout')
+            del self._clients[addr]
+            return
         except xmlrpc.ProtocolError as e:
             QMessageBox.critical(self, 'Connection failed',
                                  'Could not connect to %s: %s' %
