@@ -23,5 +23,5 @@ Package: marche-gui
 Architecture: all
 Depends: marche,
  python-qt4,
+ python-netifaces
 Description: Marche is a server control daemon with multiple interfaces.
-

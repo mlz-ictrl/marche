@@ -29,14 +29,25 @@ import select
 import threading
 from time import time as currenttime
 
+import netifaces
+
 from marche.iface.udp import UDP_PORT
 
 
 def scan(my_uid, max_wait=1.0):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    # send a general broadcast
     s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
+    # also send to all interfaces' broadcast addresses
+    for iface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(iface)
+        if netifaces.AF_INET in addrs and addrs[netifaces.AF_INET]:
+            addr = addrs[netifaces.AF_INET][0]
+            if 'broadcast' in addr:
+                s.sendto(b'PING', (addr['broadcast'], UDP_PORT))
     start = currenttime()
+    seen = set()
     while currenttime() < start + max_wait:
         res = select.select([s], [], [], 0.1)
         if res[0]:
@@ -62,6 +73,9 @@ def scan(my_uid, max_wait=1.0):
                 addr = socket.gethostbyaddr(addr[0])[0]
             except socket.error:  # pragma: no cover
                 addr = addr[0]
+            if addr in seen:
+                continue
+            seen.add(addr)
             yield addr, version
 
 

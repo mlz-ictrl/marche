@@ -2,3 +2,4 @@ pamela
 psutil
 ipaddress
 mlzlog
+netifaces
