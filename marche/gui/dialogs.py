@@ -31,21 +31,22 @@ from marche.gui.scan import PassiveScanner
 
 
 class AuthDialog(QDialog):
-    def __init__(self, parent, title):
+    def __init__(self, parent, title, defuser):
         QDialog.__init__(self, parent)
         loadUi(self, 'authdlg.ui')
         self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+        self.userEdit.setText(defuser or 'marche')
         self.nameLbl.setText(title)
         self.setWindowTitle(title)
-        self.passwdLineEdit.setFocus()
+        self.passwdEdit.setFocus()
 
     @property
     def user(self):
-        return str(self.userLineEdit.text()).strip()
+        return str(self.userEdit.text()).strip()
 
     @property
     def passwd(self):
-        return str(self.passwdLineEdit.text()).strip()
+        return str(self.passwdEdit.text()).strip()
 
     @property
     def save_creds(self):
@@ -58,7 +59,7 @@ class PreferencesDialog(QDialog):
         loadUi(self, 'preferences.ui')
 
         self._creds = {}
-        self.editorComboBox.addItems(getAvailableEditors())
+        self.editorBox.addItems(getAvailableEditors())
 
     def selectDefaultSession(self):
         name = QFileDialog.getOpenFileName(self,
@@ -66,37 +67,45 @@ class PreferencesDialog(QDialog):
                                            '',
                                            'Marche sessions (*.marche)')
         if name:
-            self.sessionLineEdit.setText(name)
+            self.sessionEdit.setText(name)
 
     @property
     def defaultEditor(self):
-        return self.editorComboBox.currentText()
+        return self.editorBox.currentText()
 
     @defaultEditor.setter
     def defaultEditor(self, value):
-        index = self.editorComboBox.findText(value)
+        index = self.editorBox.findText(value)
 
         if index == -1:
-            self.editorComboBox.addItem(value)
-            index = self.editorComboBox.count() - 1
+            self.editorBox.addItem(value)
+            index = self.editorBox.count() - 1
 
-        self.editorComboBox.setCurrentIndex(index)
+        self.editorBox.setCurrentIndex(index)
 
     @property
     def pollInterval(self):
-        return self.pollIntervalSpinBox.value()
+        return self.pollIntervalBox.value()
 
     @pollInterval.setter
     def pollInterval(self, value):
-        self.pollIntervalSpinBox.setValue(float(value))
+        self.pollIntervalBox.setValue(float(value))
 
     @property
     def defaultSession(self):
-        return self.sessionLineEdit.text()
+        return self.sessionEdit.text()
 
     @defaultSession.setter
     def defaultSession(self, value):
-        self.sessionLineEdit.setText(value)
+        self.sessionEdit.setText(value)
+
+    @property
+    def defUsername(self):
+        return self.defUserEdit.text()
+
+    @defUsername.setter
+    def defUsername(self, value):
+        self.defUserEdit.setText(value)
 
     @property
     def credentials(self):
@@ -106,37 +115,37 @@ class PreferencesDialog(QDialog):
     def credentials(self, value):
         self._creds = value
         for host, _ in iteritems(value):
-            self.hostsListWidget.addItem(host)
+            self.hostsList.addItem(host)
 
     @property
     def sortHostListEnabled(self):
-        return self.sortHostListCheckBox.isChecked()
+        return self.sortHostListBox.isChecked()
 
     @sortHostListEnabled.setter
     def sortHostListEnabled(self, value):
-        return self.sortHostListCheckBox.setChecked(value)
+        return self.sortHostListBox.setChecked(value)
 
     def selectCred(self, host):
         if not host:
-            self.userLineEdit.clear()
-            self.pwLineEdit.clear()
-            self.credApplyPushButton.setEnabled(False)
-            self.userLineEdit.setEnabled(False)
-            self.pwLineEdit.setEnabled(False)
-            self.rmHostPushButton.setEnabled(False)
+            self.userEdit.clear()
+            self.passwdEdit.clear()
+            self.credApplyBtn.setEnabled(False)
+            self.userEdit.setEnabled(False)
+            self.passwdEdit.setEnabled(False)
+            self.rmHostBtn.setEnabled(False)
         else:
             user, passwd = self._creds[host]
-            self.userLineEdit.setText(user)
-            self.pwLineEdit.setText(passwd)
-            self.credApplyPushButton.setEnabled(True)
-            self.userLineEdit.setEnabled(True)
-            self.pwLineEdit.setEnabled(True)
-            self.rmHostPushButton.setEnabled(True)
+            self.userEdit.setText(user)
+            self.passwdEdit.setText(passwd)
+            self.credApplyBtn.setEnabled(True)
+            self.userEdit.setEnabled(True)
+            self.passwdEdit.setEnabled(True)
+            self.rmHostBtn.setEnabled(True)
 
     def applyCred(self):
-        host = self.hostsListWidget.currentItem().text()
-        user = self.userLineEdit.text()
-        passwd = self.pwLineEdit.text()
+        host = self.hostsList.currentItem().text()
+        user = self.userEdit.text()
+        passwd = self.passwdEdit.text()
 
         self._creds[host] = (user, passwd)
 
@@ -147,11 +156,11 @@ class PreferencesDialog(QDialog):
             return
 
         self._creds[host] = ('marche', '')
-        self.hostsListWidget.addItem(host)
+        self.hostsList.addItem(host)
 
     def removeCred(self):
-        host = self.hostsListWidget.currentItem().text()
-        self.hostsListWidget.takeItem(self.hostsListWidget.currentRow())
+        host = self.hostsList.currentItem().text()
+        self.hostsList.takeItem(self.hostsList.currentRow())
 
         del self._creds[host]
 

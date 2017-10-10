@@ -55,6 +55,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabber</tabstop>
+  <tabstop>outEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

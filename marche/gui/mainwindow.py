@@ -114,17 +114,19 @@ class MainWindow(QMainWindow):
         settings = loadSettings(['defaultEditor',
                                  'pollInterval',
                                  'defaultSession',
+                                 'defUsername',
                                  'sortHostListEnabled'])
 
         if settings['defaultEditor']:
             dlg.defaultEditor = settings['defaultEditor']
+        if settings['defUsername']:
+            dlg.defUsername = settings['defUsername']
         if settings['pollInterval']:
             dlg.pollInterval = settings['pollInterval']
         if settings['defaultSession']:
             dlg.defaultSession = settings['defaultSession']
         if settings['sortHostListEnabled']:
-            dlg.sortHostListEnabled = settings['sortHostListEnabled'] \
-                                      == 'true'
+            dlg.sortHostListEnabled = settings['sortHostListEnabled'] == 'true'
 
         dlg.credentials = loadAllCredentials()
         oldCredHosts = set(dlg.credentials.keys())
@@ -134,7 +136,8 @@ class MainWindow(QMainWindow):
                 'defaultEditor': dlg.defaultEditor,
                 'pollInterval': dlg.pollInterval,
                 'defaultSession': dlg.defaultSession,
-                'sortHostListEnabled': dlg.sortHostListEnabled
+                'defUsername': dlg.defUsername,
+                'sortHostListEnabled': dlg.sortHostListEnabled,
             })
 
             for host, (user, passwd) in iteritems(dlg.credentials):
@@ -369,7 +372,8 @@ class MainWindow(QMainWindow):
 
             # ask for credentials
             while True:
-                dlg = AuthDialog(self, 'Authenticate at %s' % addr)
+                dlg = AuthDialog(self, 'Authenticate at %s' % addr,
+                                 loadSetting('defUsername'))
                 if not dlg.exec_():
                     break
                 user = dlg.user

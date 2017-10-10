@@ -50,6 +50,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>editorBox</tabstop>
+  <tabstop>cmdEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

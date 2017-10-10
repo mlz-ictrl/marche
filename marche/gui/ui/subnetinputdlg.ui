@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>286</width>
+    <width>307</width>
     <height>99</height>
    </rect>
   </property>
@@ -166,6 +166,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>presetComboBox</tabstop>
+  <tabstop>saveCheckBox</tabstop>
+  <tabstop>byte1SpinBox</tabstop>
+  <tabstop>byte2SpinBox</tabstop>
+  <tabstop>byte3SpinBox</tabstop>
+  <tabstop>byte4SpinBox</tabstop>
+  <tabstop>prefixSpinBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
