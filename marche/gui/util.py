@@ -50,7 +50,8 @@ from marche.utils import bytencode
 
 
 uipath = os.path.dirname(__file__)
-KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma']
+KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma',
+                 'notepad']
 
 
 def loadUi(widget, uiname, subdir='ui'):

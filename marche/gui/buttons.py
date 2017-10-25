@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+import os
+import re
 import time
 import tempfile
 import subprocess
@@ -110,6 +112,8 @@ class JobButtons(QWidget):
         for i in range(0, len(config), 2):
             fn = config[i]
             contents = config[i + 1]
+            if os.name == 'nt':
+                contents = re.sub(r'(?<!\r)\n', '\r\n', contents)
             localfn = path.join(dtemp, fn)
             write_file(localfn, contents)
             if not self.editLocal(editor, localfn):
@@ -119,7 +123,10 @@ class JobButtons(QWidget):
                     self, 'Configure', 'Is the changed file ok to use?',
                     QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
                 result.append(fn)
-                result.append(read_file(localfn))
+                contents = read_file(localfn)
+                if os.name == 'nt':
+                    contents = contents.replace('\r\n', '\n')
+                result.append(contents)
         if not result:
             return
         try:
