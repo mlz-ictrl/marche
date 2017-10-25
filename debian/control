@@ -16,7 +16,8 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  python (>= 2.7),
  python-psutil (>= 0.4),
  python-mlzlog,
- python-ipaddress | python-ipaddr
+ python-ipaddress | python-ipaddr,
+ python-netifaces
 Description: Marche is a server control daemon with multiple interfaces.
 
 Package: marche-gui
