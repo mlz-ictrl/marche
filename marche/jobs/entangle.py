@@ -135,7 +135,10 @@ class EntangleBaseJob(BaseJob):
 
     def receive_config(self, service, instance):
         cfgname = path.join(self._resdir, instance + '.res')
-        return {instance + '.res': read_file(cfgname)}
+        # don't send conffiles which we can't write
+        if os.access(cfgname, os.W_OK):
+            return {instance + '.res': read_file(cfgname)}
+        return {}
 
     def send_config(self, service, instance, filename, contents):
         cfgname = path.join(self._resdir, instance + '.res')

@@ -23,6 +23,7 @@
 #
 # *****************************************************************************
 
+import os
 import collections
 import threading
 from os import path
@@ -405,7 +406,8 @@ class ConfigMixin(object):
     def receive_config(self, service, instance):
         result = {}
         for configpath in self.config_files:
-            if path.exists(configpath):
+            # don't send conffiles which we can't write
+            if path.exists(configpath) and os.access(configpath, os.W_OK):
                 result[path.basename(configpath)] = read_file(configpath)
         return result
 

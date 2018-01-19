@@ -102,7 +102,7 @@ class JobButtons(QWidget):
             self._item.setText(3, str(err))
             return
         if not config:
-            self._item.setText(3, 'No configs to edit')
+            self._item.setText(3, 'No editable config files found')
             return
         elif len(config) % 2 != 0:
             self._item.setText(3, 'Strange return value')
