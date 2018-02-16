@@ -50,6 +50,7 @@ This job has the following configuration parameters:
    like available servers and their logfiles from there.
 """
 
+import sys
 import os
 import socket
 from os import path
@@ -70,6 +71,17 @@ class EntangleBaseJob(BaseJob):
     STOP_CMD = '{control_tool} stop {instance}'
     RESTART_CMD = '{control_tool} restart {instance}'
     STATUS_CMD = '{control_tool} status {instance}'
+
+    def configure(self, config):
+        self.CONFIG = config.get('configfile', self.CONFIG)
+        self.CONTROL_TOOL = config.get('controltool', self.CONTROL_TOOL)
+        if os.name == 'nt':
+            self.log.info('prefix with python executable')
+            python = sys.executable + ' '
+            self.START_CMD = python + self.START_CMD
+            self.STOP_CMD = python + self.STOP_CMD
+            self.RESTART_CMD = python + self.RESTART_CMD
+            self.STATUS_CMD = python + self.STATUS_CMD
 
     def check(self):
         if not path.exists(self.CONFIG):
