@@ -29,7 +29,7 @@ import threading
 from os import path
 
 from marche.jobs import Busy, Fault, Unauthorized, STARTING, STOPPING, \
-    RUNNING, DEAD
+    RUNNING, DEAD, NOT_AVAILABLE
 from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, read_file, write_file, extract_loglines
@@ -129,8 +129,11 @@ class Job(object):
     def _async_status(self, sub, cmd):
         if sub in self._processes and not self._processes[sub].done:
             return self._processes[sub].status
-        if self._sync_call(cmd).retcode == 0:
+        result = self._sync_call(cmd).retcode
+        if result == 0:
             return RUNNING
+        elif result == -1:  # timeout in call
+            return NOT_AVAILABLE
         return DEAD
 
     # Public interface

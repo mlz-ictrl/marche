@@ -30,6 +30,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import time
 import socket
 import select
 import collections
@@ -167,7 +168,8 @@ else:
 
 
 class AsyncProcess(Thread):
-    def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None):
+    def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None,
+                 timeout=5.0):
         Thread.__init__(self)
         self.setDaemon(True)
 
@@ -175,6 +177,7 @@ class AsyncProcess(Thread):
         self.log = log
         self.cmd = cmd
         self.use_sh = sh
+        self.timeout = timeout
 
         self.done = False
         self.retcode = None
@@ -185,13 +188,14 @@ class AsyncProcess(Thread):
         self.log.debug('call [sh:%s]: %s' % (self.use_sh, self.cmd))
         proc = None
         poller = None
+        started = time.time()
 
         def poll_output():
             """
             Read, log and store output (if any) from processes pipes.
             """
             # collect fds with new output
-            fds = [entry[0] for entry in poller.poll()]
+            fds = [entry[0] for entry in poller.poll(1000)]
 
             if proc.stdout.fileno() in fds:
                 for line in iter(proc.stdout.readline, b''):
@@ -221,14 +225,26 @@ class AsyncProcess(Thread):
 
             poll_output()
 
-            if proc.poll() is not None:  # proc finished
+            # proc finished?
+            if proc.poll() is not None:
+                # poll once after the process ended to collect all the
+                # missing output
+                poll_output()
+                # assign return code
+                self.retcode = proc.returncode
+                self.log.debug('call retcode: %s', self.retcode)
                 break
 
-        # poll once after the process ended to collect all the missing output
-        poll_output()
+            # timeout occurred?
+            if time.time() > started + self.timeout:
+                try:
+                    proc.kill()
+                except Exception:
+                    pass
+                self.log.warning('timeout occurred calling %s', self.cmd)
+                self.retcode = -1
+                break
 
-        # check return code
-        self.retcode = proc.returncode
         self.done = True
 
 

@@ -61,7 +61,7 @@ from os import path
 
 from marche.six.moves import configparser
 
-from marche.jobs import DEAD, RUNNING, WARNING
+from marche.jobs import DEAD, RUNNING, WARNING, NOT_AVAILABLE
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extract_loglines
 
@@ -130,7 +130,11 @@ class Job(BaseJob):
             return DEAD, ''
         else:
             proc = self._sync_call(self._script + ' status %s' % instance)
-            return RUNNING if proc.retcode == 0 else DEAD, ''
+            if proc.retcode == 0:
+                return RUNNING
+            elif proc.retcode == -1:
+                return NOT_AVAILABLE
+            return DEAD
 
     def all_service_status(self):
         result = {}
