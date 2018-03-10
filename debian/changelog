@@ -1,3 +1,18 @@
+marche (2.7.0) unstable; urgency=low
+
+  [ Christian Felder ]
+  * entangle: Add configuration options / improve windows support
+  * Add helper script to register a windows service.
+
+  [ Georg Brandl ]
+  * all: update copyrights
+  * bin: move main function to package
+  * gui: port GUI to work with both Qt4/5
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Sat, 10 Mar 2018 11:04:07 +0100
+
 marche (2.6.2) unstable; urgency=low
 
   [ Georg Brandl ]
