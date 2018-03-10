@@ -1,3 +1,12 @@
+marche (2.7.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * jobs: add a timeout for subprocess calls to avoid deadlocks
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Sat, 10 Mar 2018 11:47:43 +0100
+
 marche (2.7.0) unstable; urgency=low
 
   [ Christian Felder ]
