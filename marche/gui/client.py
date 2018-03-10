@@ -28,12 +28,10 @@ import socket
 import threading
 from collections import OrderedDict
 
-from PyQt4.QtCore import QThread, pyqtSignal
-
 from marche.six import iteritems
 from marche.six.moves import xmlrpc_client as xmlrpc
-
 from marche.jobs import NOT_AVAILABLE
+from marche.gui.qt import QThread, pyqtSignal
 from marche.gui.util import loadSetting
 
 

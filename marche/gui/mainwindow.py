@@ -25,19 +25,14 @@
 
 import socket
 
-from PyQt4.QtGui import QMainWindow, QInputDialog, QMessageBox, QIcon, QMenu, \
-    QListWidgetItem, QFileDialog
-from PyQt4.QtCore import pyqtSignature as qtsig, QSize, QSettings, QByteArray
 
 from marche.six import iteritems
 from marche.six.moves import range  # pylint: disable=redefined-builtin
 from marche.six.moves import xmlrpc_client as xmlrpc
-
-import marche.gui.res  # noqa, pylint: disable=unused-import
-
-from marche.gui.util import loadUi, \
-    loadSettings, saveSettings, loadSetting, saveCredentials, \
-    loadCredentials, loadAllCredentials, removeCredentials
+from marche.gui.qt import pyqtSlot, QSize, QSettings, QByteArray, QIcon, \
+    QMainWindow, QInputDialog, QMessageBox, QMenu, QListWidgetItem, QFileDialog
+from marche.gui.util import loadUi, loadSettings, saveSettings, loadSetting, \
+    saveCredentials, loadCredentials, loadAllCredentials, removeCredentials
 from marche.gui.client import Client
 from marche.gui.dialogs import AuthDialog, PreferencesDialog, PassiveScanDialog
 from marche.gui.hosttree import HostTree
@@ -102,11 +97,11 @@ class MainWindow(QMainWindow):
             self.lblCachedUserCreds.setText(self._last_creds[0])
         self.cachePanel.setVisible(flag)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionExit_triggered(self):
         self.close()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionPreferences_triggered(self):
         dlg = PreferencesDialog(self)
 
@@ -154,28 +149,28 @@ class MainWindow(QMainWindow):
             if dlg.sortHostListEnabled:
                 self.hostList.sortItems()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAdd_host_triggered(self):
         addr, accepted = QInputDialog.getText(self, 'Add host', 'New host:')
         if accepted:
             self.openHost(self.addHost(addr))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAdd_network_triggered(self):
         dlg = SubnetInputDialog(self)
         if dlg.exec_():
             self.addNetwork(dlg.subnet)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionScan_local_network_triggered(self):
         self.scanLocalNetwork()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionReload_triggered(self):
         if self._cur_tree:
             self._cur_tree.reloadJobs()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionLoad_session_triggered(self):
         filename = QFileDialog.getOpenFileName(self, 'Load session', '',
                                                'Marche sessions (*.marche)')
@@ -200,7 +195,7 @@ class MainWindow(QMainWindow):
         for host in hosts:
             self.addHost(host)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionSave_session_as_triggered(self):
         filename = QFileDialog.getSaveFileName(self, 'Save session', '',
                                                'Marche sessions (*.marche)')
@@ -217,7 +212,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, 'Error', str(err))
             return
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAbout_triggered(self):
         QMessageBox.about(
             self, 'About Marche GUI',
@@ -248,11 +243,11 @@ class MainWindow(QMainWindow):
             </p>
             ''' % get_version())
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionAbout_Qt_triggered(self):
         QMessageBox.aboutQt(self, 'About Qt')
 
-    @qtsig('')
+    @pyqtSlot()
     def on_clearCredBtn_clicked(self):
         self._last_creds = None
         self.setCachedCredsVisible(False)

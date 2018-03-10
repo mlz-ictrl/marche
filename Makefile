@@ -1,5 +1,8 @@
 PYTHON = /usr/bin/env python
 
+RCC4 = pyrcc4
+RCC5 = pyrcc5
+
 all: build
 
 build:
@@ -11,8 +14,9 @@ install: build
 clean:
 	rm -rf build
 
-rcc:
-	pyrcc4  -py3 marche/gui/res/marche-gui.qrc  > marche/gui/res.py
+res: marche/gui/res/marche-gui.qrc
+	$(RCC4) -py3 -o marche/gui/res_qt4.py $<
+	$(RCC5)      -o marche/gui/res_qt5.py $<
 
 test:
 	$(PYTHON) $(shell which pytest) -v test
@@ -33,8 +37,8 @@ help:
 	@echo "    test-coverage     - run the test suite"
 	@echo "    doc               - build the html version of the documentation"
 
+.PHONY: all build install clean res test test-verbose test-coverage doc help
 
-.PHONY: test test-coverage doc help
 
 release-patch:
 	MODE="patch" $(MAKE) release

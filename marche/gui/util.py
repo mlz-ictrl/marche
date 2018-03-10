@@ -35,18 +35,9 @@ try:
 except ImportError:
     import ipaddr as ipaddress
 
-from PyQt4 import uic
-from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import QSettings
-
-try:
-    from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
-except ImportError:
-    class QPyNullVariant(object):
-        pass
-
-from marche.six import iteritems
+from marche.six import iteritems, text_type
 from marche.utils import bytencode
+from marche.gui.qt import uic, QSettings, QDialog, QPyNullVariant
 
 
 uipath = os.path.dirname(__file__)
@@ -250,11 +241,10 @@ def determineSubnet():
 
 
 def getSubnetHostsAddrs(subnet):
-    net = ipaddress.IPv4Network(unicode(subnet))
+    net = ipaddress.IPv4Network(text_type(subnet))
 
     # ipaddr compatiblity
     if hasattr(net, 'iterhosts'):
         net.hosts = net.iterhosts
 
     return [str(entry) for entry in net.hosts()]
-

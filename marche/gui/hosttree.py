@@ -23,16 +23,13 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtGui import QColor, QTreeWidget, QTreeWidgetItem, QBrush,\
-    QMessageBox, QIcon, QHeaderView
-from PyQt4.QtCore import Qt, QSize
-
 from marche.six import iteritems
 from marche.six.moves import range  # pylint: disable=redefined-builtin
-
-from marche.gui.buttons import JobButtons, MultiJobButtons
 from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
     STARTING, STOPPING, INITIALIZING
+from marche.gui.qt import Qt, QSize, QColor, QTreeWidget, QTreeWidgetItem, \
+    QBrush, QMessageBox, QIcon, QHeaderView
+from marche.gui.buttons import JobButtons, MultiJobButtons
 
 
 STATE_COLORS = {
@@ -52,8 +49,12 @@ class HostTree(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self._client = client
 
-        self.header().setMinimumSectionSize(125)
-        self.header().setResizeMode(QHeaderView.ResizeToContents)
+        hdr = self.header()
+        hdr.setMinimumSectionSize(125)
+        if hasattr(hdr, 'setResizeMode'):  # Qt4
+            hdr.setResizeMode(QHeaderView.ResizeToContents)
+        else:
+            hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # *****************************************************************************
 # Marche - A server control daemon
-# Copyright (c) 2015-2016 by the authors, see LICENSE
+# Copyright (c) 2015-2018 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,9 +25,7 @@
 
 import argparse
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
-
+from marche.gui.qt import Qt, QApplication
 from marche.gui.mainwindow import MainWindow
 
 

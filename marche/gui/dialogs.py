@@ -23,9 +23,8 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtGui import QInputDialog, QDialog, QFileDialog, QDialogButtonBox
-
 from marche.six import iteritems
+from marche.gui.qt import QInputDialog, QDialog, QFileDialog, QDialogButtonBox
 from marche.gui.util import loadUi, getAvailableEditors
 from marche.gui.scan import PassiveScanner
 

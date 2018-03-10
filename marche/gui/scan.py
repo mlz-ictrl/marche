@@ -23,11 +23,9 @@
 
 import socket
 
-from PyQt4.QtCore import QThread, pyqtSignal, QSettings, pyqtSignature as qtsig
-from PyQt4.QtGui import QDialog
-
-from marche.gui.util import loadUi, getSubnetHostsAddrs, determineSubnet
 from marche.scan import scan
+from marche.gui.qt import pyqtSlot, pyqtSignal, QThread, QSettings, QDialog
+from marche.gui.util import loadUi, getSubnetHostsAddrs, determineSubnet
 
 
 class SubnetInputDialog(QDialog):
@@ -55,7 +53,7 @@ class SubnetInputDialog(QDialog):
             self._savePreset()
         return QDialog.accept(self)
 
-    @qtsig('QString')
+    @pyqtSlot(str)
     def on_presetComboBox_currentIndexChanged(self, presetName):
         if presetName in self._presets:
             self._setSubnet(self._presets[presetName])
@@ -114,7 +112,7 @@ class ActiveScanner(QThread):
                 s.close()
 
                 self.hostFound.emit(ip)
-            except:
+            except Exception:
                 pass
         self.finished.emit()
 

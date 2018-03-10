@@ -41,7 +41,7 @@ Dependencies
 ------------
 
 * Python 2.7
-* GUI: PyQt4
+* GUI: PyQt4 or PyQt5
 * Daemon: PyTango if Tango interface is necessary
 
 

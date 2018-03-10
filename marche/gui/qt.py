@@ -19,6 +19,43 @@
 #
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
-#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
+
+"""Qt 4/5 compatibility layer."""
+
+import sys
+import sip
+
+try:
+    import PyQt5
+
+except (ImportError, RuntimeError):
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+
+    from PyQt4.QtGui import *
+    from PyQt4.QtCore import *
+    from PyQt4 import uic
+
+    import marche.gui.res_qt4
+
+    try:
+        from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
+    except ImportError:
+        class QPyNullVariant(object):
+            pass
+
+else:
+    # Do not abort on exceptions in signal handlers.
+    sys.excepthook = lambda *args: sys.__excepthook__(*args)
+
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
+    from PyQt5.QtCore import *
+    from PyQt5 import uic
+
+    import marche.gui.res_qt5
+
+    class QPyNullVariant(object):
+        pass

@@ -30,13 +30,9 @@ import tempfile
 import subprocess
 from os import path
 
-from PyQt4.QtGui import QWidget, QDialog, \
-    QMessageBox, QMenu, \
-    QPlainTextEdit, QApplication, QTextCursor
-from PyQt4.QtCore import pyqtSignature as qtsig, QSize
-
 from marche.six.moves import range  # pylint: disable=redefined-builtin
-
+from marche.gui.qt import pyqtSlot, QSize, QWidget, QDialog, QMessageBox, \
+    QMenu, QPlainTextEdit, QApplication, QTextCursor
 from marche.gui.util import loadUi, selectEditor, loadSetting, saveSetting
 from marche.gui.client import ClientError
 from marche.utils import read_file, write_file
@@ -59,7 +55,7 @@ class JobButtons(QWidget):
         menu.addAction(self.actionConfigure)
         self.moreBtn.setMenu(menu)
 
-    @qtsig('')
+    @pyqtSlot()
     def on_startBtn_clicked(self):
         self._item.setText(3, '')
         try:
@@ -67,7 +63,7 @@ class JobButtons(QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_stopBtn_clicked(self):
         self._item.setText(3, '')
         try:
@@ -75,7 +71,7 @@ class JobButtons(QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_restartBtn_clicked(self):
         self._item.setText(3, '')
         try:
@@ -83,7 +79,7 @@ class JobButtons(QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionConfigure_triggered(self):
         self._item.setText(3, '')
         if self._client.version < 1:
@@ -148,7 +144,7 @@ class JobButtons(QWidget):
         dlg.close()
         return pid.returncode == 0
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionShow_output_triggered(self):
         self._item.setText(3, '')
         try:
@@ -164,7 +160,7 @@ class JobButtons(QWidget):
         dlg.outEdit.ensureCursorVisible()
         dlg.exec_()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionShow_logfiles_triggered(self):
         self._item.setText(3, '')
         try:
@@ -205,17 +201,17 @@ class MultiJobButtons(QWidget):
         self._buttons = buttons
         self.setMinimumSize(QSize(30, 40))
 
-    @qtsig('')
+    @pyqtSlot()
     def on_startBtn_clicked(self):
         for button in self._buttons:
             button.on_startBtn_clicked()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_stopBtn_clicked(self):
         for button in self._buttons:
             button.on_stopBtn_clicked()
 
-    @qtsig('')
+    @pyqtSlot()
     def on_restartBtn_clicked(self):
         for button in self._buttons:
             button.on_restartBtn_clicked()
