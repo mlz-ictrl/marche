@@ -24,12 +24,16 @@
 
 """Utils for scanning for Marche daemons within the network."""
 
+import os
 import socket
 import select
 import threading
 from time import time as currenttime
 
-import netifaces
+if os.name != 'nt':
+    import netifaces
+else:
+    netifaces = None
 
 from marche.iface.udp import UDP_PORT
 
@@ -40,12 +44,13 @@ def scan(my_uid, max_wait=1.0):
     # send a general broadcast
     s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
     # also send to all interfaces' broadcast addresses
-    for iface in netifaces.interfaces():
-        addrs = netifaces.ifaddresses(iface)
-        if netifaces.AF_INET in addrs and addrs[netifaces.AF_INET]:
-            addr = addrs[netifaces.AF_INET][0]
-            if 'broadcast' in addr:
-                s.sendto(b'PING', (addr['broadcast'], UDP_PORT))
+    if netifaces:
+        for iface in netifaces.interfaces():
+            addrs = netifaces.ifaddresses(iface)
+            if netifaces.AF_INET in addrs and addrs[netifaces.AF_INET]:
+                addr = addrs[netifaces.AF_INET][0]
+                if 'broadcast' in addr:
+                    s.sendto(b'PING', (addr['broadcast'], UDP_PORT))
     start = currenttime()
     seen = set()
     while currenttime() < start + max_wait:
