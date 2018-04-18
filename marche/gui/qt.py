@@ -25,12 +25,12 @@
 """Qt 4/5 compatibility layer."""
 
 import sys
-import sip
 
 try:
     import PyQt5
 
 except (ImportError, RuntimeError):
+    import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
 
