@@ -1,3 +1,12 @@
+marche (2.7.3) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: move sip import to Qt4 case
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Wed, 18 Apr 2018 11:39:27 +0200
+
 marche (2.7.2) unstable; urgency=low
 
   [ Georg Brandl ]
