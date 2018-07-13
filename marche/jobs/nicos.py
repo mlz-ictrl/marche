@@ -131,10 +131,10 @@ class Job(BaseJob):
         else:
             proc = self._sync_call(self._script + ' status %s' % instance)
             if proc.retcode == 0:
-                return RUNNING
+                return RUNNING, ''
             elif proc.retcode == -1:
-                return NOT_AVAILABLE
-            return DEAD
+                return NOT_AVAILABLE, ''
+            return DEAD, ''
 
     def all_service_status(self):
         result = {}
