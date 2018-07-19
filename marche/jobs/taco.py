@@ -166,7 +166,9 @@ class Job(BaseJob):
     def all_service_status(self):
         result = {}
         for proc in psutil.process_iter():
-            cmdline = proc.cmdline()
+            cmdline = proc.cmdline
+            if callable(cmdline):
+                cmdline = cmdline()
 
             if not cmdline:
                 continue
