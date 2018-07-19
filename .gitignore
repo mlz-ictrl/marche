@@ -6,6 +6,7 @@ RELEASE-VERSION
 log/
 
 .cache/
+.pytest_cache/
 .coverage
 htmlcov/
 

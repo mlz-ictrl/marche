@@ -18,14 +18,16 @@ res: marche/gui/res/marche.qrc
 	$(RCC4) -py3 -o marche/gui/res_qt4.py $<
 	$(RCC5)      -o marche/gui/res_qt5.py $<
 
+T = test
+
 test:
-	$(PYTHON) $(shell which pytest) -v test
+	$(PYTHON) $(shell which pytest) -v $(T)
 
 test-verbose:
-	$(PYTHON) $(shell which pytest) -v test -s
+	$(PYTHON) $(shell which pytest) -v $(T) -s
 
 test-coverage:
-	$(PYTHON) $(shell which pytest) -v test --cov=marche
+	$(PYTHON) $(shell which pytest) -v $(T) --cov=marche
 
 lint:
 	pylint -r n --rcfile=pylintrc marche
