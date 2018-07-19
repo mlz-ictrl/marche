@@ -1,3 +1,21 @@
+marche (2.8.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * taco job: work around old psutil versions
+  * add protocol version 3: introduce GetAllServiceInfo to xmlrpc interface
+  * polling: log exceptions while polling (limiting for consecutive fails)
+  * client: use new features of protocol v3
+  * gui: show errors while updating host tree to user
+  * gui: create job buttons without parsing XML each time
+  * gui: cache QBrush objects used for fore/back colors
+  * gui: start polling after all items have been created
+  * gui: block signals while bulk updating the host tree
+  * all: pylint fixes
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 19 Jul 2018 14:07:43 +0200
+
 marche (2.7.4) unstable; urgency=low
 
   [ Georg Brandl ]
