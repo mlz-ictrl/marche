@@ -101,7 +101,6 @@ class HostTree(QTreeWidget):
             descrs = self._client.getServiceDescriptions(services)
         except Exception:
             descrs = {}
-        self._client.startPoller(self.updateStatus)
 
         for service, instances in iteritems(services):
             serviceItem = QTreeWidgetItem([service])
@@ -146,6 +145,7 @@ class HostTree(QTreeWidget):
                 multibtn = MultiJobButtons(btns)
                 self.setItemWidget(serviceItem, 2, multibtn)
 
+        self._client.startPoller(self.updateStatus)
         self.expandAll()
 
     def updateStatus(self, service, instance, status, info):
