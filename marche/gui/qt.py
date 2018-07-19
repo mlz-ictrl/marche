@@ -24,6 +24,8 @@
 
 """Qt 4/5 compatibility layer."""
 
+# pylint: disable=wildcard-import,unused-import,unused-wildcard-import
+
 import sys
 
 try:

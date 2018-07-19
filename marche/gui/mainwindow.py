@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
 
         self._subnet_scanner = ActiveScanner(self)
         self._subnet_scanner.hostFound.connect(self.addHost)
-        self._subnet_scanner.scanNotify.connect(self.statusBar.showMessage)
+        self._subnet_scanner.scanNotify.connect(self.mainStatusBar.showMessage)
         self._subnet_scanner.finished.connect(self.subnetScanFinished)
 
         if loadSetting('defaultSession'):
@@ -286,7 +286,7 @@ class MainWindow(QMainWindow):
 
     def subnetScanFinished(self):
         self.actionAdd_network.setEnabled(True)
-        self.statusBar.showMessage('Scan finished!')
+        self.mainStatusBar.showMessage('Scan finished!')
 
     def addHost(self, addr):
         if addr.startswith('Heading: '):

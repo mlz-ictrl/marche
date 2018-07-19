@@ -39,7 +39,7 @@ class Authenticator(object):
         created a logger in ``self.log``.
         """
 
-    def authenticate(self, user, password):
+    def authenticate(self, user, passwd):
         """Return a `marche.permission.ClientInfo` object with the assigned
         permission level if the user and password are correct.
 

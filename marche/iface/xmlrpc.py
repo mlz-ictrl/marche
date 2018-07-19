@@ -123,8 +123,7 @@ class RPCFunctions(object):
     def _split_name(self, name):
         if '.' in name:
             return name.split('.', 1)
-        else:
-            return name, ''
+        return name, ''
 
     @command
     def ReloadJobs(self, client_info):
@@ -173,9 +172,9 @@ class RPCFunctions(object):
         log_event = self.jobhandler.request_logfiles(
             client_info, *self._split_name(name))
         ret = []
-        for name, contents in iteritems(log_event.files):
+        for fname, contents in iteritems(log_event.files):
             for line in contents.splitlines(True):
-                ret.append(name + ':' + line)
+                ret.append(fname + ':' + line)
         return ret
 
     @command
@@ -183,8 +182,8 @@ class RPCFunctions(object):
         config_event = self.jobhandler.request_conffiles(
             client_info, *self._split_name(name))
         ret = []
-        for name, contents in iteritems(config_event.files):
-            ret.append(name)
+        for fname, contents in iteritems(config_event.files):
+            ret.append(fname)
             ret.append(contents)
         return ret
 

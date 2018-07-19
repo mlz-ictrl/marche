@@ -134,9 +134,10 @@ class EntangleBaseJob(BaseJob):
 
     def service_status(self, service, instance):
         # XXX check devices with Tango clients
-        return self._async_status(instance, self._format_cmd(self.STATUS_CMD,
-                                                             service, instance)
-                                  ), ''
+        return self._async_status(
+            instance,
+            self._format_cmd(self.STATUS_CMD, service, instance)
+        ), ''
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))

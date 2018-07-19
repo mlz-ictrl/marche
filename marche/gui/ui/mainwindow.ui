@@ -233,7 +233,7 @@
    <addaction name="actionScan_local_network"/>
    <addaction name="actionReload"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="mainStatusBar"/>
   <action name="actionAdd_host">
    <property name="icon">
     <iconset resource="../res/marche.qrc">

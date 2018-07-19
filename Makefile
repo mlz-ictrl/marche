@@ -27,6 +27,9 @@ test-verbose:
 test-coverage:
 	$(PYTHON) $(shell which pytest) -v test --cov=marche
 
+lint:
+	pylint -r n --rcfile=pylintrc marche
+
 doc:
 	$(MAKE) -C doc html
 

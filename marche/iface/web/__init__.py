@@ -82,8 +82,7 @@ CONFIG = {
 def split_service_instance(service_instance):
     if '_' in service_instance:
         return service_instance.split('_', 1)
-    else:
-        return service_instance, ''
+    return service_instance, ''
 
 
 class Webinterface(object):

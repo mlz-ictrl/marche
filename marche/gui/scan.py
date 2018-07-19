@@ -62,10 +62,8 @@ class SubnetInputDialog(QDialog):
         ip, netmask = subnet.split('/')
         self.prefixSpinBox.setValue(int(netmask))
 
-        ip = ip.split('.')
-        for i in range(len(ip)):
-            box = getattr(self, 'byte%sSpinBox' % (i + 1))
-            box.setValue(int(ip[i]))
+        for (i, part) in enumerate(ip.split('.')):
+            getattr(self, 'byte%sSpinBox' % (i + 1)).setValue(int(part))
 
     def _loadPresets(self):
         settings = QSettings()
@@ -126,7 +124,7 @@ class PassiveScanner(QThread):
         self.hosts = []
 
     def run(self):
-        for host, version in scan(''):
+        for host, _version in scan(''):
             self.hosts.append(host + ':8124')
             self.foundHosts.emit(len(self.hosts))
         self.finished.emit()

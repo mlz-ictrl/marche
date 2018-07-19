@@ -158,7 +158,7 @@ if os.name == 'nt':  # pragma: no cover
         def register(self, fp, opt):
             self.fds.append(fp.fileno())
 
-        def poll(self):
+        def poll(self, _timeout):
             return [(fd, None) for fd in self.fds]
     POLLIN = None
 
@@ -303,8 +303,7 @@ def get_default_cfgdir():  # pragma: no cover
     """Return the default config dir for the current platform."""
     if os.name == 'nt':
         return path.join(sys.prefix, 'etc', 'marche')
-    else:
-        return path.join(os.sep, 'etc', 'marche')
+    return path.join(os.sep, 'etc', 'marche')
 
 
 def bytencode(s):  # pragma: no cover
