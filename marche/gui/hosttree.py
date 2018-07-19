@@ -66,7 +66,7 @@ class HostTree(QTreeWidget):
         try:
             self.fill()
         except Exception as err:
-            print(err)
+            QMessageBox.warning(self, 'Error retrieving data', str(err))
 
         self.expandAll()
         width = sum(self.header().sectionSize(i)
