@@ -66,6 +66,7 @@ class Poller(object):
         self._cache.pop((service, instance), None)
 
     def _entry(self):
+        errors = 0
         while not self._stoprequest:
             try:
                 # Wait interval or until something arrives in the queue.
@@ -79,7 +80,11 @@ class Poller(object):
                 with self.job.lock:
                     states = self.job.all_service_status()
             except Exception:
+                if errors < 3:
+                    self.job.log.exception('error while polling')
+                errors += 1
                 continue
+            errors = 0
             for key, result in states.items():
                 if result != self._cache.get(key, [0, None])[1]:
                     self._cache[key] = [time.time(), result]
