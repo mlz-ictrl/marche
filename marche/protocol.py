@@ -29,7 +29,7 @@ import json
 from marche.six import add_metaclass
 
 # Increment this when making changes to the protocol.
-PROTO_VERSION = 2
+PROTO_VERSION = 3
 
 
 class Commands(object):

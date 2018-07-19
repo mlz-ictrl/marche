@@ -147,6 +147,11 @@ class RPCFunctions(object):
         return result
 
     @command
+    def GetAllServiceInfo(self, client_info):
+        list_event = self.jobhandler.request_service_list(client_info)
+        return dict(list_event.services)
+
+    @command
     def GetDescription(self, client_info, name):
         return self.jobhandler.get_service_description(
             client_info, *self._split_name(name))
