@@ -73,10 +73,10 @@ class EntangleBaseJob(BaseJob):
     STATUS_CMD = '{control_tool} status {instance}'
 
     def configure(self, config):
-        self.CONFIG = config.get('configfile', self.CONFIG)
-        self.CONTROL_TOOL = config.get('controltool', self.CONTROL_TOOL)
+        self._config = config.get('configfile', self.CONFIG)
+        self._control_tool = config.get('controltool', self.CONTROL_TOOL)
         if os.name == 'nt':
-            self.log.info('prefix with python executable')
+            self.log.info('Windows: prefix commands with Python executable')
             python = sys.executable + ' '
             self.START_CMD = python + self.START_CMD
             self.STOP_CMD = python + self.STOP_CMD
@@ -84,12 +84,11 @@ class EntangleBaseJob(BaseJob):
             self.STATUS_CMD = python + self.STATUS_CMD
 
     def check(self):
-        if not path.exists(self.CONFIG):
-            self.log.warning('Configuration file %s missing'
-                             % self.CONFIG)
+        if not path.exists(self._config):
+            self.log.warning('Configuration file %s missing' % self._config)
             return False
-        if not path.exists(self.CONTROL_TOOL):
-            self.log.warning('Control tool %s missing' % self.CONTROL_TOOL)
+        if not path.exists(self._control_tool):
+            self.log.warning('Control tool %s missing' % self._control_tool)
             return False
         return True
 
@@ -99,7 +98,7 @@ class EntangleBaseJob(BaseJob):
         }
 
         cfg = configparser.SafeConfigParser(defaults=substitutions)
-        cfg.read(self.CONFIG)
+        cfg.read(self._config)
 
         if cfg.has_option('entangle', 'resdir'):
             self._resdir = cfg.get('entangle', 'resdir').strip('"\'')
@@ -133,7 +132,6 @@ class EntangleBaseJob(BaseJob):
                                                      instance))
 
     def service_status(self, service, instance):
-        # XXX check devices with Tango clients
         return self._async_status(
             instance,
             self._format_cmd(self.STATUS_CMD, service, instance)
@@ -160,15 +158,14 @@ class EntangleBaseJob(BaseJob):
         write_file(cfgname, contents)
 
     def _format_cmd(self, cmd, service, instance):
-        return cmd.format(control_tool=self.CONTROL_TOOL, service=service,
-                          instance=instance)
+        return cmd.format(control_tool=self._control_tool, instance=instance)
 
 
 class InitJob(EntangleBaseJob):
     def all_service_status(self):
         result = {}
         initstates = {}
-        for line in self._sync_call('%s status' % self.CONTROL_TOOL).stdout:
+        for line in self._sync_call('%s status' % self._control_tool).stdout:
             if ':' not in line:
                 continue
             name, state = line.split(':', 1)

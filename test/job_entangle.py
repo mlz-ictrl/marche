@@ -57,6 +57,7 @@ RES = '''\
 test/my/dev/type: rs232.StringIO
 '''
 
+
 @fixture(scope='function')
 def tempconf(tmpdir):
     scriptfile = tmpdir.join('script.py')
@@ -74,7 +75,7 @@ def test_init_job(tempconf):
 
 
 def test_systemd_job(tempconf):
-    _test_job_cls(SystemdJob, tempconf)
+    _test_job_cls(SystemdJob, tempconf, prefix='entangle@')
 
 
 def test_job():
@@ -85,19 +86,18 @@ def test_job():
         assert isinstance(job, InitJob)
 
 
-def _test_job_cls(jobcls, tempconf):
+def _test_job_cls(jobcls, tempconf, prefix=''):
     tmpdir, scriptfile, configfile = tempconf
 
-    InitJob.CONTROL_TOOL = 'does/not/exist'
-    job = InitJob('entangle', 'name', {}, logger, lambda event: None)
+    job = jobcls('entangle', 'name', {'controltool': 'does/not/exist'},
+                 logger, lambda event: None)
     assert not job.check()
 
-    InitJob.CONFIG = str(configfile)
-    InitJob.CONTROL_TOOL = sys.executable
-
-    job = InitJob('entangle', 'name', {}, logger, lambda event: None)
+    job = jobcls('entangle', 'name', {'configfile': str(configfile),
+                                      'controltool': sys.executable},
+                 logger, lambda event: None)
     assert job.check()
-    InitJob.CONTROL_TOOL = sys.executable + ' -S ' + str(scriptfile)
+    job._control_tool = sys.executable + ' -S ' + str(scriptfile)
     job.init()
 
     assert job.get_services() == [('entangle', 'mysrv')]
@@ -106,7 +106,7 @@ def _test_job_cls(jobcls, tempconf):
     assert job.all_service_status() == {('entangle', 'mysrv'): (RUNNING, '')}
 
     job_call_check(job, 'entangle', 'mysrv',
-                   'action mysrv', ['mysrv', 'action'])
+                   'action %smysrv' % prefix, [prefix + 'mysrv', 'action'])
 
     logs = job.service_logs('entangle', 'mysrv')
     assert list(logs.values()) == ['log1\nlog2\n']
