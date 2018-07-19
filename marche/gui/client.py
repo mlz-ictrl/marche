@@ -38,6 +38,7 @@ from marche.gui.util import loadSetting
 class PollThread(QThread):
     # service, instance, status, error info
     newData = pyqtSignal(object, object, int, object)
+    newBulkData = pyqtSignal(object)
 
     def __init__(self, host, port, user=None, passwd=None, loopDelay=3.0,
                  parent=None):
@@ -57,11 +58,9 @@ class PollThread(QThread):
                 try:
                     services = self._client.getAllServiceInfo()
                 except Exception:
-                    self.newData.emit(None, None, NOT_AVAILABLE, '')
+                    self.newBulkData.emit(None)
                 else:
-                    for service, svcinfo in iteritems(services):
-                        for instance, instinfo in iteritems(svcinfo['instances']):
-                            self.newData.emit(service, instance, instinfo['state'], instinfo['ext_status'])
+                    self.newBulkData.emit(services)
 
                 time.sleep(self._loopDelay)
                 continue
@@ -131,7 +130,7 @@ class Client(object):
             if join:
                 self._pollThread.wait()
 
-    def startPoller(self, slot):
+    def startPoller(self, slot, slot2):
         self._pollThread = PollThread(self.host,
                                       self.port,
                                       self.user,
@@ -139,6 +138,7 @@ class Client(object):
                                       loadSetting('pollInterval', 3,
                                                   valtype=float))
         self._pollThread.newData.connect(slot)
+        self._pollThread.newBulkData.connect(slot2)
         self._pollThread.start()
 
     def reloadJobs(self):

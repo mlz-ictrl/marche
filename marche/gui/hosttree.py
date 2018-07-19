@@ -26,7 +26,7 @@
 from marche.six import iteritems
 from marche.six.moves import range  # pylint: disable=redefined-builtin
 from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
-    STARTING, STOPPING, INITIALIZING
+    STARTING, STOPPING, INITIALIZING, NOT_AVAILABLE
 from marche.gui.qt import Qt, QSize, QColor, QTreeWidget, QTreeWidgetItem, \
     QBrush, QMessageBox, QIcon, QHeaderView
 from marche.gui.buttons import JobButtons, MultiJobButtons
@@ -145,10 +145,30 @@ class HostTree(QTreeWidget):
                 multibtn = MultiJobButtons(btns)
                 self.setItemWidget(serviceItem, 2, multibtn)
 
-        self._client.startPoller(self.updateStatus)
+        self._client.startPoller(self.updateStatus, self.updateBulkStatus)
         self.expandAll()
 
-    def updateStatus(self, service, instance, status, info):
+    def updateBulkStatus(self, data):
+        model = self.model()
+        # block dataChanged signals while updating items; this avoids
+        # potentially hundreds of emitted signals and treeview updates
+        model.blockSignals(True)
+        try:
+            if data is None:
+                return self.updateStatus(None, None, NOT_AVAILABLE, '')
+            for service, svcinfo in iteritems(data):
+                for instance, instinfo in iteritems(svcinfo['instances']):
+                    self.updateStatus(service, instance, instinfo['state'],
+                                      instinfo['ext_status'], parent=False)
+            for service in self._virt_items:
+                self.updateParentItem(self._virt_items[service])
+        finally:
+            model.blockSignals(False)
+        # finally, emit a signal that *all* data may have changed
+        model.dataChanged.emit(model.index(0, 0),
+                               model.index(model.rowCount(), 4))
+
+    def updateStatus(self, service, instance, status, info, parent=True):
         if service is instance is None:
             for (service, instance) in self._items:
                 self.updateStatus(service, instance, status, info)
@@ -170,7 +190,7 @@ class HostTree(QTreeWidget):
         else:
             item.setIcon(1, QIcon())
 
-        if service in self._virt_items:
+        if parent and service in self._virt_items:
             self.updateParentItem(self._virt_items[service])
 
     def updateParentItem(self, item):
