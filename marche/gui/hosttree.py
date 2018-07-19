@@ -49,6 +49,14 @@ class HostTree(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self._client = client
 
+        # cache the used brush objects
+        self._brushes = {'': QBrush(), '#ffcccc': QBrush(QColor('#ffcccc'))}
+        for (fgcolor, bgcolor) in STATE_COLORS.values():
+            if fgcolor not in self._brushes:
+                self._brushes[fgcolor] = QBrush(QColor(fgcolor))
+            if bgcolor not in self._brushes:
+                self._brushes[bgcolor] = QBrush(QColor(bgcolor))
+
         hdr = self.header()
         hdr.setMinimumSectionSize(125)
         if hasattr(hdr, 'setResizeMode'):  # Qt4
@@ -97,10 +105,10 @@ class HostTree(QTreeWidget):
 
         for service, instances in iteritems(services):
             serviceItem = QTreeWidgetItem([service])
-            serviceItem.setForeground(1, QBrush(QColor('white')))
+            serviceItem.setForeground(1, self._brushes['white'])
             serviceItem.setTextAlignment(1, Qt.AlignCenter)
             serviceItem.setFlags(Qt.ItemIsEnabled)
-            serviceItem.setForeground(3, QBrush(QColor('red')))
+            serviceItem.setForeground(3, self._brushes['red'])
             self.addTopLevelItem(serviceItem)
 
             btns = []
@@ -110,10 +118,10 @@ class HostTree(QTreeWidget):
                     has_empty_instance = True
                     continue
                 instanceItem = QTreeWidgetItem([instance])
-                instanceItem.setForeground(1, QBrush(QColor('white')))
+                instanceItem.setForeground(1, self._brushes['white'])
                 instanceItem.setTextAlignment(1, Qt.AlignCenter)
                 instanceItem.setFlags(Qt.ItemIsEnabled)
-                instanceItem.setForeground(3, QBrush(QColor('red')))
+                instanceItem.setForeground(3, self._brushes['red'])
                 if descrs.get((service, instance)):
                     instanceItem.setText(0, descrs[service, instance])
                 serviceItem.addChild(instanceItem)
@@ -150,10 +158,8 @@ class HostTree(QTreeWidget):
         item = self._items[service, instance]
 
         colors = STATE_COLORS.get(status, ('gray', ''))
-        item.setForeground(1, QBrush(QColor(colors[0]))
-                           if colors[0] else QBrush())
-        item.setBackground(1, QBrush(QColor(colors[1]))
-                           if colors[1] else QBrush())
+        item.setForeground(1, self._brushes[colors[0]])
+        item.setBackground(1, self._brushes[colors[1]])
         item.setText(1, STATE_STR[status])
         item.setData(1, 32, status)
         if info is not None:
@@ -178,21 +184,19 @@ class HostTree(QTreeWidget):
             return
         if None in statuses:
             item.setText(1, '')
-            item.setForeground(1, QBrush(QColor('black')))
-            item.setBackground(1, QBrush())
+            item.setForeground(1, self._brushes['black'])
+            item.setBackground(1, self._brushes[''])
         elif len(statuses) == 1:
             status, _ = statuses.popitem()
             colors = STATE_COLORS.get(status, ('gray', ''))
-            item.setForeground(1, QBrush(QColor(colors[0]))
-                               if colors[0] else QBrush())
-            item.setBackground(1, QBrush(QColor(colors[1]))
-                               if colors[1] else QBrush())
+            item.setForeground(1, self._brushes[colors[0]])
+            item.setBackground(1, self._brushes[colors[1]])
             item.setText(1, 'ALL %d %s' % (total, STATE_STR[status]))
         else:
             item.setText(1, '%d/%d RUNNING' %
                          (statuses.get(RUNNING, 0), total))
-            item.setForeground(1, QBrush(QColor('black')))
-            item.setBackground(1, QBrush(QColor('#ffcccc')))
+            item.setForeground(1, self._brushes['black'])
+            item.setBackground(1, self._brushes['#ffcccc'])
 
     def reloadJobs(self):
         self._client.reloadJobs()
