@@ -50,6 +50,22 @@ class PollThread(QThread):
     def run(self):
         self._client = Client(*self._creds)
         while self.running:
+            if self._client is None:
+                break  # thread has been deleted
+
+            if self._client.version >= 3:
+                try:
+                    services = self._client.getAllServiceInfo()
+                except Exception:
+                    self.newData.emit(None, None, NOT_AVAILABLE, '')
+                else:
+                    for service, svcinfo in iteritems(services):
+                        for instance, instinfo in iteritems(svcinfo['instances']):
+                            self.newData.emit(service, instance, instinfo['state'], instinfo['ext_status'])
+
+                time.sleep(self._loopDelay)
+                continue
+
             try:
                 services = self._client.getServices()
             except Exception:
@@ -163,6 +179,12 @@ class Client(object):
 
     def getServiceDescriptions(self, services):
         result = {}
+        if self.version >= 3:
+            services = self.getAllServiceInfo()
+            for service, svcinfo in iteritems(services):
+                for instance, instinfo in iteritems(svcinfo['instances']):
+                    result[service, instance] = instinfo['desc']
+            return result
         with self._lock:
             for service, instances in iteritems(services):
                 for instance in instances:
@@ -170,6 +192,11 @@ class Client(object):
                     result[service, instance] = \
                         self._proxy.GetDescription(path)
         return result
+
+    def getAllServiceInfo(self):
+        # New in protocol version 3.
+        with self._lock:
+            return self._proxy.GetAllServiceInfo()
 
     def getServicePath(self, service, instance):
         return '%s.%s' % (service, instance) if instance else service
