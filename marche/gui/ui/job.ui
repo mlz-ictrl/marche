@@ -72,7 +72,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/marche-gui.qrc">
+      <iconset resource="../res/marche.qrc">
        <normaloff>:/marche/control.png</normaloff>:/marche/control.png</iconset>
      </property>
     </widget>
@@ -98,7 +98,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/marche-gui.qrc">
+      <iconset resource="../res/marche.qrc">
        <normaloff>:/marche/control-stop-square.png</normaloff>:/marche/control-stop-square.png</iconset>
      </property>
     </widget>
@@ -124,7 +124,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../res/marche-gui.qrc">
+      <iconset resource="../res/marche.qrc">
        <normaloff>:/marche/arrow-circle-225.png</normaloff>:/marche/arrow-circle-225.png</iconset>
      </property>
     </widget>
@@ -157,7 +157,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../res/marche-gui.qrc">
+          <iconset resource="../res/marche.qrc">
            <normaloff>:/marche/gear.png</normaloff>:/marche/gear.png</iconset>
          </property>
          <property name="popupMode">
@@ -186,7 +186,7 @@
   </layout>
   <action name="actionShow_output">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/terminal.png</normaloff>:/marche/terminal.png</iconset>
    </property>
    <property name="text">
@@ -195,7 +195,7 @@
   </action>
   <action name="actionConfigure">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/gear.png</normaloff>:/marche/gear.png</iconset>
    </property>
    <property name="text">
@@ -204,7 +204,7 @@
   </action>
   <action name="actionShow_logfiles">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/blue-documents-text.png</normaloff>:/marche/blue-documents-text.png</iconset>
    </property>
    <property name="text">
@@ -213,7 +213,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../res/marche-gui.qrc"/>
+  <include location="../res/marche.qrc"/>
  </resources>
  <connections/>
 </ui>

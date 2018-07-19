@@ -33,15 +33,19 @@ from os import path
 from marche.six.moves import range  # pylint: disable=redefined-builtin
 from marche.gui.qt import pyqtSlot, QSize, QWidget, QDialog, QMessageBox, \
     QMenu, QPlainTextEdit, QApplication, QTextCursor
-from marche.gui.util import loadUi, selectEditor, loadSetting, saveSetting
+from marche.gui.util import loadUi, loadUiType, selectEditor, loadSetting, \
+    saveSetting
 from marche.gui.client import ClientError
 from marche.utils import read_file, write_file
 
 
-class JobButtons(QWidget):
+JobButtonsUI = loadUiType('job.ui')
+
+
+class JobButtons(JobButtonsUI, QWidget):
     def __init__(self, client, service, instance, item, parent=None):
         QWidget.__init__(self, parent)
-        loadUi(self, 'job.ui')
+        self.setupUi(self)
 
         self._item = item
         self._client = client
@@ -193,10 +197,11 @@ class JobButtons(QWidget):
         dlg.exec_()
 
 
-class MultiJobButtons(QWidget):
+class MultiJobButtons(JobButtonsUI, QWidget):
     def __init__(self, buttons, parent=None):
         QWidget.__init__(self, parent)
-        loadUi(self, 'job.ui')
+        self.setupUi(self)
+
         self.stacker.setCurrentIndex(1)
         self._buttons = buttons
         self.setMinimumSize(QSize(30, 40))

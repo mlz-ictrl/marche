@@ -14,7 +14,7 @@ install: build
 clean:
 	rm -rf build
 
-res: marche/gui/res/marche-gui.qrc
+res: marche/gui/res/marche.qrc
 	$(RCC4) -py3 -o marche/gui/res_qt4.py $<
 	$(RCC5)      -o marche/gui/res_qt5.py $<
 

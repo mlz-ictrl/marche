@@ -20,7 +20,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../res/marche-gui.qrc">:/marche/logo-new.svg</pixmap>
+      <pixmap resource="../res/marche.qrc">:/marche/logo-new.svg</pixmap>
      </property>
     </widget>
    </item>
@@ -34,7 +34,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../res/marche-gui.qrc"/>
+  <include location="../res/marche.qrc"/>
  </resources>
  <connections/>
 </ui>

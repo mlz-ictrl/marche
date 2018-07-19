@@ -52,7 +52,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../res/marche-gui.qrc">
+         <iconset resource="../res/marche.qrc">
           <normaloff>:/marche/folder-open.png</normaloff>:/marche/folder-open.png</iconset>
         </property>
        </widget>
@@ -79,7 +79,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../res/marche-gui.qrc">
+         <iconset resource="../res/marche.qrc">
           <normaloff>:/marche/broom.png</normaloff>:/marche/broom.png</iconset>
         </property>
        </widget>
@@ -301,7 +301,7 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../res/marche-gui.qrc"/>
+  <include location="../res/marche.qrc"/>
  </resources>
  <connections>
   <connection>

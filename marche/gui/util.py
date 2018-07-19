@@ -49,6 +49,15 @@ def loadUi(widget, uiname, subdir='ui'):
     uic.loadUi(os.path.join(uipath, subdir, uiname), widget)
 
 
+def loadUiType(uiname, subdir='ui'):
+    # About resource_suffix: uic.loadUiType insists on creating
+    # import statements with the name of the .qrc file followed
+    # by this suffix.  Since the file is marche.qrc, this will now
+    # import marche.gui.res (a dummy module).
+    return uic.loadUiType(os.path.join(uipath, subdir, uiname),
+                          resource_suffix='.gui.res')[0]
+
+
 # as copied from Python 3.3
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     """Given a command, mode, and a PATH string, return the path which

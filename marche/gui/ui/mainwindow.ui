@@ -14,7 +14,7 @@
    <string>Marche</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../res/marche-gui.qrc">
+   <iconset resource="../res/marche.qrc">
     <normaloff>:/marche/logo-new.svg</normaloff>:/marche/logo-new.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -146,7 +146,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../res/marche-gui.qrc">:/marche/logo-watermark.png</pixmap>
+           <pixmap resource="../res/marche.qrc">:/marche/logo-watermark.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
@@ -236,7 +236,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAdd_host">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/server.png</normaloff>:/marche/server.png</iconset>
    </property>
    <property name="text">
@@ -248,7 +248,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/door-open.png</normaloff>:/marche/door-open.png</iconset>
    </property>
    <property name="text">
@@ -260,7 +260,7 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/logo-new.svg</normaloff>:/marche/logo-new.svg</iconset>
    </property>
    <property name="text">
@@ -269,7 +269,7 @@
   </action>
   <action name="actionAbout_Qt">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/logo-new.svg</normaloff>:/marche/logo-new.svg</iconset>
    </property>
    <property name="text">
@@ -278,7 +278,7 @@
   </action>
   <action name="actionScan_local_network">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
    </property>
    <property name="text">
@@ -290,7 +290,7 @@
   </action>
   <action name="actionReload">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/arrow-circle-225.png</normaloff>:/marche/arrow-circle-225.png</iconset>
    </property>
    <property name="text">
@@ -302,7 +302,7 @@
   </action>
   <action name="actionLoad_session">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/folder-open.png</normaloff>:/marche/folder-open.png</iconset>
    </property>
    <property name="text">
@@ -314,7 +314,7 @@
   </action>
   <action name="actionSave_session_as">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/disk.png</normaloff>:/marche/disk.png</iconset>
    </property>
    <property name="text">
@@ -326,7 +326,7 @@
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/drill.png</normaloff>:/marche/drill.png</iconset>
    </property>
    <property name="text">
@@ -335,7 +335,7 @@
   </action>
   <action name="actionAdd_network">
    <property name="icon">
-    <iconset resource="../res/marche-gui.qrc">
+    <iconset resource="../res/marche.qrc">
      <normaloff>:/marche/server-cast.png</normaloff>:/marche/server-cast.png</iconset>
    </property>
    <property name="text">
@@ -344,7 +344,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../res/marche-gui.qrc"/>
+  <include location="../res/marche.qrc"/>
  </resources>
  <connections/>
 </ui>
