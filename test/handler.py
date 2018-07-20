@@ -231,6 +231,10 @@ def mock_select(rlist, wlist, xlist, timeout):
     return [[rlist[0]]], [], []
 
 
+def mock_gethostbyaddr(addr):
+    return [addr]
+
+
 def mock_time():
     n = getattr(mock_time, 'n', 0)
     mock_time.n = n + 1
@@ -243,10 +247,11 @@ def test_scanning(handler):
     MockSocket.uid = handler.uid
     with patch('socket.socket', MockSocket):
         with patch('select.select', mock_select):
-            with patch('marche.scan.currenttime', mock_time):
-                del handler.test_events[:]
-                handler.scan_network()
-                wait(100, lambda: len(handler.test_events) == 3)
-                assert handler.test_events[0].version == 1
-                assert handler.test_events[1].version == 2
-                assert handler.test_events[2].version == 42
+            with patch('socket.gethostbyaddr', mock_gethostbyaddr):
+                with patch('marche.scan.currenttime', mock_time):
+                    del handler.test_events[:]
+                    handler.scan_network()
+                    wait(100, lambda: len(handler.test_events) == 3)
+                    assert handler.test_events[0].version == 1
+                    assert handler.test_events[1].version == 2
+                    assert handler.test_events[2].version == 42
