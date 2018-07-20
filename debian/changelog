@@ -1,3 +1,16 @@
+marche (2.8.1) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * makefile: allow selecting test running, pytest fixes
+  * tests: fix test_scanning
+  * tests: fix Entangle job tests
+  * xmlrpc: not actually legacy
+  * properly fix scanning test by mocking DNS resolution
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Fri, 20 Jul 2018 11:09:26 +0200
+
 marche (2.8.0) unstable; urgency=low
 
   [ Georg Brandl ]
