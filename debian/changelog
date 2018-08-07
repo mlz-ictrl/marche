@@ -1,3 +1,12 @@
+marche (2.8.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * installer: add hidden import
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 07 Aug 2018 11:22:11 +0200
+
 marche (2.8.1) unstable; urgency=low
 
   [ Georg Brandl ]
