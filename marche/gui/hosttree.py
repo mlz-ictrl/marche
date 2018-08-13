@@ -50,7 +50,8 @@ class HostTree(QTreeWidget):
         self._client = client
 
         # cache the used brush objects
-        self._brushes = {'': QBrush(), '#ffcccc': QBrush(QColor('#ffcccc'))}
+        self._brushes = {'': QBrush(), '#ffcccc': QBrush(QColor('#ffcccc')),
+                         'gray': QBrush(QColor('gray'))}
         for (fgcolor, bgcolor) in STATE_COLORS.values():
             if fgcolor not in self._brushes:
                 self._brushes[fgcolor] = QBrush(QColor(fgcolor))
