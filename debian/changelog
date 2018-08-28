@@ -1,3 +1,12 @@
+marche (2.8.4) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * gui: handle "reload" action better
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 28 Aug 2018 18:46:54 +0200
+
 marche (2.8.3) unstable; urgency=low
 
   [ Georg Brandl ]
