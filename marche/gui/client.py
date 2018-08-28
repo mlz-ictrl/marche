@@ -23,7 +23,6 @@
 #
 # *****************************************************************************
 
-import time
 import socket
 import threading
 from collections import OrderedDict
@@ -46,6 +45,8 @@ class PollThread(QThread):
         self._loopDelay = loopDelay
         self._creds = (host, port, user, passwd)
         self._client = None
+        # use an event instead of sleep() to be able to interrupt
+        self._event = threading.Event()
         self.running = True
 
     def run(self):
@@ -62,20 +63,18 @@ class PollThread(QThread):
                 else:
                     self.newBulkData.emit(services)
 
-                time.sleep(self._loopDelay)
-                continue
+            else:
+                try:
+                    services = self._client.getServices()
+                except Exception:
+                    services = OrderedDict()
+                    self.newData.emit(None, None, NOT_AVAILABLE, '')
 
-            try:
-                services = self._client.getServices()
-            except Exception:
-                services = OrderedDict()
-                self.newData.emit(None, None, NOT_AVAILABLE, '')
+                for service, instances in iteritems(services):
+                    for instance in instances:
+                        self.poll(service, instance)
 
-            for service, instances in iteritems(services):
-                for instance in instances:
-                    self.poll(service, instance)
-
-            time.sleep(self._loopDelay)
+            self._event.wait(self._loopDelay)
 
     def poll(self, service, instance):
         try:
@@ -127,6 +126,7 @@ class Client(object):
         if self._pollThread:
             self._pollThread.running = False
             self._pollThread._client = None
+            self._pollThread._event.set()
             if join:
                 self._pollThread.wait()
 
@@ -142,10 +142,9 @@ class Client(object):
         self._pollThread.start()
 
     def reloadJobs(self):
+        self.stopPoller(True)
         with self._lock:
-            self.stopPoller(True)
             self._proxy.ReloadJobs()
-            self._pollThread.start()
         self.version = self.getVersion()
 
     def getServices(self):

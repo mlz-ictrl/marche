@@ -142,7 +142,8 @@ class JobHandler(object):
         self._add_jobs()
         # This will contain all services.  It's up to the interface to filter
         # the list when distributing to individual connected clients.
-        self.emit_event(self.request_service_list(ClientInfo(ADMIN)))
+        # TODO: activate once we have an interface that uses events
+        # self.emit_event(self.request_service_list(ClientInfo(ADMIN)))
 
     @command(silent=True)
     def scan_network(self):
