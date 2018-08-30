@@ -186,6 +186,10 @@ class SystemdJob(EntangleBaseJob):
     RESTART_CMD = '{control_tool} restart entangle@{instance}'
     STATUS_CMD = '{control_tool} is-active entangle@{instance}'
 
+    def service_logs(self, service, instance):
+        proc = self._sync_call('journalctl -n 500 -u entangle@%s' % instance)
+        return {'journal': ''.join(proc.stdout)}
+
 
 def Job(*args, **kwargs):
     if determine_init_system() == 'systemd':
