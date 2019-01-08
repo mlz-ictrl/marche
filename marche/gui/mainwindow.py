@@ -244,10 +244,6 @@ class MainWindow(QMainWindow):
             ''' % get_version())
 
     @pyqtSlot()
-    def on_actionAbout_Qt_triggered(self):
-        QMessageBox.aboutQt(self, 'About Qt')
-
-    @pyqtSlot()
     def on_clearCredBtn_clicked(self):
         self._last_creds = None
         self.setCachedCredsVisible(False)
