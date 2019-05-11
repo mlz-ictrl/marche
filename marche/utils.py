@@ -38,7 +38,7 @@ from os import path
 from threading import Thread
 from subprocess import Popen, PIPE, check_output
 
-from marche.six import text_type
+from six import text_type
 
 try:
     import pwd
