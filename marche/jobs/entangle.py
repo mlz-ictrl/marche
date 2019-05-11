@@ -185,9 +185,11 @@ class SystemdJob(EntangleBaseJob):
     STOP_CMD = '{control_tool} stop entangle@{instance}'
     RESTART_CMD = '{control_tool} restart entangle@{instance}'
     STATUS_CMD = '{control_tool} is-active entangle@{instance}'
+    JOURNAL_TOOL = 'journalctl'
 
     def service_logs(self, service, instance):
-        proc = self._sync_call('journalctl -n 500 -u entangle@%s' % instance)
+        proc = self._sync_call('%s -n 500 -u entangle@%s' %
+                               (self.JOURNAL_TOOL, instance))
         return {'journal': ''.join(proc.stdout)}
 
 

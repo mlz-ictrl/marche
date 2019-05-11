@@ -42,6 +42,8 @@ import sys
 if len(sys.argv) < 3:
     print('status...')
     print('mysrv : running')
+elif sys.argv[1] == '-n':
+    print('log1\\nlog2')
 else:
     print(sys.argv[2])
     print(sys.argv[1])
@@ -98,6 +100,7 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
                  logger, lambda event: None)
     assert job.check()
     job._control_tool = sys.executable + ' -S ' + str(scriptfile)
+    job.JOURNAL_TOOL = job._control_tool
     job.init()
 
     assert job.get_services() == [('entangle', 'mysrv')]
