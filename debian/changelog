@@ -1,3 +1,16 @@
+marche (2.9.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * remove "about qt"
+  * harmonize pylint config
+  * remove bundled six
+  * copyright update
+  * fixup entangle job with systemd host
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Sat, 11 May 2019 09:13:38 +0200
+
 marche (2.8.5) unstable; urgency=low
 
   [ Georg Brandl ]
