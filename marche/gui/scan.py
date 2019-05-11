@@ -54,9 +54,9 @@ class SubnetInputDialog(QDialog):
         return QDialog.accept(self)
 
     @pyqtSlot(str)
-    def on_presetComboBox_currentIndexChanged(self, presetName):
-        if presetName in self._presets:
-            self._setSubnet(self._presets[presetName])
+    def on_presetComboBox_currentIndexChanged(self, preset_name):
+        if preset_name in self._presets:
+            self._setSubnet(self._presets[preset_name])
 
     def _setSubnet(self, subnet):
         ip, netmask = subnet.split('/')

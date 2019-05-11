@@ -28,23 +28,16 @@ confidence=HIGH
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time.
-disable=locally-disabled
-    ,missing-docstring
-    ,fixme
-    ,ungrouped-imports
-    ,wrong-import-position
-    ,too-few-public-methods
-    ,too-many-ancestors
-    ,star-args
-    ,no-self-use
-    ,unused-argument
-    ,attribute-defined-outside-init
-    ,broad-except
-    ,redefined-variable-type
-    ,invalid-name
-    ,unnecessary-lambda
-    ,protected-access
-    ,inconsistent-return-statements
+disable=missing-docstring
+       ,locally-disabled
+       ,fixme
+       ,star-args
+       ,no-self-use
+       ,broad-except
+       ,attribute-defined-outside-init
+       ,protected-access
+       ,unnecessary-lambda
+       ,invalid-name
 
 [REPORTS]
 

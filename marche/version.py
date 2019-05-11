@@ -35,7 +35,7 @@ RELEASE_VERSION_FILE = os.path.join(os.path.dirname(__file__),
 GIT_REPO = os.path.join(os.path.dirname(__file__), '..', '.git')
 
 
-def get_git_version(abbrev=4, cwd=None):
+def get_git_version(abbrev=4):
     try:
         p = Popen(['git', '--git-dir=%s' % GIT_REPO,
                    'describe', '--abbrev=%d' % abbrev],
