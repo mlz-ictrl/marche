@@ -3,8 +3,8 @@ Upstream-Name: marche
 Source: http://forge.frm2.tum.de/cgit/cgit.cgi/frm2/tango/apps/quango.git/
 
 Files: *
-Copyright: 2015-2016 Georg Brandl <g.brandl@fz-juelich.de>
-           2015-2016 Alexander Lenz <alexander.lenz@frm2.tum.de>
+Copyright: 2015-2019 Georg Brandl <g.brandl@fz-juelich.de>
+           2015-2017 Alexander Lenz <alexander.lenz@frm2.tum.de>
 License: GPL-2.0+
 
 Files: debian/*

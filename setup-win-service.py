@@ -2,7 +2,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Marche - A server control daemon
-# Copyright (c) 2018 by the authors, see LICENSE
+# Copyright (c) 2015-2019 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -35,9 +35,10 @@ except ImportError:
     import winreg
 import marche
 
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(description="Marche MS Windows Service "
-                                                  "Setup")
+                                     "Setup")
     parser.add_argument("environments", type=str, nargs='*',
                         help="Environment settings, "
                              "e.g. TANGO_HOST=localhost:10000")
@@ -67,7 +68,8 @@ def main(argv):
         print("AppDirectory:", marcheroot)
         print(" Application:", marched)
     else:
-        print("marched not found in:", ', '.join(search_directories), file=sys.stderr)
+        print("marched not found in:", ', '.join(search_directories),
+              file=sys.stderr)
         sys.exit(-1)
 
     service_subkey = "SYSTEM\\CurrentControlSet\\services\\" + servicename
