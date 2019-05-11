@@ -59,7 +59,7 @@ This job has the following configuration parameters:
 import os
 from os import path
 
-from marche.six.moves import configparser
+from six.moves import configparser
 
 from marche.jobs import DEAD, RUNNING, WARNING, NOT_AVAILABLE
 from marche.jobs.base import Job as BaseJob

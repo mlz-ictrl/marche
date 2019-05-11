@@ -28,13 +28,13 @@
 import uuid
 from collections import OrderedDict
 
-from marche.six import iteritems
+from six import iteritems
 
 from marche.protocol import ServiceListEvent, ControlOutputEvent, \
     ConffileEvent, LogfileEvent, StatusEvent, FoundHostEvent
 from marche.jobs import Busy, Fault
 from marche.scan import scan_async
-from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
+from marche.permission import DISPLAY, CONTROL, ADMIN
 
 
 def command(silent=False):

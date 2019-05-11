@@ -29,7 +29,7 @@ import os
 from os import path
 from collections import OrderedDict
 
-from marche.six.moves import configparser
+from six.moves import configparser
 
 from marche.permission import DISPLAY, STRING_LEVELS
 

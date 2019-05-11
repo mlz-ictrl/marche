@@ -53,8 +53,8 @@ always be enabled.
 import base64
 import threading
 
-from marche.six import iteritems
-from marche.six.moves import xmlrpc_client, xmlrpc_server
+from six import iteritems
+from six.moves import xmlrpc_client, xmlrpc_server
 
 from marche.jobs import Busy, Fault
 from marche.iface.base import Interface as BaseInterface

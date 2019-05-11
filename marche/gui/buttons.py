@@ -30,7 +30,8 @@ import tempfile
 import subprocess
 from os import path
 
-from marche.six.moves import range  # pylint: disable=redefined-builtin
+from six.moves import range  # pylint: disable=redefined-builtin
+
 from marche.gui.qt import pyqtSlot, QSize, QWidget, QDialog, QMessageBox, \
     QMenu, QPlainTextEdit, QApplication, QTextCursor
 from marche.gui.util import loadUi, loadUiType, selectEditor, loadSetting, \

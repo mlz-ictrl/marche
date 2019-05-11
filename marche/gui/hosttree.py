@@ -23,8 +23,9 @@
 #
 # *****************************************************************************
 
-from marche.six import iteritems
-from marche.six.moves import range  # pylint: disable=redefined-builtin
+from six import iteritems
+from six.moves import range  # pylint: disable=redefined-builtin
+
 from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
     STARTING, STOPPING, INITIALIZING, NOT_AVAILABLE
 from marche.gui.qt import Qt, QSize, QColor, QTreeWidget, QTreeWidgetItem, \

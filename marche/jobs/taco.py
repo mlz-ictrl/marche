@@ -66,7 +66,7 @@ from os import path
 
 import psutil
 
-from marche.six import iteritems
+from six import iteritems
 
 from marche.jobs.base import Job as BaseJob, RUNNING, DEAD
 from marche.utils import extract_loglines

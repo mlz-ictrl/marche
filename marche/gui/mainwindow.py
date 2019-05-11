@@ -25,10 +25,10 @@
 
 import socket
 
+from six import iteritems
+from six.moves import range  # pylint: disable=redefined-builtin
+from six.moves import xmlrpc_client as xmlrpc
 
-from marche.six import iteritems
-from marche.six.moves import range  # pylint: disable=redefined-builtin
-from marche.six.moves import xmlrpc_client as xmlrpc
 from marche.gui.qt import pyqtSlot, QSize, QSettings, QByteArray, QIcon, \
     QMainWindow, QInputDialog, QMessageBox, QMenu, QListWidgetItem, QFileDialog
 from marche.gui.util import loadUi, loadSettings, saveSettings, loadSetting, \
@@ -39,7 +39,6 @@ from marche.gui.hosttree import HostTree
 from marche.gui.scan import SubnetInputDialog, ActiveScanner
 from marche.utils import normalize_addr
 from marche.version import get_version
-
 
 ADDR_ROLE = 32
 

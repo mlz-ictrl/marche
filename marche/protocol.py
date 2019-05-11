@@ -26,7 +26,7 @@
 
 import json
 
-from marche.six import add_metaclass
+from six import add_metaclass
 
 # Increment this when making changes to the protocol.
 PROTO_VERSION = 3

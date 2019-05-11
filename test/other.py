@@ -27,14 +27,12 @@
 import os
 import sys
 import json
-import time
 import socket
 import logging
 
 from pytest import raises
-from marche.six import StringIO
 
-from marche.protocol import Events, Event, AuthEvent
+from marche.protocol import Event, AuthEvent
 from marche import utils
 
 from test.utils import LogHandler
@@ -126,6 +124,7 @@ def test_async_process(tmpdir):
     assert proc.stdout == ['stdout\n']
     assert proc.retcode == 3
     assert proc.done
+
 
 class Unrepr(object):
     """An object whose repr() raises."""

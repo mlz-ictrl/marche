@@ -55,7 +55,7 @@ import os
 import socket
 from os import path
 
-from marche.six.moves import configparser
+from six.moves import configparser
 
 from marche.jobs import Fault, RUNNING, DEAD
 from marche.jobs.base import Job as BaseJob

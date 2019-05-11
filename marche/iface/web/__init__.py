@@ -55,10 +55,10 @@ from os import path
 import cherrypy
 from cherrypy import log
 from jinja2 import Environment, FileSystemLoader
+from six import iteritems
 
 from marche.version import get_version
 from marche.iface.base import Interface as BaseInterface
-from marche.six import iteritems
 from marche.permission import DISPLAY, ClientInfo
 from marche.jobs import STATE_STR
 from marche.auth import AuthFailed

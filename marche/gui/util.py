@@ -35,7 +35,8 @@ try:
 except ImportError:
     import ipaddr as ipaddress
 
-from marche.six import iteritems, text_type
+from six import iteritems, text_type
+
 from marche.utils import bytencode
 from marche.gui.qt import uic, QSettings, QDialog, QPyNullVariant
 

@@ -27,7 +27,7 @@
 import time
 import threading
 
-from marche.six.moves import queue
+from six.moves import queue
 
 from marche.protocol import StatusEvent
 
