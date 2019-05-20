@@ -1,3 +1,12 @@
+marche (2.9.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * fix inefficient read-in of logfiles
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 20 May 2019 10:24:57 +0200
+
 marche (2.9.1) unstable; urgency=low
 
   [ Georg Brandl ]
