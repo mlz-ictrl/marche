@@ -255,8 +255,14 @@ def extract_loglines(filename, n=500):
     def extract(filename):
         lines = collections.deque(maxlen=n)
         with open(filename, 'rb') as fp:
+            try:
+                # For very long files, skipping over all unneeded lines can
+                # take a while.  Set a limit on average line length instead.
+                fp.seek(-1000 * n, 2)
+            except IOError:
+                pass  # the file is too short
             for line in fp:
-                line = line.translate(None, b'\r').decode('utf-8', 'replace')
+                line = line.decode('latin1', 'ignore')
                 lines.append(nontext_re.sub('', line))
         return ''.join(lines)
     if not path.exists(filename):
