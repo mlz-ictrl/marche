@@ -32,12 +32,17 @@ import logging
 import argparse
 from os import path
 
+try:
+    import systemd.daemon
+except ImportError:
+    systemd = None
+
 import mlzlog
 
 from marche import __version__
 from marche.config import Config
 from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile, \
-    get_default_cfgdir
+    get_default_cfgdir, JournalHandler
 from marche.handler import JobHandler
 from marche.auth import AuthHandler
 
@@ -70,11 +75,18 @@ class Daemon(object):
                             'directory (default %s)' % default_cfgdir)
         parser.add_argument('-d', dest='daemonize', action='store_true',
                             help='daemonize the process')
+        parser.add_argument('-D', dest='systemd', action='store_true',
+                            help='run in systemd mode (log to journal, notify '
+                            'after startup)')
         parser.add_argument('-v', dest='verbose', action='store_true',
                             help='verbose (debug) output')
         return parser.parse_args(args)
 
     def apply_config(self):
+        if self.args.systemd and systemd is None:
+            raise RuntimeError('Marche needs the python-systemd module for '
+                               'systemd mode')
+
         self.config = Config(self.args.configdir)
 
         if self.args.daemonize:  # pragma: no cover
@@ -82,9 +94,14 @@ class Daemon(object):
         else:
             setuser(self.config.user, self.config.group)
 
-        mlzlog.initLogging('marche', 'debug' if self.args.verbose else 'info',
-                           self.config.logdir)
-        self.log = mlzlog.log
+        if self.args.systemd:
+            self.log = logging.root
+            self.log.addHandler(JournalHandler())
+        else:
+            mlzlog.initLogging('marche',
+                               'debug' if self.args.verbose else 'info',
+                               self.config.logdir)
+            self.log = mlzlog.log
         self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
 
         if not self.config.interfaces:
@@ -142,6 +159,10 @@ class Daemon(object):
                           lambda *a: jobhandler.trigger_reload())
 
         self.log.info('startup successful')
+        # notify systemd about startup
+        if self.args.systemd:
+            systemd.daemon.notify("READY=1")
+
         self.wait()
 
         jobhandler.shutdown()
