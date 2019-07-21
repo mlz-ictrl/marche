@@ -326,7 +326,7 @@ INIT_PKG_REQUESTS = [
 
 
 def determine_init_system():
-    init_pkg = ''
+    init_pkg = b''
 
     for entry in INIT_PKG_REQUESTS:
         try:
@@ -335,11 +335,11 @@ def determine_init_system():
         except OSError:
             pass
 
-    if 'systemd' in init_pkg:
+    if b'systemd' in init_pkg:
         return 'systemd'
-    elif 'upstart' in init_pkg:
+    elif b'upstart' in init_pkg:
         return 'upstart'
-    elif 'sysvinit' in init_pkg:
+    elif b'sysvinit' in init_pkg:
         return 'sysvinit'
 
     return 'unknown'
