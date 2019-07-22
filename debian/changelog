@@ -1,3 +1,13 @@
+marche (2.10.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * fix python3 compatibility
+  * add systemd daemon mode, and journal logging mode
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Mon, 22 Jul 2019 13:13:48 +0200
+
 marche (2.9.2) unstable; urgency=low
 
   [ Georg Brandl ]
