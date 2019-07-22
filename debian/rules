@@ -27,6 +27,12 @@ override_dh_install:
 		rm debian/marche/etc/init.d/marched; \
 	fi
 
+override_dh_systemd_enable:
+	dh_systemd_enable marched.service
+
+override_dh_systemd_start:
+	dh_systemd_start --no-start marched.service
+
 
 %:
 	if [ "$$(lsb_release -s -c)" = "wheezy" ] ; then \

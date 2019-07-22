@@ -4,8 +4,8 @@ Requires=network-online.target
 After=network-online.target rpcbind.service taco-db.service
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/marched
+Type=notify
+ExecStart=/usr/bin/marched -D
 Restart=on-abnormal
 RestartSec=30
 
