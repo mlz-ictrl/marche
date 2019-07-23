@@ -17,15 +17,15 @@ Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends},
  python (>= 2.7),
  python-psutil (>= 0.4),
- python-six
+ python-six,
+ python-netifaces
 Description: Common files for Marche daemon and GUI.
 
 Package: marche-gui
 Architecture: all
 Depends: marche,
  python-pyqt5 | python-qt4,
- python-ipaddress | python-ipaddr,
- python-netifaces
+ python-ipaddress | python-ipaddr
 Description: Graphical client for Marche daemons.
 
 Package: marche-defaultconfig
