@@ -1,3 +1,12 @@
+marche (2.10.2) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * Split debian package.
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 23 Jul 2019 08:57:26 +0200
+
 marche (2.10.1) unstable; urgency=low
 
   [ Georg Brandl ]
