@@ -12,21 +12,36 @@ Build-Depends: debhelper (>= 9.0.0),
  python-setuptools
 Standards-Version: 3.9.3
 
-Package: marche
+Package: marche-common
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends},
  python (>= 2.7),
  python-psutil (>= 0.4),
- python-six,
- python-mlzlog,
- python-ipaddress | python-ipaddr,
- python-netifaces
-Description: Marche is a server control daemon with multiple interfaces.
+ python-six
+Description: Common files for Marche daemon and GUI.
 
 Package: marche-gui
 Architecture: all
 Depends: marche,
- python-qt4,
- python-six,
+ python-pyqt5 | python-qt4,
+ python-ipaddress | python-ipaddr,
  python-netifaces
+Description: Graphical client for Marche daemons.
+
+Package: marche-defaultconfig
+Architecture: all
+Depends: marched
+Description: Default config files for Marche.
+
+Package: marched
+Architecture: all
+Depends: marche-common,
+ python-mlzlog
 Description: Marche is a server control daemon with multiple interfaces.
+
+Package: marche
+Architecture: all
+Depends: marched,
+ marche-gui,
+ marche-defaultconfig
+Description: Metapackage that installs all Marche pacakges.
