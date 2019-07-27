@@ -23,21 +23,21 @@ Description: Common files for Marche daemon and GUI.
 
 Package: marche-gui
 Architecture: all
-Depends: marche,
+Depends: marche-common,
  python-pyqt5 | python-qt4,
  python-ipaddress | python-ipaddr
 Description: Graphical client for Marche daemons.
-
-Package: marche-defaultconfig
-Architecture: all
-Depends: marched
-Description: Default config files for Marche.
 
 Package: marched
 Architecture: all
 Depends: marche-common,
  python-mlzlog
 Description: Marche is a server control daemon with multiple interfaces.
+
+Package: marche-defaultconfig
+Architecture: all
+Depends: marched
+Description: Default config files for Marche.
 
 Package: marche
 Architecture: all
