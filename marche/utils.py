@@ -40,18 +40,11 @@ from subprocess import Popen, PIPE, check_output
 
 from six import text_type
 
-import mlzlog
-
 try:
     import pwd
     import grp
 except ImportError:  # pragma: no cover
     pwd = grp = None
-
-try:
-    from systemd.journal import JournalHandler as SystemdJournalHandler, send
-except ImportError:
-    SystemdJournalHandler = object
 
 
 def ensure_directory(dirname):
@@ -350,37 +343,3 @@ def determine_init_system():
         return 'sysvinit'
 
     return 'unknown'
-
-
-JOURNAL_LOGFMT = '%(name)-25s: %(message)s'
-DATEFMT = '%H:%M:%S'
-
-
-class JournalHandler(SystemdJournalHandler):
-    """A logger handler for the systemd journal.
-
-    Uses the handler provided by the systemd package, but subclasses it to add
-    the logger name (which contains the device name) to the message instead of
-    a custom attribute that is not normally printed by journalctl.
-    """
-
-    def __init__(self):
-        SystemdJournalHandler.__init__(self)
-        self.setFormatter(mlzlog.LogfileFormatter(JOURNAL_LOGFMT, DATEFMT))
-
-    def emit(self, record):
-        try:
-            pri = self.mapPriority(record.levelno)
-            message = self.format(record)
-            send(
-                message,
-                PRIORITY=format(pri),
-                SYSLOG_IDENTIFIER='marched',
-                # this is necessary to avoid getting the location of
-                # emit() in every message
-                CODE_FILE='',
-                # we don't use self._extra since it would supply another
-                # SYSLOG_IDENTIFIER argument
-            )
-        except Exception:
-            self.handleError(record)

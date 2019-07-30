@@ -42,9 +42,10 @@ import mlzlog
 from marche import __version__
 from marche.config import Config
 from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile, \
-    get_default_cfgdir, JournalHandler
+    get_default_cfgdir
 from marche.handler import JobHandler
 from marche.auth import AuthHandler
+from marche.loghandlers import JournalHandler
 
 # configure logging library: we don't need process/thread ids and callers
 logging.logMultiprocessing = False
