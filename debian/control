@@ -1,47 +1,62 @@
 Source: marche
 Section: misc
-Priority: extra
-Maintainer: Alexander Lenz <alexander.lenz@frm2.tum.de>
-Build-Depends: debhelper (>= 9.0.0),
+Priority: optional
+Maintainer: Georg Brandl <g.brandl@fz-juelich.de>
+Build-Depends: debhelper (>= 10~),
  dh-systemd,
+ dh-python,
  lsb-release,
  git,
  python (>= 2.7),
  python-six,
- python-mlzlog,
  python-setuptools
-Standards-Version: 3.9.3
+Standards-Version: 4.1.4
 
 Package: marche-common
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends},
+Depends: ${misc:Depends},
  python (>= 2.7),
  python-psutil (>= 0.4),
  python-six,
  python-netifaces
-Description: Common files for Marche daemon and GUI.
+Description: Common files for Marche daemon and GUI
+ Python library and static files for Marche daemon and GUI.
 
 Package: marche-gui
 Architecture: all
-Depends: marche-common,
+Depends: ${misc:Depends},
+ marche-common,
+ python (>= 2.7),
  python-pyqt5 | python-qt4,
  python-ipaddress | python-ipaddr
-Description: Graphical client for Marche daemons.
+Description: Graphical client for Marche daemons
+ A GUI client to control services on remote hosts that
+ are running a Marche daemon.
 
 Package: marched
 Architecture: all
-Depends: marche-common,
+Depends: ${misc:Depends},
+ python (>= 2.7),
+ marche-common,
  python-mlzlog
-Description: Marche is a server control daemon with multiple interfaces.
+Description: Server control daemon with multiple interfaces
+ A daemon that allows definition of different classes of services on
+ a host, which can be started, stopped and configured remotely by
+ a Marche client.
 
 Package: marche-defaultconfig
 Architecture: all
-Depends: marched
-Description: Default config files for Marche.
+Depends: ${misc:Depends},
+ marched
+Description: Default config files for Marche
+ A collection of default services to provide through Marche.
 
 Package: marche
 Architecture: all
-Depends: marched,
+Depends: ${misc:Depends},
+ marched,
  marche-gui,
  marche-defaultconfig
-Description: Metapackage that installs all Marche pacakges.
+Description: Metapackage that installs all Marche packages
+ Installs the daemon and GUI packages, together with the default
+ configuration for the daemon.
