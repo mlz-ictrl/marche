@@ -26,7 +26,7 @@
 from __future__ import print_function
 
 import os.path
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 __all__ = ['get_version']
 

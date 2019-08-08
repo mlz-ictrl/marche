@@ -24,14 +24,13 @@
 
 """Test for the NICOS job."""
 
-import sys
 import logging
+import sys
 
 from pytest import raises
 
-from marche.jobs import Fault, RUNNING, WARNING, DEAD
+from marche.jobs import DEAD, RUNNING, WARNING, Fault
 from marche.jobs.nicos import Job
-
 from test.utils import job_call_check
 
 logger = logging.getLogger('testnicos')

@@ -25,27 +25,27 @@
 
 from __future__ import print_function
 
-import os
-import time
-import signal
-import logging
 import argparse
+import logging
+import os
+import signal
+import time
 from os import path
+
+import mlzlog
+
+from marche import __version__
+from marche.auth import AuthHandler
+from marche.config import Config
+from marche.handler import JobHandler
+from marche.loghandlers import JournalHandler
+from marche.utils import daemonize, get_default_cfgdir, remove_pidfile, \
+    setuser, write_pidfile
 
 try:
     import systemd.daemon
 except ImportError:
     systemd = None
-
-import mlzlog
-
-from marche import __version__
-from marche.config import Config
-from marche.utils import daemonize, setuser, write_pidfile, remove_pidfile, \
-    get_default_cfgdir
-from marche.handler import JobHandler
-from marche.auth import AuthHandler
-from marche.loghandlers import JournalHandler
 
 # configure logging library: we don't need process/thread ids and callers
 logging.logMultiprocessing = False

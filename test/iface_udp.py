@@ -28,10 +28,9 @@ import logging
 import socket
 
 from marche.config import Config
-from marche.protocol import PROTO_VERSION
 from marche.iface.udp import Interface
-
-from test.utils import MockJobHandler, MockAuthHandler, LogHandler
+from marche.protocol import PROTO_VERSION
+from test.utils import LogHandler, MockAuthHandler, MockJobHandler
 
 jobhandler = MockJobHandler()
 authhandler = MockAuthHandler()

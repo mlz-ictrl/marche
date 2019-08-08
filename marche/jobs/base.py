@@ -23,16 +23,16 @@
 #
 # *****************************************************************************
 
-import os
 import collections
+import os
 import threading
 from os import path
 
-from marche.jobs import Busy, Fault, Unauthorized, STARTING, STOPPING, \
-    RUNNING, DEAD, NOT_AVAILABLE
-from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
+from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
+    Busy, Fault, Unauthorized
+from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
-from marche.utils import AsyncProcess, read_file, write_file, extract_loglines
+from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
 
 
 class Job(object):

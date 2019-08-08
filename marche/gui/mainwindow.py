@@ -29,14 +29,15 @@ from six import iteritems
 from six.moves import range  # pylint: disable=redefined-builtin
 from six.moves import xmlrpc_client as xmlrpc
 
-from marche.gui.qt import pyqtSlot, QSize, QSettings, QByteArray, QIcon, \
-    QMainWindow, QInputDialog, QMessageBox, QMenu, QListWidgetItem, QFileDialog
-from marche.gui.util import loadUi, loadSettings, saveSettings, loadSetting, \
-    saveCredentials, loadCredentials, loadAllCredentials, removeCredentials
 from marche.gui.client import Client
-from marche.gui.dialogs import AuthDialog, PreferencesDialog, PassiveScanDialog
+from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
-from marche.gui.scan import SubnetInputDialog, ActiveScanner
+from marche.gui.qt import QByteArray, QFileDialog, QIcon, QInputDialog, \
+    QListWidgetItem, QMainWindow, QMenu, QMessageBox, QSettings, QSize, \
+    pyqtSlot
+from marche.gui.scan import ActiveScanner, SubnetInputDialog
+from marche.gui.util import loadAllCredentials, loadCredentials, loadSetting, \
+    loadSettings, loadUi, removeCredentials, saveCredentials, saveSettings
 from marche.utils import normalize_addr
 from marche.version import get_version
 

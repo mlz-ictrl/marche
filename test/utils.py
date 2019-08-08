@@ -24,15 +24,15 @@
 
 """Utilities for the tests."""
 
-import time
 import logging
+import time
 
-from marche.jobs import Fault, Busy, Unauthorized, DEAD, RUNNING
-from marche.jobs.base import Job as BaseJob
-from marche.protocol import ServiceListEvent, StatusEvent, LogfileEvent, \
-    ConffileEvent, ControlOutputEvent, FoundHostEvent
 from marche.auth import AuthFailed
-from marche.permission import ClientInfo, DISPLAY, ADMIN, NONE
+from marche.jobs import DEAD, RUNNING, Busy, Fault, Unauthorized
+from marche.jobs.base import Job as BaseJob
+from marche.permission import ADMIN, DISPLAY, NONE, ClientInfo
+from marche.protocol import ConffileEvent, ControlOutputEvent, \
+    FoundHostEvent, LogfileEvent, ServiceListEvent, StatusEvent
 
 
 def wait(nmax, callback):

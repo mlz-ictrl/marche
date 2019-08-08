@@ -29,12 +29,11 @@ import logging
 from mock import patch
 from pytest import raises
 
-from marche.jobs import Fault, Busy, DEAD, RUNNING, STARTING, STOPPING
+from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Fault
 from marche.jobs.base import Job as BaseJob
+from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
 from marche.protocol import StatusEvent
-from marche.permission import ClientInfo, ADMIN, CONTROL, DISPLAY
-
-from test.utils import wait, LogHandler, MockAsyncProcess
+from test.utils import LogHandler, MockAsyncProcess, wait
 
 logger = logging.getLogger('testjob')
 testhandler = LogHandler()

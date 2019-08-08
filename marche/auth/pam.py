@@ -74,8 +74,8 @@ import hashlib
 import pamela
 
 from marche.auth.base import Authenticator as BaseAuthenticator
-from marche.permission import ClientInfo, STRING_LEVELS, DISPLAY, \
-    CONTROL, ADMIN, NONE
+from marche.permission import ADMIN, CONTROL, DISPLAY, NONE, STRING_LEVELS, \
+    ClientInfo
 from marche.utils import bytencode
 
 

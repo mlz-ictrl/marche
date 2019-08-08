@@ -56,8 +56,8 @@ with UDP broadcasts that search all hosts within a network.
 import socket
 import threading
 
-from marche.protocol import PROTO_VERSION
 from marche.iface.base import Interface as BaseInterface
+from marche.protocol import PROTO_VERSION
 from marche.utils import bytencode
 
 UDP_PORT = 11691

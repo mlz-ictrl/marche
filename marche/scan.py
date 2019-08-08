@@ -25,17 +25,18 @@
 """Utils for scanning for Marche daemons within the network."""
 
 import os
-import socket
 import select
+import socket
 import threading
 from time import time as currenttime
+
+from marche.iface.udp import UDP_PORT
 
 if os.name != 'nt':
     import netifaces
 else:
     netifaces = None
 
-from marche.iface.udp import UDP_PORT
 
 
 def scan(my_uid, max_wait=1.0):

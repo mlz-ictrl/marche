@@ -24,8 +24,8 @@
 
 """Polling loop for jobs."""
 
-import time
 import threading
+import time
 
 from six.moves import queue
 

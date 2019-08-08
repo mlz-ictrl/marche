@@ -25,20 +25,19 @@
 
 import os
 import re
-import time
-import tempfile
 import subprocess
+import tempfile
+import time
 from os import path
 
 from six.moves import range  # pylint: disable=redefined-builtin
 
-from marche.gui.qt import pyqtSlot, QSize, QWidget, QDialog, QMessageBox, \
-    QMenu, QPlainTextEdit, QApplication, QTextCursor
-from marche.gui.util import loadUi, loadUiType, selectEditor, loadSetting, \
-    saveSetting
 from marche.gui.client import ClientError
+from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
+    QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot
+from marche.gui.util import loadSetting, loadUi, loadUiType, saveSetting, \
+    selectEditor
 from marche.utils import read_file, write_file
-
 
 JobButtonsUI = loadUiType('job.ui')
 

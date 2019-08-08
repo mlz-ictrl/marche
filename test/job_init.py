@@ -24,12 +24,11 @@
 
 """Test for the init script job."""
 
-import sys
 import logging
+import sys
 
 from marche.jobs import RUNNING
 from marche.jobs.init import Job
-
 from test.utils import job_call_check
 
 logger = logging.getLogger('testinit')

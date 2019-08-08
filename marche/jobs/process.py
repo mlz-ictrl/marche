@@ -106,15 +106,15 @@ A typical section looks like this::
     outputfile = /var/log/myprocess.log
 """
 
-import sys
 import shlex
+import sys
 from os import path
-from time import sleep
+from subprocess import PIPE, STDOUT, Popen
 from threading import Thread
-from subprocess import Popen, STDOUT, PIPE
+from time import sleep
 
-from marche.jobs import RUNNING, NOT_RUNNING, DEAD
-from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
+from marche.jobs import DEAD, NOT_RUNNING, RUNNING
+from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
 
 
 class ProcessMonitor(Thread):

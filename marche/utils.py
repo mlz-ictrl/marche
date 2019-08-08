@@ -27,16 +27,16 @@
 
 from __future__ import print_function
 
+import collections
 import os
 import re
+import select
+import socket
 import sys
 import time
-import socket
-import select
-import collections
 from os import path
+from subprocess import PIPE, Popen, check_output
 from threading import Thread
-from subprocess import Popen, PIPE, check_output
 
 from six import text_type
 

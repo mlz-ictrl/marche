@@ -24,14 +24,13 @@
 
 """Test for the systemd unit job."""
 
-import sys
 import logging
+import sys
 
 from pytest import raises
 
 from marche.jobs import RUNNING
 from marche.jobs.systemd import Job
-
 from test.utils import job_call_check
 
 logger = logging.getLogger('testsystemd')

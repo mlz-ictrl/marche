@@ -24,17 +24,16 @@
 
 """Test for the miscellaneous other APIs."""
 
-import os
-import sys
 import json
-import socket
 import logging
+import os
+import socket
+import sys
 
 from pytest import raises
 
-from marche.protocol import Event, AuthEvent
 from marche import utils
-
+from marche.protocol import AuthEvent, Event
 from test.utils import LogHandler
 
 logger = logging.getLogger('testother')

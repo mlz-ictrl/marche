@@ -77,7 +77,7 @@ A typical section looks like this::
     configfiles = /etc/dhcp/dhcpd.conf
 """
 
-from marche.jobs.base import Job as BaseJob, LogfileMixin, ConfigMixin
+from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
 
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):

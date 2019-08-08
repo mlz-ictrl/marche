@@ -50,17 +50,17 @@ This job has the following configuration parameters:
    like available servers and their logfiles from there.
 """
 
-import sys
 import os
 import socket
+import sys
 from os import path
 
 from six.moves import configparser
 
-from marche.jobs import Fault, RUNNING, DEAD
+from marche.jobs import DEAD, RUNNING, Fault
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extract_loglines, read_file, write_file, \
-    determine_init_system
+from marche.utils import determine_init_system, extract_loglines, read_file, \
+    write_file
 
 
 class EntangleBaseJob(BaseJob):

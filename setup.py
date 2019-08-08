@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 
-import os
 import glob
-from setuptools import setup, find_packages
+import os
 from os import listdir, path
+
+from setuptools import find_packages, setup
 
 import marche.utils
 import marche.version

@@ -57,7 +57,7 @@ authenticator and useful for simple services.
 """
 
 from marche.auth.base import Authenticator as BaseAuthenticator
-from marche.permission import ClientInfo, STRING_LEVELS
+from marche.permission import STRING_LEVELS, ClientInfo
 
 
 class Authenticator(BaseAuthenticator):

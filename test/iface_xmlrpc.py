@@ -29,12 +29,11 @@ import logging
 from pytest import raises, yield_fixture
 from six.moves import xmlrpc_client
 
-from marche.jobs import DEAD
 from marche.config import Config
-from marche.protocol import Errors, PROTO_VERSION
 from marche.iface.xmlrpc import Interface
-
-from test.utils import MockJobHandler, MockAuthHandler, LogHandler
+from marche.jobs import DEAD
+from marche.protocol import PROTO_VERSION, Errors
+from test.utils import LogHandler, MockAuthHandler, MockJobHandler
 
 jobhandler = MockJobHandler()
 authhandler = MockAuthHandler()

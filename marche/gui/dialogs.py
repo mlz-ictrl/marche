@@ -25,9 +25,9 @@
 
 from six import iteritems
 
-from marche.gui.qt import QInputDialog, QDialog, QFileDialog, QDialogButtonBox
-from marche.gui.util import loadUi, getAvailableEditors
+from marche.gui.qt import QDialog, QDialogButtonBox, QFileDialog, QInputDialog
 from marche.gui.scan import PassiveScanner
+from marche.gui.util import getAvailableEditors, loadUi
 
 
 class AuthDialog(QDialog):

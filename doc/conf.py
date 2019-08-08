@@ -12,9 +12,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import shlex
 import sys
 import os
-import shlex
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'marche'
-copyright = u'2015-2016, Georg Brandl, Alexander Lenz'
+copyright = u'2015-2019, Georg Brandl, Alexander Lenz'
 author = u'Georg Brandl, Alexander Lenz'
 
 # The version info for the project you're documenting, acts as replacement for

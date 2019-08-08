@@ -61,7 +61,7 @@ from os import path
 
 from six.moves import configparser
 
-from marche.jobs import DEAD, RUNNING, WARNING, NOT_AVAILABLE
+from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
 from marche.utils import extract_loglines
 

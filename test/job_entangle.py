@@ -24,15 +24,14 @@
 
 """Test for the Entangle job."""
 
-import sys
 import logging
+import sys
 
-from pytest import raises, fixture
+from pytest import fixture, raises
 
-from marche.jobs import Fault, RUNNING
-from marche.jobs.entangle import Job, InitJob, SystemdJob
+from marche.jobs import RUNNING, Fault
+from marche.jobs.entangle import InitJob, Job, SystemdJob
 from marche.utils import determine_init_system
-
 from test.utils import job_call_check
 
 logger = logging.getLogger('testentangle')

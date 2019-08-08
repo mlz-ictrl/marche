@@ -23,22 +23,23 @@
 #
 # *****************************************************************************
 
-import os
-import sys
 import base64
+import os
 import socket
+import sys
 
 import psutil
+from six import iteritems, text_type
+
+from marche.gui.qt import QDialog, QPyNullVariant, QSettings, uic
+from marche.utils import bytencode
 
 try:
     import ipaddress
 except ImportError:
     import ipaddr as ipaddress
 
-from six import iteritems, text_type
 
-from marche.utils import bytencode
-from marche.gui.qt import uic, QSettings, QDialog, QPyNullVariant
 
 
 uipath = os.path.dirname(__file__)

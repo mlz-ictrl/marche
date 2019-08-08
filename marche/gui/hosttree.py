@@ -26,12 +26,11 @@
 from six import iteritems
 from six.moves import range  # pylint: disable=redefined-builtin
 
-from marche.jobs import STATE_STR, RUNNING, NOT_RUNNING, WARNING, DEAD, \
-    STARTING, STOPPING, INITIALIZING, NOT_AVAILABLE
-from marche.gui.qt import Qt, QSize, QColor, QTreeWidget, QTreeWidgetItem, \
-    QBrush, QMessageBox, QIcon, QHeaderView
 from marche.gui.buttons import JobButtons, MultiJobButtons
-
+from marche.gui.qt import QBrush, QColor, QHeaderView, QIcon, QMessageBox, \
+    QSize, Qt, QTreeWidget, QTreeWidgetItem
+from marche.jobs import DEAD, INITIALIZING, NOT_AVAILABLE, NOT_RUNNING, \
+    RUNNING, STARTING, STATE_STR, STOPPING, WARNING
 
 STATE_COLORS = {
     RUNNING: ('green', ''),

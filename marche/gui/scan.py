@@ -23,9 +23,9 @@
 
 import socket
 
+from marche.gui.qt import QDialog, QSettings, QThread, pyqtSignal, pyqtSlot
+from marche.gui.util import determineSubnet, getSubnetHostsAddrs, loadUi
 from marche.scan import scan
-from marche.gui.qt import pyqtSlot, pyqtSignal, QThread, QSettings, QDialog
-from marche.gui.util import loadUi, getSubnetHostsAddrs, determineSubnet
 
 
 class SubnetInputDialog(QDialog):

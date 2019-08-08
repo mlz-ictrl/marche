@@ -30,11 +30,11 @@ from collections import OrderedDict
 
 from six import iteritems
 
-from marche.protocol import ServiceListEvent, ControlOutputEvent, \
-    ConffileEvent, LogfileEvent, StatusEvent, FoundHostEvent
 from marche.jobs import Busy, Fault
+from marche.permission import ADMIN, CONTROL, DISPLAY
+from marche.protocol import ConffileEvent, ControlOutputEvent, \
+    FoundHostEvent, LogfileEvent, ServiceListEvent, StatusEvent
 from marche.scan import scan_async
-from marche.permission import DISPLAY, CONTROL, ADMIN
 
 
 def command(silent=False):

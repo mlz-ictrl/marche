@@ -24,12 +24,11 @@
 
 """Test for the process monitoring job."""
 
-import sys
 import logging
+import sys
 
 from marche.jobs import DEAD, NOT_RUNNING, RUNNING
 from marche.jobs.process import Job, ProcessMonitor
-
 from test.utils import wait
 
 ProcessMonitor.DELAY = 0.01

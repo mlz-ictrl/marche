@@ -27,7 +27,7 @@
 import os
 
 from marche.config import Config
-from marche.permission import DISPLAY, ADMIN
+from marche.permission import ADMIN, DISPLAY
 
 
 def test_defaults():

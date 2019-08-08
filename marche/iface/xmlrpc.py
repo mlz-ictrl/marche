@@ -56,11 +56,11 @@ import threading
 from six import iteritems
 from six.moves import xmlrpc_client, xmlrpc_server
 
-from marche.jobs import Busy, Fault
-from marche.iface.base import Interface as BaseInterface
 from marche.auth import AuthFailed
+from marche.iface.base import Interface as BaseInterface
+from marche.jobs import Busy, Fault
+from marche.permission import DISPLAY, ClientInfo
 from marche.protocol import PROTO_VERSION, Errors
-from marche.permission import ClientInfo, DISPLAY
 
 
 class AuthRequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):

@@ -26,8 +26,8 @@
 """Config file handling."""
 
 import os
-from os import path
 from collections import OrderedDict
+from os import path
 
 from six.moves import configparser
 

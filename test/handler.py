@@ -24,21 +24,20 @@
 
 """Test for the central job handler class."""
 
-import sys
-import socket
 import logging
+import socket
+import sys
 
 from mock import patch
 from pytest import fixture, raises
 
-from marche.jobs import Fault, Busy
-from marche.jobs.base import DEAD, RUNNING
 from marche.config import Config
 from marche.handler import JobHandler
-from marche.protocol import ServiceListEvent, ControlOutputEvent, \
-    ConffileEvent, LogfileEvent, StatusEvent, ErrorEvent
-from marche.permission import ClientInfo, DISPLAY, CONTROL, ADMIN
-
+from marche.jobs import Busy, Fault
+from marche.jobs.base import DEAD, RUNNING
+from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
+from marche.protocol import ConffileEvent, ControlOutputEvent, ErrorEvent, \
+    LogfileEvent, ServiceListEvent, StatusEvent
 from test.utils import LogHandler, MockIface, MockJob, wait
 
 # Pretend that we are a job module.

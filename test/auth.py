@@ -24,18 +24,17 @@
 
 """Test for the authentication and permission classes."""
 
+import logging
 import os
 import sys
-import logging
 
 from mock import patch
-from pytest import raises, mark
+from pytest import mark, raises
 
-from marche.config import Config
-from marche.auth.base import Authenticator as BaseAuthenticator
 from marche.auth import AuthFailed, AuthHandler
-from marche.permission import DISPLAY, CONTROL, ADMIN, parse_permissions
-
+from marche.auth.base import Authenticator as BaseAuthenticator
+from marche.config import Config
+from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from test.utils import LogHandler
 
 # Pretend that we are an auth module.
