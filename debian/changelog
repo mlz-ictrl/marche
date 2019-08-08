@@ -1,3 +1,16 @@
+marche (2.10.5) unstable; urgency=low
+
+  [ Björn Pedersen ]
+  * Refactor Journalhandler to own module
+
+  [ Georg Brandl ]
+  * add isort config, sort everything
+  * update debian files
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Thu, 08 Aug 2019 11:52:34 +0200
+
 marche (2.10.4) unstable; urgency=low
 
   [ Georg Brandl ]
