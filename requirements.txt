@@ -3,4 +3,5 @@ psutil
 ipaddress
 mlzlog
 netifaces
+requests
 six

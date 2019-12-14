@@ -28,7 +28,8 @@ Depends: ${misc:Depends},
  marche-common,
  python (>= 2.7),
  python-pyqt5 | python-qt4,
- python-ipaddress | python-ipaddr
+ python-ipaddress | python-ipaddr,
+ python-requests
 Description: Graphical client for Marche daemons
  A GUI client to control services on remote hosts that
  are running a Marche daemon.

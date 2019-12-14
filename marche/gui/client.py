@@ -26,7 +26,9 @@
 import socket
 import threading
 from collections import OrderedDict
+from functools import partial
 
+import requests
 from six import iteritems
 from six.moves import xmlrpc_client as xmlrpc
 
@@ -104,6 +106,38 @@ class ServerProxy(xmlrpc.ServerProxy):
         self('close')()
 
 
+class JsonProxy(object):
+    def __init__(self, url):
+        self.url = url
+        self.ses = requests.Session()
+
+        result = self.ses.post(self.url, json={
+            'jsonrpc': '2.0',
+            'method': 'GetVersion',
+            'id': 1,
+        })
+        if result.headers.get('content-type') != 'application/json':
+            raise RuntimeError('not a jsonrpc server')
+
+    def _request(self, method, *args):
+        result = self.ses.post(self.url, json={
+            'jsonrpc': '2.0',
+            'method': method,
+            'id': 1,
+            'params': args or None,
+        })
+        if result.status_code != 200 or result.headers.get('content-type') != \
+           'application/json':
+            raise ClientError(result.status_code, 'not a successful request')
+        result = result.json()
+        if result.get('error'):
+            raise ClientError(result['error']['code'], result['error']['message'])
+        return result['result']
+
+    def __getattr__(self, method):
+        return partial(self._request, method)
+
+
 class Client(object):
     def __init__(self, host, port, user=None, passwd=None):
         self.host = host
@@ -112,13 +146,15 @@ class Client(object):
         self.passwd = passwd
 
         if user is not None and passwd is not None:
-            self._proxy = ServerProxy('http://%s:%s@%s:%s/xmlrpc'
-                                      % (user, passwd, host, port),
-                                      transport=HttpTransport())
+            url = 'http://%s:%s@%s:%s/xmlrpc' % (user, passwd, host, port)
         else:
-            self._proxy = ServerProxy('http://%s:%s/xmlrpc'
-                                      % (host, port),
-                                      transport=HttpTransport())
+            url = 'http://%s:%s/xmlrpc' % (host, port)
+
+        try:
+            self._proxy = JsonProxy(url)
+        except Exception as e:
+            self._proxy = ServerProxy(url, transport=HttpTransport())
+
         self._lock = threading.Lock()
         self._pollThread = None
         self.version = self.getVersion()

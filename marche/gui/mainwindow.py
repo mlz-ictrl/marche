@@ -29,7 +29,7 @@ from six import iteritems
 from six.moves import range  # pylint: disable=redefined-builtin
 from six.moves import xmlrpc_client as xmlrpc
 
-from marche.gui.client import Client
+from marche.gui.client import Client, ClientError
 from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
 from marche.gui.qt import QByteArray, QFileDialog, QIcon, QInputDialog, \
@@ -334,6 +334,10 @@ class MainWindow(QMainWindow):
         def try_connect(host, port, user, passwd):
             try:
                 client = Client(host, port, user, passwd)
+            except ClientError as e:
+                if e.code != 401:
+                    raise
+                return
             except xmlrpc.ProtocolError as e:
                 if e.errcode != 401:
                     raise
