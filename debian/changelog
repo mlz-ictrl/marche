@@ -1,3 +1,14 @@
+marche (2.11.0) unstable; urgency=low
+
+  [ Georg Brandl ]
+  * support jsonrpc servers
+  * gui: fixup path when editing config
+  * mainwindow: fix loading of bytearrays through QSettings on Py2/3
+
+  [ Jenkins ]
+
+ -- Jenkins <jenkins@debuild.taco.frm2>  Tue, 28 Jan 2020 10:53:36 +0100
+
 marche (2.10.5) unstable; urgency=low
 
   [ Björn Pedersen ]
