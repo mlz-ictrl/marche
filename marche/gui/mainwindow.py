@@ -86,8 +86,8 @@ class MainWindow(QMainWindow):
 
     def restoreSettings(self):
         settings = QSettings('marche-gui')
-        self.restoreGeometry(settings.value('geometry', b'', QByteArray))
-        self.splitter.restoreState(settings.value('split', b'', QByteArray))
+        self.restoreGeometry(settings.value('geometry', '', QByteArray))
+        self.splitter.restoreState(settings.value('split', '', QByteArray))
         self.hostList.setSortingEnabled(loadSetting('sortHostListEnabled',
                                                     'false') == 'true')
 
