@@ -7,36 +7,21 @@
 # This special exception was added by Craig Small in version 0.37 of dh-make.
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+# export DH_VERBOSE=1
 
-DEBPYTHON_DEFAULT=2.7
-DEBPYTHON_SUPPORTED=2.7
-
-export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
-
-override_dh_installinit:
-	if [ "$$(lsb_release -s -c)" = "wheezy" ] ; then \
-		dh_installinit --onlyscripts --name=marched --no-start; \
-	fi
+export PYBUILD_NAME=marche
+# export PYBUILD_TEST_PYTEST=1
 
 override_dh_install:
+	# move build tree to location dh expects
+	touch debian/tmp
+	rm -rf debian/tmp
+	mv debian/python3-marche debian/tmp
+
+	dh_install
 	# List files that are installed by the upstream build system
 	# but not part of the debian package.
-	dh_install --list-missing
-	if [ "$$(lsb_release -s -c)" != "wheezy" ] ; then \
-		rm debian/marched/etc/init.d/marched; \
-	fi
-
-override_dh_systemd_enable:
-	dh_systemd_enable marched.service
-
-override_dh_systemd_start:
-	dh_systemd_start --no-start marched.service
-
+	dh_missing --list-missing
 
 %:
-	if [ "$$(lsb_release -s -c)" = "wheezy" ] ; then \
-		dh $@ --with python2 --buildsystem=python_distutils; \
-	else \
-		dh $@ --with python2 --buildsystem=python_distutils --with systemd; \
-	fi
+	dh $@ --with python3 --buildsystem=pybuild

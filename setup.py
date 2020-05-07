@@ -49,7 +49,6 @@ configs.remove(path.join('etc', 'general.conf'))
 
 data_files = [(marche.utils.get_default_cfgdir(), configs)]
 if os.name == 'posix':
-    data_files.append(('/etc/init.d', ['etc/marched']))
     data_files.append(('/lib/systemd/system', ['etc/marched.service']))
 
 setup(

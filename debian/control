@@ -2,34 +2,39 @@ Source: marche
 Section: misc
 Priority: optional
 Maintainer: Georg Brandl <g.brandl@fz-juelich.de>
-Build-Depends: debhelper (>= 10~),
+Build-Depends: debhelper (>= 11~),
  dh-systemd,
  dh-python,
  lsb-release,
  git,
- python (>= 2.7),
- python-six,
- python-setuptools
+ python3-all,
+ python3-six,
+ python3-setuptools,
+ python3-cherrypy3,
+ python3-jinja2
 Standards-Version: 4.1.4
 
 Package: marche-common
 Architecture: all
 Depends: ${misc:Depends},
- python (>= 2.7),
- python-psutil (>= 0.4),
- python-six,
- python-netifaces
+ ${python3:Depends},
+ python3,
+ python3-psutil (>= 0.4),
+ python3-six,
+ python3-netifaces,
+ python3-cherrypy3,
+ python3-jinja2
 Description: Common files for Marche daemon and GUI
  Python library and static files for Marche daemon and GUI.
 
 Package: marche-gui
 Architecture: all
 Depends: ${misc:Depends},
+ ${python3:Depends},
  marche-common,
- python (>= 2.7),
- python-pyqt5 | python-qt4,
- python-ipaddress | python-ipaddr,
- python-requests
+ python3,
+ python3-pyqt5,
+ python3-requests
 Description: Graphical client for Marche daemons
  A GUI client to control services on remote hosts that
  are running a Marche daemon.
@@ -37,9 +42,10 @@ Description: Graphical client for Marche daemons
 Package: marched
 Architecture: all
 Depends: ${misc:Depends},
- python (>= 2.7),
+ ${python3:Depends},
+ python3,
  marche-common,
- python-mlzlog
+ python3-mlzlog
 Description: Server control daemon with multiple interfaces
  A daemon that allows definition of different classes of services on
  a host, which can be started, stopped and configured remotely by
