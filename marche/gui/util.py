@@ -209,10 +209,13 @@ def loadCredentials(host):
     if host not in hosts:
         return (None, None)
 
-    user = base64.b64decode(loadSetting('creds/%s/user' % host,
-                                        settings=settings).encode()).decode('utf-8')
-    passwd = base64.b64decode(loadSetting('creds/%s/passwd' % host,
-                                          settings=settings).encode()).decode('utf-8')
+    user = loadSetting('creds/%s/user' % host, settings=settings)
+    passwd = loadSetting('creds/%s/passwd' % host, settings=settings)
+    if user is None or passwd is None:
+        return (None, None)
+
+    user = base64.b64decode(user.encode()).decode('utf-8')
+    passwd = base64.b64decode(passwd.encode()).decode('utf-8')
 
     return (user, passwd)
 
