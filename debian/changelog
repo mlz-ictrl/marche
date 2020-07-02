@@ -1,3 +1,9 @@
+marche (3.0.1) unstable; urgency=medium
+
+  * gui: guard against missing user/passwd in QSettings
+
+ -- Georg Brandl <jenkins@jenkinsng.admin.frm2.tum.de>  Thu, 02 Jul 2020 10:15:23 +0200
+
 marche (3.0.0) unstable; urgency=medium
 
   * switch to build for py3
