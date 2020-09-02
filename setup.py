@@ -45,7 +45,7 @@ templates = [path.join('iface', 'web', 'templates', entry)
 
 configs = glob.glob(path.join(srcdir, 'etc', '*.conf'))
 configs += glob.glob(path.join(srcdir, 'etc', 'dist', '*.conf'))
-configs.remove(path.join('etc', 'general.conf'))
+configs.remove(path.join(srcdir, 'etc', 'general.conf'))
 
 data_files = [(marche.utils.get_default_cfgdir(), configs)]
 if os.name == 'posix':
