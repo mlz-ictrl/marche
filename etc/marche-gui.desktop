@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Marche
+Exec=marche-gui
+Icon=marche.png
+Type=Application
+Categories=Utility;Science;
