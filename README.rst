@@ -1,14 +1,6 @@
 README for Marche
 =================
 
-.. image:: https://travis-ci.org/dev-platypus/marche.svg?branch=master
-    :target: https://travis-ci.org/dev-platypus/marche
-
-.. image:: https://readthedocs.org/projects/marche/badge/?version=latest
-    :target: http://marche.readthedocs.org/en/latest/?badge=latest
-    :alt: Documentation Status
-
-
 Intro
 -----
 
@@ -40,8 +32,8 @@ Red Hat are provided in the ``etc`` directory.
 Dependencies
 ------------
 
-* Python 2.7
-* GUI: PyQt4 or PyQt5
+* Python 3.6+
+* GUI: PyQt5
 * Daemon: PyTango if Tango interface is necessary
 
 
