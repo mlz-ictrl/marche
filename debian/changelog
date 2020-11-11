@@ -1,3 +1,10 @@
+marche (3.0.3) bionic; urgency=medium
+
+  * update README
+  * remove unused CI configs
+
+ -- Georg Brandl <jenkins@jenkinsng.admin.frm2.tum.de>  Wed, 11 Nov 2020 08:19:42 +0100
+
 marche (3.0.2) unstable; urgency=medium
 
   [ Georg Brandl ]
