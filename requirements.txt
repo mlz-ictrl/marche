@@ -5,3 +5,4 @@ mlzlog
 netifaces
 requests
 six
+PyQt5
