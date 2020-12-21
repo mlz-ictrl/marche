@@ -63,16 +63,49 @@ from six.moves import configparser
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob
-from marche.utils import extract_loglines
+from marche.utils import determine_init_system, extract_loglines
 
 
-class Job(BaseJob):
-
-    DEFAULT_INIT = '/etc/init.d/nicos-system'
+class NicosBaseJob(BaseJob):
 
     def configure(self, config):
         self._services = []
         self._proc = None
+        self._logpath = None
+        self._find_root(config)
+
+    def _find_root(self, config):
+        raise NotImplementedError
+
+    def get_services(self):
+        return self._services
+
+    def service_output(self, service, instance):
+        return list(self._output.get(instance, []))
+
+    def service_logs(self, service, instance):
+        if self._logpath is None:
+            # extract nicos log directory
+            cfg = configparser.RawConfigParser()
+            cfg.read([path.join(self._root, 'nicos.conf')])
+            if cfg.has_option('nicos', 'logging_path'):  # pragma: no cover
+                self._logpath = cfg.get('nicos', 'logging_path')
+            else:
+                self._logpath = path.join(self._root, 'log')
+        if not instance:
+            result = {}
+            for subdir in os.listdir(self._logpath):
+                logfile = path.join(self._logpath, subdir, 'current')
+                if path.islink(logfile):
+                    result.update(extract_loglines(logfile))  # pragma: no cover
+            return result
+        return extract_loglines(path.join(self._logpath, instance, 'current'))
+
+
+class InitJob(NicosBaseJob):
+    DEFAULT_INIT = '/etc/init.d/nicos-system'
+
+    def _find_root(self, config):
         if 'root' in config:
             self._root = config['root']
             self._script = path.join(self._root, 'etc', 'nicos-system')
@@ -82,7 +115,6 @@ class Job(BaseJob):
             real_init = path.realpath(self.DEFAULT_INIT)
             self._root = path.dirname(path.dirname(real_init))
             self._script = self.DEFAULT_INIT
-        self._logpath = None
 
     def check(self):
         if not path.exists(self._script):
@@ -98,9 +130,6 @@ class Job(BaseJob):
             self._services.extend(('nicos', entry.strip()) for entry in
                                   lines[-1][len(prefix):].split(','))
         BaseJob.init(self)
-
-    def get_services(self):
-        return self._services
 
     def start_service(self, service, instance):
         return self._async_start(instance, self._script + ' start %s' % instance)
@@ -164,23 +193,117 @@ class Job(BaseJob):
                 result[service, instance] = initstates.get(instance, DEAD), ''
         return result
 
-    def service_output(self, service, instance):
-        return list(self._output.get(instance, []))
 
-    def service_logs(self, service, instance):
-        if self._logpath is None:
-            # extract nicos log directory
-            cfg = configparser.RawConfigParser()
-            cfg.read([path.join(self._root, 'nicos.conf')])
-            if cfg.has_option('nicos', 'logging_path'):  # pragma: no cover
-                self._logpath = cfg.get('nicos', 'logging_path')
-            else:
-                self._logpath = path.join(self._root, 'log')
+class SystemdJob(NicosBaseJob):
+    def _find_root(self, config):
+        if 'root' in config:
+            self._root = config['root']
+        else:
+            # determine the NICOS root from the generator script, which is
+            # referred to in the service file
+            out = self._sync_call('systemctl show -p ExecStart --value '
+                                  'nicos-late-generator 2>&1').stdout
+            self._root = '/usr/local/nicos'
+            if out[0].startswith('{'):
+                for kv in out[0].split():
+                    if kv.startswith('path='):
+                        self._root = path.dirname(path.dirname(kv[5:]))
+
+    def check(self):
+        lines = self._sync_call('systemctl is-enabled nicos.target 2>&1').stdout
+        if lines[0].strip() != 'enabled':
+            self.log.warning('nicos.target not enabled or present')
+            return False
+        return True
+
+    def init(self):
+        self._services = [('nicos', '')]
+        lines = self._sync_call('systemctl list-units --all --no-legend '
+                                '"nicos-*" 2>&1').stdout
+        for line in lines:
+            split = line.split()
+            if split[0].startswith('nicos-'):
+                instance = split[0][6:-8]
+                if instance != 'late-generator':
+                    self._services.append(('nicos', instance))
+        BaseJob.init(self)
+
+    def start_service(self, service, instance):
+        if instance:
+            self._async_start(instance, 'systemctl start nicos-%s' % instance)
+        else:
+            self._async_start(instance, 'systemctl start nicos.target')
+
+    def stop_service(self, service, instance):
+        if instance:
+            self._async_stop(instance, 'systemctl stop nicos-%s' % instance)
+        else:
+            self._async_start(instance, 'systemctl stop nicos.target')
+
+    def restart_service(self, service, instance):
+        if instance:
+            self._async_start(instance, 'systemctl restart nicos-%s' % instance)
+        else:
+            self._async_start(instance, 'systemctl restart nicos.target')
+
+    def service_status(self, service, instance):
+        async_st = self._async_status_only(instance)
+        if async_st is not None:
+            return async_st, ''
         if not instance:
-            result = {}
-            for subdir in os.listdir(self._logpath):
-                logfile = path.join(self._logpath, subdir, 'current')
-                if path.islink(logfile):
-                    result.update(extract_loglines(logfile))  # pragma: no cover
-            return result
-        return extract_loglines(path.join(self._logpath, instance, 'current'))
+            lines = self._sync_call('systemctl list-units --all --no-legend '
+                                    '"nicos-*" 2>&1').stdout
+            something_dead = something_running = False
+            for line in lines:
+                if 'late-generator' in line:
+                    continue
+                if 'dead' in line:
+                    something_dead = True
+                if 'running' in line:
+                    something_running = True
+            if something_dead and something_running:
+                return WARNING, 'only some services running'
+            elif something_running:
+                return RUNNING, ''
+            return DEAD, ''
+        else:
+            proc = self._sync_call('systemctl is-active "nicos-%s" 2>&1' % instance)
+            if proc.retcode == 0:
+                return RUNNING, ''
+            return DEAD, ''
+
+    def all_service_status(self):
+        result = {}
+        initstates = {}
+        something_dead = something_running = False
+        for line in self._sync_call('systemctl list-units --all --no-legend '
+                                    '"nicos-*" 2>&1').stdout:
+            if 'late-generator' in line:
+                continue
+            if 'dead' in line:
+                something_dead = True
+            if 'running' in line:
+                something_running = True
+            name, state = line.split(None, 1)
+            instance = name[6:-8]
+            initstates[instance] = DEAD if 'dead' in state else RUNNING
+        for service, instance in self._services:
+            async_st = self._async_status_only(instance)
+            if async_st is not None:
+                result[service, instance] = async_st, ''  # pragma: no cover
+            elif instance == '':
+                if something_dead and something_running:
+                    result[service, ''] = WARNING, 'only some services running'
+                elif something_running:
+                    result[service, ''] = RUNNING, ''
+                else:
+                    result[service, ''] = DEAD, ''
+            else:
+                result[service, instance] = initstates.get(instance, DEAD), ''
+        return result
+
+
+def Job(*args, **kwargs):
+    if determine_init_system() == 'systemd':
+        return SystemdJob(*args, **kwargs)
+    return InitJob(*args, **kwargs)
