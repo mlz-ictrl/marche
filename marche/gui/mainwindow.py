@@ -239,7 +239,7 @@ class MainWindow(QMainWindow):
                 (GNU General Public License)</a>
             </p>
             <p style="font-weight: bold">
-              Version: %s
+              Version: v%s
             </p>
             ''' % get_version())
 

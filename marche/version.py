@@ -35,13 +35,18 @@ RELEASE_VERSION_FILE = os.path.join(os.path.dirname(__file__),
 GIT_REPO = os.path.join(os.path.dirname(__file__), '..', '.git')
 
 
+def translate_version(ver):
+    ver = ver.lstrip('v').rsplit('-', 2)
+    return '%s.post%s+%s' % tuple(ver) if len(ver) == 3 else ver[0]
+
+
 def get_git_version(abbrev=4):
     try:
         p = Popen(['git', '--git-dir=%s' % GIT_REPO,
                    'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
         stdout, _stderr = p.communicate()
-        return stdout.strip().decode('utf-8', 'ignore')
+        return translate_version(stdout.strip().decode('utf-8', 'ignore'))
     except Exception:
         return None
 

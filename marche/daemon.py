@@ -70,7 +70,7 @@ class Daemon(object):
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--version', action='version',
-                            version='Marche daemon version %s' % __version__)
+                            version='Marche daemon version v%s' % __version__)
         parser.add_argument('-c', dest='configdir', action='store',
                             default=default_cfgdir, help='configuration '
                             'directory (default %s)' % default_cfgdir)
@@ -129,7 +129,7 @@ class Daemon(object):
         if not self.apply_config():
             return 1
 
-        self.log.info('Starting marche %s ...', __version__)
+        self.log.info('Starting marche v%s ...', __version__)
 
         jobhandler = JobHandler(self.config, self.log)
         authhandler = AuthHandler(self.config, self.log)
