@@ -31,6 +31,11 @@ This is a job for controlling all NICOS_ services configured on the host.
 
 .. _NICOS: http://nicos-controls.org/
 
+NICOS is controlled either by its init script on older systems, or by its
+systemd services on newer ones.
+
+``nicos.target`` must be enabled for the job to configure itself.
+
 This job has the following configuration parameters:
 
 .. describe:: [job.xxx]
