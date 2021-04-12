@@ -62,5 +62,4 @@ The supported job types are:
 
    jobs/entangle
    jobs/nicos
-   jobs/taco
    jobs/tangosrv

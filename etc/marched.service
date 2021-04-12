@@ -1,7 +1,7 @@
 [Unit]
 Description=Marche server control daemon
 Requires=network-online.target
-After=network-online.target rpcbind.service taco-db.service
+After=network-online.target
 
 [Service]
 Type=notify
