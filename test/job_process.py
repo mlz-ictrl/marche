@@ -62,13 +62,13 @@ def test_job(tmpdir):
 
     assert job.get_services() == [('name', '')]
 
-    assert job._thread.isAlive()
+    assert job._thread.is_alive()
     assert job.service_status('name', '')[0] == RUNNING
     job.start_service('name', '')
     job.restart_service('name', '')
     wait(100, outputfile.size)
     job.stop_service('name', '')
-    assert not job._thread.isAlive()
+    assert not job._thread.is_alive()
     job.stop_service('name', '')
     assert job.service_status('name', '')[0] == DEAD
 
@@ -98,7 +98,7 @@ def test_oneshot():
     job.start_service('name', '')
     wait(100, lambda: job.service_status('name', '')[0] == NOT_RUNNING)
     job.stop_service('name', '')
-    assert not job._thread.isAlive()
+    assert not job._thread.is_alive()
 
     assert job.service_output('name', '') == ['output\n']
 

@@ -196,7 +196,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         return self.description
 
     def start_service(self, service, instance):
-        if self._thread and self._thread.isAlive():
+        if self._thread and self._thread.is_alive():
             return
         self._output[service] = []
         self._thread = ProcessMonitor([self.binary] + self.args,
@@ -207,7 +207,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self._thread.start()
 
     def stop_service(self, service, instance):
-        if not (self._thread and self._thread.isAlive()):
+        if not (self._thread and self._thread.is_alive()):
             return
         self._thread.stopflag = True
         self._thread.join()
@@ -217,7 +217,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self.start_service(service, instance)
 
     def service_status(self, service, instance):
-        if self._thread and self._thread.isAlive():
+        if self._thread and self._thread.is_alive():
             return RUNNING, ''
         if self.one_shot:
             return NOT_RUNNING, ''

@@ -51,7 +51,7 @@ class Poller(object):
         self._thread.start()
 
     def stop(self):
-        if self._thread and self._thread.isAlive():
+        if self._thread and self._thread.is_alive():
             self._stoprequest = True
             self.queue.put(None)
             self._thread.join()
