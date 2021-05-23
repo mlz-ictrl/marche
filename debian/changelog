@@ -1,3 +1,13 @@
+marche (3.1.0) focal; urgency=medium
+
+  * version: translate to valid PEP 440 version
+  * update jenkins host
+  * add doc detail for nicos job
+  * remove TACO jobs
+  * replace deprecated isAlive method
+
+ -- Georg Brandl <jenkins@jenkins01.admin.frm2.tum.de>  Sun, 23 May 2021 12:16:22 +0200
+
 marche (3.0.5) bionic; urgency=medium
 
   * nicos: support systemd deployment
