@@ -310,5 +310,7 @@ class SystemdJob(NicosBaseJob):
 
 def Job(*args, **kwargs):
     if determine_init_system() == 'systemd':
-        return SystemdJob(*args, **kwargs)
+        job = SystemdJob(*args, **kwargs)
+        if job.check():
+            return job
     return InitJob(*args, **kwargs)
