@@ -209,7 +209,7 @@ class SystemdJob(NicosBaseJob):
             out = self._sync_call('systemctl show -p ExecStart --value '
                                   'nicos-late-generator 2>&1').stdout
             self._root = '/usr/local/nicos'
-            if out[0].startswith('{'):
+            if out and out[0].startswith('{'):
                 for kv in out[0].split():
                     if kv.startswith('path='):
                         self._root = path.dirname(path.dirname(kv[5:]))
