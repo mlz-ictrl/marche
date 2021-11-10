@@ -1,3 +1,16 @@
+marche (3.1.1) focal; urgency=medium
+
+  [ Jens Krüger ]
+  * Update copyright information (year)
+  * JOBS/NICOS: Fix out of index error
+  * JOBS/NICOS: Work around not fully configured systemd
+
+  [ Georg Brandl ]
+  * emit warning when switching to Nicos-Init job
+  * debian: no need for dh_systemd anymore
+
+ -- Jens Krüger <jenkins@jenkins02.admin.frm2.tum.de>  Wed, 10 Nov 2021 17:39:33 +0100
+
 marche (3.1.0) focal; urgency=medium
 
   * version: translate to valid PEP 440 version
