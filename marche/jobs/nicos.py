@@ -313,4 +313,6 @@ def Job(*args, **kwargs):
         job = SystemdJob(*args, **kwargs)
         if job.check():
             return job
+        job.log.warning('using init.d job since systemd is not '
+                        'properly set up for Nicos, fix your system')
     return InitJob(*args, **kwargs)
