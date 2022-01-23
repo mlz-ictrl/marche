@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # *****************************************************************************
 # Marche - A server control daemon
-# Copyright (c) 2015-2021 by the authors, see LICENSE
+# Copyright (c) 2015-2022 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
