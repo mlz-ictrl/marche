@@ -41,8 +41,8 @@ from threading import Thread
 from six import text_type
 
 try:
-    import pwd
     import grp
+    import pwd
 except ImportError:  # pragma: no cover
     pwd = grp = None
 

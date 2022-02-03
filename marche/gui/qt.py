@@ -36,9 +36,9 @@ except (ImportError, RuntimeError):
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
 
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import *
     from PyQt4 import uic
+    from PyQt4.QtCore import *
+    from PyQt4.QtGui import *
 
     import marche.gui.res_qt4
 
@@ -52,10 +52,10 @@ else:
     # Do not abort on exceptions in signal handlers.
     sys.excepthook = lambda *args: sys.__excepthook__(*args)
 
+    from PyQt5 import uic
+    from PyQt5.QtCore import *
     from PyQt5.QtGui import *
     from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5 import uic
 
     import marche.gui.res_qt5
 

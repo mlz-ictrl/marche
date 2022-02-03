@@ -47,8 +47,8 @@ This interface allows controlling services via a graphical interface.
 
 from __future__ import print_function
 
-import os
 import json
+import os
 import socket
 from os import path
 
@@ -57,12 +57,11 @@ from cherrypy import log
 from jinja2 import Environment, FileSystemLoader
 from six import iteritems
 
-from marche.version import get_version
-from marche.iface.base import Interface as BaseInterface
-from marche.permission import DISPLAY, ClientInfo
-from marche.jobs import STATE_STR
 from marche.auth import AuthFailed
-
+from marche.iface.base import Interface as BaseInterface
+from marche.jobs import STATE_STR
+from marche.permission import DISPLAY, ClientInfo
+from marche.version import get_version
 
 ENV = Environment(loader=FileSystemLoader(
     path.join(path.dirname(__file__), 'templates')))
