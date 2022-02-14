@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_actionLoad_session_triggered(self):
         filename = QFileDialog.getOpenFileName(self, 'Load session', '',
-                                               'Marche sessions (*.marche)')
+                                               'Marche sessions (*.marche)')[0]
         if not filename:
             return
         self.loadSession(filename)
@@ -198,7 +198,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_actionSave_session_as_triggered(self):
         filename = QFileDialog.getSaveFileName(self, 'Save session', '',
-                                               'Marche sessions (*.marche)')
+                                               'Marche sessions (*.marche)')[0]
         if not filename:
             return
         if not filename.endswith('.marche'):
