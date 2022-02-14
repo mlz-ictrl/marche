@@ -65,7 +65,7 @@ class PreferencesDialog(QDialog):
         name = QFileDialog.getOpenFileName(self,
                                            'Select default session',
                                            '',
-                                           'Marche sessions (*.marche)')
+                                           'Marche sessions (*.marche)')[0]
         if name:
             self.sessionEdit.setText(name)
 
