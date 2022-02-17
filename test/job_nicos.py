@@ -81,6 +81,9 @@ def test_job(tmpdir):
     job = Job('nicos', 'name', {}, logger, lambda event: None)
     assert not job.check()
 
+    tmpdir.join('nicos.conf').write('[nicos]\nlogging_path = "%s"\n' %
+                                    tmpdir.join('log'))
+
     job = Job('nicos', 'name', {'root': str(tmpdir)},
               logger, lambda event: None)
     assert job.check()

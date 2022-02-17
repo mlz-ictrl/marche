@@ -64,6 +64,7 @@ This job has the following configuration parameters:
 import os
 from os import path
 
+import toml
 from six.moves import configparser
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, WARNING
@@ -90,13 +91,23 @@ class NicosBaseJob(BaseJob):
 
     def service_logs(self, service, instance):
         if self._logpath is None:
-            # extract nicos log directory
-            cfg = configparser.RawConfigParser()
-            cfg.read([path.join(self._root, 'nicos.conf')])
-            if cfg.has_option('nicos', 'logging_path'):  # pragma: no cover
-                self._logpath = cfg.get('nicos', 'logging_path')
-            else:
+            # extract nicos log directory from nicos.conf
+            conffile = path.join(self._root, 'nicos.conf')
+            if path.isfile(conffile):
+                try:
+                    with open(conffile, encoding='utf-8') as fp:
+                        cfg = toml.load(fp)
+                    self._logpath = cfg.get('nicos', {}).get('logging_path')
+                except toml.TomlDecodeError:
+                    cfg = configparser.RawConfigParser()
+                    cfg.read([conffile])
+                    if cfg.has_option('nicos', 'logging_path'):
+                        self._logpath = cfg.get('nicos', 'logging_path')
+
+            # fallback
+            if not self._logpath:
                 self._logpath = path.join(self._root, 'log')
+
         if not instance:
             result = {}
             for subdir in os.listdir(self._logpath):
