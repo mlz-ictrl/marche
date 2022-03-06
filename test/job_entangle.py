@@ -50,8 +50,8 @@ else:
 
 CONFIG = '''\
 [entangle]
-resdir = %(tmpdir)s
-logdir = %(tmpdir)s
+resdir = "%(tmpdir)s"
+logdir = "%(tmpdir)s"
 '''
 
 RES = '''\

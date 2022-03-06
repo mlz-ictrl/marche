@@ -50,11 +50,12 @@ This job has the following configuration parameters:
    like available servers and their logfiles from there.
 """
 
-import configparser
 import os
 import socket
 import sys
 from os import path
+
+import toml
 
 from marche.jobs import DEAD, RUNNING, Fault
 from marche.jobs.base import Job as BaseJob
@@ -96,18 +97,18 @@ class EntangleBaseJob(BaseJob):
             'hostname': socket.gethostname().split('.')[0]
         }
 
-        cfg = configparser.ConfigParser(defaults=substitutions)
-        cfg.read(self._config)
+        try:
+            with open(self._config) as fp:
+                cfg = toml.load(fp)
+        except IOError:  # let TOML errors pass through
+            cfg = {}
 
-        if cfg.has_option('entangle', 'resdir'):
-            self._resdir = cfg.get('entangle', 'resdir').strip('"\'')
-            self._resdir = self._resdir.format(**substitutions)
+        section = cfg.get('entangle', {})
+        if 'resdir' in section:
+            self._resdir = section['resdir'].format(**substitutions)
         else:
             self._resdir = '/etc/entangle'  # pragma: no cover
-        if cfg.has_option('entangle', 'logdir'):
-            self._logdir = cfg.get('entangle', 'logdir').strip('"\'')
-        else:
-            self._logdir = '/var/log/entangle'  # pragma: no cover
+        self._logdir = section.get('logdir', '/var/log/entangle')
 
         all_servers = [('entangle', base) for (base, ext) in
                        map(path.splitext, os.listdir(self._resdir))
