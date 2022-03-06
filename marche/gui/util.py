@@ -29,7 +29,6 @@ import socket
 import sys
 
 import psutil
-from six import iteritems, text_type
 
 from marche.gui.qt import QDialog, QPyNullVariant, QSettings, uic
 from marche.utils import bytencode
@@ -164,7 +163,7 @@ def loadSetting(name, default=None, valtype=str, settings=None):
 
 def saveSettings(settings_dict):
     settings = _getSettingsObj()
-    for key, value in iteritems(settings_dict):
+    for key, value in settings_dict.items():
         saveSetting(key, value, settings=settings)
 
 
@@ -176,7 +175,7 @@ def loadSettings(request):
         for key in request:
             result[key] = loadSetting(key, settings=settings)
     elif isinstance(request, dict):
-        for key, default in iteritems(request):
+        for key, default in request.items():
             result[key] = loadSetting(key, default, settings=settings)
 
     return result
@@ -255,7 +254,7 @@ def determineSubnet():
 
 
 def getSubnetHostsAddrs(subnet):
-    net = ipaddress.IPv4Network(text_type(subnet))
+    net = ipaddress.IPv4Network(str(subnet))
 
     # ipaddr compatiblity
     if hasattr(net, 'iterhosts'):

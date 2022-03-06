@@ -25,9 +25,9 @@
 """Test for the XMLRPC interface."""
 
 import logging
+import xmlrpc.client
 
 from pytest import raises, yield_fixture
-from six.moves import xmlrpc_client
 
 from marche.config import Config
 from marche.iface.xmlrpc import Interface
@@ -60,21 +60,21 @@ def xmlrpc_iface(request):
 def proxy(xmlrpc_iface):
     """Create an authenticated XMLRPC proxy."""
     port = xmlrpc_iface.server.server_address[1]
-    proxy = xmlrpc_client.ServerProxy(
+    proxy = xmlrpc.client.ServerProxy(
         'http://test:test@localhost:%d/xmlrpc' % port)
     yield proxy
 
 
 def test_authentication(xmlrpc_iface):
     port = xmlrpc_iface.server.server_address[1]
-    proxy = xmlrpc_client.ServerProxy('http://localhost:%d/xmlrpc' % port)
-    assert raises(xmlrpc_client.ProtocolError, proxy.GetVersion)
-    proxy = xmlrpc_client.ServerProxy(
+    proxy = xmlrpc.client.ServerProxy('http://localhost:%d/xmlrpc' % port)
+    assert raises(xmlrpc.client.ProtocolError, proxy.GetVersion)
+    proxy = xmlrpc.client.ServerProxy(
         'http://wrong:creds@localhost:%d/xmlrpc' % port)
-    assert raises(xmlrpc_client.ProtocolError, proxy.GetVersion)
-    proxy = xmlrpc_client.ServerProxy(
+    assert raises(xmlrpc.client.ProtocolError, proxy.GetVersion)
+    proxy = xmlrpc.client.ServerProxy(
         'http://guest:guest@localhost:%d/xmlrpc' % port)
-    with raises(xmlrpc_client.Fault) as exc_info:
+    with raises(xmlrpc.client.Fault) as exc_info:
         proxy.Start('svc.inst')
     assert 'no permission' in exc_info.value.faultString
 
@@ -83,7 +83,7 @@ def test_simple_queries(proxy):
     assert proxy.GetVersion() == str(PROTO_VERSION)
     assert proxy.GetDescription('svc.inst') == 'desc'
     assert set(proxy.GetServices()) == set(['svc.inst', 'svc'])
-    assert raises(xmlrpc_client.Fault, proxy.NonexistingMethod)
+    assert raises(xmlrpc.client.Fault, proxy.NonexistingMethod)
 
 
 def test_event_queries(proxy):
@@ -104,23 +104,23 @@ def test_commands(proxy):
     assert jobhandler.test_reloaded
 
     # wrong arguments
-    with raises(xmlrpc_client.Fault) as exc_info:
+    with raises(xmlrpc.client.Fault) as exc_info:
         proxy.Start()
     assert exc_info.value.faultCode == Errors.EXCEPTION
     assert exc_info.value.faultString.startswith('Unexpected exception: ')
 
     # errors raised by handler
-    with raises(xmlrpc_client.Fault) as exc_info:
+    with raises(xmlrpc.client.Fault) as exc_info:
         proxy.Stop('svc.inst')
     assert exc_info.value.faultCode == Errors.BUSY
     assert exc_info.value.faultString == 'job is already busy, retry later'
 
-    with raises(xmlrpc_client.Fault) as exc_info:
+    with raises(xmlrpc.client.Fault) as exc_info:
         proxy.Restart('svc.inst')
     assert exc_info.value.faultCode == Errors.FAULT
     assert exc_info.value.faultString == 'cannot do this'
 
-    with raises(xmlrpc_client.Fault) as exc_info:
+    with raises(xmlrpc.client.Fault) as exc_info:
         proxy.SendConfig('svc.inst')
     assert exc_info.value.faultCode == Errors.EXCEPTION
     assert exc_info.value.faultString == 'Unexpected exception: no conf files'

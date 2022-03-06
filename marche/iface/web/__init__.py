@@ -55,7 +55,6 @@ from os import path
 import cherrypy
 from cherrypy import log
 from jinja2 import Environment, FileSystemLoader
-from six import iteritems
 
 from marche.auth import AuthFailed
 from marche.iface.base import Interface as BaseInterface
@@ -102,8 +101,8 @@ class Webinterface(object):
 
     def update_status(self):
         result = {}
-        for service, info in iteritems(self.jobhandler.request_service_list(
-                self.get_login('client_info')).services):
+        for service, info in self.jobhandler.request_service_list(
+                self.get_login('client_info')).services.items():
             for instance in info['instances']:
                 if not instance:
                     result[service] = \

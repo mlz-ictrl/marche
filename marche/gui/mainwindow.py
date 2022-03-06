@@ -24,10 +24,7 @@
 # *****************************************************************************
 
 import socket
-
-from six import iteritems
-from six.moves import range  # pylint: disable=redefined-builtin
-from six.moves import xmlrpc_client as xmlrpc
+import xmlrpc.client
 
 from marche.gui.client import Client, ClientError
 from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
@@ -135,7 +132,7 @@ class MainWindow(QMainWindow):
                 'sortHostListEnabled': dlg.sortHostListEnabled,
             })
 
-            for host, (user, passwd) in iteritems(dlg.credentials):
+            for host, (user, passwd) in dlg.credentials.items():
                 saveCredentials(host, user, passwd)
 
             for host in oldCredHosts - set(dlg.credentials):
@@ -338,7 +335,7 @@ class MainWindow(QMainWindow):
                 if e.code != 401:
                     raise
                 return
-            except xmlrpc.ProtocolError as e:
+            except xmlrpc.client.ProtocolError as e:
                 if e.errcode != 401:
                     raise
                 return
@@ -390,7 +387,7 @@ class MainWindow(QMainWindow):
         if addr not in self._clients:
             try:
                 self._clients[addr] = negotiate(addr)
-            except xmlrpc.Fault as err:
+            except xmlrpc.client.Fault as err:
                 QMessageBox.critical(self, 'Connection failed',
                                      'Could not connect to %s: %s' %
                                      (addr, err.faultString))
@@ -408,7 +405,7 @@ class MainWindow(QMainWindow):
                                  'Could not connect to %s: timeout')
             del self._clients[addr]
             return
-        except xmlrpc.ProtocolError as e:
+        except xmlrpc.client.ProtocolError as e:
             QMessageBox.critical(self, 'Connection failed',
                                  'Could not connect to %s: %s' %
                                  (addr, e.errmsg))

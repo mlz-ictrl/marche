@@ -23,9 +23,6 @@
 #
 # *****************************************************************************
 
-from six import iteritems
-from six.moves import range  # pylint: disable=redefined-builtin
-
 from marche.gui.buttons import JobButtons, MultiJobButtons
 from marche.gui.qt import QBrush, QColor, QHeaderView, QIcon, QMessageBox, \
     QSize, Qt, QTreeWidget, QTreeWidgetItem
@@ -103,7 +100,7 @@ class HostTree(QTreeWidget):
         except Exception:
             descrs = {}
 
-        for service, instances in iteritems(services):
+        for service, instances in services.items():
             serviceItem = QTreeWidgetItem([service])
             serviceItem.setForeground(1, self._brushes['white'])
             serviceItem.setTextAlignment(1, Qt.AlignCenter)
@@ -157,8 +154,8 @@ class HostTree(QTreeWidget):
         try:
             if data is None:
                 return self.updateStatus(None, None, NOT_AVAILABLE, '')
-            for service, svcinfo in iteritems(data):
-                for instance, instinfo in iteritems(svcinfo['instances']):
+            for service, svcinfo in data.items():
+                for instance, instinfo in svcinfo['instances'].items():
                     self.updateStatus(service, instance, instinfo['state'],
                                       instinfo['ext_status'], parent=False)
             for service in self._virt_items:

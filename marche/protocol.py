@@ -26,8 +26,6 @@
 
 import json
 
-from six import add_metaclass
-
 # Increment this when making changes to the protocol.
 PROTO_VERSION = 3
 
@@ -74,8 +72,7 @@ class RegistryMeta(type):
         return newtype
 
 
-@add_metaclass(RegistryMeta)
-class SerializableMessage(object):
+class SerializableMessage(metaclass=RegistryMeta):
     registry = {}
 
     #: Designation of the type of message.

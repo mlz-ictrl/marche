@@ -25,11 +25,10 @@
 
 """Config file handling."""
 
+import configparser
 import os
 from collections import OrderedDict
 from os import path
-
-from six.moves import configparser
 
 from marche.permission import DISPLAY, STRING_LEVELS
 

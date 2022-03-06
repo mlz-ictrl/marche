@@ -50,12 +50,11 @@ This job has the following configuration parameters:
    like available servers and their logfiles from there.
 """
 
+import configparser
 import os
 import socket
 import sys
 from os import path
-
-from six.moves import configparser
 
 from marche.jobs import DEAD, RUNNING, Fault
 from marche.jobs.base import Job as BaseJob

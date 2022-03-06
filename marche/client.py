@@ -25,12 +25,11 @@
 
 import socket
 import threading
+import xmlrpc.client
 from collections import OrderedDict
 from functools import partial
 
 import requests
-from six import iteritems
-from six.moves import xmlrpc_client as xmlrpc
 
 
 class ClientError(Exception):
@@ -39,14 +38,14 @@ class ClientError(Exception):
         Exception.__init__(self, string)
 
 
-class HttpTransport(xmlrpc.Transport):
+class HttpTransport(xmlrpc.client.Transport):
     def make_connection(self, host):
-        retval = xmlrpc.Transport.make_connection(self, host)
+        retval = xmlrpc.client.Transport.make_connection(self, host)
         self._connection[1].timeout = 2.0
         return retval
 
 
-class ServerProxy(xmlrpc.ServerProxy):
+class ServerProxy(xmlrpc.client.ServerProxy):
     def __del__(self):
         self('close')()
 
@@ -143,12 +142,12 @@ class Client(object):
         result = {}
         if self.version >= 3:
             services = self.getAllServiceInfo()
-            for service, svcinfo in iteritems(services):
-                for instance, instinfo in iteritems(svcinfo['instances']):
+            for service, svcinfo in services.items():
+                for instance, instinfo in svcinfo['instances'].items():
                     result[service, instance] = instinfo['desc']
             return result
         with self._lock:
-            for service, instances in iteritems(services):
+            for service, instances in services.items():
                 for instance in instances:
                     path = self.getServicePath(service, instance)
                     result[service, instance] = \
@@ -170,7 +169,7 @@ class Client(object):
                 self._proxy.Start(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -182,7 +181,7 @@ class Client(object):
                 self._proxy.Stop(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -194,7 +193,7 @@ class Client(object):
                 self._proxy.Restart(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
         if self._pollThread:
             self._pollThread.poll(service, instance)
@@ -206,7 +205,7 @@ class Client(object):
                 return self._proxy.GetStatus(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getServiceOutput(self, service, instance=''):
@@ -216,7 +215,7 @@ class Client(object):
                 return self._proxy.GetOutput(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getServiceLogs(self, service, instance=''):
@@ -226,7 +225,7 @@ class Client(object):
                 return self._proxy.GetLogs(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def getVersion(self):
@@ -240,7 +239,7 @@ class Client(object):
                 return self._proxy.ReceiveConfig(servicePath)
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)
 
     def sendServiceConfig(self, service, instance='', data=None):
@@ -250,5 +249,5 @@ class Client(object):
                 self._proxy.SendConfig([servicePath] + (data or []))
         except socket.error as e:
             raise ClientError(99, 'marched: %s' % e)
-        except xmlrpc.Fault as f:
+        except xmlrpc.client.Fault as f:
             raise ClientError(f.faultCode, f.faultString)

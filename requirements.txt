@@ -5,5 +5,4 @@ mlzlog
 netifaces
 requests
 toml
-six
 PyQt5

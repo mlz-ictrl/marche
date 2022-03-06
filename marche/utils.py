@@ -38,8 +38,6 @@ from os import path
 from subprocess import PIPE, Popen, check_output
 from threading import Thread
 
-from six import text_type
-
 try:
     import grp
     import pwd
@@ -292,7 +290,7 @@ def read_file(fname):
     """Read file as latin-1 str."""
     with open(fname, 'rb') as fp:
         contents = fp.read()
-    if not isinstance(contents, text_type):
+    if not isinstance(contents, str):
         contents = contents.decode('latin1')  # pragma: no cover
     return contents
 

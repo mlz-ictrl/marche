@@ -61,11 +61,11 @@ This job has the following configuration parameters:
    services and their logfiles from there.
 """
 
+import configparser
 import os
 from os import path
 
 import toml
-from six.moves import configparser
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, WARNING
 from marche.jobs.base import Job as BaseJob

@@ -24,10 +24,9 @@
 
 """Polling loop for jobs."""
 
+import queue
 import threading
 import time
-
-from six.moves import queue
 
 from marche.protocol import StatusEvent
 

@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from six import iteritems
-
 from marche.gui.qt import QDialog, QDialogButtonBox, QFileDialog, QInputDialog
 from marche.gui.scan import PassiveScanner
 from marche.gui.util import getAvailableEditors, loadUi
@@ -114,7 +112,7 @@ class PreferencesDialog(QDialog):
     @credentials.setter
     def credentials(self, value):
         self._creds = value
-        for host, _ in iteritems(value):
+        for host, _ in value.items():
             self.hostsList.addItem(host)
 
     @property

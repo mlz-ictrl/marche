@@ -52,9 +52,8 @@ always be enabled.
 
 import base64
 import threading
-
-from six import iteritems
-from six.moves import xmlrpc_client, xmlrpc_server
+import xmlrpc.client
+import xmlrpc.server
 
 from marche.auth import AuthFailed
 from marche.iface.base import Interface as BaseInterface
@@ -63,7 +62,7 @@ from marche.permission import DISPLAY, ClientInfo
 from marche.protocol import PROTO_VERSION, Errors
 
 
-class AuthRequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
+class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/xmlrpc',)
     needs_auth = False
     unauth_level = DISPLAY
@@ -88,7 +87,7 @@ class AuthRequestHandler(xmlrpc_server.SimpleXMLRPCRequestHandler):
             self.send_error(401)
             return
 
-        return xmlrpc_server.SimpleXMLRPCRequestHandler.do_POST(self)
+        return xmlrpc.server.SimpleXMLRPCRequestHandler.do_POST(self)
 
     def _dispatch(self, method, params):
         try:
@@ -104,11 +103,11 @@ def command(method):
             ret = method(self, *args)
             return True if ret is None else ret
         except Busy as err:
-            raise xmlrpc_client.Fault(Errors.BUSY, str(err))
+            raise xmlrpc.client.Fault(Errors.BUSY, str(err))
         except Fault as err:
-            raise xmlrpc_client.Fault(Errors.FAULT, str(err))
+            raise xmlrpc.client.Fault(Errors.FAULT, str(err))
         except Exception as err:
-            raise xmlrpc_client.Fault(Errors.EXCEPTION,
+            raise xmlrpc.client.Fault(Errors.EXCEPTION,
                                       'Unexpected exception: %s' % err)
     new_method.__name__ = method.__name__
     return new_method
@@ -137,7 +136,7 @@ class RPCFunctions(object):
     def GetServices(self, client_info):
         list_event = self.jobhandler.request_service_list(client_info)
         result = []
-        for svcname, info in iteritems(list_event.services):
+        for svcname, info in list_event.services.items():
             for instance in info['instances']:
                 if not instance:
                     result.append(svcname)
@@ -172,7 +171,7 @@ class RPCFunctions(object):
         log_event = self.jobhandler.request_logfiles(
             client_info, *self._split_name(name))
         ret = []
-        for fname, contents in iteritems(log_event.files):
+        for fname, contents in log_event.files.items():
             for line in contents.splitlines(True):
                 ret.append(fname + ':' + line)
         return ret
@@ -182,7 +181,7 @@ class RPCFunctions(object):
         config_event = self.jobhandler.request_conffiles(
             client_info, *self._split_name(name))
         ret = []
-        for fname, contents in iteritems(config_event.files):
+        for fname, contents in config_event.files.items():
             ret.append(fname)
             ret.append(contents)
         return ret
@@ -223,7 +222,7 @@ class Interface(BaseInterface):
         AuthRequestHandler.unauth_level = self.jobhandler.unauth_level
         AuthRequestHandler.needs_auth = self.authhandler.needs_authentication()
 
-        self.server = xmlrpc_server.SimpleXMLRPCServer(
+        self.server = xmlrpc.server.SimpleXMLRPCServer(
             (host, port), requestHandler=AuthRequestHandler)
         self.server.register_instance(RPCFunctions(self.jobhandler, self.log))
 

@@ -30,8 +30,6 @@ import tempfile
 import time
 from os import path
 
-from six.moves import range  # pylint: disable=redefined-builtin
-
 from marche.gui.client import ClientError
 from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
     QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot

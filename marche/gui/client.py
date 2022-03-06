@@ -28,8 +28,6 @@
 import threading
 from collections import OrderedDict
 
-from six import iteritems
-
 from marche.client import Client as BaseClient, ClientError
 from marche.gui.qt import QThread, pyqtSignal
 from marche.gui.util import loadSetting
@@ -74,7 +72,7 @@ class PollThread(QThread):
                     services = OrderedDict()
                     self.newData.emit(None, None, NOT_AVAILABLE, '')
 
-                for service, instances in iteritems(services):
+                for service, instances in services.items():
                     for instance in instances:
                         self.poll(service, instance)
 

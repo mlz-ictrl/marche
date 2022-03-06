@@ -28,8 +28,6 @@
 import uuid
 from collections import OrderedDict
 
-from six import iteritems
-
 from marche.jobs import Busy, Fault
 from marche.permission import ADMIN, CONTROL, DISPLAY
 from marche.protocol import ConffileEvent, ControlOutputEvent, \
@@ -87,7 +85,7 @@ class JobHandler(object):
 
     def _add_jobs(self):
         self.log.info('adding jobs...')
-        for (name, config) in iteritems(self.config.job_config):
+        for (name, config) in self.config.job_config.items():
             if 'type' not in config:
                 self.log.warning('job %r has no type assigned, '
                                  'ignoring' % name)
