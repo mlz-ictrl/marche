@@ -22,42 +22,20 @@
 #
 # *****************************************************************************
 
-"""Qt 4/5 compatibility layer."""
+"""Qt compatibility layer."""
 
 # pylint: disable=wildcard-import,unused-import,unused-wildcard-import
 
 import sys
 
-try:
-    import PyQt5
+import PyQt5
 
-except (ImportError, RuntimeError):
-    import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
+from PyQt5 import uic
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
-    from PyQt4 import uic
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
+import marche.gui.res_qt5
 
-    import marche.gui.res_qt4
-
-    try:
-        from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
-    except ImportError:
-        class QPyNullVariant:
-            pass
-
-else:
-    # Do not abort on exceptions in signal handlers.
-    sys.excepthook = lambda *args: sys.__excepthook__(*args)
-
-    from PyQt5 import uic
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-
-    import marche.gui.res_qt5
-
-    class QPyNullVariant:
-        pass
+# Do not abort on exceptions in signal handlers.
+sys.excepthook = lambda *args: sys.__excepthook__(*args)

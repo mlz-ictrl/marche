@@ -1,6 +1,5 @@
 PYTHON = /usr/bin/env python
 
-RCC4 = pyrcc4
 RCC5 = pyrcc5
 
 all: build
@@ -15,8 +14,7 @@ clean:
 	rm -rf build
 
 res: marche/gui/res/marche.qrc
-	$(RCC4) -py3 -o marche/gui/res_qt4.py $<
-	$(RCC5)      -o marche/gui/res_qt5.py $<
+	$(RCC5) -o marche/gui/res_qt5.py $<
 
 T = test
 

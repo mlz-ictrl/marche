@@ -30,15 +30,13 @@ import sys
 
 import psutil
 
-from marche.gui.qt import QDialog, QPyNullVariant, QSettings, uic
+from marche.gui.qt import QDialog, QSettings, uic
 from marche.utils import bytencode
 
 try:
     import ipaddress
 except ImportError:
     import ipaddr as ipaddress
-
-
 
 
 uipath = os.path.dirname(__file__)
@@ -151,8 +149,6 @@ def loadSetting(name, default=None, valtype=str, settings=None):
 
     raw = settings.value(name, default)
 
-    if isinstance(raw, QPyNullVariant):
-        raw = None
     if raw is None:
         raw = default
     if raw is None:

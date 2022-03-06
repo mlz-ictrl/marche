@@ -6,7 +6,7 @@
 
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
-ignore=.git,res_qt4.py,res_qt5.py
+ignore=.git,res_qt5.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -16,7 +16,7 @@ persistent=yes
 load-plugins=
 
 # For some reason, Pylint cannot check members of these modules.
-extension-pkg-whitelist=PyQt4,PyQt5,sip
+extension-pkg-whitelist=PyQt5,sip
 
 
 [MESSAGES CONTROL]
