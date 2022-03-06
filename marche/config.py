@@ -33,7 +33,7 @@ from os import path
 from marche.permission import DISPLAY, STRING_LEVELS
 
 
-class CasePreservingConfigParser(configparser.SafeConfigParser):
+class CasePreservingConfigParser(configparser.ConfigParser):
     def optionxform(self, key):
         return key
 

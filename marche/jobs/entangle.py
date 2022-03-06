@@ -96,7 +96,7 @@ class EntangleBaseJob(BaseJob):
             'hostname': socket.gethostname().split('.')[0]
         }
 
-        cfg = configparser.SafeConfigParser(defaults=substitutions)
+        cfg = configparser.ConfigParser(defaults=substitutions)
         cfg.read(self._config)
 
         if cfg.has_option('entangle', 'resdir'):

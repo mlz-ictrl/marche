@@ -27,7 +27,7 @@
 import logging
 import xmlrpc.client
 
-from pytest import raises, yield_fixture
+from pytest import raises, fixture
 
 from marche.config import Config
 from marche.iface.xmlrpc import Interface
@@ -44,7 +44,7 @@ logger.addHandler(LogHandler())
 Interface.poll_interval = 0.05
 
 
-@yield_fixture(scope='module')
+@fixture(scope='module')
 def xmlrpc_iface(request):
     """Create a Marche XMLRPC interface."""
     config = Config()
@@ -56,7 +56,7 @@ def xmlrpc_iface(request):
     iface.shutdown()
 
 
-@yield_fixture()
+@fixture()
 def proxy(xmlrpc_iface):
     """Create an authenticated XMLRPC proxy."""
     port = xmlrpc_iface.server.server_address[1]
