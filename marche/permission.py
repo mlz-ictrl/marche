@@ -51,7 +51,7 @@ ADMIN = 20
 DISABLED = 30
 
 
-class ClientInfo(object):
+class ClientInfo:
     """Information about a client passed around to check permissions."""
     def __init__(self, level):
         self.level = level

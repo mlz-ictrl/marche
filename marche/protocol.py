@@ -30,7 +30,7 @@ import json
 PROTO_VERSION = 3
 
 
-class Commands(object):
+class Commands:
     AUTHENTICATE = 'auth'
     TRIGGER_RELOAD = 'reload'
     SCAN_NETWORK = 'scan'
@@ -45,7 +45,7 @@ class Commands(object):
     SEND_CONF_FILE = 'sendconfig'
 
 
-class Events(object):
+class Events:
     CONNECTED = 'connected'
     AUTH_RESULT = 'authresult'
     SERVICE_LIST = 'services'
@@ -57,7 +57,7 @@ class Events(object):
     FOUND_HOST = 'host'
 
 
-class Errors(object):
+class Errors:
     BUSY = 1
     FAULT = 2
     UNAUTH = 3

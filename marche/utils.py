@@ -132,7 +132,7 @@ def remove_pidfile(pid_dir):
     os.unlink(path.join(pid_dir, 'marched.pid'))
 
 
-class lazy_property(object):
+class lazy_property:
     """A property that calculates its value only once."""
     def __init__(self, func):
         self._func = func
@@ -147,7 +147,7 @@ class lazy_property(object):
 
 
 if os.name == 'nt':  # pragma: no cover
-    class Poller(object):
+    class Poller:
         """A poor imitation of polling for Windows."""
 
         def __init__(self):

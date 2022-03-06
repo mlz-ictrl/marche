@@ -62,7 +62,7 @@ def command(silent=False):
     return deco
 
 
-class JobHandler(object):
+class JobHandler:
 
     def __init__(self, config, log):
         self.config = config

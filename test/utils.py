@@ -83,7 +83,7 @@ class LogHandler(logging.Handler):
             self.messages += 1
 
 
-class MockAsyncProcess(object):
+class MockAsyncProcess:
     def __init__(self, status, log, cmd, sh, stdout=None, stderr=None):
         self.status = status
         self.log = log
@@ -105,7 +105,7 @@ class MockAsyncProcess(object):
         pass
 
 
-class MockJobHandler(object):
+class MockJobHandler:
 
     test_interface = None
     test_reloaded = False
@@ -177,7 +177,7 @@ class MockJobHandler(object):
         raise ValueError('no conf files')
 
 
-class MockAuthHandler(object):
+class MockAuthHandler:
 
     def needs_authentication(self):
         return True
@@ -190,7 +190,7 @@ class MockAuthHandler(object):
         raise AuthFailed
 
 
-class MockIface(object):
+class MockIface:
     """Standin for an interface from the handler side."""
 
     def __init__(self, events):

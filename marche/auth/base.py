@@ -25,7 +25,7 @@
 """Basic authenticator class."""
 
 
-class Authenticator(object):
+class Authenticator:
 
     def __init__(self, config, log):
         self.config = config

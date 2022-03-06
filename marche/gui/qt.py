@@ -45,7 +45,7 @@ except (ImportError, RuntimeError):
     try:
         from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
     except ImportError:
-        class QPyNullVariant(object):
+        class QPyNullVariant:
             pass
 
 else:
@@ -59,5 +59,5 @@ else:
 
     import marche.gui.res_qt5
 
-    class QPyNullVariant(object):
+    class QPyNullVariant:
         pass

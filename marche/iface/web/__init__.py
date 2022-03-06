@@ -83,7 +83,7 @@ def split_service_instance(service_instance):
     return service_instance, ''
 
 
-class Webinterface(object):
+class Webinterface:
     def __init__(self, jobhandler, authhandler, log):
         self.jobhandler = jobhandler
         self.log = log

@@ -54,7 +54,7 @@ logging.logThreads = False
 logging._srcfile = None  # pylint: disable=protected-access
 
 
-class Daemon(object):
+class Daemon:
     def __init__(self):
         self.stop = False
         self.log = None

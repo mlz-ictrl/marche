@@ -29,7 +29,7 @@ class AuthFailed(Exception):
     pass
 
 
-class AuthHandler(object):
+class AuthHandler:
 
     def __init__(self, config, log):
         self.auths = []

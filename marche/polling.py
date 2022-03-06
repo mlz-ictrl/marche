@@ -31,7 +31,7 @@ import time
 from marche.protocol import StatusEvent
 
 
-class Poller(object):
+class Poller:
     """The poller object; each job instantiates a poller and can start it."""
 
     def __init__(self, job, interval, event_callback):

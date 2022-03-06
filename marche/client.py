@@ -50,7 +50,7 @@ class ServerProxy(xmlrpc.client.ServerProxy):
         self('close')()
 
 
-class JsonProxy(object):
+class JsonProxy:
     def __init__(self, url):
         self.url = url
         self.ses = requests.Session()
@@ -82,7 +82,7 @@ class JsonProxy(object):
         return partial(self._request, method)
 
 
-class Client(object):
+class Client:
     def __init__(self, host, port, user=None, passwd=None):
         self.host = host
         self.port = port

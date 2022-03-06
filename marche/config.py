@@ -38,7 +38,7 @@ class CasePreservingConfigParser(configparser.SafeConfigParser):
         return key
 
 
-class Config(object):
+class Config:
     """An object that represents all merged Marche configuration files."""
 
     user = None

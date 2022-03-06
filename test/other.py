@@ -94,7 +94,7 @@ def test_utils(tmpdir):
 
 
 def test_lazy_property():
-    class Test(object):
+    class Test:
         @utils.lazy_property
         def prop(self):
             called.append('prop')
@@ -125,7 +125,7 @@ def test_async_process(tmpdir):
     assert proc.done
 
 
-class Unrepr(object):
+class Unrepr:
     """An object whose repr() raises."""
 
     def __repr__(self):

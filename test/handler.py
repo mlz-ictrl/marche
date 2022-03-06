@@ -196,7 +196,7 @@ def test_filtering(handler):
     assert not handler.can_see_status(ClientInfo(DISPLAY), event)
 
 
-class MockSocket(object):
+class MockSocket:
     def __init__(self, proto, family):
         self.i = 0
         assert proto == socket.AF_INET

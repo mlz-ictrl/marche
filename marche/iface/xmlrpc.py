@@ -113,7 +113,7 @@ def command(method):
     return new_method
 
 
-class RPCFunctions(object):
+class RPCFunctions:
 
     def __init__(self, jobhandler, log):
         self.jobhandler = jobhandler

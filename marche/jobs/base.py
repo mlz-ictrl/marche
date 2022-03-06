@@ -35,7 +35,7 @@ from marche.polling import Poller
 from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
 
 
-class Job(object):
+class Job:
     """This is the basic job class.
 
     All methods that implement a Marche command should raise
@@ -361,7 +361,7 @@ class Job(object):
         raise Fault('no new configuration files accepted')
 
 
-class LogfileMixin(object):
+class LogfileMixin:
     """Mixin for configuring and sending a number of logfiles, stored as
     self.log_files, without looking at the service/instance.
     """
@@ -382,7 +382,7 @@ class LogfileMixin(object):
         return ret
 
 
-class ConfigMixin(object):
+class ConfigMixin:
     """Mixin for receiving and sending a number of config files, stored as
     self.config_files, without looking at the service/instance.
 

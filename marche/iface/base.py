@@ -26,7 +26,7 @@
 """Base interface class."""
 
 
-class Interface(object):
+class Interface:
 
     #: The name of the interface, must be the same as the module name.
     iface_name = 'iface'
