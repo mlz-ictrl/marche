@@ -57,10 +57,7 @@ class HostTree(QTreeWidget):
 
         hdr = self.header()
         hdr.setMinimumSectionSize(125)
-        if hasattr(hdr, 'setResizeMode'):  # Qt4
-            hdr.setResizeMode(QHeaderView.ResizeToContents)
-        else:
-            hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
