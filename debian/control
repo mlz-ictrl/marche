@@ -31,6 +31,7 @@ Depends: ${misc:Depends},
  ${python3:Depends},
  marche-common,
  python3,
+ python3-click,
  python3-pyqt5,
  python3-requests
 Description: Graphical client for Marche daemons

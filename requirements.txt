@@ -6,3 +6,4 @@ netifaces
 requests
 toml
 PyQt5
+click
