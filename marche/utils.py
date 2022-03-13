@@ -318,8 +318,9 @@ def bytencode(s):  # pragma: no cover
 
 
 INIT_PKG_REQUESTS = [
+    'readlink /sbin/init',
     'dpkg -S /sbin/init',
-    'rpm -qf /sbin/init'
+    'rpm -qf /sbin/init',
 ]
 
 
@@ -328,8 +329,9 @@ def determine_init_system():
 
     for entry in INIT_PKG_REQUESTS:
         try:
-            init_pkg = check_output(entry.split()).lower()
-            break
+            init_pkg = check_output(entry.split()).lower().strip()
+            if init_pkg:
+                break
         except OSError:
             pass
 
