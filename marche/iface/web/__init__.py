@@ -45,8 +45,6 @@ This interface allows controlling services via a graphical interface.
       The host to bind to.
 """
 
-from __future__ import print_function
-
 import json
 import os
 import socket
