@@ -89,6 +89,4 @@ def scan_async(callback, my_uid, max_wait=1.0):
     def thread():
         for host, version in scan(my_uid, max_wait):
             callback(host, version)
-    thd = threading.Thread(target=thread)
-    thd.setDaemon(True)
-    thd.start()
+    threading.Thread(target=thread, daemon=True).start()

@@ -168,8 +168,7 @@ else:
 class AsyncProcess(Thread):
     def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None,
                  timeout=5.0):
-        Thread.__init__(self)
-        self.setDaemon(True)
+        Thread.__init__(self, daemon=True)
 
         self.status = status
         self.log = log

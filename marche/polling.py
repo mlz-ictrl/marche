@@ -45,8 +45,7 @@ class Poller:
 
     def start(self):
         self._stoprequest = False
-        self._thread = threading.Thread(target=self._entry)
-        self._thread.setDaemon(True)
+        self._thread = threading.Thread(target=self._entry, daemon=True)
         self._thread.start()
 
     def stop(self):

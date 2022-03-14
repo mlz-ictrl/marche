@@ -226,9 +226,7 @@ class Interface(BaseInterface):
             (host, port), requestHandler=AuthRequestHandler)
         self.server.register_instance(RPCFunctions(self.jobhandler, self.log))
 
-        thd = threading.Thread(target=self._thread)
-        thd.setDaemon(True)
-        thd.start()
+        threading.Thread(target=self._thread, daemon=True).start()
         self.log.info('listening on %s:%s' % (host, port))
 
     def shutdown(self):

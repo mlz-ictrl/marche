@@ -203,7 +203,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
                                       self.working_dir, self.output_file,
                                       self.one_shot, self._output[service],
                                       self.log)
-        self._thread.setDaemon(True)
+        self._thread.daemon = True
         self._thread.start()
 
     def stop_service(self, service, instance):

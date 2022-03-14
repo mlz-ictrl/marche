@@ -76,9 +76,7 @@ class Interface(BaseInterface):
         self.server.bind((host, port))
         self.log.info('listening on %s:%s' % (host, port))
         self._stoprequest = False
-        thread = threading.Thread(target=self._thread, args=())
-        thread.setDaemon(True)
-        thread.start()
+        threading.Thread(target=self._thread, args=(), daemon=True).start()
 
     def shutdown(self):
         self._stoprequest = True
