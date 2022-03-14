@@ -1,3 +1,25 @@
+marche (3.3.0) focal; urgency=medium
+
+  * move most of Client out of GUI package
+  * remove six dependency
+  * remove remaining Python 2 related code
+  * fix deprecation warnings
+  * entangle job: read config using toml lib
+  * remove Qt 4 support
+  * remove pre-Py 3.3 compatibility
+  * update default configs
+  * gui: one more qt4ism
+  * add readlink for determining init system
+  * add a console client
+  * use non-deprecated form of daemonizing threads
+  * remove conditional imports
+  * use "tango" instead of "PyTango"
+  * remove legacy redhat init script
+  * remove traces of legacy sysv init script
+  * install marchec binary
+
+ -- Georg Brandl <jenkins@jenkins01.admin.frm2.tum.de>  Mon, 14 Mar 2022 08:14:20 +0100
+
 marche (3.2.0) focal; urgency=medium
 
   * support toml-format nicos.conf files
