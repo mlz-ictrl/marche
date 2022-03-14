@@ -74,9 +74,9 @@ from marche.jobs import Fault
 from marche.jobs.init import Job as InitJob
 
 try:
-    import PyTango
+    import tango
 except ImportError:  # pragma: no cover
-    PyTango = None
+    tango = None
 
 
 
@@ -169,19 +169,19 @@ class Job(InitJob):
                     processdevice(key, val[1].strip().split(','))
 
     def _connect_db(self):  # pragma: no cover
-        if PyTango is None:
-            raise Fault('cannot update database: PyTango missing')
-        return PyTango.Database()
+        if tango is None:
+            raise Fault('cannot update database: tango module missing')
+        return tango.Database()
 
     def _add_device(self, db, name, cls, srv):  # pragma: no cover
-        dev_info = PyTango.DbDevInfo()
+        dev_info = tango.DbDevInfo()
         dev_info.name = name
         dev_info.klass = cls
         dev_info.server = srv
         db.add_device(dev_info)
 
     def _add_property(self, db, dev, name, vals, devices):  # pragma: no cover
-        prop = PyTango.DbDatum()
+        prop = tango.DbDatum()
         prop.name = name
         for val in vals:
             prop.value_string.append(val)
