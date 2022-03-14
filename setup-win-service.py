@@ -26,16 +26,12 @@
 from __future__ import print_function
 
 import argparse
+import winreg
 import sys
 from os import path
 from subprocess import PIPE, Popen
 
 import marche
-
-try:
-    import _winreg as winreg
-except ImportError:
-    import winreg
 
 
 def parse_args(argv):

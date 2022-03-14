@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import base64
+import ipaddress
 import os
 import shutil
 import socket
@@ -32,12 +33,6 @@ import psutil
 
 from marche.gui.qt import QDialog, QSettings, uic
 from marche.utils import bytencode
-
-try:
-    import ipaddress
-except ImportError:
-    import ipaddr as ipaddress
-
 
 uipath = os.path.dirname(__file__)
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma',
@@ -196,9 +191,4 @@ def determineSubnet():
 
 def getSubnetHostsAddrs(subnet):
     net = ipaddress.IPv4Network(str(subnet))
-
-    # ipaddr compatiblity
-    if hasattr(net, 'iterhosts'):
-        net.hosts = net.iterhosts
-
     return [str(entry) for entry in net.hosts()]
