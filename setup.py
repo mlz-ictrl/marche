@@ -31,7 +31,7 @@ from setuptools import find_packages, setup
 import marche.utils
 import marche.version
 
-scripts = ['bin/marched', 'bin/marche-gui']
+scripts = ['bin/marchec', 'bin/marched', 'bin/marche-gui']
 
 srcdir = path.dirname(__file__)
 uidir = path.join(srcdir, 'marche', 'gui', 'ui')
