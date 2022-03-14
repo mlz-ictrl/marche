@@ -6,9 +6,9 @@ contains the general configuration (:file:`general.conf`) and example files for
 many types of services.  See :doc:`config` for detailed information about the
 config files and the general config values.
 
-A SYSV init script for the marche server is installed as
-:file:`/etc/init.d/marched`.  If you installed the Debian package, it was
-automatically added to the boot procedure.
+A systemd service for the marche server is installed as
+:file:`/lib/systemd/system/marched.service`.  If you installed the Debian package,
+it was automatically added to the boot procedure.
 
 To start the daemon manually, run::
 
