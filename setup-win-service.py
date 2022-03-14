@@ -26,8 +26,8 @@
 from __future__ import print_function
 
 import argparse
-import winreg
 import sys
+import winreg
 from os import path
 from subprocess import PIPE, Popen
 

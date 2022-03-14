@@ -27,7 +27,7 @@
 import logging
 import xmlrpc.client
 
-from pytest import raises, fixture
+from pytest import fixture, raises
 
 from marche.config import Config
 from marche.iface.xmlrpc import Interface
