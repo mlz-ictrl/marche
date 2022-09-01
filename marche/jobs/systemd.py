@@ -24,6 +24,8 @@
 
 """.. index:: systemd; job
 
+.. _systemd-job:
+
 Systemd service job
 ===================
 

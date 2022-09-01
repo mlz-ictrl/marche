@@ -226,7 +226,7 @@ class MockSocket:
             return b'PONG 42 other', ('127.0.0.6', 12345)
 
 
-def mock_select(rlist, wlist, xlist, timeout):
+def mock_select(rlist, _wlist, _xlist, _timeout):
     return [[rlist[0]]], [], []
 
 

@@ -108,7 +108,7 @@ def test_lazy_property():
     assert isinstance(Test.prop, utils.lazy_property)
 
 
-def test_async_process(tmpdir):
+def test_async_process():
     code = '''if True:
     import sys
     sys.stdout.write("stdout\\n")

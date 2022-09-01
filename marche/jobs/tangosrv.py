@@ -28,11 +28,11 @@
 Standalone Tango Server job
 ===========================
 
-Job for standalone Tango_ servers controlled by an init script.
+Job for standalone Tango_ servers controlled by a systemd service.
 
-This is basically an Init-Script job, with the additional feature of
-transferring the server resources from a file into the Tango database when the
-config file is edited via Marche.
+This is basically a systemd job, with the additional feature of transferring
+the server resources from a file into the Tango database when the config file
+is edited via Marche.
 
 This job has the following configuration parameters:
 
@@ -44,7 +44,7 @@ This job has the following configuration parameters:
 
    .. describe:: srvname
 
-      Name of the server (for determining logfiles and config files).  Default
+      Name of the server (for determining config files).  Default
       is the job name.
 
    .. describe:: resdir
@@ -53,7 +53,7 @@ This job has the following configuration parameters:
       in this directory.  If not given, file :file:`/etc/default/tango` should
       contain a line ``TANGO_RES_DIR=resdir``.
 
-This job inherits from the :ref:`init-job`, and therefore supports all its
+This job inherits from the :ref:`systemd-job`, and therefore supports all its
 other configuration parameters.
 
 A typical section looks like this::
@@ -61,9 +61,8 @@ A typical section looks like this::
     [job.Counter]
     type = tangosrv
 
-This will start/stop via ``/etc/init.d/tango-server-counter`` (the init script
-name can be overridden with the ``script`` parameter as for the init job).  The
-names of potential logfiles are also automatically determined.
+This will start/stop via ``tango-server-counter.service`` (the unit name can be
+overridden with the ``unit`` parameter as for the systemd job).
 
 .. _Tango: http://tango-controls.org
 """
@@ -71,7 +70,7 @@ names of potential logfiles are also automatically determined.
 from os import path
 
 from marche.jobs import Fault
-from marche.jobs.init import Job as InitJob
+from marche.jobs.systemd import Job as SystemdJob
 
 try:
     import tango
@@ -79,18 +78,15 @@ except ImportError:  # pragma: no cover
     tango = None
 
 
+class Job(SystemdJob):
 
-class Job(InitJob):
-
-    LOG_DIR = '/var/log/tango'
     DEFAULT_FILE = '/etc/default/tango'
 
     def configure(self, config):
-        InitJob.configure(self, config)
+        SystemdJob.configure(self, config)
         self.srvname = config.get('srvname', self.name)
-        self.init_name = config.get('script', 'tango-server-' +
-                                    self.srvname.lower())
-        self.script = self.INIT_BASE + self.init_name
+        self.unit = config.get('unit', 'tango-server-' +
+                               self.srvname.lower())
         self.description = config.get('description',
                                       '%s server' % self.srvname)
         resdir = config.get('resdir', '')
@@ -108,12 +104,10 @@ class Job(InitJob):
             self.config_files = [path.join(resdir, self.srvname + '.res')]
         else:  # pragma: no cover
             self.config_files = []
-        self.log_files = [path.join(self.LOG_DIR, '%s.out.log' % self.srvname),
-                          path.join(self.LOG_DIR, '%s.err.log' % self.srvname)]
 
     def send_config(self, service, instance, filename, contents):
         db = self._connect_db()
-        InitJob.send_config(self, service, instance, filename, contents)
+        SystemdJob.send_config(self, service, instance, filename, contents)
         # transfer to Tango database
         self._update_db(db, self.config_files[0])
 
@@ -139,7 +133,7 @@ class Job(InitJob):
                 return
             for val in valpar:
                 valarr = val.strip().split('/')
-                srv = klass  + '/' + valarr[0] + '_' + key[1]
+                srv = klass + '/' + valarr[0] + '_' + key[1]
                 name = val.strip()
                 self._add_device(db, name, valarr[1], srv)
                 devices.add(name.lower())

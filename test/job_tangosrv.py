@@ -66,10 +66,7 @@ cmds/mysrv/null/value:                  5
 def test_job(tmpdir):
     defaultfile = tmpdir.join('default')
     defaultfile.write(DEFAULT % {'tmpdir': str(tmpdir)})
-    tmpdir.mkdir('log').join('Mysrv.out.log').write('log1\nlog2\n')
-    tmpdir.join('log', 'Mysrv.err.log').write('log3\nlog4\n')
 
-    Job.LOG_DIR = str(tmpdir.join('log'))
     Job.INIT_BASE = str(tmpdir)
     Job.DEFAULT_FILE = str(defaultfile)
 
@@ -79,23 +76,13 @@ def test_job(tmpdir):
 
     assert job.get_services() == [('tango-server-mysrv', '')]
 
-    logs = job.service_logs('tango-server-mysrv', 'inst')
-    assert len(logs) == 2
-    for key, value in logs.items():
-        if key.endswith('Mysrv.out.log'):
-            assert value == 'log1\nlog2\n'
-        elif key.endswith('Mysrv.err.log'):
-            assert value == 'log3\nlog4\n'
-        else:
-            assert False, 'unknown logfile returned'
-
     devices = []
     properties = []
 
-    def new_add_device(self, db, name, cls, srv):
+    def new_add_device(_self, _db, name, cls, srv):
         devices.append((name, cls, srv))
 
-    def new_add_property(self, db, dev, name, vals, devices):
+    def new_add_property(_self, _db, dev, name, vals, _devs):
         properties.append((dev, name, vals))
 
     Job._connect_db = lambda self: None
