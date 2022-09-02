@@ -33,7 +33,7 @@ import socket
 import sys
 import time
 from os import path
-from subprocess import CalledProcessError, PIPE, Popen, check_output
+from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
 
 try:
