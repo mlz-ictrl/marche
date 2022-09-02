@@ -69,8 +69,6 @@ def test_job(tmpdir):
 
     assert job.service_logs('foo', '') == {'journal': 'logline1\nlogline2\n'}
 
-
-def test_job_mixins(tmpdir):
     tmpdir.join('1.log').write('log1_line1\nlog1_line2\n')
     tmpdir.join('2.log').write('log2_line1\nlog2_line2\n')
     tmpdir.join('1.cfg').write_binary(b'conf1\n')

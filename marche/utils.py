@@ -33,7 +33,7 @@ import socket
 import sys
 import time
 from os import path
-from subprocess import PIPE, Popen, check_output
+from subprocess import CalledProcessError, PIPE, Popen, check_output
 from threading import Thread
 
 try:
@@ -329,7 +329,7 @@ def determine_init_system():
             init_pkg = check_output(entry.split()).lower().strip()
             if init_pkg:
                 break
-        except OSError:
+        except (CalledProcessError, OSError):
             pass
 
     if b'systemd' in init_pkg:
