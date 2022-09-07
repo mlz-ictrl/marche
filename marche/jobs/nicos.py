@@ -254,7 +254,7 @@ class SystemdJob(NicosBaseJob):
         if instance:
             self._async_stop(instance, 'systemctl stop nicos-%s' % instance)
         else:
-            self._async_start(instance, 'systemctl stop nicos.target')
+            self._async_stop(instance, 'systemctl stop nicos.target')
 
     def restart_service(self, service, instance):
         if instance:
