@@ -45,6 +45,7 @@ Depends: ${misc:Depends},
  python3,
  marche-common,
  python3-toml,
+ python3-systemd,
  python3-mlzlog
 Description: Server control daemon with multiple interfaces
  A daemon that allows definition of different classes of services on
