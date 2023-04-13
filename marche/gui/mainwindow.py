@@ -402,7 +402,8 @@ class MainWindow(QMainWindow):
             self._clients[addr].getVersion()
         except socket.timeout:
             QMessageBox.critical(self, 'Connection failed',
-                                 'Could not connect to %s: timeout')
+                                 'Could not connect to %s: timeout' %
+                                 addr)
             del self._clients[addr]
             return
         except xmlrpc.client.ProtocolError as e:
