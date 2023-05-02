@@ -122,7 +122,7 @@ class JobHandler:
         try:
             return self.service2job[service]
         except KeyError:
-            raise Fault('no such service: %s' % service)
+            raise Fault('no such service: %s' % service) from None
 
     def emit_event(self, event):
         """Emit an event to all connected clients."""

@@ -156,7 +156,7 @@ class Webinterface:
                 raise cherrypy.HTTPRedirect('index')
             except AuthFailed:
                 self.set_login(False, ClientInfo(DISPLAY))
-                raise cherrypy.HTTPRedirect('login')
+                raise cherrypy.HTTPRedirect('login') from None
         return tmpl.render(logged_in=self.get_login('logged_in'))
 
     @cherrypy.expose

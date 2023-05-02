@@ -168,9 +168,9 @@ class Client:
             with self._lock:
                 self._proxy.Start(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
@@ -180,9 +180,9 @@ class Client:
             with self._lock:
                 self._proxy.Stop(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
@@ -192,9 +192,9 @@ class Client:
             with self._lock:
                 self._proxy.Restart(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
         if self._pollThread:
             self._pollThread.poll(service, instance)
 
@@ -204,9 +204,9 @@ class Client:
             with self._lock:
                 return self._proxy.GetStatus(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
 
     def getServiceOutput(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
@@ -214,9 +214,9 @@ class Client:
             with self._lock:
                 return self._proxy.GetOutput(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
 
     def getServiceLogs(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
@@ -224,9 +224,9 @@ class Client:
             with self._lock:
                 return self._proxy.GetLogs(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
 
     def getVersion(self):
         with self._lock:
@@ -238,9 +238,9 @@ class Client:
             with self._lock:
                 return self._proxy.ReceiveConfig(servicePath)
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None
 
     def sendServiceConfig(self, service, instance='', data=None):
         servicePath = self.getServicePath(service, instance)
@@ -248,6 +248,6 @@ class Client:
             with self._lock:
                 self._proxy.SendConfig([servicePath] + (data or []))
         except socket.error as e:
-            raise ClientError(99, 'marched: %s' % e)
+            raise ClientError(99, 'marched: %s' % e) from None
         except xmlrpc.client.Fault as f:
-            raise ClientError(f.faultCode, f.faultString)
+            raise ClientError(f.faultCode, f.faultString) from None

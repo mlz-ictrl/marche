@@ -93,7 +93,7 @@ class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
         try:
             func = getattr(self.server.instance, method)
         except AttributeError:
-            raise Exception('method "%s" is not supported' % method)
+            raise Exception('method "%s" is not supported' % method) from None
         return func(self.client_info, *params)
 
 

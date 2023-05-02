@@ -31,8 +31,6 @@ confidence=HIGH
 disable=missing-docstring
        ,locally-disabled
        ,fixme
-       ,star-args
-       ,no-self-use
        ,broad-except
        ,attribute-defined-outside-init
        ,protected-access

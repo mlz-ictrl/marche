@@ -92,10 +92,10 @@ def parse_permissions(original, entry):
         try:
             level = STRING_LEVELS[level]
         except KeyError:
-            raise ValueError('unrecognized permission level %r' % level)
+            raise ValueError('unrecognized permission level %r' % level) from None
         try:
             req_level = STRING_LEVELS[req_level]
         except KeyError:
-            raise ValueError('unrecognized permission level %r' % req_level)
+            raise ValueError('unrecognized permission level %r' % req_level) from None
         original[level] = req_level
     return original
