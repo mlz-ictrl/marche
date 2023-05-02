@@ -31,7 +31,7 @@ import socket
 
 import psutil
 
-from marche.gui.qt import QDialog, QSettings, uic
+from marche.gui.qt import PYQT_VERSION, QDialog, QSettings, uic
 from marche.utils import bytencode
 
 uipath = os.path.dirname(__file__)
@@ -44,6 +44,8 @@ def loadUi(widget, uiname, subdir='ui'):
 
 
 def loadUiType(uiname, subdir='ui'):
+    if PYQT_VERSION >= 0x60000:
+        return uic.loadUiType(os.path.join(uipath, subdir, uiname))[0]
     # About resource_suffix: uic.loadUiType insists on creating
     # import statements with the name of the .qrc file followed
     # by this suffix.  Since the file is marche.qrc, this will now
@@ -66,7 +68,7 @@ def selectEditor():
     dlg = QDialog()
     loadUi(dlg, 'editor.ui')
     dlg.editorBox.addItems(presets)
-    if not dlg.exec_():
+    if not dlg.exec():
         return None
     if dlg.cmdEdit.text():
         return dlg.cmdEdit.text()

@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         dlg.credentials = loadAllCredentials()
         oldCredHosts = set(dlg.credentials.keys())
 
-        if dlg.exec_():
+        if dlg.exec():
             saveSettings({
                 'defaultEditor': dlg.defaultEditor,
                 'pollInterval': dlg.pollInterval,
@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_actionAdd_network_triggered(self):
         dlg = SubnetInputDialog(self)
-        if dlg.exec_():
+        if dlg.exec():
             self.addNetwork(dlg.subnet)
 
     @pyqtSlot()
@@ -266,7 +266,7 @@ class MainWindow(QMainWindow):
         removeAction = contextMenu.addAction('Remove')
         removeAction.setIcon(QIcon(':/marche/cross.png'))
 
-        chosenAction = contextMenu.exec_(
+        chosenAction = contextMenu.exec(
             self.hostList.viewport().mapToGlobal(pos))
         if chosenAction == removeAction:
             addr = item.text()
@@ -366,7 +366,7 @@ class MainWindow(QMainWindow):
             while True:
                 dlg = AuthDialog(self, 'Authenticate at %s' % addr,
                                  loadSetting('defUsername'))
-                if not dlg.exec_():
+                if not dlg.exec():
                     break
                 user = dlg.user
                 passwd = dlg.passwd

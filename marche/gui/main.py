@@ -44,7 +44,7 @@ def main(argv):
     args = parse_args(argv[1:])
 
     app = QApplication(argv)
-    app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
+    app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, False)
     app.setOrganizationName('mlz')
     app.setApplicationName('marche-gui')
 
@@ -62,4 +62,4 @@ def main(argv):
 
     win.show()
 
-    return app.exec_()
+    return app.exec()

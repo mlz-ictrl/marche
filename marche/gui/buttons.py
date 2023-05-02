@@ -119,7 +119,9 @@ class JobButtons(JobButtonsUI, QWidget):
                 return
             if QMessageBox.question(
                     self, 'Configure', 'Is the changed file ok to use?',
-                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+                    QMessageBox.StandardButton.Yes |
+                    QMessageBox.StandardButton.No) == \
+                    QMessageBox.StandardButton.Yes:
                 result.append(fn)
                 contents = read_file(localfn)
                 if os.name == 'nt':
@@ -158,9 +160,9 @@ class JobButtons(JobButtonsUI, QWidget):
         dlg = QDialog(self)
         loadUi(dlg, 'details.ui')
         dlg.outEdit.setPlainText(''.join(output))
-        dlg.outEdit.moveCursor(QTextCursor.End)
+        dlg.outEdit.moveCursor(QTextCursor.MoveOperation.End)
         dlg.outEdit.ensureCursorVisible()
-        dlg.exec_()
+        dlg.exec()
 
     @pyqtSlot()
     def on_actionShow_logfiles_triggered(self):
@@ -189,10 +191,10 @@ class JobButtons(JobButtonsUI, QWidget):
             font.setFamily('Monospace')
             widget.setFont(font)
             widget.setPlainText(''.join(content))
-            widget.moveCursor(QTextCursor.End)
+            widget.moveCursor(QTextCursor.MoveOperation.End)
             widget.ensureCursorVisible()
             dlg.tabber.addTab(widget, filename)
-        dlg.exec_()
+        dlg.exec()
 
 
 class MultiJobButtons(JobButtonsUI, QWidget):

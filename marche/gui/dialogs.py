@@ -32,7 +32,7 @@ class AuthDialog(QDialog):
     def __init__(self, parent, title, defuser):
         QDialog.__init__(self, parent)
         loadUi(self, 'authdlg.ui')
-        self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
         self.userEdit.setText(defuser or 'marche')
         self.nameLbl.setText(title)
         self.setWindowTitle(title)
@@ -177,6 +177,6 @@ class PassiveScanDialog(QDialog):
         scanner.foundHosts.connect(self.update)
         scanner.finished.connect(self.accept)
         scanner.start()
-        if self.exec_() == QDialog.Accepted:
+        if self.exec() == QDialog.DialogCode.Accepted:
             return scanner.hosts
         return []

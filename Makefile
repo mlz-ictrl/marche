@@ -1,20 +1,16 @@
 PYTHON = /usr/bin/env python
 
 RCC5 = pyrcc5
+RCC6 = /usr/lib64/qt6/libexec/rcc
 
-all: build
-
-build:
-	$(PYTHON) setup.py build
-
-install: build
-	$(PYTHON) setup.py install
+all:
 
 clean:
 	rm -rf build
 
 res: marche/gui/res/marche.qrc
 	$(RCC5) -o marche/gui/res_qt5.py $<
+	$(RCC6) -g python $< | sed '0,/PySide6/s//PyQt6/' > marche/gui/res_qt6.py
 
 T = test
 
@@ -40,7 +36,7 @@ help:
 	@echo "    test-coverage     - run the test suite"
 	@echo "    doc               - build the html version of the documentation"
 
-.PHONY: all build install clean res test test-verbose test-coverage doc help
+.PHONY: all clean res test test-verbose test-coverage doc help
 
 
 release-patch:

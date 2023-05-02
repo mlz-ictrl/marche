@@ -57,7 +57,7 @@ class HostTree(QTreeWidget):
 
         hdr = self.header()
         hdr.setMinimumSectionSize(125)
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
         self.setColumnCount(4)
         self.headerItem().setText(0, 'Service')
@@ -100,8 +100,8 @@ class HostTree(QTreeWidget):
         for service, instances in services.items():
             serviceItem = QTreeWidgetItem([service])
             serviceItem.setForeground(1, self._brushes['white'])
-            serviceItem.setTextAlignment(1, Qt.AlignCenter)
-            serviceItem.setFlags(Qt.ItemIsEnabled)
+            serviceItem.setTextAlignment(1, Qt.AlignmentFlag.AlignCenter)
+            serviceItem.setFlags(Qt.ItemFlag.ItemIsEnabled)
             serviceItem.setForeground(3, self._brushes['red'])
             self.addTopLevelItem(serviceItem)
 
@@ -113,8 +113,8 @@ class HostTree(QTreeWidget):
                     continue
                 instanceItem = QTreeWidgetItem([instance])
                 instanceItem.setForeground(1, self._brushes['white'])
-                instanceItem.setTextAlignment(1, Qt.AlignCenter)
-                instanceItem.setFlags(Qt.ItemIsEnabled)
+                instanceItem.setTextAlignment(1, Qt.AlignmentFlag.AlignCenter)
+                instanceItem.setFlags(Qt.ItemFlag.ItemIsEnabled)
                 instanceItem.setForeground(3, self._brushes['red'])
                 if descrs.get((service, instance)):
                     instanceItem.setText(0, descrs[service, instance])

@@ -24,17 +24,26 @@
 
 """Qt compatibility layer."""
 
-# pylint: disable=wildcard-import,unused-import,unused-wildcard-import
+# pylint: disable=unused-import, unused-wildcard-import, wildcard-import
 
 import sys
 
-import PyQt5
-from PyQt5 import uic
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+try:
+    import PyQt6
+    from PyQt6 import uic
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
+    from PyQt6.QtWidgets import *
 
-import marche.gui.res_qt5
+    import marche.gui.res_qt6
+except ImportError:
+    import PyQt5
+    from PyQt5 import uic
+    from PyQt5.QtCore import *
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
+
+    import marche.gui.res_qt5
 
 # Do not abort on exceptions in signal handlers.
 sys.excepthook = lambda *args: sys.__excepthook__(*args)
