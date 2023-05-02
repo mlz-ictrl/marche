@@ -29,9 +29,9 @@ import xmlrpc.client
 from marche.gui.client import Client, ClientError
 from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
-from marche.gui.qt import QByteArray, QFileDialog, QIcon, QInputDialog, \
-    QListWidgetItem, QMainWindow, QMenu, QMessageBox, QSettings, QSize, \
-    pyqtSlot
+from marche.gui.qt import PYQT_VERSION_STR, QT_VERSION_STR, QByteArray, \
+    QFileDialog, QIcon, QInputDialog, QListWidgetItem, QMainWindow, QMenu, \
+    QMessageBox, QSettings, QSize, pyqtSlot
 from marche.gui.scan import ActiveScanner, SubnetInputDialog
 from marche.gui.util import loadAllCredentials, loadCredentials, loadSetting, \
     loadSettings, loadUi, removeCredentials, saveCredentials, saveSettings
@@ -238,7 +238,10 @@ class MainWindow(QMainWindow):
             <p style="font-weight: bold">
               Version: v%s
             </p>
-            ''' % get_version())
+            <p>
+              Using Qt v%s, PyQt v%s
+            </p>
+            ''' % (get_version(), QT_VERSION_STR, PYQT_VERSION_STR))
 
     @pyqtSlot()
     def on_clearCredBtn_clicked(self):
