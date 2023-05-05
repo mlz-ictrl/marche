@@ -1,3 +1,9 @@
+marche (3.4.3) focal; urgency=medium
+
+  * fix missing substitution in error msg
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Fri, 05 May 2023 07:42:52 +0200
+
 marche (3.4.2) focal; urgency=medium
 
   * Debian: add missing Python 'systemd' module dep
