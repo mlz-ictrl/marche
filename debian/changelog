@@ -1,3 +1,11 @@
+marche (3.5.0) focal; urgency=medium
+
+  * gui: qt6 support
+  * fixup pylint complaints
+  * show PyQt version in about dialog
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Fri, 05 May 2023 15:37:36 +0200
+
 marche (3.4.3) focal; urgency=medium
 
   * fix missing substitution in error msg
