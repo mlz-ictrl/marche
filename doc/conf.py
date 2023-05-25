@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # marche documentation build configuration file, created by
 # sphinx-quickstart on Tue Sep 29 11:53:05 2015.
 #

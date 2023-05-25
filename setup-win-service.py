@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # Marche - A server control daemon
 # Copyright (c) 2015-2023 by the authors, see LICENSE
