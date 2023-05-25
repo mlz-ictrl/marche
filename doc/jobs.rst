@@ -61,5 +61,6 @@ The supported job types are:
    jobs/systemd
 
    jobs/entangle
+   jobs/frappy
    jobs/nicos
    jobs/tangosrv

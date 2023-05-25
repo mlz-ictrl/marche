@@ -1,0 +1,1 @@
+.. automodule:: marche.jobs.frappy
