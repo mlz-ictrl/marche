@@ -105,7 +105,9 @@ A typical section looks like this::
     outputfile = /var/log/myprocess.log
 """
 
+import os
 import shlex
+import signal
 import sys
 from os import path
 from subprocess import PIPE, STDOUT, Popen
@@ -144,7 +146,20 @@ class ProcessMonitor(Thread):
         while process.poll() is None:
             sleep(self.DELAY)
             if self.stopflag:
-                process.kill()
+                if os.name == 'nt':
+                    process.kill()
+                else:
+                    # reimplement Popen.kill() for with os.killpg()
+                    # in addition to os.kill() to get rid of child sessions
+                    process.poll()
+                    if process.returncode is None:
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:  # it's not a process group
+                            try:
+                                os.kill(process.pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
                 if outfile != PIPE:
                     outfile.flush()
         if self._outfile is None and self.oneshot:
