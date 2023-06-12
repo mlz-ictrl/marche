@@ -1,3 +1,10 @@
+marche (3.6.1) focal; urgency=medium
+
+  * add lintian overrides for JS sources
+  * process job: fix cleanup of child sessions
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Mon, 12 Jun 2023 20:32:09 +0200
+
 marche (3.6.0) focal; urgency=medium
 
   * update copyright
