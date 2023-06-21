@@ -103,7 +103,6 @@ class Client:
         self.version = self.getVersion()
 
     def reloadJobs(self):
-        self.stopPoller(True)
         with self._lock:
             self._proxy.ReloadJobs()
         self.version = self.getVersion()

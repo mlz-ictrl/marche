@@ -88,6 +88,10 @@ class PollThread(QThread):
 
 class Client(BaseClient):
 
+    def reloadJobs(self):
+        self.stopPoller(True)
+        BaseClient.reloadJobs(self)
+
     def stopPoller(self, join=False):
         if self._pollThread:
             self._pollThread.running = False
