@@ -135,6 +135,15 @@ def logs(ctx, service):
         click.echo(entry)
 
 
+@marchec.command()
+@click.pass_context
+def reload(ctx):
+    cl = ctx.obj['client']
+    cl.reloadJobs()
+    click.echo('reload done, services now:')
+    all_status(cl)
+
+
 def all_status(cl):
     svc = cl.getAllServiceInfo()
     for (name, data) in svc.items():
