@@ -54,3 +54,29 @@ class Busy(Exception):
     def __str__(self):
         s = Exception.__str__(self)
         return s or 'job is already busy, retry later'
+
+
+# according to systemd's src/core/service.c (state_translation_table)
+SYSTEMD_STATE_MAP = {
+    'dead': DEAD,
+    'condition': STARTING,
+    'start-pre': STARTING,
+    'start': STARTING,
+    'start-post': STARTING,
+    'running': RUNNING,
+    'exited': DEAD,
+    'reload': STARTING,
+    'reload-signal': STARTING,
+    'reload-notify': STARTING,
+    'stop': STOPPING,
+    'stop-watchdog': STOPPING,
+    'stop-sigterm': STOPPING,
+    'stop-sigkill': STOPPING,
+    'stop-post': STOPPING,
+    'final-watchdog': STOPPING,
+    'final-sigterm': STOPPING,
+    'final-sigkill': STOPPING,
+    'failed': DEAD,
+    'auto-restart': STARTING,
+    'cleaning': WARNING,
+}

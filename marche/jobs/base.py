@@ -28,7 +28,7 @@ import threading
 from os import path
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
-    Busy, Fault, Unauthorized
+    SYSTEMD_STATE_MAP, Busy, Fault, Unauthorized
 from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
@@ -123,17 +123,28 @@ class Job:
 
     def _async_status_only(self, sub):
         if sub in self._processes and not self._processes[sub].done:
-            return self._processes[sub].status
+            return self._processes[sub].status, ''
 
-    def _async_status(self, sub, cmd):
+    def _async_status_exitcode(self, sub, cmd):
+        """Returns the status of something determined by the exit code
+        of the given command.
+        """
         if sub in self._processes and not self._processes[sub].done:
-            return self._processes[sub].status
+            return self._processes[sub].status, ''
         result = self._sync_call(cmd).retcode
         if result == 0:
-            return RUNNING
+            return RUNNING, ''
         elif result == -1:  # timeout in call
-            return NOT_AVAILABLE
-        return DEAD
+            return NOT_AVAILABLE, ''
+        return DEAD, ''
+
+    def _async_status_systemd(self, sub, unit, systemctl='systemctl'):
+        """Returns the status of a systemd unit."""
+        if sub in self._processes and not self._processes[sub].done:
+            return self._processes[sub].status, ''
+        cmd = f'{systemctl} show -p SubState "{unit}"'
+        result = self._sync_call(cmd).stdout[0].strip()[9:]
+        return SYSTEMD_STATE_MAP.get(result, DEAD), result
 
     # Public interface
 

@@ -101,13 +101,13 @@ def test_job_helpers():
         assert job._processes['sub'].done
         assert list(job._output['sub']) == ['$ cmd\n', 'output\n', 'error\n']
 
-        assert job._async_status('sub', 'cmd') == RUNNING
-        assert job._async_status('sub', 'fail') == DEAD
+        assert job._async_status_exitcode('sub', 'cmd') == (RUNNING, '')
+        assert job._async_status_exitcode('sub', 'fail') == (DEAD, '')
 
         # Simulate the start process being still busy.
         job._processes['sub'].done = False
         assert raises(Busy, job._async_start, 'sub', 'cmd')
-        assert job._async_status('sub', 'cmd') == STARTING
+        assert job._async_status_exitcode('sub', 'cmd') == (STARTING, '')
 
         # Simulate stopping the process.
         job._processes['sub'].done = True
@@ -116,8 +116,8 @@ def test_job_helpers():
         # Simulate the stop process being still busy.
         job._processes['sub'].done = False
         assert raises(Busy, job._async_stop, 'sub', 'cmd')
-        assert job._async_status('sub', 'cmd') == STOPPING
-        assert job._async_status_only('sub') == STOPPING
+        assert job._async_status_exitcode('sub', 'cmd') == (STOPPING, '')
+        assert job._async_status_only('sub') == (STOPPING, '')
 
 
 class Job(BaseJob):

@@ -117,7 +117,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self._async_start(service, self.script + ' restart')
 
     def service_status(self, service, instance):
-        return self._async_status(service, self.script + ' status'), ''
+        return self._async_status_exitcode(service, self.script + ' status')
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

@@ -67,7 +67,6 @@ class Job(BaseJob):
     _start_cmd = '{control_tool} start frappy@{instance}'
     _stop_cmd = '{control_tool} stop frappy@{instance}'
     _restart_cmd = '{control_tool} restart frappy@{instance}'
-    _status_cmd = '{control_tool} is-active frappy@{instance}'
     _journal_tool = 'journalctl'
 
     def configure(self, config):
@@ -109,10 +108,8 @@ class Job(BaseJob):
                                                      instance))
 
     def service_status(self, service, instance):
-        return self._async_status(
-            instance,
-            self._format_cmd(self._status_cmd, service, instance)
-        ), ''
+        return self._async_status_systemd(instance, f'frappy@{instance}',
+                                          self._control_tool)
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))

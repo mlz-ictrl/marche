@@ -115,8 +115,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self._async_start(service, self.SYSTEMCTL + ' restart %s' % self.unit)
 
     def service_status(self, service, instance):
-        return self._async_status(service, self.SYSTEMCTL + ' is-active %s'
-                                  % self.unit), ''
+        return self._async_status_systemd(service, self.unit, self.SYSTEMCTL)
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

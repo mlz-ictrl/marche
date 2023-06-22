@@ -40,6 +40,8 @@ import sys
 if len(sys.argv) < 3:
     print('status...')
     print('mysrv : running')
+elif sys.argv[1] == 'show':
+    print('SubState=running')
 elif sys.argv[1] == '-n':
     print('log1\\nlog2')
 else:
@@ -103,8 +105,10 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
 
     assert job.get_services() == [('entangle', 'mysrv')]
 
-    assert job.service_status('entangle', 'mysrv') == (RUNNING, '')
-    assert job.all_service_status() == {('entangle', 'mysrv'): (RUNNING, '')}
+    assert job.service_status('entangle', 'mysrv')[0] == RUNNING
+    all_st = job.all_service_status()
+    assert len(all_st) == 1
+    assert all_st['entangle', 'mysrv'][0] == RUNNING
 
     job_call_check(job, 'entangle', 'mysrv',
                    'action %smysrv' % prefix, [prefix + 'mysrv', 'action'])

@@ -66,7 +66,8 @@ from os import path
 
 import toml
 
-from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, WARNING
+from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, SYSTEMD_STATE_MAP, \
+    WARNING
 from marche.jobs.base import Job as BaseJob
 from marche.utils import determine_init_system, extract_loglines
 
@@ -158,7 +159,7 @@ class InitJob(NicosBaseJob):
     def service_status(self, service, instance):
         async_st = self._async_status_only(instance)
         if async_st is not None:
-            return async_st, ''
+            return async_st
         if not instance:
             output = self._sync_call('%s status' % self._script).stdout
             something_dead = something_running = False
@@ -196,7 +197,7 @@ class InitJob(NicosBaseJob):
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
             if async_st is not None:
-                result[service, instance] = async_st, ''  # pragma: no cover
+                result[service, instance] = async_st  # pragma: no cover
             elif instance == '':
                 if something_dead and something_running:
                     result[service, ''] = WARNING, 'only some services running'
@@ -262,50 +263,36 @@ class SystemdJob(NicosBaseJob):
             self._async_start(instance, 'systemctl restart nicos.target')
 
     def service_status(self, service, instance):
-        async_st = self._async_status_only(instance)
-        if async_st is not None:
-            return async_st, ''
         if not instance:
-            lines = self._sync_call('systemctl list-units --all --no-legend '
-                                    '"nicos-*" 2>&1').stdout
-            something_dead = something_running = False
-            for line in lines:
-                if 'late-generator' in line:
-                    continue
-                if 'dead' in line:
-                    something_dead = True
-                if 'running' in line:
-                    something_running = True
-            if something_dead and something_running:
-                return WARNING, 'only some services running'
-            elif something_running:
-                return RUNNING, ''
-            return DEAD, ''
-        else:
-            proc = self._sync_call('systemctl is-active "nicos-%s" 2>&1' % instance)
-            if proc.retcode == 0:
-                return RUNNING, ''
-            return DEAD, ''
+            async_st = self._async_status_only(instance)
+            return async_st or self.all_service_status()[service, '']
+        return self._async_status_systemd(instance, f'nicos-{instance}')
 
     def all_service_status(self):
         result = {}
         initstates = {}
         something_dead = something_running = False
-        for line in self._sync_call('systemctl list-units --all --no-legend '
-                                    '"nicos-*" 2>&1').stdout:
-            if 'late-generator' in line:
+        name = ''
+        for line in self._sync_call('systemctl show -p Id -p SubState '
+                                    '"nicos-*"').stdout:
+            line = line.strip()
+            if line.startswith('Id='):
+                name = line[3:]
                 continue
-            if 'dead' in line:
-                something_dead = True
-            if 'running' in line:
-                something_running = True
-            name, state = line.split(None, 1)
-            instance = name[6:-8]
-            initstates[instance] = DEAD if 'dead' in state else RUNNING
+            if 'late-generator' in name:
+                continue
+            if line.startswith('SubState='):
+                state = SYSTEMD_STATE_MAP.get(line[9:], DEAD)
+                if state == DEAD:
+                    something_dead = True
+                elif state == RUNNING:
+                    something_running = True
+                instance = name[6:-8]
+                initstates[instance] = state
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
             if async_st is not None:
-                result[service, instance] = async_st, ''  # pragma: no cover
+                result[service, instance] = async_st  # pragma: no cover
             elif instance == '':
                 if something_dead and something_running:
                     result[service, ''] = WARNING, 'only some services running'

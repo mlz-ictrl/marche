@@ -39,6 +39,8 @@ import sys
 if len(sys.argv) < 3:
     print('status...')
     print('mynode : running')
+elif sys.argv[1] == 'show':
+    print('SubState=running')
 elif sys.argv[1] == '-n':
     print('log1\\nlog2')
 else:
@@ -78,8 +80,9 @@ def test_job(tempconf):
 
     assert job.get_services() == [('frappy', 'mynode')]
 
-    assert job.service_status('frappy', 'mynode') == (RUNNING, '')
-    assert job.all_service_status() == {('frappy', 'mynode'): (RUNNING, '')}
+    assert job.service_status('frappy', 'mynode') == (RUNNING, 'running')
+    assert job.all_service_status() == {('frappy', 'mynode'):
+                                        (RUNNING, 'running')}
 
     job_call_check(job, 'frappy', 'mynode',
                    'action frappy@mynode', ['frappy@mynode', 'action'])

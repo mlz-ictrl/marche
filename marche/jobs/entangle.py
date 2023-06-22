@@ -136,10 +136,10 @@ class EntangleBaseJob(BaseJob):
                                                      instance))
 
     def service_status(self, service, instance):
-        return self._async_status(
+        return self._async_status_exitcode(
             instance,
             self._format_cmd(self.STATUS_CMD, service, instance)
-        ), ''
+        )
 
     def service_output(self, service, instance):
         return list(self._output.get(instance, []))
@@ -176,10 +176,8 @@ class InitJob(EntangleBaseJob):
             initstates[name.strip()] = DEAD if 'dead' in state else RUNNING
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
-            if async_st is not None:
-                result[service, instance] = async_st, ''  # pragma: no cover
-            else:
-                result[service, instance] = initstates.get(instance, DEAD), ''
+            result[service, instance] = \
+                async_st or (initstates.get(instance, DEAD), '')
         return result
 
 
@@ -188,13 +186,16 @@ class SystemdJob(EntangleBaseJob):
     START_CMD = '{control_tool} start entangle@{instance}'
     STOP_CMD = '{control_tool} stop entangle@{instance}'
     RESTART_CMD = '{control_tool} restart entangle@{instance}'
-    STATUS_CMD = '{control_tool} is-active entangle@{instance}'
     JOURNAL_TOOL = 'journalctl'
 
     def service_logs(self, service, instance):
         proc = self._sync_call('%s -n 500 -u entangle@%s' %
                                (self.JOURNAL_TOOL, instance))
         return {'journal': ''.join(proc.stdout)}
+
+    def service_status(self, service, instance):
+        return self._async_status_systemd(instance, f'entangle@{instance}',
+                                          self._control_tool)
 
 
 def Job(*args, **kwargs):

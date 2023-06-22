@@ -41,6 +41,8 @@ if sys.argv[1] == 'journalctl':
 elif sys.argv[1] == 'systemctl' and sys.argv[2] == 'is-enabled':
     if sys.argv[3] != 'foo':
         sys.stderr.write('Not found\\n')
+elif sys.argv[1] == 'systemctl' and sys.argv[2] == 'show':
+    print('SubState=running')
 else:
     print(sys.argv[3])
     print(sys.argv[2])
@@ -63,7 +65,7 @@ def test_job(tmpdir):
 
     assert job.get_services() == [('foo', '')]
     assert job.service_description('foo', '') == 'name'
-    assert job.service_status('foo', '') == (RUNNING, '')
+    assert job.service_status('foo', '') == (RUNNING, 'running')
     job_call_check(job, 'foo', '', 'action foo', ['foo', 'action'])
 
     assert job.service_logs('foo', '') == {'journal': 'logline1\nlogline2\n'}
