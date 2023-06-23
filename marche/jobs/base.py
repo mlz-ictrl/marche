@@ -144,7 +144,8 @@ class Job:
             return self._processes[sub].status, ''
         cmd = f'{systemctl} show -p SubState "{unit}"'
         result = self._sync_call(cmd).stdout[0].strip()[9:]
-        return SYSTEMD_STATE_MAP.get(result, DEAD), result
+        return SYSTEMD_STATE_MAP.get(result, DEAD), \
+            result if result != 'running' else ''
 
     # Public interface
 

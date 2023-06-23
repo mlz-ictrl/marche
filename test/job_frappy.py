@@ -80,9 +80,9 @@ def test_job(tempconf):
 
     assert job.get_services() == [('frappy', 'mynode')]
 
-    assert job.service_status('frappy', 'mynode') == (RUNNING, 'running')
+    assert job.service_status('frappy', 'mynode') == (RUNNING, '')
     assert job.all_service_status() == {('frappy', 'mynode'):
-                                        (RUNNING, 'running')}
+                                        (RUNNING, '')}
 
     job_call_check(job, 'frappy', 'mynode',
                    'action frappy@mynode', ['frappy@mynode', 'action'])

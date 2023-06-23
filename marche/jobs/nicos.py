@@ -282,13 +282,15 @@ class SystemdJob(NicosBaseJob):
             if 'late-generator' in name:
                 continue
             if line.startswith('SubState='):
-                state = SYSTEMD_STATE_MAP.get(line[9:], DEAD)
-                if state == DEAD:
+                state = line[9:]
+                stateconst = SYSTEMD_STATE_MAP.get(state, DEAD)
+                if stateconst == DEAD:
                     something_dead = True
-                elif state == RUNNING:
+                elif stateconst == RUNNING:
                     something_running = True
                 instance = name[6:-8]
-                initstates[instance] = state
+                initstates[instance] = (stateconst,
+                                        state if state != 'running' else '')
         for service, instance in self._services:
             async_st = self._async_status_only(instance)
             if async_st is not None:
@@ -301,7 +303,8 @@ class SystemdJob(NicosBaseJob):
                 else:
                     result[service, ''] = DEAD, ''
             else:
-                result[service, instance] = initstates.get(instance, DEAD), ''
+                result[service, instance] = initstates.get(instance,
+                                                           (DEAD, ''))
         return result
 
 
