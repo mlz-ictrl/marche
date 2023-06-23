@@ -54,7 +54,7 @@ class JsonProxy:
         self.url = url
         self.ses = requests.Session()
 
-        result = self.ses.post(self.url, json={
+        result = self.ses.post(self.url, timeout=2.0, json={
             'jsonrpc': '2.0',
             'method': 'GetVersion',
             'id': 1,
@@ -63,7 +63,7 @@ class JsonProxy:
             raise RuntimeError('not a jsonrpc server')
 
     def _request(self, method, *args):
-        result = self.ses.post(self.url, json={
+        result = self.ses.post(self.url, timeout=3.0, json={
             'jsonrpc': '2.0',
             'method': method,
             'id': 1,
