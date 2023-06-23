@@ -1,3 +1,11 @@
+marche (3.7.0) focal; urgency=medium
+
+  * client: fix API use of inherited class
+  * marchec: add "reload" action
+  * systemd: properly map unit states to marche states
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Fri, 23 Jun 2023 06:48:38 +0200
+
 marche (3.6.1) focal; urgency=medium
 
   * add lintian overrides for JS sources
