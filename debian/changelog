@@ -1,3 +1,15 @@
+marche (3.8.0) focal; urgency=medium
+
+  [ Georg Brandl ]
+  * systemd: dont show "running" as extended error status
+  * client: add explicit timeout to JSONRPC requests
+  * systemd: is-enabled now returns "not-found" for invalid units
+
+  [ Konstantin Kholostov ]
+  * pyinstaller spec for osx
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Mon, 03 Jul 2023 18:41:24 +0200
+
 marche (3.7.0) focal; urgency=medium
 
   * client: fix API use of inherited class
