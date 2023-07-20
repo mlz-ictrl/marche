@@ -42,7 +42,12 @@ def scan(my_uid, max_wait=1.0):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     # send a general broadcast
-    s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
+    try:
+        s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
+    except OSError:
+        # No network connection available.
+        # Dont stop in order to ping local interfaces
+        pass
     # also send to all interfaces' broadcast addresses
     if netifaces:
         for iface in netifaces.interfaces():
