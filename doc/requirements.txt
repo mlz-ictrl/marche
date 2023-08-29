@@ -1,0 +1,7 @@
+pamela
+psutil
+ipaddress
+mlzlog
+netifaces
+requests
+toml
