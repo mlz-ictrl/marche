@@ -1,3 +1,14 @@
+marche (3.8.1) focal; urgency=medium
+
+  [ Alexander Zaft ]
+  * Make scan not fail, if network is unavailable
+
+  [ Georg Brandl ]
+  * add readthedocs config file
+  * add doc requirements
+
+ -- Alexander Zaft <jenkins@frm2.tum.de>  Tue, 29 Aug 2023 16:29:01 +0200
+
 marche (3.8.0) focal; urgency=medium
 
   [ Georg Brandl ]
