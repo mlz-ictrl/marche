@@ -1,3 +1,9 @@
+marche (3.8.2) focal; urgency=medium
+
+  * Jobs/entangle: Fix not accepting 'macaddress' as config param
+
+ -- Jens Krüger <jenkins@frm2.tum.de>  Thu, 19 Oct 2023 10:10:25 +0200
+
 marche (3.8.1) focal; urgency=medium
 
   [ Alexander Zaft ]
