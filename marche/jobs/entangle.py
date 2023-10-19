@@ -55,8 +55,10 @@ This job has the following configuration parameters:
 """
 
 import os
+import re
 import socket
 import sys
+import uuid
 from os import path
 
 import toml
@@ -98,7 +100,8 @@ class EntangleBaseJob(BaseJob):
 
     def init(self):
         substitutions = {
-            'hostname': socket.gethostname().split('.')[0]
+            'hostname': socket.gethostname().split('.')[0],
+            'macaddress': ':'.join(re.findall('..', '%012x' % uuid.getnode())),
         }
 
         try:
