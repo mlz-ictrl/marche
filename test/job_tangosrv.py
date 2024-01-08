@@ -26,6 +26,7 @@
 import logging
 
 from marche.jobs.tangosrv import Job
+from marche.utils import write_file
 
 logger = logging.getLogger('testtangosrv')
 
@@ -68,6 +69,8 @@ def test_job(tmpdir):
 
     Job.INIT_BASE = str(tmpdir)
     Job.DEFAULT_FILE = str(defaultfile)
+
+    write_file(tmpdir.join('Mysrv.res'), RESFILE)
 
     job = Job('tangosrv', 'name', {'srvname': 'Mysrv'},
               logger, lambda event: None)

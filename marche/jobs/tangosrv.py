@@ -84,8 +84,7 @@ class Job(SystemdJob):
     def configure(self, config):
         SystemdJob.configure(self, config)
         self.srvname = config.get('srvname', self.name)
-        self.unit = config.get('unit', 'tango-server-' +
-                               self.srvname.lower())
+        self.unit = config.get('unit', 'tango-server-' + self.srvname.lower())
         self.description = config.get('description',
                                       '%s server' % self.srvname)
         resdir = config.get('resdir', '')
@@ -103,6 +102,9 @@ class Job(SystemdJob):
             self.config_files = [path.join(resdir, self.srvname + '.res')]
         else:  # pragma: no cover
             self.config_files = []
+        if self.config_files:
+            db = self._connect_db()
+            self._update_db(db, self.config_files[0])
 
     def send_config(self, service, instance, filename, contents):
         db = self._connect_db()
