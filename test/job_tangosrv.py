@@ -70,14 +70,6 @@ def test_job(tmpdir):
     Job.INIT_BASE = str(tmpdir)
     Job.DEFAULT_FILE = str(defaultfile)
 
-    write_file(tmpdir.join('Mysrv.res'), RESFILE)
-
-    job = Job('tangosrv', 'name', {'srvname': 'Mysrv'},
-              logger, lambda event: None)
-    job.init()
-
-    assert job.get_services() == [('tango-server-mysrv', '')]
-
     devices = []
     properties = []
 
@@ -90,6 +82,17 @@ def test_job(tmpdir):
     Job._connect_db = lambda self: None
     Job._add_device = new_add_device
     Job._add_property = new_add_property
+
+    write_file(tmpdir.join('Mysrv.res'), RESFILE)
+
+    job = Job('tangosrv', 'name', {'srvname': 'Mysrv'},
+              logger, lambda event: None)
+    job.init()
+
+    assert job.get_services() == [('tango-server-mysrv', '')]
+
+    devices = []
+    properties = []
 
     job.send_config('tango-server-mysrv', 'inst', 'Mysrv.res', RESFILE)
 
