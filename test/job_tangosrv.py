@@ -36,7 +36,7 @@ DEFAULT = '''\
 export TANGO_RES_DIR=%(tmpdir)s
 '''
 
-RESFILE = '''\
+RESFILE = '''
 # Some resoure file...
 
 CLASS/Mysrv/DEFAULT/devpath:            /dev/path
@@ -63,7 +63,7 @@ cmds/mysrv/null/value:                  5
 '''
 
 
-def test_job(tmpdir):
+def test_job_legacy(tmpdir):
     defaultfile = tmpdir.join('default')
     defaultfile.write(DEFAULT % {'tmpdir': str(tmpdir)})
 
@@ -108,4 +108,96 @@ def test_job(tmpdir):
         ('test/mysrv/dev2', 'min', ['0']),
         ('test/mysrv/dev2', 'max', ['40']),
         ('test/mysrv/dev2', 'units', ['deg', 'rad', 'grd'])
+    ]
+
+
+PROPFILE = """
+# Some TANGO style resoure file...
+
+LimaCCDs/ikonl/DEVICE/LimaCCDs: "test/detector/ccd1",\\
+                                "test/detector/ccd2"
+
+LimaCCDs/ikonl/DEVICE/Andor: "test/detector/ikonl"
+
+test/detector/ikonl->camera_number:          0
+test/detector/ikonl->shutter_level:          "LOW"
+test/detector/ikonl->fan_mode:               "OFF"
+test/detector/ikonl->p_gain:                 "X4"
+test/detector/ikonl->temperature_sp:         -100
+test/detector/ikonl/temperature_sp->unit:    "degC"
+test/detector/ikonl->fast_ext_trigger:       "OFF"
+test/detector/ikonl->baseline_clamp:         "OFF"
+test/detector/ikonl->cooler:                 "OFF"
+test/detector/ikonl->vs_speed:               "38.55USEC" # comment
+test/detector/ikonl->adc_speed:              "ADC0_5MHZ"
+test/detector/ikonl->high_capacity:          "HIGH_SENSITIVITY"
+
+test/detector/ccd1->LimaCameraType:         "Andor"
+test/detector/ccd2->LimaCameraType:       "Andor"
+
+test/detector/ccd1->ArrayProp:  1,\\
+                                2,\\
+                                3
+
+CLASS/LimaCCDs->doc_url:                    "http://www.esrf.fr/some/path"
+
+"""
+
+
+def test_job_tango(tmpdir):
+    defaultfile = tmpdir.join('default')
+    defaultfile.write(DEFAULT % {'tmpdir': str(tmpdir)})
+
+    Job.INIT_BASE = str(tmpdir)
+    Job.DEFAULT_FILE = str(defaultfile)
+
+    devices = []
+    properties = []
+
+    def new_add_device(_self, _db, name, cls, srv):
+        devices.append((name, cls, srv))
+
+    def new_add_property(_self, _db, dev, name, vals, _devs):
+        properties.append((dev, name, vals))
+
+    Job._connect_db = lambda self: None
+    Job._add_device = new_add_device
+    Job._add_property = new_add_property
+
+    write_file(tmpdir.join('camera.res'), PROPFILE)
+
+    job = Job('tangosrv', 'name', {'srvname': 'camera', 'resformat': 'tango'},
+              logger, lambda event: None)
+    job.init()
+
+    assert job.get_services() == [('tango-server-camera', '')]
+
+    devices = []
+    properties = []
+
+    job.send_config('tango-server-camera', 'inst', 'camera.res', PROPFILE)
+
+    assert devices == [
+        ('test/detector/ccd1', 'LimaCCDs', 'LimaCCDs/ikonl'),
+        ('test/detector/ccd2', 'LimaCCDs', 'LimaCCDs/ikonl'),
+        ('test/detector/ikonl', 'Andor', 'LimaCCDs/ikonl'),
+    ]
+
+    assert properties == [
+        ('test/detector/ikonl', 'camera_number', ['0']),
+        ('test/detector/ikonl', 'shutter_level', ['LOW']),
+        ('test/detector/ikonl', 'fan_mode', ['OFF']),
+        ('test/detector/ikonl', 'p_gain', ['X4']),
+        ('test/detector/ikonl', 'temperature_sp', ['-100']),
+        ('test/detector/ikonl/temperature_sp', 'unit', ['degC']),
+        ('test/detector/ikonl', 'fast_ext_trigger', ['OFF']),
+        ('test/detector/ikonl', 'baseline_clamp', ['OFF']),
+        ('test/detector/ikonl', 'cooler', ['OFF']),
+        ('test/detector/ikonl', 'vs_speed', ['38.55USEC']),
+        ('test/detector/ikonl', 'adc_speed', ['ADC0_5MHZ']),
+        ('test/detector/ikonl', 'high_capacity', ['HIGH_SENSITIVITY']),
+        ('test/detector/ccd1', 'LimaCameraType', ['Andor']),
+        ('test/detector/ccd2', 'LimaCameraType', ['Andor']),
+        ('test/detector/ccd1', 'ArrayProp', ['1', '2', '3']),
+        ('CLASS/LimaCCDs', 'doc_url', ['http://www.esrf.fr/some/path']),
     ]

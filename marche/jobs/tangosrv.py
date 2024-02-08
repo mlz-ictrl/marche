@@ -52,6 +52,17 @@ This job has the following configuration parameters:
       in this directory.  If not given, file :file:`/etc/default/tango` should
       contain a line ``TANGO_RES_DIR=resdir``.
 
+   .. describe:: resformat
+
+      The resource file may have different formats: 'legacy', 'tango'.
+
+      The 'legacy' format is default and is the original one derived from the
+      TACO resource file format.
+
+      The 'tango' format is the 'official' one, which is used by the Jive tool.
+      https://tango-controls.readthedocs.io/en/9.2.5/manual/F-property.html#property-file-syntax
+
+
 This job inherits from the :ref:`systemd-job`, and therefore supports all its
 other configuration parameters.
 
@@ -84,9 +95,9 @@ class Job(SystemdJob):
     def configure(self, config):
         SystemdJob.configure(self, config)
         self.srvname = config.get('srvname', self.name)
-        self.unit = config.get('unit', 'tango-server-' + self.srvname.lower())
-        self.description = config.get('description',
-                                      '%s server' % self.srvname)
+        self.unit = config.get('unit', f'tango-server-{self.srvname.lower()}')
+        self.description = config.get('description', f'{self.srvname} server')
+        self.resformat = config.get('resformat', 'legacy')
         resdir = config.get('resdir', '')
         if not resdir:
             with open(self.DEFAULT_FILE, encoding='utf-8') as fd:
@@ -103,8 +114,11 @@ class Job(SystemdJob):
         else:  # pragma: no cover
             self.config_files = []
         if self.config_files:
-            db = self._connect_db()
-            self._update_db(db, self.config_files[0])
+            if config.get('nodb', False):
+                db = self._connect_db()
+                self._update_db(db, self.config_files[0])
+            else:
+                db = None
 
     def send_config(self, service, instance, filename, contents):
         db = self._connect_db()
@@ -115,53 +129,90 @@ class Job(SystemdJob):
     def _update_db(self, db, fn):
         devices = set()
 
-        def processvalue(dev, res, val):
-            if dev.startswith(('cmds/', 'error/')):
-                return
-            if val.startswith('"'):
-                self._add_property(db, dev, res, [val.strip('"').strip()],
-                                   devices)
-            elif ',' not in val:
-                self._add_property(db, dev, res, [val.strip()], devices)
-            else:
-                arr = val.split(',')
-                self._add_property(db, dev, res, [v.strip() for v in arr if v],
-                                   devices)
+        def processlegacy(fn):
+            def processvalue(dev, res, val):
+                if dev.startswith(('cmds/', 'error/')):
+                    return
+                if val.startswith('"'):
+                    self._add_property(db, dev, res, [val.strip('"').strip()],
+                                       devices)
+                elif ',' not in val:
+                    self._add_property(db, dev, res, [val.strip()], devices)
+                else:
+                    arr = val.split(',')
+                    self._add_property(db, dev, res,
+                                       [v.strip() for v in arr if v], devices)
 
-        def processdevice(key, valpar):
-            klass = key[0].title()
-            if key[1] == 'localhost':
-                return
-            for val in valpar:
-                valarr = val.strip().split('/')
-                srv = klass + '/' + valarr[0] + '_' + key[1]
-                name = val.strip()
-                self._add_device(db, name, valarr[1], srv)
-                devices.add(name.lower())
+            def processdevice(key, valpar):
+                klass = key[0].title()
+                if key[1] == 'localhost':
+                    return
+                for val in valpar:
+                    valarr = val.strip().split('/')
+                    srv = klass + '/' + valarr[0] + '_' + key[1]
+                    name = val.strip()
+                    self._add_device(db, name, valarr[1], srv)
+                    devices.add(name.lower())
 
-        with open(fn, encoding='utf-8') as fp:
-            for line in iter(fp.readline, ''):
-                if not isinstance(line, str):  # pragma: no cover
-                    line = line.decode('utf-8', 'replace')
-                line = line.expandtabs(1).strip()
-                while line.endswith('\\'):
-                    line = line.rstrip('\\ ')
-                    if not line.endswith(':'):
-                        line += ','
-                    line += fp.readline().expandtabs(1).strip()
-                if line.startswith('#'):
-                    continue
-                val = line.split('#', 1)
-                line = val[0]
-                val = line.split(':', 1)
-                if len(val) < 2:
-                    continue
-                key = [k.strip() for k in val[0].lower().split('/')]
-                if len(key) == 4:
-                    processvalue(key[0] + '/' + key[1] + '/' + key[2],
-                                 key[3], val[1].strip())
-                elif len(key) == 3 and key[2] == 'device':
-                    processdevice(key, val[1].strip().split(','))
+            with open(fn, encoding='utf-8', errors='replace') as fp:
+                # for line in fp:
+                for line in iter(fp.readline, ''):
+                    line = line.expandtabs(1).strip()
+                    while line.endswith('\\'):
+                        line = line.rstrip('\\ ')
+                        if not line.endswith(':'):
+                            line += ','
+                        line += fp.readline().expandtabs(1).strip()
+                    line = line.split('#', 1)[0]
+                    if not line:
+                        continue
+                    val = line.split(':', 1)
+                    if len(val) < 2:
+                        continue
+                    key = [k.strip() for k in val[0].lower().split('/')]
+                    if len(key) == 4:
+                        processvalue('/'.join(key[:3]), key[3], val[1].strip())
+                    elif len(key) == 3 and key[2] == 'device':
+                        processdevice(key, val[1].strip().split(','))
+
+        def processtango(fn):
+
+            def processdevice(key, devices):
+                server, dev, klass = key.rsplit('/', 2)
+                if dev == "DEVICE":
+                    for devname in devices:
+                        self._add_device(db, devname, klass, server)
+
+            def processvalue(dev, propname, values):
+                self._add_property(db, dev, propname, values, [])
+
+            with open(fn, encoding='utf-8', errors='replace') as fp:
+                lines = iter(fp)
+                for line in lines:
+                    line = line.split('#', 1)[0].strip()
+                    if not line:
+                        continue
+                    try:
+                        key, val = line.split(':', 1)
+                    except ValueError:
+                        continue
+                    values = []
+                    key = key.strip()
+                    while val.endswith('\\'):
+                        val = val.rstrip(',\\ ').strip().strip('"')
+                        values.append(val)
+                        val = next(lines).split('#', 1)[0].strip()
+                    val = val.rstrip(',\\ ').strip().strip('"')
+                    values.append(val)
+                    if key.count('->') == 1:  # property handling
+                        processvalue(*key.split('->'), values)
+                    elif key.count('/') == 3:  # device handling
+                        processdevice(key, values)
+
+        if self.resformat == 'tango':
+            processtango(fn)
+        else:
+            processlegacy(fn)
 
     def _connect_db(self):  # pragma: no cover
         if tango is None:
@@ -180,9 +231,19 @@ class Job(SystemdJob):
         prop.name = name
         for val in vals:
             prop.value_string.append(val)
-        if dev[0:6] == 'class/':
-            db.put_class_property(dev.split('/')[1], prop)
-        elif dev.lower() not in devices:
-            db.put_property(dev, prop)
+        if self.resformat == 'tango':
+            if dev.split('/', 1)[0] == 'CLASS':
+                db.put_class_property(dev.split('/')[1], prop)
+            elif dev.count('/') == 2:
+                db.put_device_property(dev, prop)
+            elif dev.count('/') == 3:
+                db.put_device_attribute_property(dev, prop)
+            else:
+                db.put_property(dev, prop)
         else:
-            db.put_device_property(dev, prop)
+            if dev[0:6] == 'class/':
+                db.put_class_property(dev.split('/')[1], prop)
+            elif dev.lower() not in devices:
+                db.put_property(dev, prop)
+            else:
+                db.put_device_property(dev, prop)
