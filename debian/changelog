@@ -1,3 +1,10 @@
+marche (3.9.0) jammy; urgency=medium
+
+  * Jobs/TangoServer: Pump resource file info to database
+  * Test: Fix tangosrv test
+
+ -- Jens Krüger <jenkins@frm2.tum.de>  Wed, 28 Feb 2024 09:10:27 +0100
+
 marche (3.8.2) focal; urgency=medium
 
   * Jobs/entangle: Fix not accepting 'macaddress' as config param
