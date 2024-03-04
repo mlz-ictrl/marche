@@ -233,7 +233,16 @@ class SystemdJob(NicosBaseJob):
         return True
 
     def init(self):
+        # for now, just offer the basic service corresponding to nicos.target
         self._services = [('nicos', '')]
+        BaseJob.init(self)
+
+    def get_services(self):
+        # repeatedly try to get the actual service list until the generator
+        # has run through
+        if len(self._services) > 1:
+            return self._services
+
         # TODO: switch to `-o json` mode once we can depend on newer systemd
         lines = self._sync_call('systemctl list-units --all --no-legend '
                                 '"nicos-*" 2>&1').stdout
@@ -243,7 +252,7 @@ class SystemdJob(NicosBaseJob):
                 instance = split[0][6:-8]
                 if instance != 'late-generator':
                     self._services.append(('nicos', instance))
-        BaseJob.init(self)
+        return self._services
 
     def start_service(self, service, instance):
         if instance:
