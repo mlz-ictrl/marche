@@ -234,10 +234,11 @@ class SystemdJob(NicosBaseJob):
 
     def init(self):
         self._services = [('nicos', '')]
+        # TODO: switch to `-o json` mode once we can depend on newer systemd
         lines = self._sync_call('systemctl list-units --all --no-legend '
                                 '"nicos-*" 2>&1').stdout
         for line in lines:
-            split = line.split()
+            split = line[2:].split()
             if split[0].startswith('nicos-'):
                 instance = split[0][6:-8]
                 if instance != 'late-generator':
