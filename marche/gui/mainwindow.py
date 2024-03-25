@@ -176,7 +176,7 @@ class MainWindow(QMainWindow):
 
     def loadSession(self, filename, silent=False):
         try:
-            with open(filename) as fp:
+            with open(filename, encoding='utf-8') as fp:
                 firstline = fp.readline()
                 if firstline.startswith('Marche session v1'):
                     hosts = [h for h in (h.strip() for h in fp) if h]
@@ -200,7 +200,7 @@ class MainWindow(QMainWindow):
         if not filename.endswith('.marche'):
             filename += '.marche'
         try:
-            with open(filename, 'w') as fp:
+            with open(filename, 'w', encoding='utf-8') as fp:
                 fp.write('Marche session v1\n')
                 for i in range(self.hostList.count()):
                     fp.write(self.hostList.item(i).text() + '\n')
@@ -256,6 +256,9 @@ class MainWindow(QMainWindow):
                 self.openHost(item.text(), False)
         else:
             self.closeHost()
+
+    def on_hostList_itemActivated(self, item):
+        self.on_hostList_itemClicked(item)
 
     def on_hostList_customContextMenuRequested(self, pos):
         item = self.hostList.itemAt(pos)
