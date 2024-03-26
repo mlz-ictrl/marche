@@ -48,13 +48,18 @@ def try_connect(host, port, user, passwd):
 
 
 def negotiate(host, port, user):
-    client = try_connect(host, port, None, None)
-    if client:
-        return client
+    if not user:
+        client = try_connect(host, port, None, None)
+        if client:
+            return client
 
-    client = try_connect(host, port, user, 'marche')
-    if client:
-        return client
+    if not user or user == 'marche':
+        client = try_connect(host, port, 'marche', 'marche')
+        if client:
+            return client
+
+    if not user:
+        raise RuntimeError('anonymous login failed, need to provide username')
 
     passwd = click.prompt('Password', hide_input=True)
     client = try_connect(host, port, user, passwd)
@@ -67,9 +72,15 @@ def negotiate(host, port, user):
 @click.group(invoke_without_command=True)
 @click.argument('host')
 @click.option('--port', default=8124)
-@click.option('--user', default='marche')
+@click.option('--user', default='')
 @click.pass_context
 def marchec(ctx, host, port, user):
+    if '@' in host:
+        host_user, host = host.split('@', 1)
+        if user and user != host_user:
+            raise RuntimeError('two conflicting user names given')
+        user = host_user
+
     ctx.ensure_object(dict)
     ctx.obj['client'] = negotiate(host, port, user)
 
