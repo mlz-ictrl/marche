@@ -145,7 +145,7 @@ def logs(ctx, service):
     cl = ctx.obj['client']
     logs = cl.getServiceLogs(service)
     for entry in logs:
-        click.echo(entry)
+        click.echo(entry.rstrip())
 
 
 @marchec.command(help='Reload the job configuration of the Marche daemon.')
