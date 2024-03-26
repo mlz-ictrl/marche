@@ -69,10 +69,12 @@ def negotiate(host, port, user):
     raise RuntimeError('valid login credentials needed')
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True,
+             help='Interact with a Marche daemon at HOST (can also be '
+             'specified as USER@HOST).')
 @click.argument('host')
-@click.option('--port', default=8124)
-@click.option('--user', default='')
+@click.option('--port', default=8124, help='Specify nonstandard port number.')
+@click.option('--user', default='', help='Specify user name for login.')
 @click.pass_context
 def marchec(ctx, host, port, user):
     if '@' in host:
@@ -89,7 +91,7 @@ def marchec(ctx, host, port, user):
         all_status(cl)
 
 
-@marchec.command()
+@marchec.command(help='Check the status of a service.')
 @click.argument('service', required=False)
 @click.pass_context
 def status(ctx, service):
@@ -100,7 +102,7 @@ def status(ctx, service):
         single_status(cl, service)
 
 
-@marchec.command()
+@marchec.command(help='Start a service.')
 @click.argument('service')
 @click.pass_context
 def start(ctx, service):
@@ -109,7 +111,7 @@ def start(ctx, service):
     wait_status(cl, service)
 
 
-@marchec.command()
+@marchec.command(help='Stop a service.')
 @click.argument('service')
 @click.pass_context
 def stop(ctx, service):
@@ -118,7 +120,7 @@ def stop(ctx, service):
     wait_status(cl, service)
 
 
-@marchec.command()
+@marchec.command(help='Restart a service.')
 @click.argument('service')
 @click.pass_context
 def restart(ctx, service):
@@ -127,7 +129,7 @@ def restart(ctx, service):
     wait_status(cl, service)
 
 
-@marchec.command()
+@marchec.command(help='Show output of the last service start/stop request.')
 @click.argument('service')
 @click.pass_context
 def output(ctx, service):
@@ -136,7 +138,7 @@ def output(ctx, service):
     click.echo(out)
 
 
-@marchec.command()
+@marchec.command(help='Show the most recent logs produced by a service.')
 @click.argument('service')
 @click.pass_context
 def logs(ctx, service):
@@ -146,7 +148,7 @@ def logs(ctx, service):
         click.echo(entry)
 
 
-@marchec.command()
+@marchec.command(help='Reload the job configuration of the Marche daemon.')
 @click.pass_context
 def reload(ctx):
     cl = ctx.obj['client']
