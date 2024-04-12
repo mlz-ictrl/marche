@@ -170,16 +170,15 @@ class InitJob(NicosBaseJob):
                     something_running = True
             if something_dead and something_running:
                 return WARNING, 'only some services running'
-            elif something_running:
+            if something_running:
                 return RUNNING, ''
             return DEAD, ''
-        else:
-            proc = self._sync_call(self._script + ' status %s' % instance)
-            if proc.retcode == 0:
-                return RUNNING, ''
-            elif proc.retcode == -1:
-                return NOT_AVAILABLE, ''
-            return DEAD, ''
+        proc = self._sync_call(self._script + ' status %s' % instance)
+        if proc.retcode == 0:
+            return RUNNING, ''
+        if proc.retcode == -1:
+            return NOT_AVAILABLE, ''
+        return DEAD, ''
 
     def all_service_status(self):
         result = {}

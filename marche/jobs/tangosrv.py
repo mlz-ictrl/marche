@@ -89,7 +89,7 @@ class Job(SystemdJob):
                                       '%s server' % self.srvname)
         resdir = config.get('resdir', '')
         if not resdir:
-            with open(self.DEFAULT_FILE) as fd:
+            with open(self.DEFAULT_FILE, encoding='utf-8') as fd:
                 for line in fd:
                     if not line.startswith('#'):
                         (key, sep, value) = line.partition('=')
@@ -139,7 +139,7 @@ class Job(SystemdJob):
                 self._add_device(db, name, valarr[1], srv)
                 devices.add(name.lower())
 
-        with open(fn) as fp:
+        with open(fn, encoding='utf-8') as fp:
             for line in iter(fp.readline, ''):
                 if not isinstance(line, str):  # pragma: no cover
                     line = line.decode('utf-8', 'replace')

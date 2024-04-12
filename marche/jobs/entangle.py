@@ -105,7 +105,7 @@ class EntangleBaseJob(BaseJob):
         }
 
         try:
-            with open(self._config) as fp:
+            with open(self._config, encoding='utf-8') as fp:
                 cfg = toml.load(fp)
         except IOError:  # let TOML errors pass through
             cfg = {}

@@ -120,7 +120,7 @@ def setuser(user, group, recover=True):  # pragma: no cover
 def write_pidfile(pid_dir):
     """Write a file with the PID of the current process."""
     ensure_directory(pid_dir)
-    with open(path.join(pid_dir, 'marched.pid'), 'w') as fp:
+    with open(path.join(pid_dir, 'marched.pid'), 'w', encoding='utf-8') as fp:
         fp.write(str(os.getpid()))
 
 
@@ -333,9 +333,9 @@ def determine_init_system():
 
     if b'systemd' in init_pkg:
         return 'systemd'
-    elif b'upstart' in init_pkg:
+    if b'upstart' in init_pkg:
         return 'upstart'
-    elif b'sysvinit' in init_pkg:
+    if b'sysvinit' in init_pkg:
         return 'sysvinit'
 
     return 'unknown'

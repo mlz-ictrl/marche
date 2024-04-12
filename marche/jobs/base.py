@@ -134,7 +134,7 @@ class Job:
         result = self._sync_call(cmd).retcode
         if result == 0:
             return RUNNING, ''
-        elif result == -1:  # timeout in call
+        if result == -1:  # timeout in call
             return NOT_AVAILABLE, ''
         return DEAD, ''
 

@@ -101,7 +101,7 @@ class JobButtons(JobButtonsUI, QWidget):
         if not config:
             self._item.setText(3, 'No editable config files found')
             return
-        elif len(config) % 2 != 0:
+        if len(config) % 2 != 0:
             self._item.setText(3, 'Strange return value')
             return
         dtemp = tempfile.mkdtemp()

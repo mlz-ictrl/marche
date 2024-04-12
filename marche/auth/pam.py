@@ -104,10 +104,10 @@ class Authenticator(BaseAuthenticator):
             self._cache.add(key)
         if user in self.adminusers:
             return ClientInfo(ADMIN)
-        elif user in self.controlusers:
+        if user in self.controlusers:
             return ClientInfo(CONTROL)
-        elif user in self.displayusers:
+        if user in self.displayusers:
             return ClientInfo(DISPLAY)
-        elif self.defaultlevel == NONE:
+        if self.defaultlevel == NONE:
             return None
         return ClientInfo(self.defaultlevel)
