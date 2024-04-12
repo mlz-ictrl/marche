@@ -33,7 +33,7 @@ from marche.gui.client import ClientError
 from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
     QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot
 from marche.gui.util import loadSetting, loadUi, loadUiType, saveSetting, \
-    selectEditor
+    selectEditor, getEditorArguments
 from marche.utils import read_file, write_file
 
 JobButtonsUI = loadUiType('job.ui')
@@ -140,7 +140,12 @@ class JobButtons(JobButtonsUI, QWidget):
         loadUi(dlg, 'wait.ui')
         dlg.setModal(True)
         dlg.show()
-        pid = subprocess.Popen('%s %s' % (editor, localfn), shell=True)
+        flags = getEditorArguments(editor)
+        if flags:
+            command = '%s %s %s' % (editor, flags, localfn)
+        else:
+            command = '%s %s' % (editor, localfn)
+        pid = subprocess.Popen(command, shell=True)
         while pid.poll() is None:
             QApplication.processEvents()
             time.sleep(0.2)

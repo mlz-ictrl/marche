@@ -37,6 +37,15 @@ uipath = os.path.dirname(__file__)
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma',
                  'notepad']
 
+# any flags needed to make the editor wait until the file is closed again
+EDITOR_FLAGS = {
+    # technically only needed if there is already a gedit instance running
+    'gedit': ['--wait'],
+    # always needed, kate forks per default
+    'kate': ['--block'],
+    # no-session not strictly needed
+    'geany': ['--new-instance', '--no-session'],
+}
 
 def loadUi(widget, uiname, subdir='ui'):
     uic.loadUi(os.path.join(uipath, subdir, uiname), widget)
@@ -72,6 +81,12 @@ def selectEditor():
     if dlg.cmdEdit.text():
         return dlg.cmdEdit.text()
     return dlg.editorBox.currentText()
+
+
+def getEditorArguments(editor):
+    if editor in EDITOR_FLAGS:
+         return ' '.join(EDITOR_FLAGS[editor])
+    return None
 
 
 def _getSettingsObj():
