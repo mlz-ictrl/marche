@@ -23,6 +23,7 @@
 
 """Console client."""
 
+import os
 import time
 import xmlrpc.client
 
@@ -155,6 +156,39 @@ def reload(ctx):
     cl.reloadJobs()
     click.echo('reload done, services now:')
     all_status(cl)
+
+
+@marchec.command(help='Change the configuration of a service.')
+@click.argument('service')
+@click.pass_context
+def edit(ctx, service):
+    cl = ctx.obj['client']
+    cfg = cl.receiveServiceConfig(service)
+    if not cfg:
+        click.echo('No config files found.')
+        return
+    if len(cfg) % 2 != 0:
+        click.echo('Unexpected value returned from server.')
+        return
+
+    result = []
+    for i in range(0, len(cfg), 2):
+        fname, content = (cfg[i], cfg[i + 1])
+        _, extension = os.path.splitext(fname)
+        if not extension:
+            extension = '.txt'  # fall back to txt
+        new_cfg = click.edit(content, extension=extension)
+        if new_cfg is None:
+            click.echo(f'{fname} not modified.')
+            continue
+        if click.confirm('Use the new config file?'):
+            result.append(fname)
+            result.append(new_cfg)
+    if not result:
+        return
+    cl.sendServiceConfig(service, data=result)
+    n = len(result) // 2
+    click.echo(f'Sent {n} new config file{"s" if n > 1 else ""}.')
 
 
 def all_status(cl):
