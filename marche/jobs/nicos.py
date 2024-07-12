@@ -246,7 +246,9 @@ class SystemdJob(NicosBaseJob):
         lines = self._sync_call('systemctl list-units --all --no-legend '
                                 '"nicos-*" 2>&1').stdout
         for line in lines:
-            split = line[2:].split()
+            split = line.split()
+            if len(split[0]) < 3:  # must be symbol showing unit status
+                split = split[1:]
             if split[0].startswith('nicos-'):
                 instance = split[0][6:-8]
                 if instance != 'late-generator':
