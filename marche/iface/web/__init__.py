@@ -45,9 +45,8 @@ This interface allows controlling services via a graphical interface.
 """
 
 import json
-import os
 import socket
-from os import path
+from pathlib import Path
 
 import cherrypy
 from cherrypy import log
@@ -59,13 +58,12 @@ from marche.jobs import STATE_STR
 from marche.permission import DISPLAY, ClientInfo
 from marche.version import get_version
 
-ENV = Environment(loader=FileSystemLoader(
-    path.join(path.dirname(__file__), 'templates')))
+ENV = Environment(loader=FileSystemLoader(Path(__file__).parent / 'templates'))
 
 CONFIG = {
     '/': {
         'tools.sessions.on': True,
-        'tools.staticdir.root': os.path.abspath(os.path.dirname(__file__)),
+        'tools.staticdir.root': str(Path(__file__).parent.absolute()),
     },
     '/static': {
         'tools.staticdir.on': True,
