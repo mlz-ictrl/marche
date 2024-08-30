@@ -24,16 +24,16 @@
 
 import base64
 import ipaddress
-import os
 import shutil
 import socket
+from pathlib import Path
 
 import psutil
 
 from marche.gui.qt import PYQT_VERSION, QDialog, QSettings, uic
 from marche.utils import bytencode
 
-uipath = os.path.dirname(__file__)
+uipath = Path(__file__).parent
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma',
                  'notepad']
 
@@ -47,18 +47,19 @@ EDITOR_FLAGS = {
     'geany': ['--new-instance', '--no-session'],
 }
 
+
 def loadUi(widget, uiname, subdir='ui'):
-    uic.loadUi(os.path.join(uipath, subdir, uiname), widget)
+    uic.loadUi(uipath / subdir / uiname, widget)
 
 
 def loadUiType(uiname, subdir='ui'):
     if PYQT_VERSION >= 0x60000:
-        return uic.loadUiType(os.path.join(uipath, subdir, uiname))[0]
+        return uic.loadUiType(uipath / subdir / uiname)[0]
     # About resource_suffix: uic.loadUiType insists on creating
     # import statements with the name of the .qrc file followed
     # by this suffix.  Since the file is marche.qrc, this will now
     # import marche.gui.res (a dummy module).
-    return uic.loadUiType(os.path.join(uipath, subdir, uiname),
+    return uic.loadUiType(uipath / subdir / uiname,
                           resource_suffix='.gui.res')[0]
 
 

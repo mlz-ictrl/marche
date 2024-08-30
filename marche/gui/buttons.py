@@ -27,13 +27,13 @@ import re
 import subprocess
 import tempfile
 import time
-from os import path
+from pathlib import Path
 
 from marche.gui.client import ClientError
 from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
     QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot
-from marche.gui.util import loadSetting, loadUi, loadUiType, saveSetting, \
-    selectEditor, getEditorArguments
+from marche.gui.util import getEditorArguments, loadSetting, loadUi, \
+    loadUiType, saveSetting, selectEditor
 from marche.utils import read_file, write_file
 
 JobButtonsUI = loadUiType('job.ui')
@@ -107,11 +107,11 @@ class JobButtons(JobButtonsUI, QWidget):
         dtemp = tempfile.mkdtemp()
         result = []
         for i in range(0, len(config), 2):
-            fn = path.basename(config[i])
+            fn = Path(config[i])
             contents = config[i + 1]
             if os.name == 'nt':
                 contents = re.sub(r'(?<!\r)\n', '\r\n', contents)
-            localfn = path.join(dtemp, fn)
+            localfn = dtemp / fn
             write_file(localfn, contents)
             if not self.editLocal(editor, localfn):
                 self._item.setText(3, 'Editor failed')
