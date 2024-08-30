@@ -23,9 +23,9 @@
 
 """Console client."""
 
-import os
 import time
 import xmlrpc.client
+from pathlib import Path
 
 import click
 
@@ -174,7 +174,7 @@ def edit(ctx, service):
     result = []
     for i in range(0, len(cfg), 2):
         fname, content = (cfg[i], cfg[i + 1])
-        _, extension = os.path.splitext(fname)
+        extension = Path(fname).suffix
         if not extension:
             extension = '.txt'  # fall back to txt
         new_cfg = click.edit(content, extension=extension)
