@@ -209,7 +209,7 @@ def single_status(cl, service, sts=None):
         STARTING: ('starting', 'yellow'),
         INITIALIZING: ('initializing', 'yellow'),
         RUNNING: ('running', 'green'),
-        WARNING: ('warning', 'purple'),
+        WARNING: ('warning', 'magenta'),
         STOPPING: ('stopping', 'yellow'),
         NOT_AVAILABLE: ('not available', 'white'),
     }.get(sts, ('???', 'white'))
