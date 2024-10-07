@@ -13,6 +13,8 @@ uidir = path.join(rootdir, 'marche', 'gui', 'ui')
 subprocess.check_call([sys.executable,
                        path.join(rootdir, 'marche', 'version.py')])
 
+with open(versionfile, 'r', encoding='utf-8') as f:
+    v = ''.join(f.readlines()).strip()
 
 a = Analysis([binscript],
              pathex=[rootdir],
@@ -38,6 +40,7 @@ exe = EXE(pyz,
           upx=False,
           console=False)
 app = BUNDLE(exe,
-         name='marche.app',
-         icon='../marche/gui/res/logo-new.icns',
-         bundle_identifier=None,)
+             name='marche.app',
+             icon='../marche/gui/res/logo-new.icns',
+             bundle_identifier=None,
+             version=v)
