@@ -1,3 +1,18 @@
+marche (3.11.2) stable; urgency=medium
+
+  [ Alexander Zaft ]
+  * bin: use pathlib
+  * marchec: fix warning color
+
+  [ Konstantin Kholostov ]
+  * pyinstaller: add version information to macos app bundle
+
+  [ Georg Brandl ]
+  * debian: use "stable" distri name
+  * debian: update compat
+
+ -- Alexander Zaft <jenkins@frm2.tum.de>  Tue, 25 Feb 2025 09:54:31 +0100
+
 marche (3.11.1) stable; urgency=medium
 
   * nicos job: fix unit listing for older systemd
