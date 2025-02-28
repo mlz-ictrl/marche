@@ -1,6 +1,6 @@
 # *****************************************************************************
 # Marche - A server control daemon
-# Copyright (c) 2015-2023 by the authors, see LICENSE
+# Copyright (c) 2015-2025 by the authors, see LICENSE
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -215,7 +215,7 @@ class MainWindow(QMainWindow):
             '''
             <h2>About Marche GUI</h2>
             <p style="font-style: italic">
-              (C) 2015-2023 MLZ instrument control
+              (C) 2015-2025 MLZ instrument control
             </p>
             <p>
               Marche GUI is a graphical interface for the Marche process
@@ -223,9 +223,9 @@ class MainWindow(QMainWindow):
             </p>
             <h3>Authors:</h3>
             <ul>
-              <li>Copyright (C) 2015-2023
+              <li>Copyright (C) 2015-2025
                 <a href="mailto:g.brandl@fz-juelich.de">Georg Brandl</a></li>
-              <li>Copyright (C) 2015-2017
+              <li>Copyright (C) 2015-2019
                 <a href="mailto:alexander.lenz@frm2.tum.de">Alexander
                 Lenz</a></li>
             </ul>
