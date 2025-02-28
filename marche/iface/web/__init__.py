@@ -26,7 +26,7 @@ Webinterface
 
 This interface allows controlling services via a graphical interface.
 
-.. describe:: [interfaces.web]
+.. describe:: [interface.web]
 
    The configuration settings that can be set within the **interfaces.web**
    section are:
