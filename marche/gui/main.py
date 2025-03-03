@@ -51,14 +51,18 @@ def main(argv):
     win = MainWindow(scan_on_startup=not args.noscan)
 
     last_host = None
+    last_user = None
     for arg in args.session_or_host:
         if arg.endswith('.marche'):
             win.loadSession(arg)
         else:
             win.addHost(arg)
-            last_host = arg
+            if '@' in arg:
+                last_user, last_host = args.session_or_host[0].split('@')
+            else:
+                last_user, last_host = None, arg
     if last_host:
-        win.openHost(last_host)
+        win.openHost(last_host, default_user=last_user)
 
     win.show()
 

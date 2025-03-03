@@ -253,7 +253,7 @@ class MainWindow(QMainWindow):
         if item:
             data = item.data(ADDR_ROLE)
             if data:
-                self.openHost(item.text(), False)
+                self.openHost(item.text(), select_item=False)
         else:
             self.closeHost()
 
@@ -332,7 +332,7 @@ class MainWindow(QMainWindow):
             prev.widget().hide()
             prev.widget().deleteLater()
 
-    def openHost(self, addr, select_item=True):
+    def openHost(self, addr, select_item=True, default_user=None):
         def try_connect(host, port, user, passwd):
             try:
                 client = Client(host, port, user, passwd)
@@ -370,7 +370,7 @@ class MainWindow(QMainWindow):
             # ask for credentials
             while True:
                 dlg = AuthDialog(self, 'Authenticate at %s' % addr,
-                                 loadSetting('defUsername'))
+                                 default_user or loadSetting('defUsername'))
                 if not dlg.exec():
                     break
                 user = dlg.user
