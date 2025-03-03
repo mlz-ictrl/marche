@@ -23,7 +23,7 @@
 
 """Test for the configuration class."""
 
-import os
+from pathlib import Path
 
 from marche.config import Config
 from marche.permission import ADMIN, DISPLAY
@@ -34,18 +34,18 @@ def test_defaults():
 
     assert config.user is None
     assert config.group is None
-    assert config.piddir == '/var/run'
-    assert config.logdir == '/var/log'
+    assert config.piddir == Path('/var/run')
+    assert config.logdir == Path('/var/log')
     assert config.unauth_level == DISPLAY
 
 
 def test_config():
-    config = Config(os.path.join(os.path.dirname(__file__), 'conf'))
+    config = Config(Path(__file__).with_name('conf'))
 
     assert config.user == 'marche'
     assert config.group == 'marchegroup'
-    assert config.piddir == '/tmp/pid'
-    assert config.logdir == '/tmp/log'
+    assert config.piddir == Path('/tmp/pid')
+    assert config.logdir == Path('/tmp/log')
     assert config.unauth_level == ADMIN
 
     assert config.job_config == {'myjob': {'type': 'init'}}

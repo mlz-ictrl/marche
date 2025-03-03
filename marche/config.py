@@ -25,9 +25,8 @@
 """Config file handling."""
 
 import configparser
-import os
 from collections import OrderedDict
-from os import path
+from pathlib import Path
 
 from marche.permission import DISPLAY, STRING_LEVELS
 
@@ -42,8 +41,8 @@ class Config:
 
     user = None
     group = None
-    piddir = '/var/run'
-    logdir = '/var/log'
+    piddir = Path('/var/run')
+    logdir = Path('/var/log')
 
     job_config = {}
     auth_config = {}
@@ -62,12 +61,11 @@ class Config:
         self.job_config = OrderedDict()
         self.auth_config = {}
         self.iface_config = {}
-        if confdir is None or not path.isdir(self.confdir):
+        if confdir is None or not self.confdir.is_dir():
             return
 
-        for fn in sorted(os.listdir(self.confdir)):
-            if fn.endswith('.conf'):
-                self._read_one(path.join(self.confdir, fn))
+        for fn in sorted(self.confdir.glob('*.conf')):
+            self._read_one(fn)
 
     def _read_one(self, fname):
         parser = CasePreservingConfigParser()
@@ -80,9 +78,9 @@ class Config:
                 if parser.has_option('general', 'group'):
                     self.group = parser.get('general', 'group')
                 if parser.has_option('general', 'piddir'):
-                    self.piddir = parser.get('general', 'piddir')
+                    self.piddir = Path(parser.get('general', 'piddir'))
                 if parser.has_option('general', 'logdir'):
-                    self.logdir = parser.get('general', 'logdir')
+                    self.logdir = Path(parser.get('general', 'logdir'))
                 if parser.has_option('general', 'interfaces'):
                     self.interfaces = [
                         i.strip() for i in

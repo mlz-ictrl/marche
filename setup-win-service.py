@@ -24,18 +24,18 @@
 import argparse
 import sys
 import winreg
-from os import path
+from pathlib import Path
 from subprocess import PIPE, Popen
 
 import marche
 
 
 def parse_args(argv):
-    parser = argparse.ArgumentParser(description="Marche MS Windows Service "
-                                     "Setup")
-    parser.add_argument("environments", type=str, nargs='*',
-                        help="Environment settings, "
-                             "e.g. TANGO_HOST=localhost:10000")
+    parser = argparse.ArgumentParser(description='Marche MS Windows Service '
+                                     'Setup')
+    parser.add_argument('environments', type=str, nargs='*',
+                        help='Environment settings, '
+                             'e.g. TANGO_HOST=localhost:10000')
     return parser.parse_args(argv)
 
 
@@ -43,39 +43,38 @@ def main(argv):
     environment = list(parse_args(argv[1:]).environments)
 
     search_directories = [
-        path.join(path.realpath(sys.prefix), "Scripts"),
-        path.join(path.dirname(path.dirname(path.realpath(marche.__file__))),
-                  "bin"),
+        Path(sys.prefix).resolve() / 'Scripts',
+        Path(marche.__file__).resolve().parents[1] / 'bin',
     ]
 
-    servicename = "marched"
+    servicename = 'marched'
     marcheroot = None
     for pdir in search_directories:
-        marched = path.join(pdir, "marched")
-        if path.isfile(marched):
-            marcheroot = path.dirname(pdir)
+        marched = pdir / 'marched'
+        if marched.is_file():
+            marcheroot = pdir.parent
             break
     else:
         marched = None
 
     if marcheroot:
-        print("AppDirectory:", marcheroot)
-        print(" Application:", marched)
+        print('AppDirectory:', marcheroot)
+        print(' Application:', marched)
     else:
-        print("marched not found in:", ', '.join(search_directories),
+        print('marched not found in:', ', '.join(map(str, search_directories)),
               file=sys.stderr)
         sys.exit(-1)
 
-    service_subkey = "SYSTEM\\CurrentControlSet\\services\\" + servicename
+    service_subkey = fr'SYSTEM\CurrentControlSet\services\{servicename}'
     service = None
     try:
         service = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, service_subkey, 0,
                                  winreg.KEY_WRITE)
     except WindowsError:
-        print("Creating service:", servicename)
+        print('Creating service:', servicename)
         cmd = [
-            "sc.exe", "create", servicename, "start=", "auto",
-            "binPath=", "srvany.exe",
+            'sc.exe', 'create', servicename, 'start=', 'auto',
+            'binPath=', 'srvany.exe',
         ]
         print(' '.join(cmd))
         print()
@@ -86,20 +85,20 @@ def main(argv):
         if service:
             service.Close()
 
-        print("Updating registry")
+        print('Updating registry')
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, service_subkey, 0,
                             winreg.KEY_WRITE) as hdl:
             if environment:
-                winreg.SetValueEx(hdl, "Environment", 0, winreg.REG_MULTI_SZ,
+                winreg.SetValueEx(hdl, 'Environment', 0, winreg.REG_MULTI_SZ,
                                   environment)
-            winreg.SetValueEx(hdl, "Type", 0, winreg.REG_DWORD,
+            winreg.SetValueEx(hdl, 'Type', 0, winreg.REG_DWORD,
                               0x110)  # interactive
-            with winreg.CreateKey(hdl, "Parameters") as par:
-                winreg.SetValueEx(par, "AppDirectory", 0, winreg.REG_SZ,
-                                  marcheroot)
-                winreg.SetValueEx(par, "Application", 0, winreg.REG_SZ,
-                                  sys.executable + ' ' + marched)
+            with winreg.CreateKey(hdl, 'Parameters') as par:
+                winreg.SetValueEx(par, 'AppDirectory', 0, winreg.REG_SZ,
+                                  str(marcheroot))
+                winreg.SetValueEx(par, 'Application', 0, winreg.REG_SZ,
+                                  f'{sys.executable} {marched}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv)

@@ -27,7 +27,7 @@ import logging
 import os
 import signal
 import time
-from os import path
+from pathlib import Path
 
 import mlzlog
 
@@ -59,16 +59,16 @@ class Daemon:
             mlzlog.colors.nocolor()
 
     def parse_args(self, args):
-        rootdir = path.join(path.dirname(__file__), '..')
-        if path.exists(path.join(rootdir, '.git')):
-            default_cfgdir = path.abspath(path.join(rootdir, 'etc'))
+        rootdir = Path(__file__).parents[1]
+        if (rootdir / '.git').is_dir():
+            default_cfgdir = rootdir / 'etc'
         else:  # pragma: no cover
             default_cfgdir = get_default_cfgdir()
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--version', action='version',
                             version='Marche daemon version v%s' % __version__)
-        parser.add_argument('-c', dest='configdir', action='store',
+        parser.add_argument('-c', dest='configdir', action='store', type=Path,
                             default=default_cfgdir, help='configuration '
                             'directory (default %s)' % default_cfgdir)
         parser.add_argument('-d', dest='daemonize', action='store_true',

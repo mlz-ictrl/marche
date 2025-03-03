@@ -20,9 +20,3 @@
 #   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
-
-import sys
-from os import path
-
-# Put the Marche source dir into sys.path.
-sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))

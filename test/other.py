@@ -28,6 +28,7 @@ import logging
 import os
 import socket
 import sys
+from pathlib import Path
 
 from pytest import raises
 
@@ -57,10 +58,10 @@ def test_utils(tmpdir):
     assert tmpdir.join('my', 'sub').check(dir=True)
 
     pidfile = tmpdir.join('marched.pid')
-    utils.write_pidfile(str(tmpdir))
+    utils.write_pidfile(Path(tmpdir))
     assert pidfile.check(file=True)
     assert pidfile.read() == str(os.getpid())
-    utils.remove_pidfile(str(tmpdir))
+    utils.remove_pidfile(Path(tmpdir))
     assert pidfile.check(exists=False)
 
     tmpfile = tmpdir.join('tmp')

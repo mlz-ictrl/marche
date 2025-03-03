@@ -238,7 +238,7 @@ class MockJob(BaseJob):
     def start_service(self, service, instance):
         if service == 'svc1':
             raise Busy
-        elif service == 'svc2':
+        if service == 'svc2':
             raise Fault
         self.test_started.append((service, instance))
 

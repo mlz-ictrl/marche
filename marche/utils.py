@@ -32,6 +32,7 @@ import socket
 import sys
 import time
 from os import path
+from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
 
@@ -120,13 +121,12 @@ def setuser(user, group, recover=True):  # pragma: no cover
 def write_pidfile(pid_dir):
     """Write a file with the PID of the current process."""
     ensure_directory(pid_dir)
-    with open(path.join(pid_dir, 'marched.pid'), 'w', encoding='utf-8') as fp:
-        fp.write(str(os.getpid()))
+    (pid_dir / 'marched.pid').write_text(str(os.getpid()))
 
 
 def remove_pidfile(pid_dir):
     """Remove a file with the PID of the current process."""
-    os.unlink(path.join(pid_dir, 'marched.pid'))
+    (pid_dir / 'marched.pid').unlink()
 
 
 class lazy_property:
@@ -302,8 +302,8 @@ def write_file(fname, contents):
 def get_default_cfgdir():  # pragma: no cover
     """Return the default config dir for the current platform."""
     if os.name == 'nt':
-        return path.join(sys.prefix, 'etc', 'marche')
-    return path.join(os.sep, 'etc', 'marche')
+        return Path(sys.prefix) / 'etc' / 'marche'
+    return Path('/etc/marche')
 
 
 def bytencode(s):  # pragma: no cover

@@ -1,25 +1,22 @@
 # -*- mode: python -*-
 
-import sys
 import subprocess
-from os import path
+import sys
+from pathlib import Path
 
-rootdir = path.abspath('..')
-binscript = path.join(rootdir, 'bin', 'marche-gui')
-versionfile = path.join(rootdir, 'marche', 'RELEASE-VERSION')
-uidir = path.join(rootdir, 'marche', 'gui', 'ui')
+rootdir = str(Path('..').resolve())
+guidir = f'{rootdir}/marche/gui'
+versionfile = f'{rootdir}/marche/RELEASE-VERSION'
 
 # Make sure to generate the version file.
-subprocess.check_call([sys.executable,
-                       path.join(rootdir, 'marche', 'version.py')])
+subprocess.check_call([sys.executable, f'{rootdir}/marche/version.py'])
 
-with open(versionfile, 'r', encoding='utf-8') as f:
-    v = ''.join(f.readlines()).strip()
+version = (rootdir / 'marche' / 'RELEASE-VERSION').read_text().strip()
 
-a = Analysis([binscript],
+a = Analysis([f'{rootdir}/bin/marche-gui'],
              pathex=[rootdir],
              binaries=[],
-             datas=[(path.join(uidir, '*.ui'), 'marche/gui/ui'),
+             datas=[(f'{guidir}/ui/*.ui', 'marche/gui/ui'),
                     (versionfile, 'marche')],
              hiddenimports=['xmlrpc', 'marche.gui.res'],
              hookspath=[],
@@ -41,6 +38,6 @@ exe = EXE(pyz,
           console=False)
 app = BUNDLE(exe,
              name='marche.app',
-             icon='../marche/gui/res/logo-new.icns',
+             icon=f'{guidir}/res/logo-new.icns',
              bundle_identifier=None,
              version=v)

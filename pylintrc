@@ -36,6 +36,7 @@ disable=missing-docstring
        ,protected-access
        ,unnecessary-lambda
        ,invalid-name
+       ,use-implicit-booleaness-not-comparison
 
 [REPORTS]
 
@@ -170,6 +171,7 @@ generated-members=REQUEST,acl_users,aq_parent
 
 # Maximum number of arguments for function / method
 max-args=15
+max-positional-arguments=10
 
 # Argument names that match this expression will be ignored. Default to name
 # with leading underscore

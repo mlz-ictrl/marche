@@ -213,16 +213,15 @@ class MockSocket:
         self.i += 1
         if self.i == 1:
             return b'boo', ('127.0.0.1', 12345)  # wrong reply
-        elif self.i == 2:
+        if self.i == 2:
             return b'PONG', ('127.0.0.2', 12345)  # old
-        elif self.i == 3:
+        if self.i == 3:
             return b'PONG 2', ('127.0.0.3', 12345)  # old
-        elif self.i == 4:
+        if self.i == 4:
             return b'PONG x', ('127.0.0.4', 12345)  # broken
-        elif self.i == 5:
+        if self.i == 5:
             return ('PONG 41 %s' % self.uid).encode(), ('127.0.0.5', 12345)
-        else:
-            return b'PONG 42 other', ('127.0.0.6', 12345)
+        return b'PONG 42 other', ('127.0.0.6', 12345)
 
 
 def mock_select(rlist, _wlist, _xlist, _timeout):
