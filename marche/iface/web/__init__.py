@@ -16,13 +16,14 @@
 #
 # Module authors:
 #   Lea Kleesattel <lea.kleesattel@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
 """ .. index:: web; interface
 
 Webinterface
------------------------
+------------
 
 This interface allows controlling services via a graphical interface.
 
@@ -44,12 +45,17 @@ This interface allows controlling services via a graphical interface.
       The host to bind to.
 """
 
+import asyncio
 import json
+import pickle
+import random
 import socket
+import threading
 from pathlib import Path
 
-import cherrypy
-from cherrypy import log
+from aiohttp import web
+from aiohttp_session import get_session, setup as session_setup
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from jinja2 import Environment, FileSystemLoader
 
 from marche.auth import AuthFailed
@@ -60,17 +66,6 @@ from marche.version import get_version
 
 ENV = Environment(loader=FileSystemLoader(Path(__file__).parent / 'templates'))
 
-CONFIG = {
-    '/': {
-        'tools.sessions.on': True,
-        'tools.staticdir.root': str(Path(__file__).parent.absolute()),
-    },
-    '/static': {
-        'tools.staticdir.on': True,
-        'tools.staticdir.dir': 'static'
-    },
-}
-
 
 def split_service_instance(service_instance):
     if '_' in service_instance:
@@ -78,26 +73,28 @@ def split_service_instance(service_instance):
     return service_instance, ''
 
 
-class Webinterface:
+class WebHandler:
     def __init__(self, jobhandler, authhandler, log):
         self.jobhandler = jobhandler
         self.log = log
         self.auth = authhandler
 
-    def get_login(self, key):
-        if 'logged_in' not in cherrypy.session:
-            cherrypy.session['logged_in'] = False
-            cherrypy.session['client_info'] = ClientInfo(DISPLAY)
-        return cherrypy.session[key]
+    async def _get_login(self, req, key):
+        session = await get_session(req)
+        if 'logged_in' not in session:
+            session['logged_in'] = False
+            session['client_info'] = ClientInfo(DISPLAY)
+        return session[key]
 
-    def set_login(self, logged_in, client_info):
-        cherrypy.session['logged_in'] = logged_in
-        cherrypy.session['client_info'] = client_info
+    async def _set_login(self, req, logged_in, client_info):
+        session = await get_session(req)
+        session['logged_in'] = logged_in
+        session['client_info'] = client_info
 
-    def update_status(self):
+    async def _update_status(self, req):
         result = {}
         for service, info in self.jobhandler.request_service_list(
-                self.get_login('client_info')).services.items():
+                await self._get_login(req, 'client_info')).services.items():
             for instance in info['instances']:
                 if not instance:
                     result[service] = \
@@ -107,59 +104,62 @@ class Webinterface:
                         STATE_STR[info['instances'][instance]['state']]
         return result
 
-    @cherrypy.expose
-    def control(self, **actions):
-        if 'start' in actions:
-            self.jobhandler.start_service(
-                self.get_login('client_info'),
-                *split_service_instance(actions['start']))
-        elif 'stop' in actions:
-            self.jobhandler.stop_service(
-                self.get_login('client_info'),
-                *split_service_instance(actions['stop']))
-        elif 'restart' in actions:
-            self.jobhandler.restart_service(
-                self.get_login('client_info'),
-                *split_service_instance(actions['restart']))
-
-    @cherrypy.expose
-    def get_status(self):
-        return json.dumps(self.update_status())
-
-    @cherrypy.expose
-    def get_hostname(self):
-        return json.dumps(socket.getfqdn())
-
-    @cherrypy.expose
-    def index(self):
+    async def index(self, req):
         tmpl = ENV.get_template('index.html')
-        return tmpl.render(number=get_version(),
-                           svc_sts=self.update_status(),
-                           logged_in=self.get_login('logged_in'))
+        body = tmpl.render(number=get_version(),
+                           svc_sts=await self._update_status(req),
+                           logged_in=await self._get_login(req, 'logged_in'))
+        return web.Response(body=body, content_type='text/html')
 
-    @cherrypy.expose
-    def help(self):
+    async def control(self, req):
+        args = req.query
+        if 'start' in args:
+            self.jobhandler.start_service(
+                await self._get_login(req, 'client_info'),
+                *split_service_instance(args['start']))
+        elif 'stop' in args:
+            self.jobhandler.stop_service(
+                await self._get_login(req, 'client_info'),
+                *split_service_instance(args['stop']))
+        elif 'restart' in args:
+            self.jobhandler.restart_service(
+                await self._get_login(req, 'client_info'),
+                *split_service_instance(args['restart']))
+
+    async def get_status(self, req):
+        return web.Response(body=json.dumps(await self._update_status(req)),
+                            content_type='text/json')
+
+    async def get_hostname(self, req):
+        return web.Response(body=json.dumps(socket.getfqdn()),
+                            content_type='text/json')
+
+    async def help(self, req):
         tmpl = ENV.get_template('help.html')
-        return tmpl.render(version=get_version(),
-                           logged_in=self.get_login('logged_in'))
+        body = tmpl.render(version=get_version(),
+                           logged_in=await self._get_login(req, 'logged_in'))
+        return web.Response(body=body, content_type='text/html')
 
-    @cherrypy.expose
-    def login(self, **kwargs):
+    async def login(self, req):
+        args = req.query
         tmpl = ENV.get_template('login.html')
-        if 'passwd' in kwargs and 'user' in kwargs:
+        if 'passwd' in args and 'user' in args:
             try:
-                self.set_login(True, self.auth.authenticate(kwargs['user'],
-                                                            kwargs['passwd']))
-                raise cherrypy.HTTPRedirect('index')
+                info = self.auth.authenticate(args['user'], args['passwd'])
+                await self._set_login(req, True, info)
+                raise web.HTTPTemporaryRedirect('/')
             except AuthFailed:
-                self.set_login(False, ClientInfo(DISPLAY))
-                raise cherrypy.HTTPRedirect('login') from None
-        return tmpl.render(logged_in=self.get_login('logged_in'))
+                await self._set_login(req, False, ClientInfo(DISPLAY))
+                raise web.HTTPTemporaryRedirect('/login') from None
+        body = tmpl.render(logged_in=await self._get_login(req, 'logged_in'))
+        return web.Response(body=body, content_type='text/html')
 
-    @cherrypy.expose
-    def logout(self):
-        self.set_login(False, ClientInfo(DISPLAY))
-        raise cherrypy.HTTPRedirect('login')
+    async def logout(self, req):
+        await self._set_login(req, False, ClientInfo(DISPLAY))
+        raise web.HTTPTemporaryRedirect('/login')
+
+    async def static(self, req):
+        return web.FileResponse(req.match_info['file'])
 
 
 class Interface(BaseInterface):
@@ -168,24 +168,36 @@ class Interface(BaseInterface):
     needs_events = False
 
     def init(self):
-        pass
+        self._loop = asyncio.get_event_loop()
 
     def run(self):
-        cherrypy.tree.mount(Webinterface(self.jobhandler, self.authhandler,
-                                         self.log), config=CONFIG)
-        cherrypy.config.update({
-            'server.socket_port': self.config.get('port', 8080),
-            'server.socket_host': self.config.get('host', '0.0.0.0'),
-            'log.screen': False,
-            'log.access_file': '',
-            'log.error_file': '',
-        })
-        # using marche logger
-        log.access_log.addHandler(self.log)
-        log.error_log.addHandler(self.log)
-        self.log.info('listening on %s:%s' % (cherrypy.server.socket_host,
-                                              cherrypy.server.socket_port))
-        cherrypy.engine.start()
+        handler = WebHandler(self.jobhandler, self.authhandler, self.log)
+        app = web.Application()
+        cookies = EncryptedCookieStorage(
+            random.randbytes(32),
+            encoder=lambda o: pickle.dumps(o).decode('latin1'),
+            decoder=lambda s: pickle.loads(s.encode('latin1')))
+        session_setup(app, cookies)
+        app.router.add_get('/', handler.index)
+        app.router.add_get('/index', handler.index)
+        app.router.add_get('/control', handler.control)
+        app.router.add_get('/get_status', handler.get_status)
+        app.router.add_get('/get_hostname', handler.get_hostname)
+        app.router.add_get('/help', handler.help)
+        app.router.add_get('/login', handler.login)
+        app.router.add_get('/logout', handler.logout)
+        app.router.add_get('/static/{file:.*}', handler.static)
+        threading.Thread(target=self._thread, args=(app,), daemon=True).start()
 
     def shutdown(self):
-        cherrypy.engine.stop()
+        for task in asyncio.all_tasks(self._loop):
+            task.cancel()
+
+    def _thread(self, app):
+        try:
+            web.run_app(
+                app, host=self.config.get('host', '0.0.0.0'),
+                port=self.config.get('port', 8080), loop=self._loop,
+                handle_signals=False, print=self.log.info)
+        except asyncio.CancelledError:
+            self.log.info('server stopped')
