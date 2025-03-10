@@ -65,6 +65,7 @@ from marche.permission import DISPLAY, ClientInfo
 from marche.version import get_version
 
 ENV = Environment(loader=FileSystemLoader(Path(__file__).parent / 'templates'))
+STATIC = Path(__file__).parent / 'static'
 
 
 def split_service_instance(service_instance):
@@ -112,7 +113,7 @@ class WebHandler:
         return web.Response(body=body, content_type='text/html')
 
     async def control(self, req):
-        args = req.query
+        args = await req.post()
         if 'start' in args:
             self.jobhandler.start_service(
                 await self._get_login(req, 'client_info'),
@@ -125,6 +126,7 @@ class WebHandler:
             self.jobhandler.restart_service(
                 await self._get_login(req, 'client_info'),
                 *split_service_instance(args['restart']))
+        return web.Response()
 
     async def get_status(self, req):
         return web.Response(body=json.dumps(await self._update_status(req)),
@@ -159,7 +161,7 @@ class WebHandler:
         raise web.HTTPTemporaryRedirect('/login')
 
     async def static(self, req):
-        return web.FileResponse(req.match_info['file'])
+        return web.FileResponse(STATIC / req.match_info['file'])
 
 
 class Interface(BaseInterface):
@@ -180,7 +182,7 @@ class Interface(BaseInterface):
         session_setup(app, cookies)
         app.router.add_get('/', handler.index)
         app.router.add_get('/index', handler.index)
-        app.router.add_get('/control', handler.control)
+        app.router.add_post('/control', handler.control)
         app.router.add_get('/get_status', handler.get_status)
         app.router.add_get('/get_hostname', handler.get_hostname)
         app.router.add_get('/help', handler.help)
