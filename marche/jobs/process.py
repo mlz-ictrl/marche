@@ -109,7 +109,7 @@ import os
 import shlex
 import signal
 import sys
-from os import path
+from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 from threading import Thread
 from time import sleep
@@ -173,23 +173,24 @@ class ProcessMonitor(Thread):
 class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def configure(self, config):
-        self.binary = config.get('binary', self.name)
+        self.binary = Path(config.get('binary', self.name))
         self.args = shlex.split(config.get('args', ''))
-        self.working_dir = config.get('workingdir', None)
+        if cdir := config.get('workingdir', None) is not None:
+            self.working_dir = Path(cdir)
+        else:
+            self.working_dir = self.binary.parent
         self.output_file = config.get('outputfile', None)
         self.one_shot = config.get('oneshot', '').lower() in ('yes', 'true')
-        if self.working_dir is None:
-            self.working_dir = path.dirname(self.binary)
         self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
         self.description = config.get('description', self.name)
         self.configure_logfile_mixin(config)
         if not self.log_files and self.output_file:
-            self.log_files.append(self.output_file)
+            self.log_files.append(Path(self.output_file))
         self.configure_config_mixin(config)
         self._thread = None
 
     def check(self):
-        if not path.exists(self.binary):
+        if not self.binary.is_file():
             self.log.warning('%s missing' % self.binary)
             return False
         return True

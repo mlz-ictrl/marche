@@ -31,7 +31,6 @@ import select
 import socket
 import sys
 import time
-from os import path
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
@@ -41,12 +40,6 @@ try:
     import pwd
 except ImportError:  # pragma: no cover
     pwd = grp = None
-
-
-def ensure_directory(dirname):
-    """Make sure a directory exists."""
-    if not path.isdir(dirname):
-        os.makedirs(dirname)
 
 
 def daemonize(user, group):  # pragma: no cover
@@ -120,7 +113,7 @@ def setuser(user, group, recover=True):  # pragma: no cover
 
 def write_pidfile(pid_dir):
     """Write a file with the PID of the current process."""
-    ensure_directory(pid_dir)
+    pid_dir.mkdir(parents=True, exist_ok=True)
     (pid_dir / 'marched.pid').write_text(str(os.getpid()))
 
 
@@ -245,10 +238,10 @@ class AsyncProcess(Thread):
 nontext_re = re.compile(r'[^\n\t\x20-\x7e]')
 
 
-def extract_loglines(filename, n=500):
-    def extract(filename):
+def extract_loglines(fpath, n=500):
+    def extract(fpath):
         lines = collections.deque(maxlen=n)
-        with open(filename, 'rb') as fp:
+        with fpath.open('rb') as fp:
             try:
                 # For very long files, skipping over all unneeded lines can
                 # take a while.  Set a limit on average line length instead.
@@ -259,14 +252,14 @@ def extract_loglines(filename, n=500):
                 line = line.decode('latin1', 'ignore')
                 lines.append(nontext_re.sub('', line))
         return ''.join(lines)
-    if not path.exists(filename):
+    if not fpath.is_file():
         return {}
-    filename = path.realpath(filename)
-    result = {filename: extract(filename)}
+    fpath = fpath.resolve()
+    result = {str(fpath): extract(fpath)}
     # also add rotated logs
     i = 1
-    while path.exists(filename + '.%d' % i):
-        result[filename + '.%d' % i] = extract(filename + '.%d' % i)
+    while (new := fpath.with_name(fpath.name + f'.{i}')).is_file():
+        result[str(new)] = extract(new)
         i += 1
     return result
 
@@ -282,21 +275,16 @@ def normalize_addr(addr, defport):
     return host, port
 
 
-def read_file(fname):
+def read_file(fpath):
     """Read file as latin-1 str."""
-    with open(fname, 'rb') as fp:
-        contents = fp.read()
-    if not isinstance(contents, str):
-        contents = contents.decode('latin1')  # pragma: no cover
-    return contents
+    return fpath.read_text('latin1')
 
 
-def write_file(fname, contents):
+def write_file(fpath, contents):
     """Write file from latin-1 string."""
     if not isinstance(contents, bytes):
         contents = contents.encode('latin1')
-    with open(fname, 'wb') as fp:
-        fp.write(contents)
+    fpath.write_bytes(contents)
 
 
 def get_default_cfgdir():  # pragma: no cover

@@ -69,24 +69,26 @@ print('poller: running')
 '''
 
 
-def test_job(tmpdir):
-    tmpdir.mkdir('etc').join('nicos-system').write(SCRIPT)
-    tmpdir.join('nicos-system2').write(SCRIPT2)
-    tmpdir.join('nicos-system3').write(SCRIPT3)
-    tmpdir.join('nicos-system4').write(SCRIPT4)
-    tmpdir.mkdir('log').mkdir('cache').join('current').write('log1\nlog2\n')
+def test_job(tmp_path):
+    (tmp_path / 'etc').mkdir()
+    (tmp_path / 'etc' / 'nicos-system').write_text(SCRIPT)
+    (tmp_path / 'nicos-system2').write_text(SCRIPT2)
+    (tmp_path / 'nicos-system3').write_text(SCRIPT3)
+    (tmp_path / 'nicos-system4').write_text(SCRIPT4)
+    (tmp_path / 'log' / 'cache').mkdir(parents=True)
+    (tmp_path / 'log' / 'cache' / 'current').write_text('log1\nlog2\n')
 
     Job.DEFAULT_INIT = 'does/not/exist'
     job = Job('nicos', 'name', {}, logger, lambda event: None)
     assert not job.check()
 
-    tmpdir.join('nicos.conf').write('[nicos]\nlogging_path = "%s"\n' %
-                                    tmpdir.join('log'))
+    (tmp_path / 'nicos.conf').write_text('[nicos]\nlogging_path = "%s"\n' %
+                                         (tmp_path / 'log'))
 
-    job = Job('nicos', 'name', {'root': str(tmpdir)},
+    job = Job('nicos', 'name', {'root': str(tmp_path)},
               logger, lambda event: None)
     assert job.check()
-    job._script = sys.executable + ' -S ' + job._script
+    job._script = f'{sys.executable} -S {job._script}'
     job.init()
 
     assert job.get_services() == [('nicos', ''), ('nicos', 'cache')]
@@ -102,7 +104,7 @@ def test_job(tmpdir):
     assert job.receive_config('nicos', 'cache') == {}
     assert raises(Fault, job.send_config, 'nicos', 'cache', 'file', 'contents')
 
-    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system2'))
+    job._script = f'{sys.executable} -S {tmp_path / "nicos-system2"}'
     assert job.service_status('nicos', '')[0] == WARNING
 
     assert job.all_service_status() == {
@@ -110,7 +112,7 @@ def test_job(tmpdir):
         ('nicos', 'cache'): (RUNNING, '')
     }
 
-    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system3'))
+    job._script = f'{sys.executable} -S {tmp_path / "nicos-system3"}'
     assert job.service_status('nicos', '')[0] == DEAD
 
     assert job.all_service_status() == {
@@ -118,7 +120,7 @@ def test_job(tmpdir):
         ('nicos', 'cache'): (DEAD, '')
     }
 
-    job._script = '%s -S %s' % (sys.executable, tmpdir.join('nicos-system4'))
+    job._script = f'{sys.executable} -S {tmp_path / "nicos-system4"}'
     assert job.all_service_status() == {
         ('nicos', ''): (RUNNING, ''),
         ('nicos', 'cache'): (RUNNING, '')

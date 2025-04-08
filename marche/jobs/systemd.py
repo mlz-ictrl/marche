@@ -123,6 +123,6 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def service_logs(self, service, instance):
         if not self.log_files:
-            proc = self._sync_call(self.JOURNALCTL + ' -n 500 -u %s' % self.unit)
+            proc = self._sync_call(f'{self.JOURNALCTL} -n 500 -u {self.unit}')
             return {'journal': ''.join(proc.stdout)}
         return LogfileMixin.service_logs(self, service, instance)

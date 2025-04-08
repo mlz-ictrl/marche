@@ -49,9 +49,9 @@ else:
 '''
 
 
-def test_job(tmpdir):
-    scriptfile = tmpdir.join('script.py')
-    scriptfile.write(SCRIPT)
+def test_job(tmp_path):
+    scriptfile = tmp_path / 'script.py'
+    scriptfile.write_text(SCRIPT)
 
     Job.SYSTEMCTL = '%s -S %s systemctl' % (sys.executable, scriptfile)
     Job.JOURNALCTL = '%s -S %s journalctl' % (sys.executable, scriptfile)
@@ -70,16 +70,16 @@ def test_job(tmpdir):
 
     assert job.service_logs('foo', '') == {'journal': 'logline1\nlogline2\n'}
 
-    tmpdir.join('1.log').write('log1_line1\nlog1_line2\n')
-    tmpdir.join('2.log').write('log2_line1\nlog2_line2\n')
-    tmpdir.join('1.cfg').write_binary(b'conf1\n')
+    (tmp_path / '1.log').write_text('log1_line1\nlog1_line2\n')
+    (tmp_path / '2.log').write_text('log2_line1\nlog2_line2\n')
+    (tmp_path / '1.cfg').write_text('conf1\n')
 
     config = {
         'unit': 'foo',
         'pollinterval': '0',
-        'logfile': str(tmpdir.join('1.log')),
-        'logfiles': '%s, %s' % (tmpdir.join('2.log'), tmpdir.join('3.log')),
-        'configfiles': '%s, %s' % (tmpdir.join('1.cfg'), tmpdir.join('2.cfg')),
+        'logfile': str(tmp_path / '1.log'),
+        'logfiles': '%s, %s' % (tmp_path / '2.log', tmp_path / '3.log'),
+        'configfiles': '%s, %s' % (tmp_path / '1.cfg', tmp_path / '2.cfg'),
     }
 
     job = Job('systemd', 'name', config, logger, lambda event: None)
@@ -98,14 +98,14 @@ def test_job(tmpdir):
 
     assert job.receive_config('foo', '') == {'1.cfg': 'conf1\n'}
     job.send_config('foo', '', '1.cfg', 'conf1-changed\n')
-    assert tmpdir.join('1.cfg').read() == 'conf1-changed\n'
+    assert (tmp_path / '1.cfg').read_text() == 'conf1-changed\n'
     assert raises(RuntimeError, job.send_config, 'foo', '', 'nosuch', 'cfg')
 
     config = {
         'unit': 'foo',
         'pollinterval': '0',
-        'configfile': str(tmpdir.join('1.cfg')),
-        'configfiles': str(tmpdir.join('1.cfg')),
+        'configfile': str(tmp_path / '1.cfg'),
+        'configfiles': str(tmp_path / '1.cfg'),
     }
 
     assert raises(RuntimeError, Job,

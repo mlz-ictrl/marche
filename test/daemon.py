@@ -53,9 +53,9 @@ type = process
 '''
 
 
-def test_daemon(tmpdir):
-    tmpdir.join('marche.conf').write(TEST_CONFIG % {'tmpdir': str(tmpdir)})
-    assert MyDaemon().run(['-c', str(tmpdir)]) == 0
+def test_daemon(tmp_path):
+    (tmp_path / 'marche.conf').write_text(TEST_CONFIG % {'tmpdir': tmp_path})
+    assert MyDaemon().run(['-c', str(tmp_path)]) == 0
 
 
 TEST_CONFIG_1 = '''\
@@ -71,9 +71,9 @@ interfaces = xmlrpc
 '''
 
 
-def test_errors(tmpdir):
-    tmpdir.join('marche.conf').write(TEST_CONFIG_1 % {'tmpdir': str(tmpdir)})
-    assert MyDaemon().run(['-c', str(tmpdir)]) == 1
+def test_errors(tmp_path):
+    (tmp_path / 'marche.conf').write_text(TEST_CONFIG_1 % {'tmpdir': tmp_path})
+    assert MyDaemon().run(['-c', str(tmp_path)]) == 1
 
-    tmpdir.join('marche.conf').write(TEST_CONFIG_2 % {'tmpdir': str(tmpdir)})
-    assert MyDaemon().run(['-c', str(tmpdir)]) == 1
+    (tmp_path / 'marche.conf').write_text(TEST_CONFIG_2 % {'tmpdir': tmp_path})
+    assert MyDaemon().run(['-c', str(tmp_path)]) == 1

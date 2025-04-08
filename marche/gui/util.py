@@ -201,8 +201,7 @@ def determineSubnet():
     for _, addrs in ifs.items():
         for addr in addrs:
             if addr.address == ip:
-                return str(ipaddress.ip_network(u'%s/%s' %
-                                                (ip, addr.netmask), False))
+                return str(ipaddress.ip_network(f'{ip}/{addr.netmask}', False))
     return None
 
 

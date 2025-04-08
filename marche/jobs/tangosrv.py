@@ -77,7 +77,7 @@ overridden with the ``unit`` parameter as for the systemd job).
 .. _Tango: http://tango-controls.org
 """
 
-from os import path
+from pathlib import Path
 
 from marche.jobs import Fault
 from marche.jobs.systemd import Job as SystemdJob
@@ -90,7 +90,7 @@ except ImportError:  # pragma: no cover
 
 class Job(SystemdJob):
 
-    DEFAULT_FILE = '/etc/default/tango'
+    DEFAULT_FILE = Path('/etc/default/tango')
 
     def configure(self, config):
         SystemdJob.configure(self, config)
@@ -98,19 +98,21 @@ class Job(SystemdJob):
         self.unit = config.get('unit', f'tango-server-{self.srvname.lower()}')
         self.description = config.get('description', f'{self.srvname} server')
         self.resformat = config.get('resformat', 'legacy')
-        resdir = config.get('resdir', '')
+        resdir = config.get('resdir')
         if not resdir:
-            with open(self.DEFAULT_FILE, encoding='utf-8') as fd:
+            with self.DEFAULT_FILE.open(encoding='utf-8') as fd:
                 for line in fd:
                     if not line.startswith('#'):
                         (key, sep, value) = line.partition('=')
                         if sep:
                             key = key.replace('export', '').strip()
                             if key == 'TANGO_RES_DIR':
-                                resdir = value.strip()
+                                resdir = Path(value.strip())
                                 break
+        else:
+            resdir = Path(resdir)
         if resdir:
-            self.config_files = [path.join(resdir, self.srvname + '.res')]
+            self.config_files = [resdir / (self.srvname + '.res')]
         else:  # pragma: no cover
             self.config_files = []
         if self.config_files:
@@ -154,7 +156,7 @@ class Job(SystemdJob):
                     self._add_device(db, name, valarr[1], srv)
                     devices.add(name.lower())
 
-            with open(fn, encoding='utf-8', errors='replace') as fp:
+            with fn.open(encoding='utf-8', errors='replace') as fp:
                 # for line in fp:
                 for line in iter(fp.readline, ''):
                     line = line.expandtabs(1).strip()
@@ -186,7 +188,7 @@ class Job(SystemdJob):
             def processvalue(dev, propname, values):
                 self._add_property(db, dev, propname, values, [])
 
-            with open(fn, encoding='utf-8', errors='replace') as fp:
+            with fn.open(encoding='utf-8', errors='replace') as fp:
                 lines = iter(fp)
                 for line in lines:
                     line = line.split('#', 1)[0].strip()

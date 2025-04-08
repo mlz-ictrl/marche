@@ -44,8 +44,8 @@ while 1:
 '''
 
 
-def test_job(tmpdir):
-    outputfile = tmpdir.join('output')
+def test_job(tmp_path):
+    outputfile = tmp_path / 'output'
 
     config = {
         'binary': sys.executable,
@@ -65,13 +65,13 @@ def test_job(tmpdir):
     assert job.service_status('name', '')[0] == RUNNING
     job.start_service('name', '')
     job.restart_service('name', '')
-    wait(100, outputfile.size)
+    wait(100, lambda: outputfile.stat().st_size)
     job.stop_service('name', '')
     assert not job._thread.is_alive()
     job.stop_service('name', '')
     assert job.service_status('name', '')[0] == DEAD
 
-    assert outputfile.readlines()[0] == 'alive\n'
+    assert outputfile.read_text().splitlines()[0] == 'alive'
     logs = job.service_logs('name', '')
     assert len(logs) == 1
     keys = list(logs)

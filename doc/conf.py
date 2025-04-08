@@ -1,6 +1,5 @@
 # marche documentation build configuration file
 
-import shlex
 import sys
 from pathlib import Path
 
@@ -16,9 +15,9 @@ extensions = [
 exclude_patterns = ['_build']
 master_doc = 'index'
 
-project = u'Marche'
-copyright = u'2015-2025, Georg Brandl, Alexander Lenz'
-author = u'Georg Brandl, Alexander Lenz'
+project = 'Marche'
+copyright = '2015-2025, Georg Brandl, Alexander Lenz'
+author = 'Georg Brandl, Alexander Lenz'
 version = marche.__version__
 release = version
 pygments_style = 'sphinx'
@@ -38,11 +37,11 @@ htmlhelp_basename = 'marchedoc'
 
 latex_elements = {}
 latex_documents = [
-  (master_doc, 'marche.tex', u'marche Documentation',
-   u'Georg Brandl, Alexander Lenz', 'manual'),
+  (master_doc, 'marche.tex', 'marche Documentation',
+   'Georg Brandl, Alexander Lenz', 'manual'),
 ]
 
 man_pages = [
-    (master_doc, 'marche', u'marche Documentation',
+    (master_doc, 'marche', 'marche Documentation',
      [author], 1)
 ]

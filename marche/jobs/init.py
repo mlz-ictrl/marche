@@ -79,7 +79,7 @@ A typical section looks like this::
     configfiles = /etc/dhcp/dhcpd.conf
 """
 
-from os import path
+from pathlib import Path
 
 from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
 
@@ -91,13 +91,13 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
     def configure(self, config):
         self.init_name = config.get('script', self.name)
         self.description = config.get('description', self.name)
-        self.script = self.INIT_BASE + self.init_name
+        self.script = Path(self.INIT_BASE + self.init_name)
         self.configure_logfile_mixin(config)
         self.configure_config_mixin(config)
 
     def check(self):
-        if not path.exists(self.script):
-            self.log.warning('%s missing' % self.script)
+        if not self.script.is_file():
+            self.log.warning(f'{self.script} missing')
             return False
         return True
 
@@ -108,16 +108,16 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         return self.description
 
     def start_service(self, service, instance):
-        self._async_start(service, self.script + ' start')
+        self._async_start(service, f'{self.script} start')
 
     def stop_service(self, service, instance):
-        self._async_stop(service, self.script + ' stop')
+        self._async_stop(service, f'{self.script} stop')
 
     def restart_service(self, service, instance):
-        self._async_start(service, self.script + ' restart')
+        self._async_start(service, f'{self.script} restart')
 
     def service_status(self, service, instance):
-        return self._async_status_exitcode(service, self.script + ' status')
+        return self._async_status_exitcode(service, f'{self.script} status')
 
     def service_output(self, service, instance):
         return list(self._output.get(service, []))

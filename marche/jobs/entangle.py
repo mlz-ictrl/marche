@@ -59,7 +59,7 @@ import re
 import socket
 import sys
 import uuid
-from os import path
+from pathlib import Path
 
 import toml
 
@@ -79,8 +79,8 @@ class EntangleBaseJob(BaseJob):
     STATUS_CMD = '{control_tool} status {instance}'
 
     def configure(self, config):
-        self._config = config.get('configfile', self.CONFIG)
-        self._control_tool = config.get('controltool', self.CONTROL_TOOL)
+        self._config = Path(config.get('configfile', self.CONFIG))
+        self._control_tool = Path(config.get('controltool', self.CONTROL_TOOL))
         if os.name == 'nt':
             self.log.info('Windows: prefix commands with Python executable')
             python = sys.executable + ' '
@@ -90,10 +90,10 @@ class EntangleBaseJob(BaseJob):
             self.STATUS_CMD = python + self.STATUS_CMD
 
     def check(self):
-        if not path.exists(self._config):
+        if not self._config.is_file():
             self.log.warning('Configuration file %s missing' % self._config)
             return False
-        if not path.exists(self._control_tool):
+        if not self._control_tool.is_file():
             self.log.warning('Control tool %s missing' % self._control_tool)
             return False
         return True
@@ -105,21 +105,20 @@ class EntangleBaseJob(BaseJob):
         }
 
         try:
-            with open(self._config, encoding='utf-8') as fp:
+            with self._config.open(encoding='utf-8') as fp:
                 cfg = toml.load(fp)
         except IOError:  # let TOML errors pass through
             cfg = {}
 
         section = cfg.get('entangle', {})
         if 'resdir' in section:
-            self._resdir = section['resdir'].format(**substitutions)
+            self._resdir = Path(section['resdir'].format(**substitutions))
         else:
-            self._resdir = '/etc/entangle'  # pragma: no cover
-        self._logdir = section.get('logdir', '/var/log/entangle')
+            self._resdir = Path('/etc/entangle')  # pragma: no cover
+        self._logdir = Path(section.get('logdir', '/var/log/entangle'))
 
-        all_servers = [('entangle', base) for (base, ext) in
-                       map(path.splitext, os.listdir(self._resdir))
-                       if ext == '.res']
+        all_servers = [('entangle', entry.stem) for entry in
+                       self._resdir.glob('*.res')]
         self._services = sorted(all_servers)
         BaseJob.init(self)
 
@@ -148,18 +147,18 @@ class EntangleBaseJob(BaseJob):
         return list(self._output.get(instance, []))
 
     def service_logs(self, service, instance):
-        logname = path.join(self._logdir, instance, 'current')
+        logname = self._logdir / instance / 'current'
         return extract_loglines(logname)
 
     def receive_config(self, service, instance):
-        cfgname = path.join(self._resdir, instance + '.res')
+        cfgname = self._resdir / f'{instance}.res'
         # don't send conffiles which we can't write
         if os.access(cfgname, os.W_OK):
             return {instance + '.res': read_file(cfgname)}
         return {}
 
     def send_config(self, service, instance, filename, contents):
-        cfgname = path.join(self._resdir, instance + '.res')
+        cfgname = self._resdir / f'{instance}.res'
         if filename != instance + '.res':
             raise Fault('invalid request')
         write_file(cfgname, contents)

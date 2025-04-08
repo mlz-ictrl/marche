@@ -25,7 +25,7 @@
 import collections
 import os
 import threading
-from os import path
+from pathlib import Path
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
     SYSTEMD_STATE_MAP, Busy, Fault, Unauthorized
@@ -380,11 +380,11 @@ class LogfileMixin:
     def configure_logfile_mixin(self, config):
         self.log_files = []
         if 'logfile' in config:
-            self.log_files.append(config['logfile'])
+            self.log_files.append(Path(config['logfile']))
         for logpath in config.get('logfiles', '').split(','):
             logpath = logpath.strip()
             if logpath:
-                self.log_files.append(logpath)
+                self.log_files.append(Path(logpath))
 
     def service_logs(self, service, instance):
         ret = {}
@@ -406,28 +406,30 @@ class ConfigMixin:
         self.config_files = []
         basenames = set()
         if 'configfile' in config:
-            basenames.add(path.basename(config['configfile']))
-            self.config_files.append(config['configfile'])
+            cfg = Path(config['configfile'])
+            basenames.add(cfg.name)
+            self.config_files.append(cfg)
         for configpath in config.get('configfiles', '').split(','):
             configpath = configpath.strip()
             if configpath:
-                if path.basename(configpath) in basenames:
+                cfg = Path(configpath)
+                if cfg.name in basenames:
                     raise RuntimeError('two config files with the same '
                                        'basename configured!')
-                basenames.add(path.basename(configpath))
-                self.config_files.append(configpath)
+                basenames.add(cfg.name)
+                self.config_files.append(cfg)
 
     def receive_config(self, service, instance):
         result = {}
         for configpath in self.config_files:
             # don't send conffiles which we can't write
-            if path.exists(configpath) and os.access(configpath, os.W_OK):
-                result[path.basename(configpath)] = read_file(configpath)
+            if configpath.is_file() and os.access(configpath, os.W_OK):
+                result[configpath.name] = read_file(configpath)
         return result
 
     def send_config(self, service, instance, filename, contents):
         for configpath in self.config_files:
-            if filename == path.basename(configpath):
+            if filename == configpath.name:
                 write_file(configpath, contents)
                 break
         else:

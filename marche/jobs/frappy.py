@@ -54,7 +54,7 @@ This job has the following configuration parameters:
 """
 
 import os
-from os import path
+from pathlib import Path
 
 from marche.jobs import Fault
 from marche.jobs.base import Job as BaseJob
@@ -62,31 +62,31 @@ from marche.utils import read_file, write_file
 
 
 class Job(BaseJob):
-    default_config = '/etc/frappy'
-    default_control_tool = '/bin/systemctl'
-    _start_cmd = '{control_tool} start frappy@{instance}'
-    _stop_cmd = '{control_tool} stop frappy@{instance}'
-    _restart_cmd = '{control_tool} restart frappy@{instance}'
-    _journal_tool = 'journalctl'
+    DEFAULT_CONFIG = '/etc/frappy'
+    DEFAULT_CONTROL_TOOL = '/bin/systemctl'
+    _START_CMD = '{control_tool} start frappy@{instance}'
+    _STOP_CMD = '{control_tool} stop frappy@{instance}'
+    _RESTART_CMD = '{control_tool} restart frappy@{instance}'
+    _JOURNAL_TOOL = 'journalctl'
 
     def configure(self, config):
-        self._config = config.get('configdir', self.default_config)
-        self._control_tool = config.get('controltool',
-                                        self.default_control_tool)
+        self._configdir = Path(config.get('configdir', self.DEFAULT_CONFIG))
+        self._control_tool = Path(config.get('controltool',
+                                             self.DEFAULT_CONTROL_TOOL))
 
     def check(self):
-        if not path.isdir(self._config):
-            self.log.warning('Configuration dir %s missing' % self._config)
+        if not self._configdir.is_dir():
+            self.log.warning('Configuration dir %s missing' % self._configdir)
             return False
-        if not path.exists(self._control_tool):
+        if not self._control_tool.is_file():
             self.log.warning('Control tool %s missing' % self._control_tool)
             return False
         return True
 
     def init(self):
         try:
-            nodes = [('frappy', fn[:-7]) for fn in os.listdir(self._config)
-                     if fn.endswith('_cfg.py')]
+            nodes = [('frappy', fn.stem[:-4])
+                     for fn in self._configdir.glob('*_cfg.py')]
         except IOError:
             nodes = []
         self._services = sorted(nodes)
@@ -96,16 +96,16 @@ class Job(BaseJob):
         return self._services
 
     def start_service(self, service, instance):
-        self._async_start(instance, self._format_cmd(self._start_cmd, service,
-                                                     instance))
+        self._async_start(instance, self._format_cmd(
+            self._START_CMD, service, instance))
 
     def stop_service(self, service, instance):
-        self._async_stop(instance, self._format_cmd(self._stop_cmd, service,
-                                                    instance))
+        self._async_stop(instance, self._format_cmd(
+            self._STOP_CMD, service, instance))
 
     def restart_service(self, service, instance):
-        self._async_start(instance, self._format_cmd(self._restart_cmd, service,
-                                                     instance))
+        self._async_start(instance, self._format_cmd(
+            self._RESTART_CMD, service, instance))
 
     def service_status(self, service, instance):
         return self._async_status_systemd(instance, f'frappy@{instance}',
@@ -115,19 +115,19 @@ class Job(BaseJob):
         return list(self._output.get(instance, []))
 
     def service_logs(self, service, instance):
-        proc = self._sync_call('%s -n 500 -u frappy@%s' %
-                               (self._journal_tool, instance))
+        proc = self._sync_call(
+            f'{self._JOURNAL_TOOL} -n 500 -u frappy@{instance}')
         return {'journal': ''.join(proc.stdout)}
 
     def receive_config(self, service, instance):
-        cfgname = path.join(self._config, instance + '_cfg.py')
+        cfgname = self._configdir / f'{instance}_cfg.py'
         # don't send conffiles which we can't write
         if os.access(cfgname, os.W_OK):
             return {instance + '_cfg.py': read_file(cfgname)}
         return {}
 
     def send_config(self, service, instance, filename, contents):
-        cfgname = path.join(self._config, instance + '_cfg.py')
+        cfgname = self._configdir / f'{instance}_cfg.py'
         if filename != instance + '_cfg.py':
             raise Fault('invalid request')
         write_file(cfgname, contents)

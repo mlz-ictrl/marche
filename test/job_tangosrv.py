@@ -63,12 +63,12 @@ cmds/mysrv/null/value:                  5
 '''
 
 
-def test_job_legacy(tmpdir):
-    defaultfile = tmpdir.join('default')
-    defaultfile.write(DEFAULT % {'tmpdir': str(tmpdir)})
+def test_job_legacy(tmp_path):
+    defaultfile = tmp_path / 'default'
+    defaultfile.write_text(DEFAULT % {'tmpdir': tmp_path})
 
-    Job.INIT_BASE = str(tmpdir)
-    Job.DEFAULT_FILE = str(defaultfile)
+    Job.INIT_BASE = str(tmp_path)
+    Job.DEFAULT_FILE = defaultfile
 
     devices = []
     properties = []
@@ -83,7 +83,7 @@ def test_job_legacy(tmpdir):
     Job._add_device = new_add_device
     Job._add_property = new_add_property
 
-    write_file(tmpdir.join('Mysrv.res'), RESFILE)
+    write_file(tmp_path / 'Mysrv.res', RESFILE)
 
     job = Job('tangosrv', 'name', {'srvname': 'Mysrv'},
               logger, lambda event: None)
@@ -144,12 +144,12 @@ CLASS/LimaCCDs->doc_url:                    "http://www.esrf.fr/some/path"
 """
 
 
-def test_job_tango(tmpdir):
-    defaultfile = tmpdir.join('default')
-    defaultfile.write(DEFAULT % {'tmpdir': str(tmpdir)})
+def test_job_tango(tmp_path):
+    defaultfile = tmp_path / 'default'
+    defaultfile.write_text(DEFAULT % {'tmpdir': str(tmp_path)})
 
-    Job.INIT_BASE = str(tmpdir)
-    Job.DEFAULT_FILE = str(defaultfile)
+    Job.INIT_BASE = str(tmp_path)
+    Job.DEFAULT_FILE = defaultfile
 
     devices = []
     properties = []
@@ -164,7 +164,7 @@ def test_job_tango(tmpdir):
     Job._add_device = new_add_device
     Job._add_property = new_add_property
 
-    write_file(tmpdir.join('camera.res'), PROPFILE)
+    write_file(tmp_path / 'camera.res', PROPFILE)
 
     job = Job('tangosrv', 'name', {'srvname': 'camera', 'resformat': 'tango'},
               logger, lambda event: None)

@@ -28,7 +28,6 @@ import logging
 import os
 import socket
 import sys
-from pathlib import Path
 
 from pytest import raises
 
@@ -53,32 +52,29 @@ def test_event_class():
     assert repr(Event()) == '<Event: {}>'
 
 
-def test_utils(tmpdir):
-    utils.ensure_directory(str(tmpdir.join('my', 'sub')))
-    assert tmpdir.join('my', 'sub').check(dir=True)
+def test_utils(tmp_path):
+    pidfile = tmp_path / 'marched.pid'
+    utils.write_pidfile(tmp_path)
+    assert pidfile.is_file()
+    assert pidfile.read_text() == str(os.getpid())
+    utils.remove_pidfile(tmp_path)
+    assert not pidfile.exists()
 
-    pidfile = tmpdir.join('marched.pid')
-    utils.write_pidfile(Path(tmpdir))
-    assert pidfile.check(file=True)
-    assert pidfile.read() == str(os.getpid())
-    utils.remove_pidfile(Path(tmpdir))
-    assert pidfile.check(exists=False)
+    tmpfile = tmp_path / 'tmp'
+    tmpfile.write_bytes(b'a\xf0b')
+    assert utils.read_file(tmpfile) == 'a\xf0b'
 
-    tmpfile = tmpdir.join('tmp')
-    tmpfile.write_binary(b'a\xf0b')
-    assert utils.read_file(str(tmpfile)) == u'a\xf0b'
+    utils.write_file(tmpfile, b'a\xf0b')
+    assert tmpfile.read_bytes() == b'a\xf0b'
+    utils.write_file(tmpfile, 'a\xf0b')
+    assert tmpfile.read_bytes() == b'a\xf0b'
 
-    utils.write_file(str(tmpfile), b'a\xf0b')
-    assert tmpfile.read_binary() == b'a\xf0b'
-    utils.write_file(str(tmpfile), u'a\xf0b')
-    assert tmpfile.read_binary() == b'a\xf0b'
-
-    assert utils.extract_loglines(str(tmpdir.join('nope'))) == {}
-    tmpdir.join('logfile').write(''.join('a%d\n' % i for i in range(10)))
-    tmpdir.join('logfile.1').write(''.join('b%d\n' % i for i in range(10)))
+    assert utils.extract_loglines(tmp_path / 'nope') == {}
+    (tmp_path / 'logfile').write_text(''.join('a%d\n' % i for i in range(10)))
+    (tmp_path / 'logfile.1').write_text(''.join('b%d\n' % i for i in range(10)))
     # broken chain of numbers: not included
-    tmpdir.join('logfile.3').write(''.join('c%d\n' % i for i in range(10)))
-    logs = utils.extract_loglines(str(tmpdir.join('logfile')), 2)
+    (tmp_path / 'logfile.3').write_text(''.join('c%d\n' % i for i in range(10)))
+    logs = utils.extract_loglines(tmp_path / 'logfile', 2)
     assert len(logs) == 2
     for key, value in logs.items():
         if key.endswith('logfile'):

@@ -60,9 +60,7 @@ This job has the following configuration parameters:
    services and their logfiles from there.
 """
 
-import configparser
-import os
-from os import path
+from pathlib import Path
 
 import toml
 
@@ -92,30 +90,24 @@ class NicosBaseJob(BaseJob):
     def service_logs(self, service, instance):
         if self._logpath is None:
             # extract nicos log directory from nicos.conf
-            conffile = path.join(self._root, 'nicos.conf')
-            if path.isfile(conffile):
-                try:
-                    with open(conffile, encoding='utf-8') as fp:
-                        cfg = toml.load(fp)
-                    self._logpath = cfg.get('nicos', {}).get('logging_path')
-                except toml.TomlDecodeError:
-                    cfg = configparser.RawConfigParser()
-                    cfg.read([conffile])
-                    if cfg.has_option('nicos', 'logging_path'):
-                        self._logpath = cfg.get('nicos', 'logging_path')
+            conffile = self._root / 'nicos.conf'
+            if conffile.is_file():
+                with conffile.open(encoding='utf-8') as fp:
+                    cfg = toml.load(fp)
+                self._logpath = Path(cfg.get('nicos', {}).get('logging_path'))
 
             # fallback
             if not self._logpath:
-                self._logpath = path.join(self._root, 'log')
+                self._logpath = self._root / 'log'
 
         if not instance:
             result = {}
-            for subdir in os.listdir(self._logpath):
-                logfile = path.join(self._logpath, subdir, 'current')
-                if path.islink(logfile):
-                    result.update(extract_loglines(logfile))  # pragma: no cover
+            for subdir in self._logpath.iterdir():
+                logfile = subdir / 'current'
+                if logfile.is_symlink():  # pragma: no cover
+                    result.update(extract_loglines(logfile))
             return result
-        return extract_loglines(path.join(self._logpath, instance, 'current'))
+        return extract_loglines(self._logpath / instance / 'current')
 
 
 class InitJob(NicosBaseJob):
@@ -123,24 +115,23 @@ class InitJob(NicosBaseJob):
 
     def _find_root(self, config):
         if 'root' in config:
-            self._root = config['root']
-            self._script = path.join(self._root, 'etc', 'nicos-system')
+            self._root = Path(config['root'])
+            self._script = self._root / 'etc' / 'nicos-system'
         else:
             # determine the NICOS root from the init script, which is a symlink
             # to the init script in the NICOS root
-            real_init = path.realpath(self.DEFAULT_INIT)
-            self._root = path.dirname(path.dirname(real_init))
-            self._script = self.DEFAULT_INIT
+            self._script = Path(self.DEFAULT_INIT).resolve()
+            self._root = self._script.parents[1]
 
     def check(self):
-        if not path.exists(self._script):
-            self.log.warning('%s missing' % self._script)
+        if not self._script.is_file():
+            self.log.warning(f'{self._script} missing')
             return False
         return True
 
     def init(self):
         self._services = [('nicos', '')]
-        lines = self._sync_call('%s 2>&1' % self._script).stdout
+        lines = self._sync_call(f'{self._script} 2>&1').stdout
         prefix = 'Possible services are '
         if len(lines) >= 2 and lines[-1].startswith(prefix):
             self._services.extend(('nicos', entry.strip()) for entry in
@@ -148,20 +139,20 @@ class InitJob(NicosBaseJob):
         BaseJob.init(self)
 
     def start_service(self, service, instance):
-        return self._async_start(instance, self._script + ' start %s' % instance)
+        return self._async_start(instance, f'{self._script} start {instance}')
 
     def stop_service(self, service, instance):
-        return self._async_stop(instance, self._script + ' stop %s' % instance)
+        return self._async_stop(instance, f'{self._script} stop {instance}')
 
     def restart_service(self, service, instance):
-        return self._async_start(instance, self._script + ' restart %s' % instance)
+        return self._async_start(instance, f'{self._script} restart {instance}')
 
     def service_status(self, service, instance):
         async_st = self._async_status_only(instance)
         if async_st is not None:
             return async_st
         if not instance:
-            output = self._sync_call('%s status' % self._script).stdout
+            output = self._sync_call(f'{self._script} status').stdout
             something_dead = something_running = False
             for line in output:
                 if 'dead' in line:
@@ -173,7 +164,7 @@ class InitJob(NicosBaseJob):
             if something_running:
                 return RUNNING, ''
             return DEAD, ''
-        proc = self._sync_call(self._script + ' status %s' % instance)
+        proc = self._sync_call(f'{self._script} status {instance}')
         if proc.retcode == 0:
             return RUNNING, ''
         if proc.retcode == -1:
@@ -184,7 +175,7 @@ class InitJob(NicosBaseJob):
         result = {}
         initstates = {}
         something_dead = something_running = False
-        for line in self._sync_call('%s status' % self._script).stdout:
+        for line in self._sync_call(f'{self._script} status').stdout:
             if ':' not in line:
                 continue
             if 'dead' in line:
@@ -212,17 +203,17 @@ class InitJob(NicosBaseJob):
 class SystemdJob(NicosBaseJob):
     def _find_root(self, config):
         if 'root' in config:
-            self._root = config['root']
+            self._root = Path(config['root'])
         else:
             # determine the NICOS root from the generator script, which is
             # referred to in the service file
             out = self._sync_call('systemctl show -p ExecStart --value '
                                   'nicos-late-generator 2>&1').stdout
-            self._root = '/usr/local/nicos'
+            self._root = Path('/usr/local/nicos')
             if out and out[0].startswith('{'):
                 for kv in out[0].split():
                     if kv.startswith('path='):
-                        self._root = path.dirname(path.dirname(kv[5:]))
+                        self._root = Path(kv[5:]).parents[1]
 
     def check(self):
         lines = self._sync_call('systemctl is-enabled nicos.target 2>&1').stdout
@@ -257,19 +248,19 @@ class SystemdJob(NicosBaseJob):
 
     def start_service(self, service, instance):
         if instance:
-            self._async_start(instance, 'systemctl start nicos-%s' % instance)
+            self._async_start(instance, f'systemctl start nicos-{instance}')
         else:
             self._async_start(instance, 'systemctl start nicos.target')
 
     def stop_service(self, service, instance):
         if instance:
-            self._async_stop(instance, 'systemctl stop nicos-%s' % instance)
+            self._async_stop(instance, f'systemctl stop nicos-{instance}')
         else:
             self._async_stop(instance, 'systemctl stop nicos.target')
 
     def restart_service(self, service, instance):
         if instance:
-            self._async_start(instance, 'systemctl restart nicos-%s' % instance)
+            self._async_start(instance, f'systemctl restart nicos-{instance}')
         else:
             self._async_start(instance, 'systemctl restart nicos.target')
 

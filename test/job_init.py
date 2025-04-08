@@ -39,11 +39,11 @@ print(sys.argv[2])
 '''
 
 
-def test_job(tmpdir):
-    scriptfile = tmpdir.join('script.py')
-    scriptfile.write(SCRIPT)
+def test_job(tmp_path):
+    scriptfile = tmp_path / 'script.py'
+    scriptfile.write_text(SCRIPT)
 
-    Job.INIT_BASE = sys.executable + ' -S ' + str(scriptfile) + ' '
+    Job.INIT_BASE = f'{sys.executable} -S {scriptfile} '
 
     config = {
         'script': 'foo',
@@ -53,7 +53,7 @@ def test_job(tmpdir):
     job = Job('init', 'name', config, logger, lambda event: None)
     real_script = job.script
     assert not job.check()
-    job.script = str(scriptfile)
+    job.script = scriptfile
     assert job.check()
 
     job.script = real_script

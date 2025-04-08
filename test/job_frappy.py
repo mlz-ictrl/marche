@@ -54,13 +54,14 @@ test/my/dev/type: rs232.StringIO
 
 
 @fixture(scope='function')
-def tempconf(tmpdir):
-    scriptfile = tmpdir.join('script.py')
-    scriptfile.write(SCRIPT)
-    tmpdir.join('mynode_cfg.py').write_binary(RES.encode())
-    tmpdir.mkdir('mynode').join('current').write('log1\nlog2\n')
+def tempconf(tmp_path):
+    scriptfile = tmp_path / 'script.py'
+    scriptfile.write_text(SCRIPT)
+    (tmp_path / 'mynode_cfg.py').write_text(RES)
+    (tmp_path / 'mynode').mkdir()
+    (tmp_path / 'current').write_text('log1\nlog2\n')
 
-    return tmpdir, scriptfile
+    return tmp_path, scriptfile
 
 
 def test_job(tempconf):
@@ -70,12 +71,12 @@ def test_job(tempconf):
               logger, lambda event: None)
     assert not job.check()
 
-    job = Job('frappy', 'name', {'configdir': str(tmpdir),
+    job = Job('frappy', 'name', {'configdir': tmpdir,
                                  'controltool': sys.executable},
               logger, lambda event: None)
     assert job.check()
-    job._control_tool = sys.executable + ' -S ' + str(scriptfile)
-    job._journal_tool = job._control_tool
+    job._control_tool = f'{sys.executable} -S {scriptfile}'
+    job._JOURNAL_TOOL = job._control_tool
     job.init()
 
     assert job.get_services() == [('frappy', 'mynode')]
@@ -95,4 +96,4 @@ def test_job(tempconf):
     assert raises(Fault, job.send_config, 'frappy', 'mynode',
                   'other_cfg.py', '')
     job.send_config('frappy', 'mynode', 'mynode_cfg.py', RES + 'foo\n')
-    assert tmpdir.join('mynode_cfg.py').read() == RES + 'foo\n'
+    assert (tmpdir / 'mynode_cfg.py').read_text() == RES + 'foo\n'

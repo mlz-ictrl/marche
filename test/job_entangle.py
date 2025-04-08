@@ -61,15 +61,16 @@ test/my/dev/type: rs232.StringIO
 
 
 @fixture(scope='function')
-def tempconf(tmpdir):
-    scriptfile = tmpdir.join('script.py')
-    scriptfile.write(SCRIPT)
-    configfile = tmpdir.join('entangle.conf')
-    configfile.write(CONFIG % {'tmpdir': str(tmpdir)})
-    tmpdir.join('mysrv.res').write_binary(RES.encode())
-    tmpdir.mkdir('mysrv').join('current').write('log1\nlog2\n')
+def tempconf(tmp_path):
+    scriptfile = tmp_path / 'script.py'
+    scriptfile.write_text(SCRIPT)
+    configfile = tmp_path / 'entangle.conf'
+    configfile.write_text(CONFIG % {'tmpdir': tmp_path})
+    (tmp_path / 'mysrv.res').write_text(RES)
+    (tmp_path / 'mysrv').mkdir()
+    (tmp_path / 'mysrv' / 'current').write_text('log1\nlog2\n')
 
-    return tmpdir, scriptfile, configfile
+    return tmp_path, scriptfile, configfile
 
 
 def test_init_job(tempconf):
@@ -120,4 +121,4 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
     assert configs == {'mysrv.res': RES}
     assert raises(Fault, job.send_config, 'entangle', 'mysrv', 'other.res', '')
     job.send_config('entangle', 'mysrv', 'mysrv.res', RES + 'foo\n')
-    assert tmpdir.join('mysrv.res').read() == RES + 'foo\n'
+    assert (tmpdir / 'mysrv.res').read_text() == RES + 'foo\n'
