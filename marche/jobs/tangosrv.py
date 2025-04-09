@@ -112,7 +112,7 @@ class Job(SystemdJob):
         else:
             resdir = Path(resdir)
         if resdir:
-            self.config_files = [resdir / (self.srvname + '.res')]
+            self.config_files = [resdir / f'{self.srvname}.res']
         else:  # pragma: no cover
             self.config_files = []
         if self.config_files:
