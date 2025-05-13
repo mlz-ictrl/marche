@@ -7,6 +7,7 @@ from pathlib import Path
 rootdir = str(Path('..').resolve())
 guidir = f'{rootdir}/marche/gui'
 versionfile = f'{rootdir}/marche/RELEASE-VERSION'
+binscript = f'{rootdir}/bin/marche-gui'
 
 # Make sure to generate the version file.
 subprocess.check_call([sys.executable, f'{rootdir}/marche/version.py'])
