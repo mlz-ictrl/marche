@@ -107,7 +107,7 @@ class JobButtons(JobButtonsUI, QWidget):
         dtemp = tempfile.mkdtemp()
         result = []
         for i in range(0, len(config), 2):
-            fn = Path(config[i])
+            fn = config[i]
             contents = config[i + 1]
             if os.name == 'nt':
                 contents = re.sub(r'(?<!\r)\n', '\r\n', contents)
