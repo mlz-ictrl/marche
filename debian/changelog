@@ -1,3 +1,20 @@
+marche (3.13.3) stable; urgency=medium
+
+  [ Alexander Zaft ]
+  * doc: add section about marche gui sessions
+
+  [ Georg Brandl ]
+  * all: use pathlib
+  * tangosrv: convert to f-string
+
+  [ Konstantin Kholostov ]
+  * new macOS pyinstaller script
+
+  [ Georg Brandl ]
+  * gui: fix improper use of Path
+
+ -- Alexander Zaft <jenkins@frm2.tum.de>  Tue, 13 May 2025 12:47:50 +0200
+
 marche (3.13.2) stable; urgency=medium
 
   * Fix for ported web interface
