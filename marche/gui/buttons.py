@@ -104,7 +104,7 @@ class JobButtons(JobButtonsUI, QWidget):
         if len(config) % 2 != 0:
             self._item.setText(3, 'Strange return value')
             return
-        dtemp = tempfile.mkdtemp()
+        dtemp = Path(tempfile.mkdtemp())
         result = []
         for i in range(0, len(config), 2):
             fn = config[i]
