@@ -175,7 +175,8 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
     def configure(self, config):
         self.binary = Path(config.get('binary', self.name))
         self.args = shlex.split(config.get('args', ''))
-        if cdir := config.get('workingdir', None) is not None:
+        cdir = config.get('workingdir', None)
+        if cdir is not None:
             self.working_dir = Path(cdir)
         else:
             self.working_dir = self.binary.parent

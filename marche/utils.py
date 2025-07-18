@@ -258,7 +258,10 @@ def extract_loglines(fpath, n=500):
     result = {str(fpath): extract(fpath)}
     # also add rotated logs
     i = 1
-    while (new := fpath.with_name(fpath.name + f'.{i}')).is_file():
+    while True:
+        new = fpath.with_name(fpath.name + f'.{i}')
+        if not new.is_file():
+            break
         result[str(new)] = extract(new)
         i += 1
     return result
