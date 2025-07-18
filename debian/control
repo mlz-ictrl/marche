@@ -10,7 +10,7 @@ Build-Depends: debhelper-compat (= 13),
  python3-setuptools,
  python3-aiohttp,
  python3-aiohttp-session,
- python3-toml,
+ python3-tomli,
  python3-jinja2,
  python3-six
 Standards-Version: 4.6.2
@@ -47,7 +47,7 @@ Depends: ${misc:Depends},
  ${python3:Depends},
  python3,
  marche-common,
- python3-toml,
+ python3-tomli,
  python3-systemd,
  python3-mlzlog,
  python3-six

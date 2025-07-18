@@ -61,7 +61,10 @@ import sys
 import uuid
 from pathlib import Path
 
-import toml
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from marche.jobs import DEAD, RUNNING, Fault
 from marche.jobs.base import Job as BaseJob
@@ -106,7 +109,7 @@ class EntangleBaseJob(BaseJob):
 
         try:
             with self._config.open(encoding='utf-8') as fp:
-                cfg = toml.load(fp)
+                cfg = tomllib.load(fp)
         except IOError:  # let TOML errors pass through
             cfg = {}
 

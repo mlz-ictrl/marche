@@ -62,7 +62,10 @@ This job has the following configuration parameters:
 
 from pathlib import Path
 
-import toml
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, SYSTEMD_STATE_MAP, \
     WARNING
@@ -93,7 +96,7 @@ class NicosBaseJob(BaseJob):
             conffile = self._root / 'nicos.conf'
             if conffile.is_file():
                 with conffile.open(encoding='utf-8') as fp:
-                    cfg = toml.load(fp)
+                    cfg = tomllib.load(fp)
                 self._logpath = Path(cfg.get('nicos', {}).get('logging_path'))
 
             # fallback

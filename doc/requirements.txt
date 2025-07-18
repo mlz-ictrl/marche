@@ -4,4 +4,4 @@ ipaddress
 mlzlog
 netifaces
 requests
-toml
+tomli; python_version < '3.11'
