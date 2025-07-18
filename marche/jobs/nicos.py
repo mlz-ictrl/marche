@@ -95,7 +95,7 @@ class NicosBaseJob(BaseJob):
             # extract nicos log directory from nicos.conf
             conffile = self._root / 'nicos.conf'
             if conffile.is_file():
-                with conffile.open(encoding='utf-8') as fp:
+                with conffile.open(mode='rb') as fp:
                     cfg = tomllib.load(fp)
                 self._logpath = Path(cfg.get('nicos', {}).get('logging_path'))
 
