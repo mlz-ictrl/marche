@@ -7,3 +7,6 @@ requests
 PyQt5
 click
 tomli; python_version < '3.11'
+aiohttp
+aiohttp-session
+cryptography

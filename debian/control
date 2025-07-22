@@ -10,6 +10,7 @@ Build-Depends: debhelper-compat (= 13),
  python3-setuptools,
  python3-aiohttp,
  python3-aiohttp-session,
+ python3-cryptography,
  python3-tomli,
  python3-jinja2,
  python3-six
@@ -24,6 +25,7 @@ Depends: ${misc:Depends},
  python3-netifaces,
  python3-aiohttp,
  python3-aiohttp-session,
+ python3-cryptography,
  python3-jinja2
 Description: Common files for Marche daemon and GUI
  Python library and static files for Marche daemon and GUI.
