@@ -1,3 +1,14 @@
+marche (3.14.2) stable; urgency=medium
+
+  [ Jens Krüger ]
+  * Add 'cryptography' package as required
+  * Add 'python3-pamela' to debian dependencies
+
+  [ Georg Brandl ]
+  * debian: six is not necessary anymore
+
+ -- Jens Krüger <jenkins@frm2.tum.de>  Tue, 22 Jul 2025 15:36:10 +0200
+
 marche (3.14.1) stable; urgency=medium
 
   * toml: needs binary files
