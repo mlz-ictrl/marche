@@ -356,9 +356,10 @@ class MainWindow(QMainWindow):
 
             # try saved credentials
             user, passwd = loadCredentials(host)
-            client = try_connect(host, port, user, passwd)
-            if client:
-                return client
+            if user:
+                client = try_connect(host, port, user, passwd)
+                if client:
+                    return client
 
             # try last used credentials
             if self._last_creds:
