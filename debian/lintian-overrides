@@ -1,0 +1,2 @@
+marche-common: duplicate-font-file also in (fonts-material-design-icons-iconfont) [usr/lib/python3/dist-packages/marche/iface/web/static/MaterialIcons-Regular.ttf]
+marche-common: embedded-javascript-library please use libjs-jquery [usr/lib/python3/dist-packages/marche/iface/web/static/jquery-3.2.1.min.js]

@@ -46,7 +46,7 @@ def scan(my_uid, max_wait=1.0):
         s.sendto(b'PING', ('255.255.255.255', UDP_PORT))
     except OSError:
         # No network connection available.
-        # Dont stop in order to ping local interfaces
+        # Don't stop in order to ping local interfaces
         pass
     # also send to all interfaces' broadcast addresses
     if netifaces:

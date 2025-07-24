@@ -1,6 +1,6 @@
 marche (3.14.3) stable; urgency=medium
 
-  * negotiate: dont try to use "saved creds" if they are None
+  * negotiate: don't try to use "saved creds" if they are None
   * add marche.pam
   * return result reason instead of generic string
 
@@ -191,7 +191,7 @@ marche (3.8.1) stable; urgency=medium
 marche (3.8.0) stable; urgency=medium
 
   [ Georg Brandl ]
-  * systemd: dont show "running" as extended error status
+  * systemd: don't show "running" as extended error status
   * client: add explicit timeout to JSONRPC requests
   * systemd: is-enabled now returns "not-found" for invalid units
 
@@ -599,7 +599,7 @@ marche (2.6.2) unstable; urgency=low
 
   [ Georg Brandl ]
   * Config: handle Windows a bit better.
-  * jobs: dont send conffiles which cannot be written back
+  * jobs: don't send conffiles which cannot be written back
 
   [ Jenkins ]
 
