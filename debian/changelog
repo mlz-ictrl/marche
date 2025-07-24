@@ -1,3 +1,11 @@
+marche (3.14.3) stable; urgency=medium
+
+  * negotiate: dont try to use "saved creds" if they are None
+  * add marche.pam
+  * return result reason instead of generic string
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Thu, 24 Jul 2025 14:32:06 +0200
+
 marche (3.14.2) stable; urgency=medium
 
   [ Jens Krüger ]
