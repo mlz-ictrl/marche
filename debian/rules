@@ -9,19 +9,11 @@
 # Uncomment this to turn on verbose mode.
 # export DH_VERBOSE=1
 
-export PYBUILD_NAME=marche
-# export PYBUILD_TEST_PYTEST=1
-
-override_dh_install:
-	# move build tree to location dh expects
-	touch debian/tmp
-	rm -rf debian/tmp
-	mv debian/python3-marche debian/tmp
-
-	dh_install
-	# List files that are installed by the upstream build system
-	# but not part of the debian package.
-	dh_missing --list-missing
+# needed for bookworm compatibility!
+override_dh_installsystemd:
+	ln -s usr/lib debian/marched/lib
+	dh_installsystemd
+	rm debian/marched/lib
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
