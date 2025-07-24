@@ -53,7 +53,7 @@ if os.name == 'posix':
 setup(
     name = 'marche',
     version = marche.version.get_version(),
-    license = 'GPL',
+    license = 'GPL-2.0+',
     author = 'Georg Brandl',
     author_email = 'g.brandl@fz-juelich.de',
     description = 'Server control daemon',
@@ -66,7 +66,6 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Natural Language :: English',
-        'License :: OSI Approved :: GPL License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
