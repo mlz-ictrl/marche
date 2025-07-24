@@ -71,10 +71,11 @@ class JsonProxy:
         })
         if result.status_code != 200 or result.headers.get('content-type') != \
            'application/json':
-            raise ClientError(result.status_code, 'not a successful request')
+            raise ClientError(result.status_code, result.reason)
         result = result.json()
         if result.get('error'):
-            raise ClientError(result['error']['code'], result['error']['message'])
+            raise ClientError(result['error']['code'],
+                              result['error']['message'])
         return result['result']
 
     def __getattr__(self, method):
