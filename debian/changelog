@@ -1,3 +1,11 @@
+marche (3.14.4) stable; urgency=medium
+
+  * install systemd unit to /usr/lib
+  * debian build nits
+  * use proper license identifier
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Thu, 24 Jul 2025 17:27:42 +0200
+
 marche (3.14.3) stable; urgency=medium
 
   * negotiate: don't try to use "saved creds" if they are None
