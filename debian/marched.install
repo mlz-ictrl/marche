@@ -1,2 +1,3 @@
 usr/bin/marched
 usr/lib/systemd
+etc/marche.pam etc/pam.d/marche
