@@ -1,3 +1,10 @@
+marche (3.14.6) stable; urgency=medium
+
+  * remove clutter
+  * actually install pam file where it should be
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Fri, 25 Jul 2025 13:04:21 +0200
+
 marche (3.14.5) stable; urgency=medium
 
   [ Jens Krüger ]
