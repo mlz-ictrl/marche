@@ -253,11 +253,30 @@ class JobHandler:
                                files=logfiles)
 
     @command()
-    def request_conffiles(self, client, service, instance):
-        """Retrieve the relevant configuration file(s) for this service.
+    def view_conffiles(self, client, service, instance):
+        """View the relevant configuration file(s) for this service.
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
+        # New in protocol version 4.  Fallback is request_conffiles.
+        job = self._get_job(service)
+        job.check_permission(DISPLAY, client)
+        with job.lock:
+            confs = job.receive_config(service, instance)
+        return ConffileResponse(service=service, instance=instance,
+                                files=confs)
+
+    @command()
+    def request_conffiles(self, client, service, instance):
+        """Retrieve the relevant configuration file(s) for this service for
+        editing.
+
+        Returned list: [filename1, contents1, filename2, contents2, ...]
+        """
+        # Note: this is the same as view_conffiles, just requires DISPLAY
+        # permission.  Clients requesting configs for editing should use
+        # request_conffiles instead, so that the user gets a permission error
+        # immediately instead of getting it at send_conffile time.
         job = self._get_job(service)
         job.check_permission(ADMIN, client)
         with job.lock:

@@ -160,6 +160,11 @@ class MockJobHandler:
                                 files={'file1': 'line1\nline2\n',
                                        'file2': 'line3\nline4\n'})
 
+    def view_conffiles(self, client, service, instance):
+        return ConffileResponse(service=service, instance=instance,
+                                files={'file1': 'line1\nline2\n',
+                                       'file2': 'line3\nline4\n'})
+
     def start_service(self, client, service, instance):
         if client.level < ADMIN:
             raise Fault('no permission')

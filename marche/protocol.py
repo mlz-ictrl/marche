@@ -24,7 +24,7 @@
 """Constants for use with the new Marche protocol."""
 
 # Increment this when making changes to the protocol.
-PROTO_VERSION = 3
+PROTO_VERSION = 4
 
 
 class Errors:

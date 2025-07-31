@@ -94,6 +94,9 @@ def test_event_queries(proxy):
     config = proxy.ReceiveConfig('svc.inst')
     assert config[config.index('file1') + 1] == 'line1\nline2\n'
     assert config[config.index('file2') + 1] == 'line3\nline4\n'
+    config = proxy.ViewConfig('svc.inst')
+    assert config[config.index('file1') + 1] == 'line1\nline2\n'
+    assert config[config.index('file2') + 1] == 'line3\nline4\n'
 
 
 def test_commands(proxy):

@@ -175,15 +175,24 @@ class RPCFunctions:
                 ret.append(fname + ':' + line)
         return ret
 
-    @command
-    def ReceiveConfig(self, client_info, name):
-        config_event = self.jobhandler.request_conffiles(
-            client_info, *self._split_name(name))
+    def _process_conf(self, config_event):
         ret = []
         for fname, contents in config_event.files.items():
             ret.append(fname)
             ret.append(contents)
         return ret
+
+    @command
+    def ViewConfig(self, client_info, name):
+        config_event = self.jobhandler.view_conffiles(
+            client_info, *self._split_name(name))
+        return self._process_conf(config_event)
+
+    @command
+    def ReceiveConfig(self, client_info, name):
+        config_event = self.jobhandler.request_conffiles(
+            client_info, *self._split_name(name))
+        return self._process_conf(config_event)
 
     @command
     def SendConfig(self, client_info, data):

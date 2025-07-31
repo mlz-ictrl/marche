@@ -231,6 +231,19 @@ class Client:
         with self._lock:
             return int(self._proxy.GetVersion().strip('v')[:1])
 
+    def viewServiceConfig(self, service, instance=''):
+        if self.version < 4:
+            # the DISPLAY level "viewServiceConfig" is new in version 4
+            return self.receiveServiceConfig(service, instance)
+        servicePath = self.getServicePath(service, instance)
+        try:
+            with self._lock:
+                return self._proxy.ViewConfig(servicePath)
+        except socket.error as e:
+            raise ClientError(99, 'marched: %s' % e) from None
+        except xmlrpc.client.Fault as f:
+            raise ClientError(f.faultCode, f.faultString) from None
+
     def receiveServiceConfig(self, service, instance=''):
         servicePath = self.getServicePath(service, instance)
         try:
