@@ -103,6 +103,9 @@ class Client:
         self._pollThread = None
         self.version = self.getVersion()
 
+    def withCredentials(self, user, passwd):
+        return self.__class__(self.host, self.port, user, passwd)
+
     def reloadJobs(self):
         with self._lock:
             self._proxy.ReloadJobs()

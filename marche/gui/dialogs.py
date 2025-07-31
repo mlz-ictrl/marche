@@ -32,10 +32,13 @@ class AuthDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'authdlg.ui')
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
-        self.userEdit.setText(defuser or 'marche')
+        self.userEdit.setText(defuser)
         self.nameLbl.setText(title)
         self.setWindowTitle(title)
-        self.passwdEdit.setFocus()
+        if defuser:
+            self.passwdEdit.setFocus()
+        else:
+            self.userEdit.selectAll()
 
     @property
     def user(self):

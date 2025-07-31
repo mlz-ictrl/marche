@@ -371,7 +371,8 @@ class MainWindow(QMainWindow):
             # ask for credentials
             while True:
                 dlg = AuthDialog(self, 'Authenticate at %s' % addr,
-                                 default_user or loadSetting('defUsername'))
+                                 default_user or loadSetting('defUsername')
+                                 or 'marche')
                 if not dlg.exec():
                     break
                 user = dlg.user

@@ -30,10 +30,12 @@ import time
 from pathlib import Path
 
 from marche.gui.client import ClientError
+from marche.gui.dialogs import AuthDialog
 from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
     QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot
 from marche.gui.util import getEditorArguments, loadSetting, loadUi, \
     loadUiType, saveSetting, selectEditor
+from marche.protocol import Errors
 from marche.utils import read_file, write_file
 
 JobButtonsUI = loadUiType('job.ui')
@@ -81,24 +83,49 @@ class JobButtons(JobButtonsUI, QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
 
+    def do_receive_config(self):
+        client = self._client
+        try:
+            return client, \
+                client.receiveServiceConfig(self._service, self._instance)
+        except ClientError as err:
+            if err.code == Errors.DENIED:
+                # allow retry as admin user
+                dlg = AuthDialog(self, 'Authenticate as administrator', '')
+                dlg.saveBox.hide()
+                if dlg.exec():
+                    try:
+                        client = client.withCredentials(dlg.user, dlg.passwd)
+                    except Exception as inner_err:
+                        err = f'Reauth failure: {inner_err}'
+                    else:
+                        try:
+                            return client, client.receiveServiceConfig(
+                                self._service, self._instance)
+                        except ClientError as inner_err:
+                            err = f'On retry: {inner_err}'
+            self._item.setText(3, str(err))
+            return None, None
+
     @pyqtSlot()
     def on_actionConfigure_triggered(self):
         self._item.setText(3, '')
         if self._client.version < 1:
             self._item.setText(3, 'Daemon too old')
             return
+
+        # determine editor
         editor = loadSetting('defaultEditor')
         if not editor:
             editor = selectEditor()
             if not editor:
                 return
             saveSetting('defaultEditor', editor)
-        try:
-            config = self._client.receiveServiceConfig(self._service,
-                                                       self._instance)
-        except ClientError as err:
-            self._item.setText(3, str(err))
+
+        client, config = self.do_receive_config()
+        if client is None:
             return
+
         if not config:
             self._item.setText(3, 'No editable config files found')
             return
@@ -130,8 +157,7 @@ class JobButtons(JobButtonsUI, QWidget):
         if not result:
             return
         try:
-            self._client.sendServiceConfig(self._service, self._instance,
-                                           result)
+            client.sendServiceConfig(self._service, self._instance, result)
         except ClientError as err:
             self._item.setText(3, str(err))
             return
