@@ -193,15 +193,6 @@
     <string>Show start/stop output</string>
    </property>
   </action>
-  <action name="actionConfigure">
-   <property name="icon">
-    <iconset resource="../res/marche.qrc">
-     <normaloff>:/marche/gear.png</normaloff>:/marche/gear.png</iconset>
-   </property>
-   <property name="text">
-    <string>Configure...</string>
-   </property>
-  </action>
   <action name="actionShow_logfiles">
    <property name="icon">
     <iconset resource="../res/marche.qrc">
@@ -209,6 +200,24 @@
    </property>
    <property name="text">
     <string>Show logfiles</string>
+   </property>
+  </action>
+  <action name="actionShow_config">
+   <property name="icon">
+    <iconset resource="../res/marche.qrc">
+     <normaloff>:/marche/blue-document-node.png</normaloff>:/marche/blue-document-node.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show config files</string>
+   </property>
+  </action>
+  <action name="actionConfigure">
+   <property name="icon">
+    <iconset resource="../res/marche.qrc">
+     <normaloff>:/marche/gear.png</normaloff>:/marche/gear.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit config files...</string>
    </property>
   </action>
  </widget>

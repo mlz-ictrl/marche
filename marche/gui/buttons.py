@@ -52,6 +52,7 @@ class JobButtons(JobButtonsUI, QWidget):
         menu = QMenu(self)
         menu.addAction(self.actionShow_output)
         menu.addAction(self.actionShow_logfiles)
+        menu.addAction(self.actionShow_config)
         menu.addSeparator()
         menu.addAction(self.actionConfigure)
         self.moreBtn.setMenu(menu)
@@ -161,12 +162,7 @@ class JobButtons(JobButtonsUI, QWidget):
         except ClientError as err:
             self._item.setText(3, str(err))
             return
-        dlg = QDialog(self)
-        loadUi(dlg, 'details.ui')
-        dlg.outEdit.setPlainText(''.join(output))
-        dlg.outEdit.moveCursor(QTextCursor.MoveOperation.End)
-        dlg.outEdit.ensureCursorVisible()
-        dlg.exec()
+        self.showDetails('Start/stop script output', [('Output', output)])
 
     @pyqtSlot()
     def on_actionShow_logfiles_triggered(self):
@@ -180,17 +176,45 @@ class JobButtons(JobButtonsUI, QWidget):
         if not loglines:
             self._item.setText(3, 'Service does not return logs')
             return
-        dlg = QDialog(self)
-        loadUi(dlg, 'details.ui')
-        dlg.tabber.clear()
         logs = []
         for logline in loglines:
             filename, content = logline.split(':', 1)
             if not logs or filename != logs[-1][0]:
                 logs.append((filename, []))
             logs[-1][1].append(content)
-        for filename, content in logs:
+        self.showDetails('Log files', logs)
+
+    @pyqtSlot()
+    def on_actionShow_config_triggered(self):
+        self._item.setText(3, '')
+        if self._client.version < 1:
+            self._item.setText(3, 'Daemon too old')
+            return
+        try:
+            config = self._client.viewServiceConfig(self._service,
+                                                    self._instance)
+        except ClientError as err:
+            self._item.setText(3, str(err))
+            return
+        if not config:
+            self._item.setText(3, 'No config files found')
+            return
+        if len(config) % 2 != 0:
+            self._item.setText(3, 'Strange return value')
+            return
+        configs = []
+        for i in range(0, len(config), 2):
+            configs.append((config[i], [config[i + 1]]))
+        self.showDetails('Config files', configs)
+
+    def showDetails(self, title, files):
+        dlg = QDialog(self)
+        dlg.setWindowTitle(title)
+        loadUi(dlg, 'details.ui')
+        dlg.tabber.clear()
+        for filename, content in files:
             widget = QPlainTextEdit(dlg)
+            widget.setReadOnly(True)
             font = widget.font()
             font.setFamily('Monospace')
             widget.setFont(font)

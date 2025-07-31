@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="marche">
+    <file>blue-document-node.png</file>
     <file>logo-16.png</file>
     <file>logo-32.png</file>
     <file>logo-48.png</file>
