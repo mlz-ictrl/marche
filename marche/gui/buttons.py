@@ -32,7 +32,7 @@ from pathlib import Path
 from marche.gui.client import ClientError
 from marche.gui.dialogs import AuthDialog
 from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
-    QPlainTextEdit, QSize, QTextCursor, QWidget, pyqtSlot
+    QPlainTextEdit, QSize, QTextCursor, QWidget, QListWidgetItem, Qt, pyqtSlot
 from marche.gui.util import getEditorArguments, loadSetting, loadUi, \
     loadUiType, saveSetting, selectEditor
 from marche.protocol import Errors
@@ -107,6 +107,42 @@ class JobButtons(JobButtonsUI, QWidget):
             self._item.setText(3, str(err))
             return None, None
 
+    def edit_file(self, editor, localfn):
+        dlg = QDialog(self)
+        loadUi(dlg, 'wait.ui')
+        dlg.setModal(True)
+        dlg.show()
+        flags = getEditorArguments(editor)
+        if flags:
+            command = '%s %s %s' % (editor, flags, localfn)
+        else:
+            command = '%s %s' % (editor, localfn)
+        pid = subprocess.Popen(command, shell=True)
+        while pid.poll() is None:
+            QApplication.processEvents()
+            time.sleep(0.2)
+        dlg.close()
+        return pid.returncode == 0
+
+    def handle_one_config(self, editor, dtemp, fn, contents):
+        if os.name == 'nt':
+            contents = re.sub(r'(?<!\r)\n', '\r\n', contents)
+        localfn = dtemp / fn
+        write_file(localfn, contents)
+        if not self.edit_file(editor, localfn):
+            self._item.setText(3, 'Editor failed')
+            return None
+        if QMessageBox.question(
+                self, 'Configure', 'Is the changed file ok to use?',
+                QMessageBox.StandardButton.Yes |
+                QMessageBox.StandardButton.No) == \
+                QMessageBox.StandardButton.Yes:
+            contents = read_file(localfn)
+            if os.name == 'nt':
+                contents = contents.replace('\r\n', '\n')
+            return contents
+        return None
+
     @pyqtSlot()
     def on_actionConfigure_triggered(self):
         self._item.setText(3, '')
@@ -126,58 +162,51 @@ class JobButtons(JobButtonsUI, QWidget):
         if client is None:
             return
 
+        # sanity checks
         if not config:
             self._item.setText(3, 'No editable config files found')
             return
         if len(config) % 2 != 0:
             self._item.setText(3, 'Strange return value')
             return
+
+        # if there is more than one file, ask for which one(s) to edit
+        if len(config) > 2:
+            dlg = QDialog(self)
+            loadUi(dlg, 'selectfiles.ui')
+            dlg.listWidget.clear()
+            for i in range(0, len(config), 2):
+                item = QListWidgetItem(config[i])
+                item.setCheckState(Qt.CheckState.Unchecked)
+                dlg.listWidget.addItem(item)
+            if not dlg.exec():
+                return
+            new_config = []
+            for i in range(0, len(config), 2):
+                item = dlg.listWidget.item(i // 2)
+                if item.checkState() == Qt.CheckState.Checked:
+                    new_config.append(config[i])
+                    new_config.append(config[i + 1])
+            config = new_config
+
+        # edit selected file(s) (one after the other)
         dtemp = Path(tempfile.mkdtemp())
         result = []
         for i in range(0, len(config), 2):
             fn = config[i]
-            contents = config[i + 1]
-            if os.name == 'nt':
-                contents = re.sub(r'(?<!\r)\n', '\r\n', contents)
-            localfn = dtemp / fn
-            write_file(localfn, contents)
-            if not self.editLocal(editor, localfn):
-                self._item.setText(3, 'Editor failed')
-                return
-            if QMessageBox.question(
-                    self, 'Configure', 'Is the changed file ok to use?',
-                    QMessageBox.StandardButton.Yes |
-                    QMessageBox.StandardButton.No) == \
-                    QMessageBox.StandardButton.Yes:
+            new_contents = self.handle_one_config(editor, dtemp,
+                                                  fn, config[i + 1])
+            if new_contents is not None:
                 result.append(fn)
-                contents = read_file(localfn)
-                if os.name == 'nt':
-                    contents = contents.replace('\r\n', '\n')
-                result.append(contents)
+                result.append(new_contents)
+
+        # transfer back edited files
         if not result:
             return
         try:
             client.sendServiceConfig(self._service, self._instance, result)
         except ClientError as err:
             self._item.setText(3, str(err))
-            return
-
-    def editLocal(self, editor, localfn):
-        dlg = QDialog(self)
-        loadUi(dlg, 'wait.ui')
-        dlg.setModal(True)
-        dlg.show()
-        flags = getEditorArguments(editor)
-        if flags:
-            command = '%s %s %s' % (editor, flags, localfn)
-        else:
-            command = '%s %s' % (editor, localfn)
-        pid = subprocess.Popen(command, shell=True)
-        while pid.poll() is None:
-            QApplication.processEvents()
-            time.sleep(0.2)
-        dlg.close()
-        return pid.returncode == 0
 
     @pyqtSlot()
     def on_actionShow_output_triggered(self):
