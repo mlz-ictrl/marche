@@ -28,7 +28,7 @@ import sys
 
 from pytest import raises
 
-from marche.jobs import RUNNING
+from marche.jobs import RUNNING, Fault
 from marche.jobs.systemd import Job
 from test.utils import job_call_check
 
@@ -99,7 +99,7 @@ def test_job(tmp_path):
     assert job.receive_config('foo', '') == {'1.cfg': 'conf1\n'}
     job.send_config('foo', '', '1.cfg', 'conf1-changed\n')
     assert (tmp_path / '1.cfg').read_text() == 'conf1-changed\n'
-    assert raises(RuntimeError, job.send_config, 'foo', '', 'nosuch', 'cfg')
+    assert raises(Fault, job.send_config, 'foo', '', 'nosuch', 'cfg')
 
     config = {
         'unit': 'foo',
