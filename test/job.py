@@ -28,7 +28,7 @@ import logging
 from mock import patch
 from pytest import raises
 
-from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Fault
+from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Fault, Denied
 from marche.jobs.base import Job as BaseJob
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
 from marche.protocol import StatusResponse
@@ -60,7 +60,7 @@ def test_job_base():
     job.init()
 
     job.check_permission(ADMIN, ClientInfo(CONTROL))
-    with raises(Fault):
+    with raises(Denied):
         job.check_permission(ADMIN, ClientInfo(DISPLAY))
     assert job.determine_permissions(ClientInfo(DISPLAY)) == [DISPLAY]
 

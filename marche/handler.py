@@ -27,7 +27,7 @@
 import uuid
 from collections import OrderedDict
 
-from marche.jobs import Busy, Fault
+from marche.jobs import Busy, Fault, Denied
 from marche.permission import ADMIN, CONTROL, DISPLAY
 from marche.protocol import ConffileResponse, ControlOutputResponse, \
     FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse
@@ -38,21 +38,26 @@ def command(silent=False):
     def deco(f):
         def new_f(self, *args):
             if silent:
-                self.log.debug('running %s%s' % (f.__name__, args))
+                self.log.debug('running %s%s', f.__name__, args)
             else:
-                self.log.info('running %s%s' % (f.__name__, args))
+                self.log.info('running %s%s', f.__name__, args)
             try:
                 return f(self, *args)
             except Busy as err:
-                self.log.error('%s%s failed: busy (%s)' %
-                               (f.__name__, args, err))
+                self.log.error('%s%s failed: busy (%s)',
+                               f.__name__, args, err)
+                raise
+            except Denied as err:
+                self.log.error('%s%s failed: denied (%s)',
+                               f.__name__, args, err)
                 raise
             except Fault as err:
-                self.log.error('%s%s failed: fault (%s)' %
-                               (f.__name__, args, err))
+                self.log.error('%s%s failed: fault (%s)',
+                               f.__name__, args, err)
                 raise
             except Exception:
-                self.log.exception('unexpected exception occurred')
+                self.log.exception('%s%s failed: unexpected exception',
+                                   f.__name__, args)
                 raise
         new_f.__name__ = f.__name__
         new_f.__doc__ = f.__doc__

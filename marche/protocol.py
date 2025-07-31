@@ -30,7 +30,7 @@ PROTO_VERSION = 4
 class Errors:
     BUSY = 1
     FAULT = 2
-    UNAUTH = 3
+    DENIED = 3
     EXCEPTION = 9
 
 

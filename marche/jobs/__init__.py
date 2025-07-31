@@ -46,7 +46,7 @@ class Fault(Exception):
     pass
 
 
-class Unauthorized(Fault):
+class Denied(Exception):
     pass
 
 

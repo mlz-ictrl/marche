@@ -56,7 +56,7 @@ import xmlrpc.server
 
 from marche.auth import AuthFailed
 from marche.iface.base import Interface as BaseInterface
-from marche.jobs import Busy, Fault
+from marche.jobs import Busy, Fault, Denied
 from marche.permission import DISPLAY, ClientInfo
 from marche.protocol import PROTO_VERSION, Errors
 
@@ -103,6 +103,8 @@ def command(method):
             return True if ret is None else ret
         except Busy as err:
             raise xmlrpc.client.Fault(Errors.BUSY, str(err))
+        except Denied as err:
+            raise xmlrpc.client.Fault(Errors.DENIED, str(err))
         except Fault as err:
             raise xmlrpc.client.Fault(Errors.FAULT, str(err))
         except Exception as err:

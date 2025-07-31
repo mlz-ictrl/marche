@@ -32,7 +32,7 @@ from pytest import fixture, raises
 
 from marche.config import Config
 from marche.handler import JobHandler
-from marche.jobs import Busy, Fault
+from marche.jobs import Busy, Fault, Denied
 from marche.jobs.base import DEAD, RUNNING
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
 from marche.protocol import ConffileResponse, ControlOutputResponse, \
@@ -170,7 +170,7 @@ def test_commands(handler):
 
     numerrors = len(testhandler.errors)
     assert raises(Busy, handler.start_service, client, 'svc1', '')
-    assert raises(Fault, handler.start_service, ClientInfo(DISPLAY),
+    assert raises(Denied, handler.start_service, ClientInfo(DISPLAY),
                   'svc2', 'inst1')
     assert raises(Fault, handler.start_service, client, 'svc2', 'inst1')
     assert raises(ValueError, handler.restart_service, client, 'svc1', '')

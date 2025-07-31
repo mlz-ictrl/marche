@@ -28,7 +28,7 @@ import threading
 from pathlib import Path
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
-    SYSTEMD_STATE_MAP, Busy, Fault, Unauthorized
+    SYSTEMD_STATE_MAP, Busy, Fault, Denied
 from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
@@ -165,7 +165,7 @@ class Job:
         """
         if self.has_permission(level, client):
             return
-        raise Unauthorized('permission denied by Marche')
+        raise Denied('permission denied by Marche')
 
     def determine_permissions(self, client):
         """Return which normal levels of actions this *client* can do.
