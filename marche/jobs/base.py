@@ -28,7 +28,7 @@ import threading
 from pathlib import Path
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
-    SYSTEMD_STATE_MAP, Busy, Fault, Denied
+    SYSTEMD_STATE_MAP, Busy, Denied, Fault
 from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, extract_loglines, read_file, write_file

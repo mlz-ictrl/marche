@@ -27,7 +27,7 @@ import logging
 import time
 
 from marche.auth import AuthFailed
-from marche.jobs import DEAD, RUNNING, Busy, Fault, Denied
+from marche.jobs import DEAD, RUNNING, Busy, Denied, Fault
 from marche.jobs.base import Job as BaseJob
 from marche.permission import ADMIN, DISPLAY, NONE, ClientInfo
 from marche.protocol import ConffileResponse, ControlOutputResponse, \

@@ -31,8 +31,8 @@ from pathlib import Path
 
 from marche.gui.client import ClientError
 from marche.gui.dialogs import AuthDialog
-from marche.gui.qt import QApplication, QDialog, QMenu, QMessageBox, \
-    QPlainTextEdit, QSize, QTextCursor, QWidget, QListWidgetItem, Qt, pyqtSlot
+from marche.gui.qt import QApplication, QDialog, QListWidgetItem, QMenu, \
+    QMessageBox, QPlainTextEdit, QSize, Qt, QTextCursor, QWidget, pyqtSlot
 from marche.gui.util import getEditorArguments, loadSetting, loadUi, \
     loadUiType, saveSetting, selectEditor
 from marche.protocol import Errors

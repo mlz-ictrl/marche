@@ -27,7 +27,7 @@
 import uuid
 from collections import OrderedDict
 
-from marche.jobs import Busy, Fault, Denied
+from marche.jobs import Busy, Denied, Fault
 from marche.permission import ADMIN, CONTROL, DISPLAY
 from marche.protocol import ConffileResponse, ControlOutputResponse, \
     FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse

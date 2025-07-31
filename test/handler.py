@@ -32,7 +32,7 @@ from pytest import fixture, raises
 
 from marche.config import Config
 from marche.handler import JobHandler
-from marche.jobs import Busy, Fault, Denied
+from marche.jobs import Busy, Denied, Fault
 from marche.jobs.base import DEAD, RUNNING
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
 from marche.protocol import ConffileResponse, ControlOutputResponse, \

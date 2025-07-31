@@ -56,7 +56,7 @@ import xmlrpc.server
 
 from marche.auth import AuthFailed
 from marche.iface.base import Interface as BaseInterface
-from marche.jobs import Busy, Fault, Denied
+from marche.jobs import Busy, Denied, Fault
 from marche.permission import DISPLAY, ClientInfo
 from marche.protocol import PROTO_VERSION, Errors
 
