@@ -42,7 +42,7 @@ class AuthHandler:
                 log.exception('could not import authenticator %r: %s',
                               authname, err)
                 continue
-            log.info('adding authenticator: %s' % authname)
+            log.info('adding authenticator: %s', authname)
             try:
                 auth = mod.Authenticator(config.auth_config[authname], log)
             except Exception as err:

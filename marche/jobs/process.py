@@ -133,7 +133,7 @@ class ProcessMonitor(Thread):
         self._outfile = outfile
 
     def run(self):
-        self.log.info('worker %s: started' % self._cmd)
+        self.log.info('worker %s: started', self._cmd)
         if self._outfile is not None:
             outfile = open(self._outfile, 'wb')
         elif self.oneshot:
@@ -167,7 +167,7 @@ class ProcessMonitor(Thread):
                 line = line.translate(None, b'\r').decode('utf-8', 'replace')
                 self.output.append(line)
         self.returncode = process.returncode
-        self.log.info('worker %s: return %d' % (self._cmd, self.returncode))
+        self.log.info('worker %s: return %d', self._cmd, self.returncode)
 
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):
@@ -192,7 +192,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def check(self):
         if not self.binary.is_file():
-            self.log.warning('%s missing' % self.binary)
+            self.log.warning('%s missing', self.binary)
             return False
         return True
 

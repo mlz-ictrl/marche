@@ -91,8 +91,7 @@ class JobHandler:
         self.log.info('adding jobs...')
         for (name, config) in self.config.job_config.items():
             if 'type' not in config:
-                self.log.warning('job %r has no type assigned, '
-                                 'ignoring' % name)
+                self.log.warning('job %r has no type assigned, ignoring', name)
                 continue
             jobtype = config['type']
             try:
@@ -107,7 +106,7 @@ class JobHandler:
                     job.log.error('feasibility check failed')
                     continue
                 job.init()
-                self.log.info('job %s initialized' % name)
+                self.log.info('job %s initialized', name)
                 for service, instance in job.get_services():
                     other = self.service2job.get(service)
                     if other and other is not job:
@@ -115,7 +114,7 @@ class JobHandler:
                                            'provided by jobs %s and %s' %
                                            (service, name, other.name))
                     self.service2job[service] = job
-                    self.log.info('found service: %s.%s' % (service, instance))
+                    self.log.info('found service: %s.%s', service, instance)
                 self.jobs[name] = job
             except Exception as err:
                 self.log.exception('could not initialize job %s: %s' %

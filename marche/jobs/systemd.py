@@ -96,7 +96,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         proc = self._sync_call(self.SYSTEMCTL + ' is-enabled %s' % self.unit)
         if (not proc.stdout and proc.stderr) or \
            (proc.stdout and proc.stdout[0].strip() == 'not-found'):
-            self.log.warning('unit file for %s does not exist' % self.unit)
+            self.log.warning('unit file for %s does not exist', self.unit)
             return False
         return True
 

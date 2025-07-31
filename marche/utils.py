@@ -172,7 +172,7 @@ class AsyncProcess(Thread):
         self.stderr = stderr if stderr is not None else []
 
     def run(self):
-        self.log.debug('call [sh:%s]: %s' % (self.use_sh, self.cmd))
+        self.log.debug('call [sh:%s]: %s', self.use_sh, self.cmd)
         proc = None
         poller = None
         started = time.time()

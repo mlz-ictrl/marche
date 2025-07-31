@@ -76,10 +76,10 @@ class Job(BaseJob):
 
     def check(self):
         if not self._configdir.is_dir():
-            self.log.warning('Configuration dir %s missing' % self._configdir)
+            self.log.warning('Configuration dir %s missing', self._configdir)
             return False
         if not self._control_tool.is_file():
-            self.log.warning('Control tool %s missing' % self._control_tool)
+            self.log.warning('Control tool %s missing', self._control_tool)
             return False
         return True
 

@@ -94,10 +94,10 @@ class EntangleBaseJob(BaseJob):
 
     def check(self):
         if not self._config.is_file():
-            self.log.warning('Configuration file %s missing' % self._config)
+            self.log.warning('Configuration file %s missing', self._config)
             return False
         if not self._control_tool.is_file():
-            self.log.warning('Control tool %s missing' % self._control_tool)
+            self.log.warning('Control tool %s missing', self._control_tool)
             return False
         return True
 

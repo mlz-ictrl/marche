@@ -67,7 +67,7 @@ class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
     unauth_level = DISPLAY
 
     def log_message(self, fmt, *args):
-        self.log.debug('[%s] %s' % (self.client_address[0], fmt % args))
+        self.log.debug('[%s] %s', self.client_address[0], fmt % args)
 
     def do_POST(self):
         self.client_info = ClientInfo(self.unauth_level)
@@ -237,7 +237,7 @@ class Interface(BaseInterface):
         self.server.register_instance(RPCFunctions(self.jobhandler, self.log))
 
         threading.Thread(target=self._thread, daemon=True).start()
-        self.log.info('listening on %s:%s' % (host, port))
+        self.log.info('listening on %s:%s', host, port)
 
     def shutdown(self):
         self.server.shutdown()

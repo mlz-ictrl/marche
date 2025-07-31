@@ -73,7 +73,7 @@ class Interface(BaseInterface):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((host, port))
-        self.log.info('listening on %s:%s' % (host, port))
+        self.log.info('listening on %s:%s', host, port)
         self._stoprequest = False
         threading.Thread(target=self._thread, args=(), daemon=True).start()
 
