@@ -29,8 +29,8 @@ from collections import OrderedDict
 
 from marche.jobs import Busy, Fault
 from marche.permission import ADMIN, CONTROL, DISPLAY
-from marche.protocol import ConffileEvent, ControlOutputEvent, \
-    FoundHostEvent, LogfileEvent, ServiceListEvent, StatusEvent
+from marche.protocol import ConffileResponse, ControlOutputResponse, \
+    FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse
 from marche.scan import scan_async
 
 
@@ -146,14 +146,14 @@ class JobHandler:
     def scan_network(self):
         """Scan the current network for daemons using UDP broadcast."""
         def callback(host, version):
-            self.emit_event(FoundHostEvent(host, version))
+            self.emit_event(FoundHostResponse(host, version))
         scan_async(callback, self.uid)
 
     @command(silent=True)
     def request_service_list(self, client):
         """Request a list of all services provided by jobs.
 
-        The service list is sent back as a single ServiceListEvent."""
+        The service list is sent back as a single ServiceListResponse."""
         svcs = OrderedDict()
         for job in self.jobs.values():
             for service, instance in job.get_services():
@@ -171,7 +171,7 @@ class JobHandler:
                     'state': state,
                     'ext_status': ext,
                 }
-        return ServiceListEvent(services=svcs)
+        return ServiceListResponse(services=svcs)
 
     def filter_services(self, client, event):
         """Filter a service list event to only jobs that the client can see."""
@@ -181,7 +181,7 @@ class JobHandler:
         for service in event.services:
             if self._get_job(service).has_permission(DISPLAY, client):
                 new_svcs[service] = event.services[service]
-        return ServiceListEvent(services=new_svcs)
+        return ServiceListResponse(services=new_svcs)
 
     def can_see_status(self, client, event):
         """Check if the client can see this status event."""
@@ -229,8 +229,8 @@ class JobHandler:
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
         state, ext = job.polled_service_status(service, instance)
-        return StatusEvent(service=service, instance=instance,
-                           state=state, ext_status=ext)
+        return StatusResponse(service=service, instance=instance,
+                              state=state, ext_status=ext)
 
     @command(silent=True)
     def request_control_output(self, client, service, instance):
@@ -239,8 +239,8 @@ class JobHandler:
         job.check_permission(DISPLAY, client)
         with job.lock:
             output = job.service_output(service, instance)
-        return ControlOutputEvent(service=service, instance=instance,
-                                  content=output)
+        return ControlOutputResponse(service=service, instance=instance,
+                                     content=output)
 
     @command()
     def request_logfiles(self, client, service, instance):
@@ -249,7 +249,8 @@ class JobHandler:
         job.check_permission(DISPLAY, client)
         with job.lock:
             logfiles = job.service_logs(service, instance)
-        return LogfileEvent(service=service, instance=instance, files=logfiles)
+        return LogfileResponse(service=service, instance=instance,
+                               files=logfiles)
 
     @command()
     def request_conffiles(self, client, service, instance):
@@ -261,7 +262,8 @@ class JobHandler:
         job.check_permission(ADMIN, client)
         with job.lock:
             confs = job.receive_config(service, instance)
-        return ConffileEvent(service=service, instance=instance, files=confs)
+        return ConffileResponse(service=service, instance=instance,
+                                files=confs)
 
     @command()
     def send_conffile(self, client, service, instance, filename, contents):

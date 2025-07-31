@@ -23,16 +23,13 @@
 
 """Test for the miscellaneous other APIs."""
 
-import json
 import logging
 import os
 import socket
 import sys
 
-from pytest import raises
-
 from marche import utils
-from marche.protocol import AuthEvent, Event
+from marche.protocol import Response
 from test.utils import LogHandler
 
 logger = logging.getLogger('testother')
@@ -41,15 +38,7 @@ logger.addHandler(testhandler)
 
 
 def test_event_class():
-    assert raises(RuntimeError, Event().serialize)
-    assert raises(RuntimeError, Event.unserialize, b'{}')
-    assert Event.unserialize(json.dumps({'type': 1423}).encode()) is None
-
-    ev = AuthEvent(success=True)
-    serialized = ev.serialize()
-    assert Event.unserialize(serialized) == ev
-
-    assert repr(Event()) == '<Event: {}>'
+    assert repr(Response()) == '<Response: {}>'
 
 
 def test_utils(tmp_path):

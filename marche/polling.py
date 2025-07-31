@@ -27,7 +27,7 @@ import queue
 import threading
 import time
 
-from marche.protocol import StatusEvent
+from marche.protocol import StatusResponse
 
 
 class Poller:
@@ -85,7 +85,7 @@ class Poller:
             for key, result in states.items():
                 if result != self._cache.get(key, [0, None])[1]:
                     self._cache[key] = [time.time(), result]
-                    self.event_callback(StatusEvent(
+                    self.event_callback(StatusResponse(
                         service=key[0],
                         instance=key[1],
                         state=result[0],

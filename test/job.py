@@ -31,7 +31,7 @@ from pytest import raises
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Fault
 from marche.jobs.base import Job as BaseJob
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
-from marche.protocol import StatusEvent
+from marche.protocol import StatusResponse
 from test.utils import LogHandler, MockAsyncProcess, wait
 
 logger = logging.getLogger('testjob')
@@ -142,7 +142,7 @@ def test_job_poller():
 
     wait(100, lambda: events)
     ev = events[0]
-    assert isinstance(ev, StatusEvent)
+    assert isinstance(ev, StatusResponse)
     assert ev.service == 'svc'
     assert ev.instance == 'inst'
     assert ev.state == DEAD

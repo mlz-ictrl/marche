@@ -23,37 +23,8 @@
 
 """Constants for use with the new Marche protocol."""
 
-import json
-
 # Increment this when making changes to the protocol.
 PROTO_VERSION = 3
-
-
-class Commands:
-    AUTHENTICATE = 'auth'
-    TRIGGER_RELOAD = 'reload'
-    SCAN_NETWORK = 'scan'
-    START_SERVICE = 'start'
-    STOP_SERVICE = 'stop'
-    RESTART_SERVICE = 'restart'
-    REQUEST_SERVICE_LIST = 'services?'
-    REQUEST_SERVICE_STATUS = 'status?'
-    REQUEST_CONTROL_OUTPUT = 'output?'
-    REQUEST_LOG_FILES = 'logfiles?'
-    REQUEST_CONF_FILES = 'conffiles?'
-    SEND_CONF_FILE = 'sendconfig'
-
-
-class Events:
-    CONNECTED = 'connected'
-    AUTH_RESULT = 'authresult'
-    SERVICE_LIST = 'services'
-    ERROR = 'error'
-    STATUS = 'status'
-    CONTROL_OUTPUT = 'output'
-    CONF_FILES = 'conffiles'
-    LOG_FILES = 'logfiles'
-    FOUND_HOST = 'host'
 
 
 class Errors:
@@ -63,38 +34,7 @@ class Errors:
     EXCEPTION = 9
 
 
-class RegistryMeta(type):
-    def __new__(mcs, name, bases, attrs):
-        newtype = type.__new__(mcs, name, bases, attrs)
-        if newtype.type:
-            newtype.registry[newtype.type] = newtype
-        return newtype
-
-
-class SerializableMessage(metaclass=RegistryMeta):
-    registry = {}
-
-    #: Designation of the type of message.
-    type = None
-
-    def serialize(self):
-        if not self.type:
-            raise RuntimeError('base class cannot be serialized')
-        ret = {'type': self.type}
-        ret.update(vars(self))
-        return json.dumps(ret).encode('utf-8')
-
-    @classmethod
-    def unserialize(cls, data):
-        data = json.loads(data.decode('utf-8'))
-        if 'type' not in data:
-            raise RuntimeError('type not given in data')
-        if data['type'] not in cls.registry:
-            # command is not recognized; ignore it for compatibility
-            return None
-        cls = cls.registry[data.pop('type')]
-        return cls(**data)
-
+class Response:
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
             vars(self) == vars(other)
@@ -103,153 +43,52 @@ class SerializableMessage(metaclass=RegistryMeta):
         return '<%s: %r>' % (self.__class__.__name__, vars(self))
 
 
-# -----------------------------------------------------------------------------
-
-class Command(SerializableMessage):
-    registry = {}
-
-
-class AuthenticateCommand(Command):
-    type = Commands.AUTHENTICATE
-
-    def __init__(self, user, passwd):
-        self.user = user
-        self.passwd = passwd
-
-
-class ScanNetworkCommand(Command):
-    type = Commands.SCAN_NETWORK
-
-
-class TriggerReloadCommand(Command):
-    type = Commands.TRIGGER_RELOAD
-
-
-class RequestServiceListCommand(Command):
-    type = Commands.REQUEST_SERVICE_LIST
-
-
-class ServiceCommand(Command):
-    def __init__(self, service, instance):
-        self.service = service
-        self.instance = instance
-
-
-class StartCommand(ServiceCommand):
-    type = Commands.START_SERVICE
-
-
-class StopCommand(ServiceCommand):
-    type = Commands.STOP_SERVICE
-
-
-class RestartCommand(ServiceCommand):
-    type = Commands.RESTART_SERVICE
-
-
-class RequestServiceStatusCommand(ServiceCommand):
-    type = Commands.REQUEST_SERVICE_STATUS
-
-
-class RequestControlOutputCommand(ServiceCommand):
-    type = Commands.REQUEST_CONTROL_OUTPUT
-
-
-class RequestLogFilesCommand(ServiceCommand):
-    type = Commands.REQUEST_LOG_FILES
-
-
-class RequestConfFilesCommand(ServiceCommand):
-    type = Commands.REQUEST_CONF_FILES
-
-
-class SendConfFileCommand(ServiceCommand):
-    type = Commands.SEND_CONF_FILE
-
-    def __init__(self, service, instance, filename, contents):
-        ServiceCommand.__init__(self, service, instance)
-        self.filename = filename
-        self.contents = contents
-
-
-# -----------------------------------------------------------------------------
-
-class Event(SerializableMessage):
-    registry = {}
-
-
-class ConnectedEvent(Event):
-    type = Events.CONNECTED
-
-    def __init__(self, proto_version, daemon_version, unauth_level):
-        self.proto_version = proto_version
-        self.daemon_version = daemon_version
-        self.unauth_level = unauth_level
-
-
-class ServiceListEvent(Event):
-    type = Events.SERVICE_LIST
-
+class ServiceListResponse(Response):
     def __init__(self, services):
         self.services = services
 
 
-class AuthEvent(Event):
-    type = Events.AUTH_RESULT
-
-    def __init__(self, success):
-        self.success = success
-
-
-class ServiceEvent(Event):
+class ServiceResponse(Response):
     def __init__(self, service, instance):
         self.service = service
         self.instance = instance
 
 
-class StatusEvent(ServiceEvent):
-    type = Events.STATUS
-
+class StatusResponse(ServiceResponse):
     def __init__(self, service, instance, state, ext_status):
-        ServiceEvent.__init__(self, service, instance)
+        ServiceResponse.__init__(self, service, instance)
         self.state = state
         self.ext_status = ext_status
 
 
-class ErrorEvent(ServiceEvent):
-    type = Events.ERROR
-
+class ErrorResponse(ServiceResponse):
     def __init__(self, service, instance, code, desc):
-        ServiceEvent.__init__(self, service, instance)
+        ServiceResponse.__init__(self, service, instance)
         self.code = code
         self.desc = desc
 
 
-class ControlOutputEvent(ServiceEvent):
-    type = Events.CONTROL_OUTPUT
-
+class ControlOutputResponse(ServiceResponse):
     def __init__(self, service, instance, content):
-        ServiceEvent.__init__(self, service, instance)
+        ServiceResponse.__init__(self, service, instance)
         self.content = content
 
 
-class FileEvent(ServiceEvent):
+class FileResponse(ServiceResponse):
     def __init__(self, service, instance, files):
-        ServiceEvent.__init__(self, service, instance)
+        ServiceResponse.__init__(self, service, instance)
         self.files = files
 
 
-class ConffileEvent(FileEvent):
-    type = Events.CONF_FILES
+class ConffileResponse(FileResponse):
+    pass
 
 
-class LogfileEvent(FileEvent):
-    type = Events.LOG_FILES
+class LogfileResponse(FileResponse):
+    pass
 
 
-class FoundHostEvent(Event):
-    type = Events.FOUND_HOST
-
+class FoundHostResponse(Response):
     def __init__(self, host, version):
         self.host = host
         self.version = version

@@ -30,8 +30,8 @@ from marche.auth import AuthFailed
 from marche.jobs import DEAD, RUNNING, Busy, Fault, Unauthorized
 from marche.jobs.base import Job as BaseJob
 from marche.permission import ADMIN, DISPLAY, NONE, ClientInfo
-from marche.protocol import ConffileEvent, ControlOutputEvent, \
-    FoundHostEvent, LogfileEvent, ServiceListEvent, StatusEvent
+from marche.protocol import ConffileResponse, ControlOutputResponse, \
+    FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse
 
 
 def wait(nmax, callback):
@@ -57,8 +57,8 @@ def job_call_check(job, service, instance, cmdlinesuffix, output):
         assert out[-outlen-1].startswith('$ ')
         assert out[-outlen-1].endswith(' %s\n' %
                                        cmdlinesuffix.replace('action', action))
-        assert out[-outlen:] == [l.replace('action', action) + '\n'
-                                 for l in output]
+        assert out[-outlen:] == [line.replace('action', action) + '\n'
+                                 for line in output]
 
 
 class LogHandler(logging.Handler):
@@ -120,7 +120,7 @@ class MockJobHandler:
         self.test_reloaded = True
 
     def scan_network(self):
-        self.emit_event(FoundHostEvent('testhost', 2))
+        self.emit_event(FoundHostResponse('testhost', 2))
 
     def request_service_list(self, client):
         if self.test_svc_list_error:
@@ -131,10 +131,10 @@ class MockJobHandler:
             'instances': {
                 '': {'desc': '', 'state': DEAD, 'ext_status': ''},
                 'inst': {'desc': '', 'state': DEAD, 'ext_status': ''}}}}
-        return ServiceListEvent(services=svcs)
+        return ServiceListResponse(services=svcs)
 
     def filter_services(self, client, event):
-        return ServiceListEvent(services={})
+        return ServiceListResponse(services={})
 
     def can_see_status(self, client, event):
         return True
@@ -143,22 +143,22 @@ class MockJobHandler:
         return 'desc'
 
     def request_service_status(self, client, service, instance):
-        return StatusEvent(service=service, instance=instance,
-                           state=DEAD, ext_status='ext_status')
+        return StatusResponse(service=service, instance=instance,
+                              state=DEAD, ext_status='ext_status')
 
     def request_control_output(self, client, service, instance):
-        return ControlOutputEvent(service=service, instance=instance,
-                                  content=['line1', 'line2'])
+        return ControlOutputResponse(service=service, instance=instance,
+                                     content=['line1', 'line2'])
 
     def request_logfiles(self, client, service, instance):
-        return LogfileEvent(service=service, instance=instance,
-                            files={'file1': 'line1\nline2\n',
-                                   'file2': 'line3\nline4\n'})
+        return LogfileResponse(service=service, instance=instance,
+                               files={'file1': 'line1\nline2\n',
+                                      'file2': 'line3\nline4\n'})
 
     def request_conffiles(self, client, service, instance):
-        return ConffileEvent(service=service, instance=instance,
-                             files={'file1': 'line1\nline2\n',
-                                    'file2': 'line3\nline4\n'})
+        return ConffileResponse(service=service, instance=instance,
+                                files={'file1': 'line1\nline2\n',
+                                       'file2': 'line3\nline4\n'})
 
     def start_service(self, client, service, instance):
         if client.level < ADMIN:

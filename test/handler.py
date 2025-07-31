@@ -35,8 +35,8 @@ from marche.handler import JobHandler
 from marche.jobs import Busy, Fault
 from marche.jobs.base import DEAD, RUNNING
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
-from marche.protocol import ConffileEvent, ControlOutputEvent, ErrorEvent, \
-    LogfileEvent, ServiceListEvent, StatusEvent
+from marche.protocol import ConffileResponse, ControlOutputResponse, \
+    ErrorResponse, LogfileResponse, ServiceListResponse, StatusResponse
 from test.utils import LogHandler, MockIface, MockJob, wait
 
 # Pretend that we are a job module.
@@ -77,7 +77,7 @@ def test_exceptions():
 
 
 def test_event(handler):
-    ev = ErrorEvent('svc', 'inst', 42, 'string')
+    ev = ErrorResponse('svc', 'inst', 42, 'string')
     handler.emit_event(ev)
     assert handler.test_events[-1] == ev
 
@@ -101,7 +101,7 @@ def test_service_list(handler):
     # Request the service list (the job is configured to require CONTROL
     # to view services).
     ev = handler.request_service_list(ClientInfo(CONTROL))
-    assert isinstance(ev, ServiceListEvent)
+    assert isinstance(ev, ServiceListResponse)
     assert ev.services == {
         'svc1': {
             'jobtype': 'test',
@@ -135,23 +135,23 @@ def test_requests(handler):
     assert desc == 'desc:inst1'
 
     ev = handler.request_service_status(client, 'svc2', 'inst1')
-    assert isinstance(ev, StatusEvent)
+    assert isinstance(ev, StatusResponse)
     assert ev.service == 'svc2'
     assert ev.instance == 'inst1'
     assert ev.state == RUNNING
     assert ev.ext_status == 'ext:inst1'
 
     ev = handler.request_control_output(client, 'svc2', 'inst1')
-    assert isinstance(ev, ControlOutputEvent)
+    assert isinstance(ev, ControlOutputResponse)
     assert ev.content == ['out:inst1']
 
     ev = handler.request_logfiles(client, 'svc2', 'inst1')
-    assert isinstance(ev, LogfileEvent)
+    assert isinstance(ev, LogfileResponse)
     assert ev.files == {'log:inst1': 'svc2'}
 
     client = ClientInfo(ADMIN)
     ev = handler.request_conffiles(client, 'svc2', 'inst1')
-    assert isinstance(ev, ConffileEvent)
+    assert isinstance(ev, ConffileResponse)
     assert ev.files == {'conf:inst1': 'svc2'}
 
 
