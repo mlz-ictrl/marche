@@ -98,8 +98,8 @@ class Authenticator(BaseAuthenticator):
         if key not in self._cache:
             try:
                 pamela.authenticate(user, passwd, self.service)
-            except pamela.PAMError:
-                self.log.exception('could not authenticate %s' % user)
+            except pamela.PAMError as e:
+                self.log.error('could not authenticate %s: %s', user, e)
                 return None
             self._cache.add(key)
         if user in self.adminusers:
