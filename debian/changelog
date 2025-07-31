@@ -1,3 +1,20 @@
+marche (4.0.0) stable; urgency=medium
+
+  * remove unused code relating to command classes
+  * git version of PyInstaller no longer required
+  * Protocol version 4: add a view_conffiles handler action.
+  * implement "View config" in GUI
+  * implement distinct fault code for DENIED
+  * config: allow more than one [auth] per type
+  * allow re-authing as admin user when "Configure" fails with DENIED
+  * allow selection of which config files to edit if more than one given
+  * nicos: implement config editing (setup files)
+  * use lazy logging
+  * fix test
+  * isort
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Thu, 31 Jul 2025 19:05:06 +0200
+
 marche (3.14.8) stable; urgency=medium
 
   * Auth/PAM: Avoid to publish passwords in log
