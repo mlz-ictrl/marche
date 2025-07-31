@@ -50,6 +50,11 @@ This job has the following configuration parameters:
       ``/etc/init.d/nicos-system``, which is normally a symbolic link to the
       file below the NICOS root.
 
+   .. describe:: setup_path
+
+      The setup path of the NICOS installation, if given, allows editing
+      the setup files.
+
    .. describe:: permissions
                  pollinterval
 
@@ -60,6 +65,7 @@ This job has the following configuration parameters:
    services and their logfiles from there.
 """
 
+import os
 from pathlib import Path
 
 try:
@@ -68,9 +74,10 @@ except ImportError:
     import tomli as tomllib
 
 from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, SYSTEMD_STATE_MAP, \
-    WARNING
+    WARNING, Fault
 from marche.jobs.base import Job as BaseJob
-from marche.utils import determine_init_system, extract_loglines
+from marche.utils import determine_init_system, extract_loglines, read_file, \
+    write_file
 
 
 class NicosBaseJob(BaseJob):
@@ -80,6 +87,7 @@ class NicosBaseJob(BaseJob):
         self._proc = None
         self._logpath = None
         self._find_root(config)
+        self._setup_path = config.get('setup_path', None)
 
     def _find_root(self, config):
         raise NotImplementedError
@@ -111,6 +119,31 @@ class NicosBaseJob(BaseJob):
                     result.update(extract_loglines(logfile))
             return result
         return extract_loglines(self._logpath / instance / 'current')
+
+    def receive_config(self, service, instance):
+        if instance not in ('', 'daemon'):
+            return {}
+        if self._setup_path is None:
+            return {}
+        setup_path = Path(self._setup_path)
+        if not setup_path.is_dir():
+            self.log.warning(f'setup path {setup_path} does not exist')
+            return {}
+        result = {}
+        for candidate in setup_path.glob('*.py'):
+            if candidate.is_file() and os.access(candidate, os.W_OK):
+                result[candidate.name] = read_file(candidate)
+        return result
+
+    def send_config(self, service, instance, filename, contents):
+        if self._setup_path is None:
+            raise Fault('no setup path configured')
+        setup_path = Path(self._setup_path)
+        fullname = setup_path / filename
+        if fullname.is_file():
+            write_file(fullname, contents)
+        else:
+            raise Fault('unknown file')
 
 
 class InitJob(NicosBaseJob):

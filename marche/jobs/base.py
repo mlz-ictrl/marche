@@ -433,4 +433,4 @@ class ConfigMixin:
                 write_file(configpath, contents)
                 break
         else:
-            raise RuntimeError('unknown file')
+            raise Fault('unknown file')
