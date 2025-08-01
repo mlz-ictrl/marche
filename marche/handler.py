@@ -261,6 +261,11 @@ class JobHandler:
         """View the relevant configuration file(s) for this service.
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
+
+        This is the same as request_conffiles, just requires DISPLAY
+        permission.  Clients requesting configs for editing should use
+        request_conffiles instead, so that the user gets a permission error
+        immediately instead of getting it at send_conffile time.
         """
         # New in protocol version 4.  Fallback is request_conffiles.
         job = self._get_job(service)
@@ -277,10 +282,6 @@ class JobHandler:
 
         Returned list: [filename1, contents1, filename2, contents2, ...]
         """
-        # Note: this is the same as view_conffiles, just requires DISPLAY
-        # permission.  Clients requesting configs for editing should use
-        # request_conffiles instead, so that the user gets a permission error
-        # immediately instead of getting it at send_conffile time.
         job = self._get_job(service)
         job.check_permission(ADMIN, client)
         with job.lock:
