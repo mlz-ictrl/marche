@@ -159,8 +159,10 @@ class HostTree(QTreeWidget):
         finally:
             model.blockSignals(False)
         # finally, emit a signal that *all* data may have changed
-        model.dataChanged.emit(model.index(0, 0),
-                               model.index(model.rowCount(), 4))
+        model.dataChanged.emit(
+            model.index(0, 0),
+            model.index(model.rowCount() - 1, model.columnCount() - 1)
+        )
 
     def updateStatus(self, service, instance, status, info, parent=True):
         if service is instance is None:
