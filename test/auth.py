@@ -26,8 +26,9 @@
 import logging
 import os
 import sys
+from unittest.mock import patch
 
-from mock import patch
+import bcrypt
 from pytest import mark, raises
 
 from marche.auth import AuthFailed, AuthHandler
@@ -52,25 +53,28 @@ class Authenticator(BaseAuthenticator):
 def test_errors():
     config = Config()
     # No such module.
-    config.auth_config = {'nonexisting': {}}
+    config.auth_config = {'nonexisting': [{}]}
     testhandler.assert_error(AuthHandler, config, logger)
     # Error on init.
-    config.auth_config = {'test': {}}
+    config.auth_config = {'test': [{}]}
     testhandler.assert_error(AuthHandler, config, logger)
 
 
 def test_simple():
     config = Config()
-    config.auth_config = {'simple': {'user': 'user', 'passwd': 'passwd',
-                                     'level': 'control'}}
+    config.auth_config = {'simple': [{
+        'user': 'user',
+        'passwd': bcrypt.hashpw(b'passwd', bcrypt.gensalt(8)).decode('utf-8'),
+        'level': 'control',
+    }]}
 
     handler = AuthHandler(config, logger)
     assert handler.needs_authentication()
     assert handler.authenticate('user', 'passwd').level == CONTROL
     assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
-    config.auth_config = {'simple': {'user': 'user', 'passwd': '',
-                                     'level': 'display'}}
+    config.auth_config = {'simple': [{'user': 'user', 'passwd': '',
+                                      'level': 'display'}]}
     handler = AuthHandler(config, logger)
     assert handler.authenticate('user', 'anypass').level == DISPLAY
 
@@ -78,11 +82,11 @@ def test_simple():
 @mark.skipif(os.name == 'nt', reason='PAM not available on Windows')
 def test_pam():
     config = Config()
-    config.auth_config = {'pam': {'service': 'marche',
-                                  'adminusers': 'admin',
-                                  'controlusers': 'ctrl',
-                                  'displayusers': 'disp',
-                                  'defaultlevel': 'control'}}
+    config.auth_config = {'pam': [{'service': 'marche',
+                                   'adminusers': 'admin',
+                                   'controlusers': 'ctrl',
+                                   'displayusers': 'disp',
+                                   'defaultlevel': 'control'}]}
 
     class Pamela:
         def authenticate(self, user, password, service):
@@ -101,7 +105,8 @@ def test_pam():
         assert handler.authenticate('user', 'pass').level == CONTROL
         assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
-    config.auth_config = {'pam': {'service': 'marche', 'defaultlevel': 'none'}}
+    config.auth_config = {'pam': [{'service': 'marche',
+                                   'defaultlevel': 'none'}]}
 
     with patch('marche.auth.pam.pamela', Pamela()):
         handler = AuthHandler(config, logger)
@@ -110,10 +115,11 @@ def test_pam():
 
 def test_parse_permissions():
     pdict = {DISPLAY: DISPLAY, CONTROL: CONTROL, ADMIN: ADMIN}
-    parse_permissions(pdict, 'display=control, control=admin, admin=display')
+    parse_permissions(pdict, dict(display='control', control='admin',
+                                  admin='display'))
     assert pdict == {DISPLAY: CONTROL, CONTROL: ADMIN, ADMIN: DISPLAY}
 
     assert raises(ValueError, parse_permissions, pdict, 'foo')
-    assert raises(ValueError, parse_permissions, pdict, 'display')
-    assert raises(ValueError, parse_permissions, pdict, 'display=foo')
-    assert raises(ValueError, parse_permissions, pdict, 'foo=display')
+    assert raises(ValueError, parse_permissions, pdict, ['display'])
+    assert raises(ValueError, parse_permissions, pdict, {'display': 'foo'})
+    assert raises(ValueError, parse_permissions, pdict, {'foo': 'display'})

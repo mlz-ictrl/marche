@@ -41,7 +41,9 @@ def test_config():
     assert config.unauth_level == ADMIN
 
     assert config.job_config == {'myjob': {'type': 'init'}}
-    assert config.auth_config == {'simple': {'user': 'simple',
-                                             'passwd': 'simple'}}
-    assert config.iface_config == {'xmlrpc': {'user': 'legacy',
-                                              'passwd': 'legacy'}}
+    assert config.auth_config == {'simple': [{
+        'user': 'simple',
+        'passwd':
+        '$2b$10$UZgT67bTP6uSAHH3qjxN4OW.EXb6KlWvTt5adWiS9nrVrSofdRr6.',
+    }]}
+    assert config.iface_config == {'rpc': {}}

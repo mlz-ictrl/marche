@@ -33,23 +33,23 @@ class AuthHandler:
     def __init__(self, config, log):
         self.auths = []
         self.log = log.getChild('auth')
-        for authname in config.auth_config:
-            authmod = authname.split('#')[0]
+        for authname, confs in config.auth_config.items():
             try:
-                mod = __import__('marche.auth.%s' % authmod, {}, {},
+                mod = __import__('marche.auth.%s' % authname, {}, {},
                                  ['Authenticator'])
             except Exception as err:
                 log.exception('could not import authenticator %r: %s',
                               authname, err)
                 continue
-            log.info('adding authenticator: %s', authname)
-            try:
-                auth = mod.Authenticator(config.auth_config[authname], log)
-            except Exception as err:
-                log.exception('could not instantiate authenticator %r: %s',
-                              authname, err)
-                continue
-            self.auths.append(auth)
+            for conf in confs:
+                log.info('adding authenticator: %s', authname)
+                try:
+                    auth = mod.Authenticator(conf, log)
+                except Exception as err:
+                    log.exception('could not instantiate authenticator %r: %s',
+                                  authname, err)
+                    continue
+                self.auths.append(auth)
 
     def needs_authentication(self):
         return bool(self.auths)

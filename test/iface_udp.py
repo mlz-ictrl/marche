@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Test for the XMLRPC interface."""
+"""Test for the UDP interface."""
 
 import logging
 import socket
@@ -39,7 +39,7 @@ logger.addHandler(LogHandler())
 
 def test_interface():
     config = Config()
-    config.iface_config['udp'] = {'host': '127.0.0.1', 'port': '0'}
+    config.iface_config['udp'] = {'addr': '127.0.0.1:0'}
     iface = Interface(config, jobhandler, authhandler, logger)
     iface.run()
 

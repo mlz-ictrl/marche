@@ -26,8 +26,8 @@
 import logging
 import socket
 import sys
+from unittest.mock import patch
 
-from mock import patch
 from pytest import fixture, raises
 
 from marche.config import Config
@@ -52,7 +52,7 @@ logger.addHandler(testhandler)
 def handler():
     config = Config()
     config.job_config = {
-        'mytest': {'type': 'test', 'permissions': 'display=control'},
+        'mytest': {'type': 'test', 'permissions': {'display': 'control'}},
         # This one should get ignored (no type).
         'strange': {},
     }

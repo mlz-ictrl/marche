@@ -37,12 +37,12 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``entangle``.
+      Must be ``"entangle"``.
 
    .. describe:: configfile
 
       The path to the Entangle configuration file.  Default is
-      ``/etc/entangle/entangle.conf``.
+      ``"/etc/entangle/entangle.conf"``.
 
    .. describe:: permissions
                  pollinterval

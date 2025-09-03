@@ -28,13 +28,13 @@ There are two standard parameters supported by all jobs:
    If not configured differently for a job, these descriptions apply (a client
    that wants to start a job has to have CONTROL level).  However, using the
    ``permissions`` parameter on a job, the required levels can be reassigned.
-   The syntax is a comma-separated list of ``actionlevel=userlevel``.
+   The syntax is a dictionary mapping ``actionlevel = userlevel``.
 
-   For example, ``display=control`` means that to do DISPLAY actions (i.e. see
-   the job and read its status), the user has to have CONTROL level or higher.
-   On the other hand, ``admin=control, control=display`` means that a user who
-   has only CONTROL level can configure the service, and a user who has only
-   DISPLAY level can start/stop it.
+   For example, ``{display = "control"}`` means that to do DISPLAY actions
+   (i.e. see the job and read its status), the user has to have CONTROL level or
+   higher.  On the other hand, ``{admin = "control", control = "display"}``
+   means that a user who has only CONTROL level can configure the service, and a
+   user who has only DISPLAY level can start/stop it.
 
    There are also two special levels that are only used in certain situations:
 
@@ -42,7 +42,7 @@ There are two standard parameters supported by all jobs:
      (see :ref:`here <unauth_level>`), so that they cannot even see services.
 
    * DISABLED: is a level above ADMIN that can be given to job actions, so that
-     nobody can execute the action on this job (e.g. ``admin=disabled``).
+     nobody can execute the action on this job (e.g. ``{admin = "disabled"}``).
 
 .. describe:: pollinterval
 

@@ -41,7 +41,7 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``nicos``.
+      Must be ``"nicos"``.
 
    .. describe:: root
 

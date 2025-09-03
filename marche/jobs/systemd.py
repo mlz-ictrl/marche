@@ -40,25 +40,24 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``systemd``.
+      Must be ``"systemd"``.
 
    .. describe:: unit
 
       The name of the systemd unit.  It can be given in full, i.e.
-      ``foo.service`` or ``foo.slice``, or just ``foo``.
+      ``"foo.service"`` or ``"foo.slice"``, or just ``"foo"``.
 
       If not given, this defaults to the job name.
 
    .. describe:: logfiles
 
-      Comma-separated full paths of logfiles to read and show to the client
-      when requested.  If not given, the systemd journal is queried for log
-      lines.
+      List of full paths of logfiles to read and show to the client when
+      requested.  If not given, the systemd journal is queried for log lines.
 
    .. describe:: configfiles
 
-      Comma-separated full paths of config files to transfer to the client and
-      write back when updates are received.  If not given, no configs are
+      List of full paths of config files to transfer to the client and write
+      back when updates are received.  If not given, no configs are
       transferred.
 
    .. describe:: description

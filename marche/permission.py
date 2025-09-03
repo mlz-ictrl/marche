@@ -79,21 +79,17 @@ LEVEL_STRINGS = {
 def parse_permissions(original, entry):
     """Parse a permission string from the configuration.
 
-    It looks like e.g. ``display=control, control=admin``.
+    It looks like (in TOML) e.g. ``{display="control", control="admin"}``.
     """
-    for item in entry.split(','):
-        item = item.strip()
-        if item.count('=') != 1:
-            raise ValueError('found item without one "="')
-        level, req_level = item.split('=')
-        level = level.lower().strip()
-        req_level = req_level.lower().strip()
+    if not isinstance(entry, dict):
+        raise ValueError('permissions option is not a dict')
+    for level, req_level in entry.items():
         try:
-            level = STRING_LEVELS[level]
+            level = STRING_LEVELS[level.lower()]
         except KeyError:
             raise ValueError('unrecognized permission level %r' % level) from None
         try:
-            req_level = STRING_LEVELS[req_level]
+            req_level = STRING_LEVELS[req_level.lower()]
         except KeyError:
             raise ValueError('unrecognized permission level %r' % req_level) from None
         original[level] = req_level

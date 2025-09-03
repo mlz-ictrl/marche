@@ -22,31 +22,25 @@
 #
 # *****************************************************************************
 
-""".. index:: xmlrpc; interface
+""".. index:: rpc; interface
 
-XMLRPC interface
-----------------
+RPC interface
+-------------
 
 This interface allows controlling services via remote procedure calls (RPC)
 over HTTP in the XML format.  This is the main interface of Marche and should
 always be enabled.
 
-.. describe:: [interfaces.xmlrpc]
+.. describe:: [interface.rpc]
 
-   The configuration settings that can be set within the **interfaces.xmlrpc**
+   The configuration settings that can be set within the **interface.rpc**
    section are:
 
-   .. describe:: port
+   .. describe:: addr
 
-      **Default:** 8124
+      **Default:** ``"0.0.0.0:8124"``
 
-      The port to listen for xmlrpc requests.
-
-   .. describe:: host
-
-      **Default:** 0.0.0.0
-
-      The host to bind to.
+      The local address and port to listen on for xmlrpc requests.
 """
 
 import base64
@@ -217,7 +211,7 @@ class RPCFunctions:
 
 class Interface(BaseInterface):
 
-    iface_name = 'xmlrpc'
+    iface_name = 'rpc'
     needs_events = False
     poll_interval = 0.5
 
@@ -225,8 +219,12 @@ class Interface(BaseInterface):
         AuthRequestHandler.log = self.log
 
     def run(self):
-        port = int(self.config.get('port', 8124))
-        host = self.config.get('host', '0.0.0.0')
+        addr = self.config.get('addr', '0.0.0.0')
+        if ':' in addr:
+            host, port = addr.rsplit(':', 1)
+            port = int(port)
+        else:
+            host, port = addr, 8124
 
         AuthRequestHandler.authhandler = self.authhandler
         AuthRequestHandler.unauth_level = self.jobhandler.unauth_level

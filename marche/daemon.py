@@ -94,7 +94,7 @@ class Daemon:
             self.log = mlzlog.log
         self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
 
-        if not self.config.interfaces:
+        if not self.config.iface_config:
             self.log.error('no interfaces configured, the daemon will not do '
                            'anything useful!')
             return False
@@ -120,7 +120,7 @@ class Daemon:
         jobhandler = JobHandler(self.config, self.log)
         authhandler = AuthHandler(self.config, self.log)
 
-        for interface in self.config.interfaces:
+        for interface in self.config.iface_config:
             try:
                 mod = __import__('marche.iface.%s' % interface, {}, {},
                                  ['Interface'])

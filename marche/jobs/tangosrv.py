@@ -39,12 +39,12 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``tangosrv``.
+      Must be ``"tangosrv"``.
 
    .. describe:: srvname
 
-      Name of the server (for determining config files).  Default
-      is the job name.
+      Name of the server (for determining config files).  Default is the job
+      name.
 
    .. describe:: resdir
 
@@ -54,7 +54,8 @@ This job has the following configuration parameters:
 
    .. describe:: resformat
 
-      The resource file may have different formats: 'legacy', 'tango'.
+      The resource file may have different formats: ``"legacy"`` or
+      ``"tango"``.
 
       The 'legacy' format is default and is the original one derived from the
       TACO resource file format.

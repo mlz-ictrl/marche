@@ -48,11 +48,10 @@ def test_job(tmp_path):
     outputfile = tmp_path / 'output'
 
     config = {
-        'binary': sys.executable,
-        'args': '-S -c "%s"' % SUBPROCESS,
+        'cmdline': [sys.executable, '-S', '-c', SUBPROCESS],
         'outputfile': str(outputfile),
-        'oneshot': 'false',
-        'autostart': 'true',
+        'oneshot': False,
+        'autostart': True,
     }
 
     job = Job('process', 'name', config, logger, lambda event: None)
@@ -83,9 +82,8 @@ def test_job(tmp_path):
 
 def test_oneshot():
     config = {
-        'binary': sys.executable,
-        'args': '-S -c "print(\'output\')"',
-        'oneshot': 'true',
+        'cmdline': [sys.executable, '-S', '-c', "print('output')"],
+        'oneshot': True,
         'description': 'descr',
     }
 
@@ -104,7 +102,7 @@ def test_oneshot():
 
 def test_check():
     config = {
-        'binary': 'nonexisting_binary'
+        'cmdline': ['nonexisting_binary']
     }
 
     job = Job('process', 'name', config, logger, lambda event: None)

@@ -21,7 +21,7 @@
 #
 # *****************************************************************************
 
-"""Test for the XMLRPC interface."""
+"""Test for the RPC interface."""
 
 import logging
 import xmlrpc.client
@@ -29,7 +29,7 @@ import xmlrpc.client
 from pytest import fixture, raises
 
 from marche.config import Config
-from marche.iface.xmlrpc import Interface
+from marche.iface.rpc import Interface
 from marche.jobs import DEAD
 from marche.protocol import PROTO_VERSION, Errors
 from test.utils import LogHandler, MockAuthHandler, MockJobHandler
@@ -47,7 +47,7 @@ Interface.poll_interval = 0.05
 def xmlrpc_iface(request):  # pylint: disable=unused-argument
     """Create a Marche XMLRPC interface."""
     config = Config()
-    config.iface_config['xmlrpc'] = {'host': '127.0.0.1', 'port': '0'}
+    config.iface_config['rpc'] = {'addr': '127.0.0.1:0'}
     iface = Interface(config, jobhandler, authhandler, logger)
     jobhandler.test_interface = iface
     iface.run()

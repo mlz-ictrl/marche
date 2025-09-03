@@ -39,17 +39,12 @@ with UDP broadcasts that search all hosts within a network.
    The configuration settings that can be set within the **interfaces.udp**
    section are:
 
-   .. describe:: port
+   .. describe:: addr
 
-      **Default:** 11691
+      **Default:** ``"0.0.0.0:11691"``
 
-      The port to listen for UDP packets.
-
-   .. describe:: host
-
-      **Default:** 0.0.0.0
-
-      The host to bind to.  The broadcast option will be set on the socket.
+      The local address and port to listen on for UDP packets.  The broadcast
+      option will be set on the socket.
 """
 
 import socket
@@ -68,8 +63,12 @@ class Interface(BaseInterface):
     needs_events = False
 
     def run(self):
-        host = self.config.get('host', '0.0.0.0')
-        port = int(self.config.get('port', UDP_PORT))
+        addr = self.config.get('addr', '0.0.0.0')
+        if ':' in addr:
+            host, port = addr.rsplit(':', 1)
+            port = int(port)
+        else:
+            host, port = addr, UDP_PORT
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((host, port))

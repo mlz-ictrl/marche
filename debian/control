@@ -13,7 +13,8 @@ Build-Depends: debhelper-compat (= 13),
  python3-cryptography,
  python3-tomli,
  python3-jinja2,
- python3-pamela
+ python3-pamela,
+ python3-bcrypt
 Standards-Version: 4.6.2
 
 Package: marche-common
@@ -27,7 +28,8 @@ Depends: ${misc:Depends},
  python3-aiohttp-session,
  python3-cryptography,
  python3-jinja2,
- python3-pamela
+ python3-pamela,
+ python3-bcrypt
 Description: Common files for Marche daemon and GUI
  Python library and static files for Marche daemon and GUI.
 

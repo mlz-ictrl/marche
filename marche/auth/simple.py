@@ -37,7 +37,7 @@ authenticator and useful for simple services.
 
    .. describe:: user
 
-      **Default:** marche
+      **Default:** ``"marche"``
 
       The username to accept for authentication.
 
@@ -45,15 +45,17 @@ authenticator and useful for simple services.
 
       **Default:** no password
 
-      The password matching the username.
+      The password matching the username, encrypted with bcrypt.
 
    .. describe:: level
 
-      **Default:** admin
+      **Default:** ``"admin"``
 
       The permission level to return (one of ``display``, ``control`` and
       ``admin``).
 """
+
+import bcrypt
 
 from marche.auth.base import Authenticator as BaseAuthenticator
 from marche.permission import STRING_LEVELS, ClientInfo
@@ -64,12 +66,13 @@ class Authenticator(BaseAuthenticator):
     def __init__(self, config, log):
         BaseAuthenticator.__init__(self, config, log)
         self.username = config.get('user', 'marche')
-        self.password = config.get('passwd', '')
+        self.pwhash = config.get('passwd', '').encode()
         self.level = STRING_LEVELS[config.get('level', 'admin').lower()]
 
     def authenticate(self, user, passwd):
-        if not self.password:
+        if not self.pwhash:
             if user == self.username:
                 return ClientInfo(self.level)
-        if user == self.username and passwd == self.password:
+        if user == self.username and \
+           bcrypt.checkpw(passwd.encode(), self.pwhash):
             return ClientInfo(self.level)

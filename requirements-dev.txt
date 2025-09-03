@@ -1,6 +1,5 @@
 pytest
 pytest-cov
 pytest-randomly
-mock
 pylint
 Sphinx

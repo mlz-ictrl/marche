@@ -43,7 +43,7 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``init``.
+      Must be ``"init"``.
 
    .. describe:: script
 
@@ -52,13 +52,13 @@ This job has the following configuration parameters:
 
    .. describe:: logfiles
 
-      Comma-separated full paths of logfiles to read and show to the client
-      when requested.  If not given, no logs are transferred.
+      List of full paths of logfiles to read and show to the client when
+      requested.  If not given, no logs are transferred.
 
    .. describe:: configfiles
 
-      Comma-separated full paths of config files to transfer to the client and
-      write back when updates are received.  If not given, no configs are
+      List of full paths of config files to transfer to the client and write
+      back when updates are received.  If not given, no configs are
       transferred.
 
    .. describe:: description
@@ -74,9 +74,9 @@ This job has the following configuration parameters:
 A typical section looks like this::
 
     [job.dhcpd]
-    type = init
-    logfiles = /var/log/dhcpd.log
-    configfiles = /etc/dhcp/dhcpd.conf
+    type = "init"
+    logfiles = ["/var/log/dhcpd.log"]
+    configfiles = ["/etc/dhcp/dhcpd.conf"]
 """
 
 from pathlib import Path

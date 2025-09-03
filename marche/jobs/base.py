@@ -85,11 +85,7 @@ class Job:
                                config['permissions'])
         self.pollinterval = 3.0
         if 'pollinterval' in config:
-            try:
-                self.pollinterval = float(config['pollinterval'])
-            except ValueError:
-                self.log.error('could not parse pollinterval: %r' %
-                               config['pollinterval'])
+            self.pollinterval = float(config['pollinterval'])
         self.poller = Poller(self, self.pollinterval, event_callback)
 
         self.configure(config)
@@ -381,10 +377,8 @@ class LogfileMixin:
         self.log_files = []
         if 'logfile' in config:
             self.log_files.append(Path(config['logfile']))
-        for logpath in config.get('logfiles', '').split(','):
-            logpath = logpath.strip()
-            if logpath:
-                self.log_files.append(Path(logpath))
+        for logpath in config.get('logfiles', []):
+            self.log_files.append(Path(logpath))
 
     def service_logs(self, service, instance):
         ret = {}
@@ -409,15 +403,13 @@ class ConfigMixin:
             cfg = Path(config['configfile'])
             basenames.add(cfg.name)
             self.config_files.append(cfg)
-        for configpath in config.get('configfiles', '').split(','):
-            configpath = configpath.strip()
-            if configpath:
-                cfg = Path(configpath)
-                if cfg.name in basenames:
-                    raise RuntimeError('two config files with the same '
-                                       'basename configured!')
-                basenames.add(cfg.name)
-                self.config_files.append(cfg)
+        for configpath in config.get('configfiles', []):
+            cfg = Path(configpath)
+            if cfg.name in basenames:
+                raise RuntimeError('two config files with the same '
+                                   'basename configured!')
+            basenames.add(cfg.name)
+            self.config_files.append(cfg)
 
     def receive_config(self, service, instance):
         result = {}

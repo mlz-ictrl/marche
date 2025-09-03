@@ -42,13 +42,16 @@ class MyDaemon(Daemon):
 
 TEST_CONFIG = '''\
 [general]
-interfaces = udp, broken, nonexisting
 
 [interface.udp]
-port = 0
+addr = "127.0.0.1:0"
+
+[interface.broken]
+
+[interface.nonexisting]
 
 [job.test]
-type = process
+type = "process"
 '''
 
 
@@ -59,12 +62,11 @@ def test_daemon(tmp_path):
 
 TEST_CONFIG_1 = '''\
 [general]
-interfaces =
 '''
 
 TEST_CONFIG_2 = '''\
 [general]
-interfaces = xmlrpc
+[interface.rpc]
 '''
 
 

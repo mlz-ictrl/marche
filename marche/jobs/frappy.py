@@ -36,12 +36,12 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``frappy``.
+      Must be ``"frappy"``.
 
    .. describe:: configdir
 
       Directory where the Frappy configuration files are located.  Default is
-      ``/etc/frappy``.
+      ``"/etc/frappy"``.
 
    .. describe:: permissions
                  pollinterval

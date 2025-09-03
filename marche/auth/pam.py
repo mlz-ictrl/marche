@@ -35,7 +35,7 @@ This authenticator checks credentials against Linux' PAM.
 
    .. describe:: service
 
-      **Default:** login
+      **Default:** ``"login"``
 
       The PAM service to use.  The default service, "login", allows the same
       users to connect that can log into the system.  However, a custom service
@@ -44,25 +44,25 @@ This authenticator checks credentials against Linux' PAM.
 
    .. describe:: adminusers
 
-      **Default:** root
+      **Default:** ``["root"]``
 
-      A comma-separated list of user names who get ADMIN access.
+      A list of user names who get ADMIN access.
 
    .. describe:: controlusers
 
-      **Default:** (empty)
+      **Default:** ``[]``
 
-      A comma-separated list of user names who get CONTROL access.
+      A list of user names who get CONTROL access.
 
    .. describe:: displayusers
 
-      **Default:** (empty)
+      **Default:** ``[]``
 
-      A comma-separated list of user names who get DISPLAY access.
+      A list of user names who get DISPLAY access.
 
    .. describe:: defaultlevel
 
-      **Default:** display
+      **Default:** ``"display"``
 
       The permission level to return for any user no in one of the above lists.
       Can be "none" to deny any other users.
@@ -84,12 +84,9 @@ class Authenticator(BaseAuthenticator):
         BaseAuthenticator.__init__(self, config, log)
         self._cache = set()
         self.service = config.get('service', 'login')
-        self.adminusers = [u.strip() for u in
-                           config.get('adminusers', 'root').split(',')]
-        self.controlusers = [u.strip() for u in
-                             config.get('controlusers', '').split(',')]
-        self.displayusers = [u.strip() for u in
-                             config.get('displayusers', '').split(',')]
+        self.adminusers = config.get('adminusers', ['root'])
+        self.controlusers = config.get('controlusers', [])
+        self.displayusers = config.get('displayusers', [])
         self.defaultlevel = STRING_LEVELS[
             config.get('defaultlevel', 'display').lower()]
 

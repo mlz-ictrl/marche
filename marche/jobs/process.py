@@ -37,28 +37,22 @@ This job has the following configuration parameters:
 
    .. describe:: type
 
-      Must be ``process``.
+      Must be ``"process"``.
 
-   .. describe:: binary
+   .. describe:: cmdline
 
-      The full path of the binary to start.  If not given, defaults to the job
-      name.
-
-   .. describe:: args
-
-      Additional arguments to pass to the binary.  They will be split in a
-      shell-like fashion, i.e., you can use quotes to include spaces in one
-      argument.  If not given, no arguments are passed.
+      A list of the full path of the binary to start, and additional arguments.
+      There is no default.
 
    .. describe:: oneshot
 
-      If ``yes``, treat this process as a "one-shot" process, which is supposed
-      to be started and then stop after doing it job.  The only effects of this
+      If true, treat this process as a "one-shot" process, which is supposed to
+      be started and then stop after doing it job.  The only effects of this
       flag are that the service returns "NOT RUNNING" (instead of "DEAD") when
       not running, and that the output is caught by Marche if ``outputfile`` is
       not set.  It can be retrieved by the "get output" command.
 
-      The default is "no".
+      The default is ``false``.
 
    .. describe:: workingdir
 
@@ -72,18 +66,18 @@ This job has the following configuration parameters:
 
    .. describe:: autostart
 
-      If ``yes``, the process will be started when the Marche daemon is
+      If true, the process will be started when the Marche daemon is
       started.  The default is not to start the process automatically.
 
    .. describe:: logfiles
 
-      Comma-separated full paths of logfiles to read and show to the client
-      when requested.  If not given, the ``outputfile`` is the default.
+      List of full paths of logfiles to read and show to the client when
+      requested.  If not given, the ``outputfile`` is the default.
 
    .. describe:: configfiles
 
-      Comma-separated full paths of config files to transfer to the client and
-      write back when updates are received.  If not given, no configs are
+      List of full paths of config files to transfer to the client and write
+      back when updates are received.  If not given, no configs are
       transferred.
 
    .. describe:: description
@@ -99,10 +93,10 @@ This job has the following configuration parameters:
 A typical section looks like this::
 
     [job.myprocess]
-    type = process
-    binary = MyProcess
-    workingdir = /tmp
-    outputfile = /var/log/myprocess.log
+    type = "process"
+    cmdline = ["MyProcess"]
+    workingdir = "/tmp"
+    outputfile = "/var/log/myprocess.log"
 """
 
 import os
@@ -173,16 +167,17 @@ class ProcessMonitor(Thread):
 class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def configure(self, config):
-        self.binary = Path(config.get('binary', self.name))
-        self.args = shlex.split(config.get('args', ''))
+        cmdline = config['cmdline']
+        self.binary = Path(cmdline[0])
+        self.args = cmdline[1:]
         cdir = config.get('workingdir', None)
         if cdir is not None:
             self.working_dir = Path(cdir)
         else:
             self.working_dir = self.binary.parent
         self.output_file = config.get('outputfile', None)
-        self.one_shot = config.get('oneshot', '').lower() in ('yes', 'true')
-        self.autostart = config.get('autostart', '').lower() in ('yes', 'true')
+        self.one_shot = config.get('oneshot', False)
+        self.autostart = config.get('autostart', False)
         self.description = config.get('description', self.name)
         self.configure_logfile_mixin(config)
         if not self.log_files and self.output_file:

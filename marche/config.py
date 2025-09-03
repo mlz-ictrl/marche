@@ -24,16 +24,14 @@
 
 """Config file handling."""
 
-import configparser
 from collections import OrderedDict
-from pathlib import Path
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from marche.permission import DISPLAY, STRING_LEVELS
-
-
-class CasePreservingConfigParser(configparser.ConfigParser):
-    def optionxform(self, key):
-        return key
 
 
 class Config:
@@ -42,7 +40,6 @@ class Config:
     job_config = {}
     auth_config = {}
     iface_config = {}
-    interfaces = ['xmlrpc', 'udp']
     unauth_level = DISPLAY
 
     def __init__(self, confdir=None):
@@ -63,30 +60,20 @@ class Config:
             self._read_one(fn)
 
     def _read_one(self, fname):
-        parser = CasePreservingConfigParser()
-        parser.read(fname)
+        conf = tomllib.loads(fname.read_text())
 
-        for section in parser.sections():
+        for section, content in conf.items():
             if section == 'general':
-                if parser.has_option('general', 'interfaces'):
-                    self.interfaces = [
-                        i.strip() for i in
-                        parser.get('general', 'interfaces').split(',') if i]
-                if parser.has_option('general', 'unauth_level'):
-                    perm = parser.get('general', 'unauth_level')
-                    self.unauth_level = STRING_LEVELS.get(perm.lower().strip(),
+                if 'unauth_level' in content:
+                    perm = content['unauth_level']
+                    self.unauth_level = STRING_LEVELS.get(perm.lower(),
                                                           DISPLAY)
-            elif section.startswith('job.'):
-                self.job_config[section[4:]] = dict(parser.items(section))
-            elif section.startswith('auth.'):
-                self.auth_config[section[5:]] = dict(parser.items(section))
-            elif section.startswith('interface.'):
-                if section[10:] == 'xmlrpc':
-                    # Legacy support for user/passwd in xmlrpc section
-                    if parser.has_option(section, 'user'):
-                        self.auth_config.setdefault('simple', {})['user'] = \
-                            parser.get(section, 'user')
-                    if parser.has_option(section, 'passwd'):
-                        self.auth_config.setdefault('simple', {})['passwd'] = \
-                            parser.get(section, 'passwd')
-                self.iface_config[section[10:]] = dict(parser.items(section))
+            if section == 'job':
+                self.job_config.update(content)
+            elif section == 'auth':
+                for authname, authconf in content.items():
+                    if not isinstance(authconf, list):
+                        authconf = [authconf]
+                    self.auth_config.setdefault(authname, []).extend(authconf)
+            elif section == 'interface':
+                self.iface_config.update(content)

@@ -32,17 +32,11 @@ This interface allows controlling services via a graphical interface.
    The configuration settings that can be set within the **interfaces.web**
    section are:
 
-   .. describe:: port
+   .. describe:: addr
 
-      **Default:** 8080
+      **Default:** ``"0.0.0.0:8080"``
 
-      The port to listen for web requests.
-
-   .. describe:: host
-
-      **Default:** 0.0.0.0
-
-      The host to bind to.
+      The local address and port to listen on for web requests.
 """
 
 import asyncio
@@ -196,10 +190,15 @@ class Interface(BaseInterface):
             task.cancel()
 
     def _thread(self, app):
+        addr = self.config.get('addr', '0.0.0.0')
+        if ':' in addr:
+            host, port = addr.rsplit(':', 1)
+            port = int(port)
+        else:
+            host, port = addr, 8080
         try:
             web.run_app(
-                app, host=self.config.get('host', '0.0.0.0'),
-                port=self.config.get('port', 8080), loop=self._loop,
+                app, host=host, port=port, loop=self._loop,
                 handle_signals=False, print=self.log.info)
         except asyncio.CancelledError:
             self.log.info('server stopped')

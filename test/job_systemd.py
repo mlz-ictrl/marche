@@ -76,10 +76,10 @@ def test_job(tmp_path):
 
     config = {
         'unit': 'foo',
-        'pollinterval': '0',
+        'pollinterval': 0,
         'logfile': str(tmp_path / '1.log'),
-        'logfiles': '%s, %s' % (tmp_path / '2.log', tmp_path / '3.log'),
-        'configfiles': '%s, %s' % (tmp_path / '1.cfg', tmp_path / '2.cfg'),
+        'logfiles': [tmp_path / '2.log', tmp_path / '3.log'],
+        'configfiles': [tmp_path / '1.cfg', tmp_path / '2.cfg'],
     }
 
     job = Job('systemd', 'name', config, logger, lambda event: None)

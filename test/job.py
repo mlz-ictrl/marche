@@ -24,8 +24,8 @@
 """Basic test for jobs and polling."""
 
 import logging
+from unittest.mock import patch
 
-from mock import patch
 from pytest import raises
 
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Denied, Fault
@@ -45,15 +45,15 @@ class EmptyJob(BaseJob):
 
 
 def test_job_base():
-    testhandler.assert_error(EmptyJob, 'test', 'test',
-                             {'pollinterval': 'nada'}, logger,
-                             lambda event: None)
+    assert raises(ValueError, EmptyJob, 'test', 'test',
+                  {'pollinterval': 'nada'}, logger,
+                  lambda event: None)
     testhandler.assert_error(EmptyJob, 'test', 'test',
                              {'permissions': 'nada'}, logger,
                              lambda event: None)
 
-    job = EmptyJob('test', 'test', {'pollinterval': '0',
-                                    'permissions': 'admin=control'},
+    job = EmptyJob('test', 'test', {'pollinterval': 0,
+                                    'permissions': {'admin': 'control'}},
                    logger, lambda event: None)
     assert job.test_configured
     assert job.check()
@@ -83,7 +83,7 @@ def test_job_base():
 
 
 def test_job_helpers():
-    job = EmptyJob('test', 'test', {'pollinterval': '0'},
+    job = EmptyJob('test', 'test', {'pollinterval': 0},
                    logger, lambda event: None)
     out = []
     with patch('marche.jobs.base.AsyncProcess', MockAsyncProcess):
@@ -137,7 +137,7 @@ class Job(BaseJob):
 def test_job_poller():
     events = []
 
-    job = Job('test', 'test', {'pollinterval': '0.001'}, logger, events.append)
+    job = Job('test', 'test', {'pollinterval': 0.001}, logger, events.append)
     job.init()
 
     wait(100, lambda: events)
