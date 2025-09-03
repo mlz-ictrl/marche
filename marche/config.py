@@ -39,11 +39,6 @@ class CasePreservingConfigParser(configparser.ConfigParser):
 class Config:
     """An object that represents all merged Marche configuration files."""
 
-    user = None
-    group = None
-    piddir = Path('/var/run')
-    logdir = Path('/var/log')
-
     job_config = {}
     auth_config = {}
     iface_config = {}
@@ -73,14 +68,6 @@ class Config:
 
         for section in parser.sections():
             if section == 'general':
-                if parser.has_option('general', 'user'):
-                    self.user = parser.get('general', 'user')
-                if parser.has_option('general', 'group'):
-                    self.group = parser.get('general', 'group')
-                if parser.has_option('general', 'piddir'):
-                    self.piddir = Path(parser.get('general', 'piddir'))
-                if parser.has_option('general', 'logdir'):
-                    self.logdir = Path(parser.get('general', 'logdir'))
                 if parser.has_option('general', 'interfaces'):
                     self.interfaces = [
                         i.strip() for i in

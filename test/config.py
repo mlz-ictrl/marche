@@ -32,20 +32,12 @@ from marche.permission import ADMIN, DISPLAY
 def test_defaults():
     config = Config()
 
-    assert config.user is None
-    assert config.group is None
-    assert config.piddir == Path('/var/run')
-    assert config.logdir == Path('/var/log')
     assert config.unauth_level == DISPLAY
 
 
 def test_config():
     config = Config(Path(__file__).with_name('conf'))
 
-    assert config.user == 'marche'
-    assert config.group == 'marchegroup'
-    assert config.piddir == Path('/tmp/pid')
-    assert config.logdir == Path('/tmp/log')
     assert config.unauth_level == ADMIN
 
     assert config.job_config == {'myjob': {'type': 'init'}}

@@ -36,8 +36,7 @@ from marche.auth import AuthHandler
 from marche.config import Config
 from marche.handler import JobHandler
 from marche.loghandlers import JournalHandler
-from marche.utils import daemonize, get_default_cfgdir, remove_pidfile, \
-    setuser, write_pidfile
+from marche.utils import get_default_cfgdir
 
 try:
     import systemd.daemon
@@ -71,8 +70,6 @@ class Daemon:
         parser.add_argument('-c', dest='configdir', action='store', type=Path,
                             default=default_cfgdir, help='configuration '
                             'directory (default %s)' % default_cfgdir)
-        parser.add_argument('-d', dest='daemonize', action='store_true',
-                            help='daemonize the process')
         parser.add_argument('-D', dest='systemd', action='store_true',
                             help='run in systemd mode (log to journal, notify '
                             'after startup)')
@@ -87,18 +84,13 @@ class Daemon:
 
         self.config = Config(self.args.configdir)
 
-        if self.args.daemonize:  # pragma: no cover
-            daemonize(self.config.user, self.config.group)
-        else:
-            setuser(self.config.user, self.config.group)
-
         if self.args.systemd:
             self.log = logging.root
             self.log.addHandler(JournalHandler())
         else:
             mlzlog.initLogging('marche',
                                'debug' if self.args.verbose else 'info',
-                               self.config.logdir)
+                               None)
             self.log = mlzlog.log
         self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
 
@@ -115,9 +107,6 @@ class Daemon:
         if not self.config.auth_config:
             self.log.warning('no authenticators configured, everyone will be '
                              'able to execute any action!')
-
-        if self.args.daemonize:  # pragma: no cover
-            write_pidfile(self.config.piddir)
 
         return True
 
@@ -164,9 +153,6 @@ class Daemon:
         self.wait()
 
         jobhandler.shutdown()
-
-        if self.args.daemonize:  # pragma: no cover
-            remove_pidfile(self.config.piddir)
         return 0
 
     def wait(self):  # pragma: no cover

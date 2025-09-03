@@ -42,13 +42,6 @@ def test_event_class():
 
 
 def test_utils(tmp_path):
-    pidfile = tmp_path / 'marched.pid'
-    utils.write_pidfile(tmp_path)
-    assert pidfile.is_file()
-    assert pidfile.read_text() == str(os.getpid())
-    utils.remove_pidfile(tmp_path)
-    assert not pidfile.exists()
-
     tmpfile = tmp_path / 'tmp'
     tmpfile.write_bytes(b'a\xf0b')
     assert utils.read_file(tmpfile) == 'a\xf0b'

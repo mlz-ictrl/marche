@@ -42,7 +42,6 @@ class MyDaemon(Daemon):
 
 TEST_CONFIG = '''\
 [general]
-logdir = %(tmpdir)s
 interfaces = udp, broken, nonexisting
 
 [interface.udp]
@@ -60,13 +59,11 @@ def test_daemon(tmp_path):
 
 TEST_CONFIG_1 = '''\
 [general]
-logdir = %(tmpdir)s
 interfaces =
 '''
 
 TEST_CONFIG_2 = '''\
 [general]
-logdir = %(tmpdir)s
 interfaces = xmlrpc
 '''
 

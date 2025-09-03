@@ -12,11 +12,11 @@ package, it was automatically added to the boot procedure.
 
 To start the daemon manually, run::
 
-   marched [-c configdir] [-d] [-v]
+   marched [-c configdir] [-D] [-v]
 
 The config directory is usually ``/etc/marche`` but can be changed by ``-c``.
-The ``-d`` switch will daemonize the process, and the ``-v`` switch activates
-verbose logging.
+The ``-D`` switch run in systemd mode, and the ``-v`` switch activates verbose
+logging.
 
 The Marche daemon writes logfiles; with the default configuration they go to
 ``/var/log/marche``, but this can be configured differently.

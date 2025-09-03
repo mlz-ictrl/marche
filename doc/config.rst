@@ -14,35 +14,6 @@ The general configuration is usually placed into a single file named
 
 .. describe:: [general]
 
-   .. describe:: user
-
-      **Default:** none
-
-      The user as which marched will run.  Normally, this can be kept empty, so
-      that the ``root`` user is used, which is necessary for most jobs.  If no
-      user is given, the current user on startup will be used.
-
-   .. describe:: group
-
-      **Default:** none
-
-      The group as which marched will run.  If no group is given, the current
-      group on startup will be used.
-
-   .. describe:: piddir
-
-      **Default:** ``/var/run``
-
-      The directory where the daemon's pid file (**marched.pid**) will be
-      stored.
-
-   .. describe:: logdir
-
-      **Default:** ``/var/log``
-
-      The directory where all the log files will be stored, in a subdirectory
-      called ``marche`` and split by day.
-
    .. describe:: interfaces
 
       **Default:** ``xmlrpc, udp``
