@@ -6,6 +6,12 @@
 override_dh_auto_install:
 	dh_auto_install
 	install -m 644 -D etc/marche.pam debian/marched/etc/pam.d/marche
+	install -m 644 -D etc/marche-gui.desktop \
+		debian/marche-gui/usr/share/applications/marche-gui.desktop
+	install -m 644 -D marche/gui/res/logo-new.svg \
+		debian/marche-gui/usr/share/icons/hicolor/scalable/apps/marche.svg
+	install -m 644 -D marche/gui/res/logo-48.png \
+		debian/marche-gui/usr/share/icons/hicolor/48x48/apps/marche.png
 
 # needed for bookworm compatibility!
 override_dh_installsystemd:
