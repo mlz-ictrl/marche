@@ -1,3 +1,18 @@
+marche (5.0.0) stable; urgency=medium
+
+  [ Georg Brandl ]
+  * run web interface by default
+
+  [ Alexander Zaft ]
+  * handler: move comment to correct function (and as docstring)
+
+  [ Georg Brandl ]
+  * daemon: rip out classic daemon mode and related config
+  * all: move to TOML config, sync with marched-ng
+  * remove further compatibility config
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Fri, 05 Sep 2025 14:55:38 +0200
+
 marche (4.0.0) stable; urgency=medium
 
   * remove unused code relating to command classes
