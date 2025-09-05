@@ -118,6 +118,10 @@ the changes needed:
   many rounds the hash uses; the default is 12, smaller values make the
   authentication faster.
 
+* The ``process``, ``systemd`` and ``init`` jobs don't accept the legacy options
+  ``configfile`` and ``logfile``.  You always need to specify files as a list in
+  ``configfiles`` and ``logfiles``, respectively.
+
 * The ``binary`` and ``args`` options for the ``process`` job have been combined
   to the ``cmdline`` option.  If you had configured ``binary = a`` and ``args =
   b "c d"``, it now is ``cmdline = ["a", "b", "c d"]``.

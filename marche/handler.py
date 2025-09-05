@@ -248,7 +248,7 @@ class JobHandler:
 
     @command()
     def request_logfiles(self, client, service, instance):
-        """Return the most recent lines of the service's logfile."""
+        """Return the most recent lines of the service's logfiles."""
         job = self._get_job(service)
         job.check_permission(DISPLAY, client)
         with job.lock:

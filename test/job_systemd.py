@@ -71,14 +71,12 @@ def test_job(tmp_path):
     assert job.service_logs('foo', '') == {'journal': 'logline1\nlogline2\n'}
 
     (tmp_path / '1.log').write_text('log1_line1\nlog1_line2\n')
-    (tmp_path / '2.log').write_text('log2_line1\nlog2_line2\n')
     (tmp_path / '1.cfg').write_text('conf1\n')
 
     config = {
         'unit': 'foo',
         'pollinterval': 0,
-        'logfile': str(tmp_path / '1.log'),
-        'logfiles': [tmp_path / '2.log', tmp_path / '3.log'],
+        'logfiles': [tmp_path / '1.log', tmp_path / '2.log'],
         'configfiles': [tmp_path / '1.cfg', tmp_path / '2.cfg'],
     }
 
@@ -87,12 +85,10 @@ def test_job(tmp_path):
     job.init()
 
     logs = job.service_logs('foo', '')
-    assert len(logs) == 2
+    assert len(logs) == 1
     for key, value in logs.items():
         if key.endswith('1.log'):
             assert value == 'log1_line1\nlog1_line2\n'
-        elif key.endswith('2.log'):
-            assert value == 'log2_line1\nlog2_line2\n'
         else:
             assert False, 'unknown logfile name returned'
 
@@ -104,7 +100,6 @@ def test_job(tmp_path):
     config = {
         'unit': 'foo',
         'pollinterval': '0',
-        'configfile': str(tmp_path / '1.cfg'),
         'configfiles': str(tmp_path / '1.cfg'),
     }
 

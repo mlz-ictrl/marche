@@ -335,7 +335,7 @@ class Job:
         return []
 
     def service_logs(self, service, instance):
-        """Return the contents of the logfile(s) of the service, if possible.
+        """Return the contents of the logfiles of the service, if possible.
 
         The return value must be a dictionary of file names and contents.
 
@@ -375,8 +375,6 @@ class LogfileMixin:
 
     def configure_logfile_mixin(self, config):
         self.log_files = []
-        if 'logfile' in config:
-            self.log_files.append(Path(config['logfile']))
         for logpath in config.get('logfiles', []):
             self.log_files.append(Path(logpath))
 
@@ -399,10 +397,6 @@ class ConfigMixin:
         """To be called from the Job's configure()."""
         self.config_files = []
         basenames = set()
-        if 'configfile' in config:
-            cfg = Path(config['configfile'])
-            basenames.add(cfg.name)
-            self.config_files.append(cfg)
         for configpath in config.get('configfiles', []):
             cfg = Path(configpath)
             if cfg.name in basenames:

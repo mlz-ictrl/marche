@@ -83,9 +83,9 @@ def test_simple():
 def test_pam():
     config = Config()
     config.auth_config = {'pam': [{'service': 'marche',
-                                   'adminusers': 'admin',
-                                   'controlusers': 'ctrl',
-                                   'displayusers': 'disp',
+                                   'adminusers': ['admin'],
+                                   'controlusers': ['ctrl'],
+                                   'displayusers': ['disp'],
                                    'defaultlevel': 'control'}]}
 
     class Pamela:
