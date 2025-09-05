@@ -82,8 +82,6 @@ class Daemon:
             raise RuntimeError('Marche needs the python-systemd module for '
                                'systemd mode')
 
-        self.config = Config(self.args.configdir)
-
         if self.args.systemd:
             self.log = logging.root
             self.log.addHandler(JournalHandler())
@@ -93,6 +91,12 @@ class Daemon:
                                None)
             self.log = mlzlog.log
         self.log.setLevel(logging.DEBUG if self.args.verbose else logging.INFO)
+
+        try:
+            self.config = Config(self.args.configdir)
+        except Exception:
+            self.log.exception('error reading configuration files')
+            return False
 
         if not self.config.iface_config:
             self.log.error('no interfaces configured, the daemon will not do '

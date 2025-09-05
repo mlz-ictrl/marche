@@ -60,7 +60,11 @@ class Config:
             self._read_one(fn)
 
     def _read_one(self, fname):
-        conf = tomllib.loads(fname.read_text())
+        try:
+            conf = tomllib.loads(fname.read_text())
+        except tomllib.TOMLDecodeError as e:
+            raise RuntimeError('TOML error in config file '
+                               f'{fname}: {e}') from None
 
         for section, content in conf.items():
             if section == 'general':
