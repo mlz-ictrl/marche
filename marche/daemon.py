@@ -165,3 +165,7 @@ class Daemon:
                 time.sleep(1)
         except KeyboardInterrupt:
             pass
+
+
+def run():
+    Daemon().run()

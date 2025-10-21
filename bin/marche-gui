@@ -32,4 +32,4 @@ sys.path.insert(0, str(Path(__file__).absolute().parents[1]))
 
 import marche.gui.main
 
-sys.exit(marche.gui.main.main(sys.argv))
+sys.exit(marche.gui.main.main())

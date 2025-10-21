@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import argparse
+import sys
 
 from marche.gui.mainwindow import MainWindow
 from marche.gui.qt import QApplication, Qt
@@ -40,7 +41,8 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def main(argv):
+def main(argv=None):
+    argv = argv or sys.argv
     args = parse_args(argv[1:])
 
     app = QApplication(argv)

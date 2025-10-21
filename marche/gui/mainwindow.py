@@ -25,6 +25,7 @@
 import socket
 import xmlrpc.client
 
+from marche import __version__
 from marche.gui.client import Client, ClientError
 from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
@@ -35,7 +36,6 @@ from marche.gui.scan import ActiveScanner, SubnetInputDialog
 from marche.gui.util import loadAllCredentials, loadCredentials, loadSetting, \
     loadSettings, loadUi, removeCredentials, saveCredentials, saveSettings
 from marche.utils import normalize_addr
-from marche.version import get_version
 
 ADDR_ROLE = 32
 
@@ -240,7 +240,7 @@ class MainWindow(QMainWindow):
             <p>
               Using Qt v%s, PyQt v%s
             </p>
-            ''' % (get_version(), QT_VERSION_STR, PYQT_VERSION_STR))
+            ''' % (__version__, QT_VERSION_STR, PYQT_VERSION_STR))
 
     @pyqtSlot()
     def on_clearCredBtn_clicked(self):

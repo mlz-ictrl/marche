@@ -52,11 +52,11 @@ from aiohttp_session import get_session, setup as session_setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from jinja2 import Environment, FileSystemLoader
 
+from marche import __version__
 from marche.auth import AuthFailed
 from marche.iface.base import Interface as BaseInterface
 from marche.jobs import STATE_STR
 from marche.permission import DISPLAY, ClientInfo
-from marche.version import get_version
 
 ENV = Environment(loader=FileSystemLoader(Path(__file__).parent / 'templates'))
 STATIC = Path(__file__).parent / 'static'
@@ -101,7 +101,7 @@ class WebHandler:
 
     async def index(self, req):
         tmpl = ENV.get_template('index.html')
-        body = tmpl.render(number=get_version(),
+        body = tmpl.render(number=__version__,
                            svc_sts=await self._update_status(req),
                            logged_in=await self._get_login(req, 'logged_in'))
         return web.Response(body=body, content_type='text/html')
@@ -132,7 +132,7 @@ class WebHandler:
 
     async def help(self, req):
         tmpl = ENV.get_template('help.html')
-        body = tmpl.render(version=get_version(),
+        body = tmpl.render(version=__version__,
                            logged_in=await self._get_login(req, 'logged_in'))
         return web.Response(body=body, content_type='text/html')
 

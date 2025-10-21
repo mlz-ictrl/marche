@@ -1,7 +1,0 @@
-pamela
-psutil
-ipaddress
-mlzlog
-netifaces
-requests
-tomli; python_version < '3.11'

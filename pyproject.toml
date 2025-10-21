@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=6"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marche"
+dynamic = ["version"]
+authors = [
+    {name="Georg Brandl", email="g.brandl@fz-juelich.de"},
+    {name="Alexander Lenz", email="alexander.lenz@frm2.tum.de"},
+    {name="Christian Felder", email="c.felder@fz-juelich.de"},
+    {name="Lea Kleesattel", email="lea.kleesattel@frm2.tum.de"},
+]
+license = {text = "GPL-2.0-or-later"}
+description = "Server control deamon"
+readme = "README.rst"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Human Machine Interfaces",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "tomli; python_version < '3.11'",
+    "bcrypt",
+    "psutil",
+    "ipaddress",
+    "mlzlog",
+    "netifaces",
+    "requests",
+    "click",
+    "aiohttp",
+    "aiohttp-session",
+    "cryptography",
+]
+
+[project.optional-dependencies]
+pam = ["pamela"]
+gui = ["PyQt5"]
+
+[project.scripts]
+marched = "marche.daemon:run"
+marche-gui = "marche.gui.main:main"
+marchec = "marche.console:run"
+
+[project.urls]
+Repository = "https://forge.frm2.tum.de/review/plugins/gitiles/frm2/general/marche"
+
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "pytest-randomly", "pylint", "sphinx"]
+
+[tool.setuptools.exclude-package-data]
+"marche.gui.res" = ["*"]
+
+[tool.setuptools.packages.find]
+include = ["marche*"]
+
+[tool.setuptools_scm]
+
+[tool.uv]
+cache-keys = [{file = "pyproject.toml"}, {git = {commit = true, tags = true}}]
+
+[tool.ruff]
+extend-exclude = ["res_qt*.py"]
+
+[tool.ruff.lint]
+select = []
+ignore = ["ANN", "C408", "D1", "D203", "D213", "EM1", "ERA", "FIX", "G004", "INP001",
+          "N818", "PLR09", "PLR2004", "S101", "T201", "TD", "TRY003", "TRY301", "PLW2901",
+          # TODO:
+          "N815", "N803",
+          "D400", "D415", "D205",  # docstrings
+          "N802", "N806",  # function/variable names not lowercase
+          "PT011",  # pytest.raises too broad
+          "TRY400", "TRY401",  # exception messages
+          "SIM105",  # contextlib.supress
+          "S603", # subprocess call untrusted input
+          "B904", # raise from
+          "RUF012",  # typing.classvar
+          "S104",  # 0.0.0.0
+          # rest
+         "BLE001",
+         "PTH123",
+         "S110",
+         "SIM102",
+         "S301",
+         "S311",
+         "S324",
+         "S602",
+         "S607",
+         "S701",
+         "EXE002",
+         "SIM108",
+         "SIM115",
+         "D401",
+         "TRY002",
+          ]
+flake8-quotes.inline-quotes = "single"
+flake8-quotes.multiline-quotes = "single"
+mccabe.max-complexity = 30
+

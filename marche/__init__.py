@@ -22,6 +22,9 @@
 #
 # *****************************************************************************
 
-from marche.version import get_version
+import importlib.metadata
 
-__version__ = get_version()
+try:
+    __version__ = importlib.metadata.version('marche')
+except importlib.metadata.PackageNotFoundError:
+    __version__ = 'unknown'
