@@ -1,3 +1,15 @@
+marche (5.1.0) stable; urgency=medium
+
+  [ Alexander Zaft ]
+  * move to pyproject packaging
+
+  [ Georg Brandl ]
+  * remove legacy MANIFEST and pylint requirement
+  * remove pylint config, dev requirements
+  * sync debian config to packaging changes
+
+ -- Alexander Zaft <jenkins@frm2.tum.de>  Tue, 28 Oct 2025 10:26:20 +0100
+
 marche (5.0.1) stable; urgency=medium
 
   [ Georg Brandl ]
