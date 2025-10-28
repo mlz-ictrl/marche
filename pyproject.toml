@@ -55,7 +55,7 @@ marchec = "marche.console:run"
 Repository = "https://forge.frm2.tum.de/review/plugins/gitiles/frm2/general/marche"
 
 [dependency-groups]
-dev = ["pytest", "pytest-cov", "pytest-randomly", "pylint", "sphinx"]
+dev = ["pytest", "pytest-cov", "pytest-randomly", "sphinx"]
 
 [tool.setuptools.exclude-package-data]
 "marche.gui.res" = ["*"]
