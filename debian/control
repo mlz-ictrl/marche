@@ -4,10 +4,12 @@ Priority: optional
 Maintainer: Georg Brandl <g.brandl@fz-juelich.de>
 Build-Depends: debhelper-compat (= 13),
  dh-python,
+ pybuild-plugin-pyproject,
  lsb-release,
  git,
  python3-all,
  python3-setuptools,
+ python3-setuptools-scm,
  python3-aiohttp,
  python3-aiohttp-session,
  python3-cryptography,
