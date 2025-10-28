@@ -50,7 +50,7 @@ def test_job(tmp_path):
         'description': 'descr',
     }
 
-    job = Job('init', 'name', config, logger, lambda event: None)
+    job = Job('init', 'name', config, logger, lambda _event: None)
     real_script = job.script
     assert not job.check()
     job.script = scriptfile

@@ -20,7 +20,7 @@
 #
 # *****************************************************************************
 
-""" .. index:: web; interface
+""".. index:: web; interface
 
 Webinterface
 ------------
@@ -48,7 +48,8 @@ import threading
 from pathlib import Path
 
 from aiohttp import web
-from aiohttp_session import get_session, setup as session_setup
+from aiohttp_session import get_session
+from aiohttp_session import setup as session_setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from jinja2 import Environment, FileSystemLoader
 
@@ -126,7 +127,7 @@ class WebHandler:
         return web.Response(body=json.dumps(await self._update_status(req)),
                             content_type='text/json')
 
-    async def get_hostname(self, req):
+    async def get_hostname(self, _req):
         return web.Response(body=json.dumps(socket.getfqdn()),
                             content_type='text/json')
 
@@ -142,16 +143,16 @@ class WebHandler:
         if 'passwd' in args and 'user' in args:
             try:
                 info = self.auth.authenticate(args['user'], args['passwd'])
-                await self._set_login(req, True, info)
+                await self._set_login(req, True, info)  # noqa: FBT003
                 raise web.HTTPTemporaryRedirect('/')
             except AuthFailed:
-                await self._set_login(req, False, ClientInfo(DISPLAY))
+                await self._set_login(req, False, ClientInfo(DISPLAY))  # noqa: FBT003
                 raise web.HTTPTemporaryRedirect('/login') from None
         body = tmpl.render(logged_in=await self._get_login(req, 'logged_in'))
         return web.Response(body=body, content_type='text/html')
 
     async def logout(self, req):
-        await self._set_login(req, False, ClientInfo(DISPLAY))
+        await self._set_login(req, False, ClientInfo(DISPLAY))  # noqa: FBT003
         raise web.HTTPTemporaryRedirect('/login')
 
     async def static(self, req):

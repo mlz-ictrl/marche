@@ -81,7 +81,8 @@ A typical section looks like this::
 
 from pathlib import Path
 
-from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
+from marche.jobs.base import ConfigMixin, LogfileMixin
+from marche.jobs.base import Job as BaseJob
 
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):
@@ -104,20 +105,20 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
     def get_services(self):
         return [(self.init_name, '')]
 
-    def service_description(self, service, instance):
+    def service_description(self, _service, _instance):
         return self.description
 
-    def start_service(self, service, instance):
+    def start_service(self, service, _instance):
         self._async_start(service, f'{self.script} start')
 
-    def stop_service(self, service, instance):
+    def stop_service(self, service, _instance):
         self._async_stop(service, f'{self.script} stop')
 
-    def restart_service(self, service, instance):
+    def restart_service(self, service, _instance):
         self._async_start(service, f'{self.script} restart')
 
-    def service_status(self, service, instance):
+    def service_status(self, service, _instance):
         return self._async_status_exitcode(service, f'{self.script} status')
 
-    def service_output(self, service, instance):
+    def service_output(self, service, _instance):
         return list(self._output.get(service, []))

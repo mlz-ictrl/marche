@@ -182,7 +182,7 @@ class Job(SystemdJob):
 
             def processdevice(key, devices):
                 server, dev, klass = key.rsplit('/', 2)
-                if dev == "DEVICE":
+                if dev == 'DEVICE':
                     for devname in devices:
                         self._add_device(db, devname, klass, server)
 
@@ -243,10 +243,9 @@ class Job(SystemdJob):
                 db.put_device_attribute_property(dev, prop)
             else:
                 db.put_property(dev, prop)
+        elif dev[0:6] == 'class/':
+            db.put_class_property(dev.split('/')[1], prop)
+        elif dev.lower() not in devices:
+            db.put_property(dev, prop)
         else:
-            if dev[0:6] == 'class/':
-                db.put_class_property(dev.split('/')[1], prop)
-            elif dev.lower() not in devices:
-                db.put_property(dev, prop)
-            else:
-                db.put_device_property(dev, prop)
+            db.put_device_property(dev, prop)

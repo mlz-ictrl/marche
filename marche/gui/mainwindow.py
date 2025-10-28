@@ -29,19 +29,39 @@ from marche import __version__
 from marche.gui.client import Client, ClientError
 from marche.gui.dialogs import AuthDialog, PassiveScanDialog, PreferencesDialog
 from marche.gui.hosttree import HostTree
-from marche.gui.qt import PYQT_VERSION_STR, QT_VERSION_STR, QByteArray, \
-    QFileDialog, QIcon, QInputDialog, QListWidgetItem, QMainWindow, QMenu, \
-    QMessageBox, QSettings, QSize, pyqtSlot
+from marche.gui.qt import (
+    PYQT_VERSION_STR,
+    QT_VERSION_STR,
+    QByteArray,
+    QFileDialog,
+    QIcon,
+    QInputDialog,
+    QListWidgetItem,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QSettings,
+    QSize,
+    pyqtSlot,
+)
 from marche.gui.scan import ActiveScanner, SubnetInputDialog
-from marche.gui.util import loadAllCredentials, loadCredentials, loadSetting, \
-    loadSettings, loadUi, removeCredentials, saveCredentials, saveSettings
+from marche.gui.util import (
+    loadAllCredentials,
+    loadCredentials,
+    loadSetting,
+    loadSettings,
+    loadUi,
+    removeCredentials,
+    saveCredentials,
+    saveSettings,
+)
 from marche.utils import normalize_addr
 
 ADDR_ROLE = 32
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None, scan_on_startup=False):
+    def __init__(self, parent=None, *, scan_on_startup=False):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'mainwindow.ui')
         self.resize(800, 500)
@@ -73,7 +93,7 @@ class MainWindow(QMainWindow):
         return QMainWindow.closeEvent(self, event)
 
     def loadDefaultSession(self):
-        self.loadSession(loadSetting('defaultSession'), True)
+        self.loadSession(loadSetting('defaultSession'), silent=True)
 
     def saveSettings(self):
         settings = QSettings('marche-gui')
@@ -174,7 +194,7 @@ class MainWindow(QMainWindow):
             return
         self.loadSession(filename)
 
-    def loadSession(self, filename, silent=False):
+    def loadSession(self, filename, *, silent=False):
         try:
             with open(filename, encoding='utf-8') as fp:
                 firstline = fp.readline()
@@ -202,8 +222,8 @@ class MainWindow(QMainWindow):
         try:
             with open(filename, 'w', encoding='utf-8') as fp:
                 fp.write('Marche session v1\n')
-                for i in range(self.hostList.count()):
-                    fp.write(self.hostList.item(i).text() + '\n')
+                fp.writelines(self.hostList.item(i).text() + '\n'
+                              for i in range(self.hostList.count()))
         except Exception as err:
             QMessageBox.critical(self, 'Error', str(err))
             return
@@ -212,7 +232,7 @@ class MainWindow(QMainWindow):
     def on_actionAbout_triggered(self):
         QMessageBox.about(
             self, 'About Marche GUI',
-            '''
+            f'''
             <h2>About Marche GUI</h2>
             <p style="font-style: italic">
               (C) 2015-2025 MLZ instrument control
@@ -235,12 +255,12 @@ class MainWindow(QMainWindow):
                 (GNU General Public License)</a>
             </p>
             <p style="font-weight: bold">
-              Version: v%s
+              Version: v{__version__}
             </p>
             <p>
-              Using Qt v%s, PyQt v%s
+              Using Qt v{QT_VERSION_STR}, PyQt v{PYQT_VERSION_STR}
             </p>
-            ''' % (__version__, QT_VERSION_STR, PYQT_VERSION_STR))
+            ''')
 
     @pyqtSlot()
     def on_clearCredBtn_clicked(self):
@@ -289,7 +309,7 @@ class MainWindow(QMainWindow):
     def addHost(self, addr):
         if addr.startswith('Heading: '):
             self.addHeading(addr[9:])
-            return
+            return None
         host, port = normalize_addr(addr, 8124)
         addr = host + ':' + port
         self.removeHost(addr)
@@ -332,18 +352,18 @@ class MainWindow(QMainWindow):
             prev.widget().hide()
             prev.widget().deleteLater()
 
-    def openHost(self, addr, select_item=True, default_user=None):
+    def openHost(self, addr, *, select_item=True, default_user=None):
         def try_connect(host, port, user, passwd):
             try:
                 client = Client(host, port, user, passwd)
             except ClientError as e:
                 if e.code != 401:
                     raise
-                return
+                return None
             except xmlrpc.client.ProtocolError as e:
                 if e.errcode != 401:
                     raise
-                return
+                return None
             return client
 
         def negotiate(addr):
@@ -370,7 +390,7 @@ class MainWindow(QMainWindow):
 
             # ask for credentials
             while True:
-                dlg = AuthDialog(self, 'Authenticate at %s' % addr,
+                dlg = AuthDialog(self, f'Authenticate at {addr}',
                                  default_user or loadSetting('defUsername')
                                  or 'marche')
                 if not dlg.exec():
@@ -396,27 +416,23 @@ class MainWindow(QMainWindow):
                 self._clients[addr] = negotiate(addr)
             except xmlrpc.client.Fault as err:
                 QMessageBox.critical(self, 'Connection failed',
-                                     'Could not connect to %s: %s' %
-                                     (addr, err.faultString))
+                                     f'Could not connect to {addr}: {err.faultString}')
                 return
             except Exception as err:
                 QMessageBox.critical(self, 'Connection failed',
-                                     'Could not connect to %s: %s' %
-                                     (addr, err))
+                                     f'Could not connect to {addr}: {err}')
                 return
 
         try:
             self._clients[addr].getVersion()
         except socket.timeout:
             QMessageBox.critical(self, 'Connection failed',
-                                 'Could not connect to %s: timeout' %
-                                 addr)
+                                 f'Could not connect to {addr}: timeout')
             del self._clients[addr]
             return
         except xmlrpc.client.ProtocolError as e:
             QMessageBox.critical(self, 'Connection failed',
-                                 'Could not connect to %s: %s' %
-                                 (addr, e.errmsg))
+                                 f'Could not connect to {addr}: {e.errmsg}')
             del self._clients[addr]
             return
 

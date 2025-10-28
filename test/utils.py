@@ -30,8 +30,14 @@ from marche.auth import AuthFailed
 from marche.jobs import DEAD, RUNNING, Busy, Denied, Fault
 from marche.jobs.base import Job as BaseJob
 from marche.permission import ADMIN, DISPLAY, NONE, ClientInfo
-from marche.protocol import ConffileResponse, ControlOutputResponse, \
-    FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse
+from marche.protocol import (
+    ConffileResponse,
+    ControlOutputResponse,
+    FoundHostResponse,
+    LogfileResponse,
+    ServiceListResponse,
+    StatusResponse,
+)
 
 
 def wait(nmax, callback):
@@ -55,8 +61,8 @@ def job_call_check(job, service, instance, cmdlinesuffix, output):
         out = job.service_output(service, instance)
         outlen = len(output)
         assert out[-outlen-1].startswith('$ ')
-        assert out[-outlen-1].endswith(' %s\n' %
-                                       cmdlinesuffix.replace('action', action))
+        assert out[-outlen-1].endswith(' {}\n'.format(
+                                       cmdlinesuffix.replace('action', action)))
         assert out[-outlen:] == [line.replace('action', action) + '\n'
                                  for line in output]
 
@@ -83,7 +89,7 @@ class LogHandler(logging.Handler):
 
 
 class MockAsyncProcess:
-    def __init__(self, status, log, cmd, sh, stdout=None, stderr=None):
+    def __init__(self, status, log, cmd, stdout=None, stderr=None, *, sh=True):
         self.status = status
         self.log = log
         self.cmd = cmd
@@ -122,7 +128,7 @@ class MockJobHandler:
     def scan_network(self):
         self.emit_event(FoundHostResponse('testhost', 2))
 
-    def request_service_list(self, client):
+    def request_service_list(self, _client):
         if self.test_svc_list_error:
             raise Fault('uh oh')
         svcs = {'svc': {
@@ -133,51 +139,51 @@ class MockJobHandler:
                 'inst': {'desc': '', 'state': DEAD, 'ext_status': ''}}}}
         return ServiceListResponse(services=svcs)
 
-    def filter_services(self, client, event):
+    def filter_services(self, _client, _event):
         return ServiceListResponse(services={})
 
-    def can_see_status(self, client, event):
+    def can_see_status(self, _client, _event):
         return True
 
-    def get_service_description(self, client, service, instance):
+    def get_service_description(self, _client, _service, _instance):
         return 'desc'
 
-    def request_service_status(self, client, service, instance):
+    def request_service_status(self, _client, service, instance):
         return StatusResponse(service=service, instance=instance,
                               state=DEAD, ext_status='ext_status')
 
-    def request_control_output(self, client, service, instance):
+    def request_control_output(self, _client, service, instance):
         return ControlOutputResponse(service=service, instance=instance,
                                      content=['line1', 'line2'])
 
-    def request_logfiles(self, client, service, instance):
+    def request_logfiles(self, _client, service, instance):
         return LogfileResponse(service=service, instance=instance,
                                files={'file1': 'line1\nline2\n',
                                       'file2': 'line3\nline4\n'})
 
-    def request_conffiles(self, client, service, instance):
+    def request_conffiles(self, _client, service, instance):
         return ConffileResponse(service=service, instance=instance,
                                 files={'file1': 'line1\nline2\n',
                                        'file2': 'line3\nline4\n'})
 
-    def view_conffiles(self, client, service, instance):
+    def view_conffiles(self, _client, service, instance):
         return ConffileResponse(service=service, instance=instance,
                                 files={'file1': 'line1\nline2\n',
                                        'file2': 'line3\nline4\n'})
 
-    def start_service(self, client, service, instance):
+    def start_service(self, client, _service, _instance):
         if client.level < ADMIN:
             raise Fault('no permission')
 
-    def stop_service(self, client, service, instance):
+    def stop_service(self, _client, _service, instance):
         if instance == 'inst':
             raise Busy
         raise Denied
 
-    def restart_service(self, client, service, instance):
+    def restart_service(self, _client, _service, _instance):
         raise Fault('cannot do this')
 
-    def send_conffile(self, client, service, instance, filename, contents):
+    def send_conffile(self, _client, _service, _instance, _filename, _contents):
         raise ValueError('no conf files')
 
 
@@ -226,7 +232,7 @@ class MockJob(BaseJob):
             ('svc3', 'inst2'),
         ]
 
-    def service_description(self, service, instance):
+    def service_description(self, _service, instance):
         return 'desc:' + instance
 
     def service_status(self, service, instance):
@@ -234,7 +240,7 @@ class MockJob(BaseJob):
             return DEAD, 'ext:' + instance
         return RUNNING, 'ext:' + instance
 
-    def service_output(self, service, instance):
+    def service_output(self, _service, instance):
         return ['out:' + instance]
 
     def service_logs(self, service, instance):
@@ -258,5 +264,5 @@ class MockJob(BaseJob):
     def receive_config(self, service, instance):
         return {'conf:' + instance: service}
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, _service, _instance, filename, contents):
         self.test_configs[filename] = contents

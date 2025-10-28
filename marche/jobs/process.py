@@ -100,7 +100,6 @@ A typical section looks like this::
 """
 
 import os
-import shlex
 import signal
 import sys
 from pathlib import Path
@@ -109,7 +108,8 @@ from threading import Thread
 from time import sleep
 
 from marche.jobs import DEAD, NOT_RUNNING, RUNNING
-from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
+from marche.jobs.base import ConfigMixin, LogfileMixin
+from marche.jobs.base import Job as BaseJob
 
 
 class ProcessMonitor(Thread):
@@ -129,7 +129,7 @@ class ProcessMonitor(Thread):
     def run(self):
         self.log.info('worker %s: started', self._cmd)
         if self._outfile is not None:
-            outfile = open(self._outfile, 'wb')
+            outfile = open(self._outfile, 'wb')  # noqa: SIM115
         elif self.oneshot:
             outfile = PIPE
         else:  # pragma: no cover
@@ -203,21 +203,21 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
     def get_services(self):
         return [(self.name, '')]
 
-    def service_description(self, service, instance):
+    def service_description(self, _service, _instance):
         return self.description
 
-    def start_service(self, service, instance):
+    def start_service(self, service, _instance):
         if self._thread and self._thread.is_alive():
             return
         self._output[service] = []
-        self._thread = ProcessMonitor([self.binary] + self.args,
+        self._thread = ProcessMonitor([self.binary, *self.args],
                                       self.working_dir, self.output_file,
                                       self.one_shot, self._output[service],
                                       self.log)
         self._thread.daemon = True
         self._thread.start()
 
-    def stop_service(self, service, instance):
+    def stop_service(self, _service, _instance):
         if not (self._thread and self._thread.is_alive()):
             return
         self._thread.stopflag = True
@@ -227,12 +227,12 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self.stop_service(service, instance)
         self.start_service(service, instance)
 
-    def service_status(self, service, instance):
+    def service_status(self, _service, _instance):
         if self._thread and self._thread.is_alive():
             return RUNNING, ''
         if self.one_shot:
             return NOT_RUNNING, ''
         return DEAD, ''
 
-    def service_output(self, service, instance):
+    def service_output(self, service, _instance):
         return list(self._output.get(service, []))

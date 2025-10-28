@@ -52,7 +52,6 @@ import threading
 
 from marche.iface.base import Interface as BaseInterface
 from marche.protocol import PROTO_VERSION
-from marche.utils import bytencode
 
 UDP_PORT = 11691
 
@@ -80,7 +79,7 @@ class Interface(BaseInterface):
         self._stoprequest = True
 
     def _thread(self):
-        reply = bytencode('PONG %s %s' % (PROTO_VERSION, self.jobhandler.uid))
+        reply = f'PONG {PROTO_VERSION} {self.jobhandler.uid}'.encode()
         while not self._stoprequest:
             data, addr = self.server.recvfrom(1024)
             if data == b'PING':

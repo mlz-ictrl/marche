@@ -23,6 +23,8 @@
 
 """Qt compatibility layer."""
 
+# ruff: noqa: F401, F403
+
 import sys
 
 try:

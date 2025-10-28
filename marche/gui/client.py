@@ -27,7 +27,8 @@
 import threading
 from collections import OrderedDict
 
-from marche.client import Client as BaseClient, ClientError
+from marche.client import Client as BaseClient
+from marche.client import ClientError
 from marche.gui.qt import QThread, pyqtSignal
 from marche.gui.util import loadSetting
 from marche.jobs import NOT_AVAILABLE
@@ -89,12 +90,13 @@ class PollThread(QThread):
 class Client(BaseClient):
 
     def reloadJobs(self):
-        self.stopPoller(True)
+        self.stopPoller(join=True)
         BaseClient.reloadJobs(self)
 
-    def stopPoller(self, join=False):
+    def stopPoller(self, *, join=False):
         if self._pollThread:
             self._pollThread.running = False
+            # ruff: noqa: SLF001
             self._pollThread._client = None
             self._pollThread._event.set()
             if join:

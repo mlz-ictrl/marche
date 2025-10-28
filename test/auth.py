@@ -29,7 +29,7 @@ import sys
 from unittest.mock import patch
 
 import bcrypt
-from pytest import mark, raises
+import pytest
 
 from marche.auth import AuthFailed, AuthHandler
 from marche.auth.base import Authenticator as BaseAuthenticator
@@ -71,7 +71,7 @@ def test_simple():
     handler = AuthHandler(config, logger)
     assert handler.needs_authentication()
     assert handler.authenticate('user', 'passwd').level == CONTROL
-    assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
+    pytest.raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
     config.auth_config = {'simple': [{'user': 'user', 'passwd': '',
                                       'level': 'display'}]}
@@ -79,7 +79,7 @@ def test_simple():
     assert handler.authenticate('user', 'anypass').level == DISPLAY
 
 
-@mark.skipif(os.name == 'nt', reason='PAM not available on Windows')
+@pytest.mark.skipif(os.name == 'nt', reason='PAM not available on Windows')
 def test_pam():
     config = Config()
     config.auth_config = {'pam': [{'service': 'marche',
@@ -89,9 +89,9 @@ def test_pam():
                                    'defaultlevel': 'control'}]}
 
     class Pamela:
-        def authenticate(self, user, password, service):
+        def authenticate(self, _user, password, service):
             assert service == 'marche'
-            if password != 'pass':
+            if password != 'pass':  # noqa: S105
                 raise self.PAMError
 
         class PAMError(Exception):
@@ -103,14 +103,14 @@ def test_pam():
         assert handler.authenticate('ctrl', 'pass').level == CONTROL
         assert handler.authenticate('disp', 'pass').level == DISPLAY
         assert handler.authenticate('user', 'pass').level == CONTROL
-        assert raises(AuthFailed, handler.authenticate, 'user', 'wrong')
+        pytest.raises(AuthFailed, handler.authenticate, 'user', 'wrong')
 
     config.auth_config = {'pam': [{'service': 'marche',
                                    'defaultlevel': 'none'}]}
 
     with patch('marche.auth.pam.pamela', Pamela()):
         handler = AuthHandler(config, logger)
-        assert raises(AuthFailed, handler.authenticate, 'admin', 'pass')
+        pytest.raises(AuthFailed, handler.authenticate, 'admin', 'pass')
 
 
 def test_parse_permissions():
@@ -119,7 +119,7 @@ def test_parse_permissions():
                                   admin='display'))
     assert pdict == {DISPLAY: CONTROL, CONTROL: ADMIN, ADMIN: DISPLAY}
 
-    assert raises(ValueError, parse_permissions, pdict, 'foo')
-    assert raises(ValueError, parse_permissions, pdict, ['display'])
-    assert raises(ValueError, parse_permissions, pdict, {'display': 'foo'})
-    assert raises(ValueError, parse_permissions, pdict, {'foo': 'display'})
+    pytest.raises(ValueError, parse_permissions, pdict, 'foo')
+    pytest.raises(ValueError, parse_permissions, pdict, ['display'])
+    pytest.raises(ValueError, parse_permissions, pdict, {'display': 'foo'})
+    pytest.raises(ValueError, parse_permissions, pdict, {'foo': 'display'})

@@ -70,7 +70,7 @@ def main(argv):
     try:
         service = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, service_subkey, 0,
                                  winreg.KEY_WRITE)
-    except WindowsError:
+    except OSError:
         print('Creating service:', servicename)
         cmd = [
             'sc.exe', 'create', servicename, 'start=', 'auto',

@@ -28,6 +28,8 @@ import logging
 from marche.jobs.tangosrv import Job
 from marche.utils import write_file
 
+# ruff: noqa: SLF001
+
 logger = logging.getLogger('testtangosrv')
 
 DEFAULT = '''\
@@ -79,14 +81,14 @@ def test_job_legacy(tmp_path):
     def new_add_property(_self, _db, dev, name, vals, _devs):
         properties.append((dev, name, vals))
 
-    Job._connect_db = lambda self: None
+    Job._connect_db = lambda _self: None
     Job._add_device = new_add_device
     Job._add_property = new_add_property
 
     write_file(tmp_path / 'Mysrv.res', RESFILE)
 
     job = Job('tangosrv', 'name', {'srvname': 'Mysrv'},
-              logger, lambda event: None)
+              logger, lambda _event: None)
     job.init()
 
     assert job.get_services() == [('tango-server-mysrv', '')]
@@ -107,11 +109,11 @@ def test_job_legacy(tmp_path):
         ('test/mysrv/dev1', 'unit', ['deg']),
         ('test/mysrv/dev2', 'min', ['0']),
         ('test/mysrv/dev2', 'max', ['40']),
-        ('test/mysrv/dev2', 'units', ['deg', 'rad', 'grd'])
+        ('test/mysrv/dev2', 'units', ['deg', 'rad', 'grd']),
     ]
 
 
-PROPFILE = """
+PROPFILE = '''
 # Some TANGO style resoure file...
 
 LimaCCDs/ikonl/DEVICE/LimaCCDs: "test/detector/ccd1",\\
@@ -141,7 +143,7 @@ test/detector/ccd1->ArrayProp:  1,\\
 
 CLASS/LimaCCDs->doc_url:                    "http://www.esrf.fr/some/path"
 
-"""
+'''
 
 
 def test_job_tango(tmp_path):
@@ -160,14 +162,14 @@ def test_job_tango(tmp_path):
     def new_add_property(_self, _db, dev, name, vals, _devs):
         properties.append((dev, name, vals))
 
-    Job._connect_db = lambda self: None
+    Job._connect_db = lambda _self: None
     Job._add_device = new_add_device
     Job._add_property = new_add_property
 
     write_file(tmp_path / 'camera.res', PROPFILE)
 
     job = Job('tangosrv', 'name', {'srvname': 'camera', 'resformat': 'tango'},
-              logger, lambda event: None)
+              logger, lambda _event: None)
     job.init()
 
     assert job.get_services() == [('tango-server-camera', '')]

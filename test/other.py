@@ -24,7 +24,6 @@
 """Test for the miscellaneous other APIs."""
 
 import logging
-import os
 import socket
 import sys
 
@@ -52,10 +51,10 @@ def test_utils(tmp_path):
     assert tmpfile.read_bytes() == b'a\xf0b'
 
     assert utils.extract_loglines(tmp_path / 'nope') == {}
-    (tmp_path / 'logfile').write_text(''.join('a%d\n' % i for i in range(10)))
-    (tmp_path / 'logfile.1').write_text(''.join('b%d\n' % i for i in range(10)))
+    (tmp_path / 'logfile').write_text(''.join(f'a{i}\n' for i in range(10)))
+    (tmp_path / 'logfile.1').write_text(''.join(f'b{i}\n' for i in range(10)))
     # broken chain of numbers: not included
-    (tmp_path / 'logfile.3').write_text(''.join('c%d\n' % i for i in range(10)))
+    (tmp_path / 'logfile.3').write_text(''.join(f'c{i}\n' for i in range(10)))
     logs = utils.extract_loglines(tmp_path / 'logfile', 2)
     assert len(logs) == 2
     for key, value in logs.items():
@@ -64,7 +63,7 @@ def test_utils(tmp_path):
         elif key.endswith('logfile.1'):
             assert value == 'b8\nb9\n'
         else:
-            assert False, 'unexpected key'
+            raise AssertionError('unexpected key')
 
     fqdn = socket.getfqdn('localhost')
     assert utils.normalize_addr('localhost', 147) == (fqdn, '147')

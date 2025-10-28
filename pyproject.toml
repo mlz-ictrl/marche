@@ -71,37 +71,20 @@ cache-keys = [{file = "pyproject.toml"}, {git = {commit = true, tags = true}}]
 extend-exclude = ["res_qt*.py"]
 
 [tool.ruff.lint]
-select = []
+select = ["ALL"]
 ignore = ["ANN", "C408", "D1", "D203", "D213", "EM1", "ERA", "FIX", "G004", "INP001",
           "N818", "PLR09", "PLR2004", "S101", "T201", "TD", "TRY003", "TRY301", "PLW2901",
-          # TODO:
-          "N815", "N803",
+          "N815", "N803", "BLE001", "PTH123", "S110", "SIM102", "S301", "S311", "EXE002", "TRY002",
           "D400", "D415", "D205",  # docstrings
           "N802", "N806",  # function/variable names not lowercase
-          "PT011",  # pytest.raises too broad
           "TRY400", "TRY401",  # exception messages
           "SIM105",  # contextlib.supress
           "S603", # subprocess call untrusted input
           "B904", # raise from
           "RUF012",  # typing.classvar
           "S104",  # 0.0.0.0
-          # rest
-         "BLE001",
-         "PTH123",
-         "S110",
-         "SIM102",
-         "S301",
-         "S311",
-         "S324",
-         "S602",
-         "S607",
-         "S701",
-         "EXE002",
-         "SIM108",
-         "SIM115",
-         "D401",
-         "TRY002",
-          ]
+          "S701",
+]
 flake8-quotes.inline-quotes = "single"
 flake8-quotes.multiline-quotes = "single"
 mccabe.max-complexity = 30

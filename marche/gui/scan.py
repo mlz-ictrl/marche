@@ -41,7 +41,7 @@ class SubnetInputDialog(QDialog):
 
     @property
     def subnet(self):
-        return '%s.%s.%s.%s/%s' % (self.byte1SpinBox.value(),
+        return '%s.%s.%s.%s/%s' % (self.byte1SpinBox.value(),  # noqa: UP031
                                    self.byte2SpinBox.value(),
                                    self.byte3SpinBox.value(),
                                    self.byte4SpinBox.value(),
@@ -99,7 +99,7 @@ class ActiveScanner(QThread):
 
     def run(self):
         for ip in self._hosts:
-            notification = 'Scanning %s' % ip
+            notification = f'Scanning {ip}'
             notification += ' ...'
 
             self.scanNotify.emit(notification)

@@ -69,7 +69,7 @@ class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # Backwards compatibility: if we *can* auth, we make it required.
         if self.needs_auth and 'Authorization' not in self.headers:
             self.send_error(401)
-            return
+            return None
 
         header = self.headers['Authorization'].split()[-1].strip()
         decoded = base64.b64decode(header.encode()).decode('utf-8')
@@ -78,7 +78,7 @@ class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
             self.client_info = self.authhandler.authenticate(user, passwd)
         except (ValueError, AuthFailed):
             self.send_error(401)
-            return
+            return None
 
         return xmlrpc.server.SimpleXMLRPCRequestHandler.do_POST(self)
 
@@ -86,7 +86,7 @@ class AuthRequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
         try:
             func = getattr(self.server.instance, method)
         except AttributeError:
-            raise Exception('method "%s" is not supported' % method) from None
+            raise Exception(f'method "{method}" is not supported') from None
         return func(self.client_info, *params)
 
 
@@ -94,7 +94,6 @@ def command(method):
     def new_method(self, *args):
         try:
             ret = method(self, *args)
-            return True if ret is None else ret
         except Busy as err:
             raise xmlrpc.client.Fault(Errors.BUSY, str(err))
         except Denied as err:
@@ -103,7 +102,9 @@ def command(method):
             raise xmlrpc.client.Fault(Errors.FAULT, str(err))
         except Exception as err:
             raise xmlrpc.client.Fault(Errors.EXCEPTION,
-                                      'Unexpected exception: %s' % err)
+                                      f'Unexpected exception: {err}')
+        else:
+            return True if ret is None else ret
     new_method.__name__ = method.__name__
     return new_method
 
@@ -120,11 +121,11 @@ class RPCFunctions:
         return name, ''
 
     @command
-    def ReloadJobs(self, client_info):
+    def ReloadJobs(self, client_info):  # noqa: ARG002
         self.jobhandler.trigger_reload()
 
     @command
-    def GetVersion(self, client_info):
+    def GetVersion(self, client_info):  # noqa: ARG002
         return str(PROTO_VERSION)
 
     @command
@@ -167,8 +168,8 @@ class RPCFunctions:
             client_info, *self._split_name(name))
         ret = []
         for fname, contents in log_event.files.items():
-            for line in contents.splitlines(True):
-                ret.append(fname + ':' + line)
+            for line in contents.splitlines(keepends=True):
+                ret.append(fname + ':' + line)  # noqa: PERF401
         return ret
 
     def _process_conf(self, config_event):

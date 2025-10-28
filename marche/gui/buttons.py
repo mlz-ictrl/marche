@@ -31,10 +31,27 @@ from pathlib import Path
 
 from marche.gui.client import ClientError
 from marche.gui.dialogs import AuthDialog
-from marche.gui.qt import QApplication, QDialog, QListWidgetItem, QMenu, \
-    QMessageBox, QPlainTextEdit, QSize, Qt, QTextCursor, QWidget, pyqtSlot
-from marche.gui.util import getEditorArguments, loadSetting, loadUi, \
-    loadUiType, saveSetting, selectEditor
+from marche.gui.qt import (
+    QApplication,
+    QDialog,
+    QListWidgetItem,
+    QMenu,
+    QMessageBox,
+    QPlainTextEdit,
+    QSize,
+    Qt,
+    QTextCursor,
+    QWidget,
+    pyqtSlot,
+)
+from marche.gui.util import (
+    getEditorArguments,
+    loadSetting,
+    loadUi,
+    loadUiType,
+    saveSetting,
+    selectEditor,
+)
 from marche.protocol import Errors
 from marche.utils import read_file, write_file
 
@@ -113,11 +130,11 @@ class JobButtons(JobButtonsUI, QWidget):
         dlg.setModal(True)
         dlg.show()
         flags = getEditorArguments(editor)
-        if flags:
-            command = '%s %s %s' % (editor, flags, localfn)
+        if flags:  # noqa: SIM108
+            command = f'{editor} {flags} {localfn}'
         else:
-            command = '%s %s' % (editor, localfn)
-        pid = subprocess.Popen(command, shell=True)
+            command = f'{editor} {localfn}'
+        pid = subprocess.Popen(command, shell=True)  # noqa: S602
         while pid.poll() is None:
             QApplication.processEvents()
             time.sleep(0.2)
@@ -257,9 +274,7 @@ class JobButtons(JobButtonsUI, QWidget):
         if len(config) % 2 != 0:
             self._item.setText(3, 'Strange return value')
             return
-        configs = []
-        for i in range(0, len(config), 2):
-            configs.append((config[i], [config[i + 1]]))
+        configs = [(config[i], [config[i + 1]]) for i in range(0, len(config), 2)]
         self.showDetails('Config files', configs)
 
     def showDetails(self, title, files):

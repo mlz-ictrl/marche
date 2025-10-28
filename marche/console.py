@@ -30,8 +30,16 @@ from pathlib import Path
 import click
 
 from marche.client import Client, ClientError
-from marche.jobs import DEAD, INITIALIZING, NOT_AVAILABLE, NOT_RUNNING, \
-    RUNNING, STARTING, STOPPING, WARNING
+from marche.jobs import (
+    DEAD,
+    INITIALIZING,
+    NOT_AVAILABLE,
+    NOT_RUNNING,
+    RUNNING,
+    STARTING,
+    STOPPING,
+    WARNING,
+)
 
 
 def try_connect(host, port, user, passwd):
@@ -40,11 +48,11 @@ def try_connect(host, port, user, passwd):
     except ClientError as e:
         if e.code != 401:
             raise
-        return
+        return None
     except xmlrpc.client.ProtocolError as e:
         if e.errcode != 401:
             raise
-        return
+        return None
     return client
 
 
@@ -218,7 +226,7 @@ def single_status(cl, service, sts=None):
 
 
 def wait_status(cl, service):
-    for i in range(10):
+    for _i in range(10):
         sts = single_status(cl, service)
         if sts not in (STARTING, INITIALIZING, STOPPING):
             return

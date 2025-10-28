@@ -63,8 +63,7 @@ class Interface:
         """Run the interface.  This should start the main loop of the interface
         in a separate thread and return.
         """
-        raise NotImplementedError('implement %s.run()' %
-                                  self.__class__.__name__)
+        raise NotImplementedError(f'implement {self.__class__.__name__}.run()')
 
     def shutdown(self):
         """Shutdown the interface.  This should stop the main loop of the

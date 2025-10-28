@@ -27,15 +27,24 @@ import os
 import threading
 from pathlib import Path
 
-from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, STARTING, STOPPING, \
-    SYSTEMD_STATE_MAP, Busy, Denied, Fault
+from marche.jobs import (
+    DEAD,
+    NOT_AVAILABLE,
+    RUNNING,
+    STARTING,
+    STOPPING,
+    SYSTEMD_STATE_MAP,
+    Busy,
+    Denied,
+    Fault,
+)
 from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
 from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
 
 
 class Job:
-    """This is the basic job class.
+    """The basic job class.
 
     All methods that implement a Marche command should raise
     :exc:`marche.jobs.Fault` with a nice error message on error.  Other
@@ -53,8 +62,7 @@ class Job:
     """
 
     def __init__(self, jobtype, name, config, log, event_callback):
-        """The constructor should not be overridden, rather implement the
-        configure() method.
+        """Don't override the  constructor, rather implement the configure() method.
 
         It sets the following instance attributes:
 
@@ -81,7 +89,7 @@ class Job:
                 self._permissions = parse_permissions(self._permissions,
                                                       config['permissions'])
             except ValueError:
-                self.log.error('could not parse permission string: %r' %
+                self.log.error('could not parse permission string: %r',
                                config['permissions'])
         self.pollinterval = 3.0
         if 'pollinterval' in config:
@@ -92,15 +100,15 @@ class Job:
 
     # Utilities
 
-    def _async_call(self, status, cmd, sh=True, output=None):
+    def _async_call(self, status, cmd, *, sh=True, output=None):
         if output is not None:
-            output.append('$ %s\n' % cmd)
-        proc = AsyncProcess(status, self.log, cmd, sh, output, output)
+            output.append(f'$ {cmd}\n')
+        proc = AsyncProcess(status, self.log, cmd, output, output, sh=sh)
         proc.start()
         return proc
 
-    def _sync_call(self, cmd, sh=True):
-        proc = AsyncProcess(0, self.log, cmd, sh)
+    def _sync_call(self, cmd, *, sh=True):
+        proc = AsyncProcess(0, self.log, cmd, sh=sh)
         proc.start()
         proc.join()
         return proc
@@ -120,9 +128,10 @@ class Job:
     def _async_status_only(self, sub):
         if sub in self._processes and not self._processes[sub].done:
             return self._processes[sub].status, ''
+        return None
 
     def _async_status_exitcode(self, sub, cmd):
-        """Returns the status of something determined by the exit code
+        """Return the status of something determined by the exit code
         of the given command.
         """
         if sub in self._processes and not self._processes[sub].done:
@@ -135,7 +144,7 @@ class Job:
         return DEAD, ''
 
     def _async_status_systemd(self, sub, unit, systemctl='systemctl'):
-        """Returns the status of a systemd unit."""
+        """Return the status of a systemd unit."""
         if sub in self._processes and not self._processes[sub].done:
             return self._processes[sub].status, ''
         cmd = f'{systemctl} show -p SubState "{unit}"'
@@ -177,7 +186,7 @@ class Job:
 
     def poll_now(self):
         """Let the poller poll now, if possible."""
-        self.poller.queue.put(True)
+        self.poller.queue.put(True)  # noqa: FBT003
 
     def polled_service_status(self, service, instance):
         """Return the service status, if possible from the poller cache.
@@ -231,8 +240,9 @@ class Job:
         self.poller.stop()
 
     def get_services(self):
-        """Return a list of ``(service, instance)`` names that this job
-        supports.  This should be very cheap, so the list of services should be
+        """Return a list of ``(service, instance)`` names that this job supports.
+
+        This should be very cheap, so the list of services should be
         determined in the constructor and only returned here.
 
         For jobs without sub-instances, return ``(service, '')``.
@@ -241,8 +251,9 @@ class Job:
 
         Must be safe to call without the job lock held.
         """
-        raise NotImplementedError('%s.get_services not implemented'
-                                  % self.__class__.__name__)
+        raise NotImplementedError(
+            f'{self.__class__.__name__}.get_services not implemented',
+        )
 
     def start_service(self, service, instance):
         """Start the service with the given name.
@@ -252,8 +263,9 @@ class Job:
 
         This must be implemented by subclasses.
         """
-        raise NotImplementedError('%s.start_service not implemented'
-                                  % self.__class__.__name__)
+        raise NotImplementedError(
+            f'{self.__class__.__name__}.start_service not implemented',
+        )
 
     def stop_service(self, service, instance):
         """Stop the service with the given name.
@@ -263,8 +275,9 @@ class Job:
 
         This must be implemented by subclasses.
         """
-        raise NotImplementedError('%s.stop_service not implemented'
-                                  % self.__class__.__name__)
+        raise NotImplementedError(
+            f'{self.__class__.__name__}.stop_service not implemented',
+        )
 
     def restart_service(self, service, instance):
         """Restart the service with the given name.
@@ -274,8 +287,9 @@ class Job:
 
         This must be implemented by subclasses.
         """
-        raise NotImplementedError('%s.restart_service not implemented'
-                                  % self.__class__.__name__)
+        raise NotImplementedError(
+            f'{self.__class__.__name__}.restart_service not implemented',
+        )
 
     def service_status(self, service, instance):
         """Return the tuple of status constant and extended status of the
@@ -302,8 +316,9 @@ class Job:
 
         This must be implemented by subclasses.
         """
-        raise NotImplementedError('%s.service_status not implemented'
-                                  % self.__class__.__name__)
+        raise NotImplementedError(
+            f'{self.__class__.__name__}.service_status not implemented',
+        )
 
     def all_service_status(self):
         """Return a dict with the tuple of status constants of all
@@ -319,14 +334,14 @@ class Job:
             states[service, instance] = self.service_status(service, instance)
         return states
 
-    def service_description(self, service, instance):
+    def service_description(self, service, instance):  # noqa: ARG002
         """Return a string description of the service with the given name.
 
         Must be safe to call without the job lock held.
         """
         return ''
 
-    def service_output(self, service, instance):
+    def service_output(self, service, instance):  # noqa: ARG002
         """Return the console output of the last attempt to start/stop/restart
         the service, as a list of strings (lines).
 
@@ -334,7 +349,7 @@ class Job:
         """
         return []
 
-    def service_logs(self, service, instance):
+    def service_logs(self, service, instance):  # noqa: ARG002
         """Return the contents of the logfiles of the service, if possible.
 
         The return value must be a dictionary of file names and contents.
@@ -343,9 +358,8 @@ class Job:
         """
         return {}
 
-    def receive_config(self, service, instance):
-        """Return the contents of the config file(s) of the service, if
-        possible.
+    def receive_config(self, service, instance):  # noqa: ARG002
+        """Return the contents of the config file(s) of the service, if possible.
 
         The return value must be a dict mapping the file name to the decoded
         string content for each file.
@@ -354,8 +368,9 @@ class Job:
         """
         return {}
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, service, instance, filename, contents):  # noqa: ARG002
         """Transfer a changed config file to the service, and update it.
+
         Usually, this means that the new file is written to disk, but it could
         also take some further action.
 
@@ -369,8 +384,9 @@ class Job:
 
 
 class LogfileMixin:
-    """Mixin for configuring and sending a number of logfiles, stored as
-    self.log_files, without looking at the service/instance.
+    """Mixin for configuring and sending a number of logfiles.
+
+    They are stored as self.log_files, without looking at the service/instance.
     """
 
     def configure_logfile_mixin(self, config):
@@ -378,7 +394,7 @@ class LogfileMixin:
         for logpath in config.get('logfiles', []):
             self.log_files.append(Path(logpath))
 
-    def service_logs(self, service, instance):
+    def service_logs(self, _service, _instance):
         ret = {}
         for log_file in self.log_files:
             ret.update(extract_loglines(log_file))
@@ -386,8 +402,9 @@ class LogfileMixin:
 
 
 class ConfigMixin:
-    """Mixin for receiving and sending a number of config files, stored as
-    self.config_files, without looking at the service/instance.
+    """Mixin for receiving and sending a number of config files.
+
+    Paths are stored as self.config_files, without looking at the service/instance.
 
     Since only the basenames are transferred to the client as identifiers,
     all configured config files must have different basenames.
@@ -405,7 +422,7 @@ class ConfigMixin:
             basenames.add(cfg.name)
             self.config_files.append(cfg)
 
-    def receive_config(self, service, instance):
+    def receive_config(self, _service, _instance):
         result = {}
         for configpath in self.config_files:
             # don't send conffiles which we can't write
@@ -413,7 +430,7 @@ class ConfigMixin:
                 result[configpath.name] = read_file(configpath)
         return result
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, _service, _instance, filename, contents):
         for configpath in self.config_files:
             if filename == configpath.name:
                 write_file(configpath, contents)

@@ -31,7 +31,6 @@ from pathlib import Path
 import psutil
 
 from marche.gui.qt import PYQT_VERSION, QDialog, QSettings, uic
-from marche.utils import bytencode
 
 uipath = Path(__file__).parent
 KNOWN_EDITORS = ['gedit', 'kate', 'emacs', 'scite', 'geany', 'pluma',
@@ -64,12 +63,7 @@ def loadUiType(uiname, subdir='ui'):
 
 
 def getAvailableEditors():
-    result = []
-    for entry in KNOWN_EDITORS:
-        if shutil.which(entry):
-            result.append(entry)
-
-    return result
+    return [entry for entry in KNOWN_EDITORS if shutil.which(entry)]
 
 
 def selectEditor():
@@ -143,11 +137,11 @@ def saveCredentials(host, user, passwd):
     hosts.add(host)
     hosts = list(hosts)
 
-    saveSetting('creds/%s/user' % host,
-                base64.b64encode(bytencode(user)).decode(),
+    saveSetting(f'creds/{host}/user',
+                base64.b64encode(user.encode()).decode(),
                 settings=settings)
-    saveSetting('creds/%s/passwd' % host,
-                base64.b64encode(bytencode(passwd)).decode(),
+    saveSetting(f'creds/{host}/passwd',
+                base64.b64encode(passwd.encode()).decode(),
                 settings=settings)
 
     saveSetting('creds/hosts', hosts, settings=settings)
@@ -161,8 +155,8 @@ def loadCredentials(host):
     if host not in hosts:
         return (None, None)
 
-    user = loadSetting('creds/%s/user' % host, settings=settings)
-    passwd = loadSetting('creds/%s/passwd' % host, settings=settings)
+    user = loadSetting(f'creds/{host}/user', settings=settings)
+    passwd = loadSetting(f'creds/{host}/passwd', settings=settings)
     if user is None or passwd is None:
         return (None, None)
 
@@ -181,13 +175,13 @@ def removeCredentials(host):
         hosts.remove(host)
 
     saveSetting('creds/hosts', hosts, settings=settings)
-    settings.remove('creds/%s/user' % host)
-    settings.remove('creds/%s/passwd' % host)
+    settings.remove(f'creds/{host}/user')
+    settings.remove(f'creds/{host}/passwd')
 
 
 def loadAllCredentials():
     hosts = loadSetting('creds/hosts', default=[], valtype=list)
-    return dict((host, loadCredentials(host)) for host in hosts)
+    return {host: loadCredentials(host) for host in hosts}
 
 
 def determineSubnet():
@@ -198,10 +192,10 @@ def determineSubnet():
         return None
     ifs = psutil.net_if_addrs()
 
-    for _, addrs in ifs.items():
+    for addrs in ifs.values():
         for addr in addrs:
             if addr.address == ip:
-                return str(ipaddress.ip_network(f'{ip}/{addr.netmask}', False))
+                return str(ipaddress.ip_network(f'{ip}/{addr.netmask}', strict=False))
     return None
 
 

@@ -25,7 +25,8 @@
 from mlzlog import LogfileFormatter
 
 try:
-    from systemd.journal import JournalHandler as SystemdJournalHandler, send
+    from systemd.journal import JournalHandler as SystemdJournalHandler
+    from systemd.journal import send
 except ImportError:
     SystemdJournalHandler = object
 

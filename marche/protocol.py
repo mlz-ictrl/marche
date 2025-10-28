@@ -34,13 +34,13 @@ class Errors:
     EXCEPTION = 9
 
 
-class Response:
+class Response:  # noqa: PLW1641  TODO: implement hash?
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
             vars(self) == vars(other)
 
     def __repr__(self):
-        return '<%s: %r>' % (self.__class__.__name__, vars(self))
+        return f'<{self.__class__.__name__}: {vars(self)!r}>'
 
 
 class ServiceListResponse(Response):

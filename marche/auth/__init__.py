@@ -35,7 +35,7 @@ class AuthHandler:
         self.log = log.getChild('auth')
         for authname, confs in config.auth_config.items():
             try:
-                mod = __import__('marche.auth.%s' % authname, {}, {},
+                mod = __import__(f'marche.auth.{authname}', {}, {},
                                  ['Authenticator'])
             except Exception as err:
                 log.exception('could not import authenticator %r: %s',

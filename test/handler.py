@@ -28,16 +28,24 @@ import socket
 import sys
 from unittest.mock import patch
 
-from pytest import fixture, raises
+import pytest
 
 from marche.config import Config
 from marche.handler import JobHandler
 from marche.jobs import Busy, Denied, Fault
 from marche.jobs.base import DEAD, RUNNING
 from marche.permission import ADMIN, CONTROL, DISPLAY, ClientInfo
-from marche.protocol import ConffileResponse, ControlOutputResponse, \
-    ErrorResponse, LogfileResponse, ServiceListResponse, StatusResponse
+from marche.protocol import (
+    ConffileResponse,
+    ControlOutputResponse,
+    ErrorResponse,
+    LogfileResponse,
+    ServiceListResponse,
+    StatusResponse,
+)
 from test.utils import LogHandler, MockIface, MockJob, wait
+
+# ruff: noqa: SLF001
 
 # Pretend that we are a job module.
 sys.modules['marche.jobs.test'] = sys.modules[__name__]
@@ -48,7 +56,7 @@ testhandler = LogHandler()
 logger.addHandler(testhandler)
 
 
-@fixture()
+@pytest.fixture
 def handler():
     config = Config()
     config.job_config = {
@@ -88,7 +96,7 @@ def test_joblist(handler):
     assert isinstance(job, Job)
 
     assert handler._get_job('svc1') is job
-    assert raises(Fault, handler._get_job, 'unknown')
+    pytest.raises(Fault, handler._get_job, 'unknown')
 
 
 def test_reload(handler):
@@ -169,11 +177,11 @@ def test_commands(handler):
     assert ('svc3', '') in job.test_restarted
 
     numerrors = len(testhandler.errors)
-    assert raises(Busy, handler.start_service, client, 'svc1', '')
-    assert raises(Denied, handler.start_service, ClientInfo(DISPLAY),
+    pytest.raises(Busy, handler.start_service, client, 'svc1', '')
+    pytest.raises(Denied, handler.start_service, ClientInfo(DISPLAY),
                   'svc2', 'inst1')
-    assert raises(Fault, handler.start_service, client, 'svc2', 'inst1')
-    assert raises(ValueError, handler.restart_service, client, 'svc1', '')
+    pytest.raises(Fault, handler.start_service, client, 'svc2', 'inst1')
+    pytest.raises(ValueError, handler.restart_service, client, 'svc1', '')
     assert len(testhandler.errors) == numerrors + 4
 
     handler.send_conffile(ClientInfo(ADMIN), 'svc1', '', 'file', 'contents')
@@ -206,10 +214,10 @@ class MockSocket:
         assert opt == socket.SO_BROADCAST
         assert val
 
-    def sendto(self, msg, addr):
+    def sendto(self, msg, _addr):
         assert msg == b'PING'
 
-    def recvfrom(self, bufsize):
+    def recvfrom(self, _bufsize):
         self.i += 1
         if self.i == 1:
             return b'boo', ('127.0.0.1', 12345)  # wrong reply
@@ -220,7 +228,7 @@ class MockSocket:
         if self.i == 4:
             return b'PONG x', ('127.0.0.4', 12345)  # broken
         if self.i == 5:
-            return ('PONG 41 %s' % self.uid).encode(), ('127.0.0.5', 12345)
+            return (f'PONG 41 {self.uid}').encode(), ('127.0.0.5', 12345)
         return b'PONG 42 other', ('127.0.0.6', 12345)
 
 
@@ -242,7 +250,7 @@ def mock_time():
 
 def test_scanning(handler):
     MockSocket.uid = handler.uid
-    with patch('socket.socket', MockSocket):
+    with patch('socket.socket', MockSocket):  # noqa: SIM117
         with patch('select.select', mock_select):
             with patch('socket.gethostbyaddr', mock_gethostbyaddr):
                 with patch('marche.scan.currenttime', mock_time):

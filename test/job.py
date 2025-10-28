@@ -26,7 +26,7 @@
 import logging
 from unittest.mock import patch
 
-from pytest import raises
+import pytest
 
 from marche.jobs import DEAD, RUNNING, STARTING, STOPPING, Busy, Denied, Fault
 from marche.jobs.base import Job as BaseJob
@@ -38,29 +38,31 @@ logger = logging.getLogger('testjob')
 testhandler = LogHandler()
 logger.addHandler(testhandler)
 
+# ruff: noqa: SLF001
+
 
 class EmptyJob(BaseJob):
-    def configure(self, config):
+    def configure(self, _config):
         self.test_configured = True
 
 
 def test_job_base():
-    assert raises(ValueError, EmptyJob, 'test', 'test',
-                  {'pollinterval': 'nada'}, logger,
-                  lambda event: None)
+    pytest.raises(ValueError, EmptyJob, 'test', 'test',
+                         {'pollinterval': 'nada'}, logger,
+                         lambda _event: None)
     testhandler.assert_error(EmptyJob, 'test', 'test',
                              {'permissions': 'nada'}, logger,
-                             lambda event: None)
+                             lambda _event: None)
 
     job = EmptyJob('test', 'test', {'pollinterval': 0,
                                     'permissions': {'admin': 'control'}},
-                   logger, lambda event: None)
+                   logger, lambda _event: None)
     assert job.test_configured
     assert job.check()
     job.init()
 
     job.check_permission(ADMIN, ClientInfo(CONTROL))
-    with raises(Denied):
+    with pytest.raises(Denied):
         job.check_permission(ADMIN, ClientInfo(DISPLAY))
     assert job.determine_permissions(ClientInfo(DISPLAY)) == [DISPLAY]
 
@@ -69,22 +71,22 @@ def test_job_base():
     assert job.service_logs('foo', 'bar') == {}
     assert job.receive_config('foo', 'bar') == {}
     assert job.service_description('foo', 'bar') == ''
-    assert raises(Fault, job.send_config, 'foo', 'bar', '', '')
+    pytest.raises(Fault, job.send_config, 'foo', 'bar', '', '')
 
     # Check required implementations
-    assert raises(NotImplementedError, job.get_services)
-    assert raises(NotImplementedError, job.start_service, 'foo', 'bar')
-    assert raises(NotImplementedError, job.stop_service, 'foo', 'bar')
-    assert raises(NotImplementedError, job.restart_service, 'foo', 'bar')
-    assert raises(NotImplementedError, job.service_status, 'foo', 'bar')
-    assert raises(NotImplementedError, job.polled_service_status, 'foo', 'bar')
+    pytest.raises(NotImplementedError, job.get_services)
+    pytest.raises(NotImplementedError, job.start_service, 'foo', 'bar')
+    pytest.raises(NotImplementedError, job.stop_service, 'foo', 'bar')
+    pytest.raises(NotImplementedError, job.restart_service, 'foo', 'bar')
+    pytest.raises(NotImplementedError, job.service_status, 'foo', 'bar')
+    pytest.raises(NotImplementedError, job.polled_service_status, 'foo', 'bar')
 
     job.shutdown()
 
 
 def test_job_helpers():
     job = EmptyJob('test', 'test', {'pollinterval': 0},
-                   logger, lambda event: None)
+                   logger, lambda _event: None)
     out = []
     with patch('marche.jobs.base.AsyncProcess', MockAsyncProcess):
 
@@ -93,7 +95,7 @@ def test_job_helpers():
         proc.join()
         assert out == ['$ cmd\n', 'output\n', 'error\n']
 
-        proc = job._sync_call(0, 'cmd')
+        proc = job._sync_call('cmd')
         assert proc.stdout == ['output\n']
 
         # Simulate starting the process.
@@ -106,7 +108,7 @@ def test_job_helpers():
 
         # Simulate the start process being still busy.
         job._processes['sub'].done = False
-        assert raises(Busy, job._async_start, 'sub', 'cmd')
+        pytest.raises(Busy, job._async_start, 'sub', 'cmd')
         assert job._async_status_exitcode('sub', 'cmd') == (STARTING, '')
 
         # Simulate stopping the process.
@@ -115,7 +117,7 @@ def test_job_helpers():
 
         # Simulate the stop process being still busy.
         job._processes['sub'].done = False
-        assert raises(Busy, job._async_stop, 'sub', 'cmd')
+        pytest.raises(Busy, job._async_stop, 'sub', 'cmd')
         assert job._async_status_exitcode('sub', 'cmd') == (STOPPING, '')
         assert job._async_status_only('sub') == (STOPPING, '')
 
@@ -128,7 +130,7 @@ class Job(BaseJob):
     def get_services(self):
         return [('svc', 'inst')]
 
-    def service_status(self, service, instance):
+    def service_status(self, _service, _instance):
         if self.test_raise:
             raise RuntimeError
         return self.test_state, self.test_ext_status
@@ -168,6 +170,6 @@ def test_job_poller():
     job.poller.start()
     job.invalidate('svc', 'inst')
     job.poll_now()
-    assert raises(RuntimeError, job.polled_service_status, 'svc', 'inst')
+    pytest.raises(RuntimeError, job.polled_service_status, 'svc', 'inst')
 
     job.shutdown()

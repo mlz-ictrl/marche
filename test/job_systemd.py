@@ -26,7 +26,7 @@
 import logging
 import sys
 
-from pytest import raises
+import pytest
 
 from marche.jobs import RUNNING, Fault
 from marche.jobs.systemd import Job
@@ -53,13 +53,13 @@ def test_job(tmp_path):
     scriptfile = tmp_path / 'script.py'
     scriptfile.write_text(SCRIPT)
 
-    Job.SYSTEMCTL = '%s -S %s systemctl' % (sys.executable, scriptfile)
-    Job.JOURNALCTL = '%s -S %s journalctl' % (sys.executable, scriptfile)
+    Job.SYSTEMCTL = f'{sys.executable} -S {scriptfile} systemctl'
+    Job.JOURNALCTL = f'{sys.executable} -S {scriptfile} journalctl'
 
-    job = Job('systemd', 'name', {'unit': 'nope'}, logger, lambda event: None)
+    job = Job('systemd', 'name', {'unit': 'nope'}, logger, lambda _event: None)
     assert not job.check()
 
-    job = Job('systemd', 'name', {'unit': 'foo'}, logger, lambda event: None)
+    job = Job('systemd', 'name', {'unit': 'foo'}, logger, lambda _event: None)
     assert job.check()
     job.init()
 
@@ -80,7 +80,7 @@ def test_job(tmp_path):
         'configfiles': [tmp_path / '1.cfg', tmp_path / '2.cfg'],
     }
 
-    job = Job('systemd', 'name', config, logger, lambda event: None)
+    job = Job('systemd', 'name', config, logger, lambda _event: None)
     assert job.check()
     job.init()
 
@@ -90,12 +90,12 @@ def test_job(tmp_path):
         if key.endswith('1.log'):
             assert value == 'log1_line1\nlog1_line2\n'
         else:
-            assert False, 'unknown logfile name returned'
+            raise AssertionError('unknown logfile name returned')
 
     assert job.receive_config('foo', '') == {'1.cfg': 'conf1\n'}
     job.send_config('foo', '', '1.cfg', 'conf1-changed\n')
     assert (tmp_path / '1.cfg').read_text() == 'conf1-changed\n'
-    assert raises(Fault, job.send_config, 'foo', '', 'nosuch', 'cfg')
+    pytest.raises(Fault, job.send_config, 'foo', '', 'nosuch', 'cfg')
 
     config = {
         'unit': 'foo',
@@ -103,5 +103,5 @@ def test_job(tmp_path):
         'configfiles': str(tmp_path / '1.cfg'),
     }
 
-    assert raises(RuntimeError, Job,
-                  'systemd', 'name', config, logger, lambda event: None)
+    pytest.raises(RuntimeError, Job,
+                  'systemd', 'name', config, logger, lambda _event: None)

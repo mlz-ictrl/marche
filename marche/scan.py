@@ -52,7 +52,7 @@ def scan(my_uid, max_wait=1.0):
     if netifaces:
         for iface in netifaces.interfaces():
             addrs = netifaces.ifaddresses(iface)
-            if netifaces.AF_INET in addrs and addrs[netifaces.AF_INET]:
+            if addrs.get(netifaces.AF_INET):
                 addr = addrs[netifaces.AF_INET][0]
                 if 'broadcast' in addr:
                     s.sendto(b'PING', (addr['broadcast'], UDP_PORT))
@@ -63,7 +63,7 @@ def scan(my_uid, max_wait=1.0):
         if res[0]:
             try:
                 msg, addr = s.recvfrom(1024)
-            except socket.error:  # pragma: no cover
+            except OSError:  # pragma: no cover
                 continue
             msg = msg.decode().split()
             if msg[0] != 'PONG':
@@ -75,13 +75,13 @@ def scan(my_uid, max_wait=1.0):
             try:
                 version = int(msg[1])
                 uid = msg[2]
-            except Exception:
+            except Exception:  # noqa: S112
                 continue
             if uid == my_uid:
                 continue
             try:
                 addr = socket.gethostbyaddr(addr[0])[0]
-            except socket.error:  # pragma: no cover
+            except OSError:  # pragma: no cover
                 addr = addr[0]
             if addr in seen:
                 continue

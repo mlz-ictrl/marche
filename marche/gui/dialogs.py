@@ -114,7 +114,7 @@ class PreferencesDialog(QDialog):
     @credentials.setter
     def credentials(self, value):
         self._creds = value
-        for host, _ in value.items():
+        for host in value:
             self.hostsList.addItem(host)
 
     @property
@@ -172,7 +172,7 @@ class PassiveScanDialog(QDialog):
         self.foundLbl.setText('Found 0 hosts running Marche.')
 
     def update(self, n):
-        self.foundLbl.setText('Found %d host(s) running Marche.' % n)
+        self.foundLbl.setText(f'Found {n} host(s) running Marche.')
 
     def run(self):
         scanner = PassiveScanner()

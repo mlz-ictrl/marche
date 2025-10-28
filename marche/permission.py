@@ -52,11 +52,12 @@ DISABLED = 30
 
 class ClientInfo:
     """Information about a client passed around to check permissions."""
+
     def __init__(self, level):
         self.level = level
 
     def __repr__(self):
-        return '<%s>' % LEVEL_STRINGS[self.level]
+        return f'<{LEVEL_STRINGS[self.level]}>'
 
 
 STRING_LEVELS = {
@@ -82,15 +83,15 @@ def parse_permissions(original, entry):
     It looks like (in TOML) e.g. ``{display="control", control="admin"}``.
     """
     if not isinstance(entry, dict):
-        raise ValueError('permissions option is not a dict')
+        raise ValueError('permissions option is not a dict')  # noqa: TRY004
     for level, req_level in entry.items():
         try:
             level = STRING_LEVELS[level.lower()]
         except KeyError:
-            raise ValueError('unrecognized permission level %r' % level) from None
+            raise ValueError(f'unrecognized permission level {level!r}') from None
         try:
             req_level = STRING_LEVELS[req_level.lower()]
         except KeyError:
-            raise ValueError('unrecognized permission level %r' % req_level) from None
+            raise ValueError(f'unrecognized permission level {req_level!r}') from None
         original[level] = req_level
     return original

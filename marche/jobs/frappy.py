@@ -100,7 +100,7 @@ class Job(BaseJob):
         try:
             nodes = [('frappy', fn.stem[:-4])
                      for fn in self._configdir.glob('*_cfg.py')]
-        except IOError:
+        except OSError:
             nodes = []
         self._services = sorted(nodes)
         BaseJob.init(self)
@@ -120,30 +120,30 @@ class Job(BaseJob):
         self._async_start(instance, self._format_cmd(
             self._RESTART_CMD, service, instance))
 
-    def service_status(self, service, instance):
+    def service_status(self, _service, instance):
         return self._async_status_systemd(instance, f'frappy@{instance}',
                                           self._control_tool)
 
-    def service_output(self, service, instance):
+    def service_output(self, _service, instance):
         return list(self._output.get(instance, []))
 
-    def service_logs(self, service, instance):
+    def service_logs(self, _service, instance):
         proc = self._sync_call(
             f'{self._JOURNAL_TOOL} -n 500 -u frappy@{instance}')
         return {'journal': ''.join(proc.stdout)}
 
-    def receive_config(self, service, instance):
+    def receive_config(self, _service, instance):
         cfgname = self._configdir / f'{instance}_cfg.py'
         # don't send conffiles which we can't write
         if os.access(cfgname, os.W_OK):
             return {instance + '_cfg.py': read_file(cfgname)}
         return {}
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, _service, instance, filename, contents):
         cfgname = self._configdir / f'{instance}_cfg.py'
         if filename != instance + '_cfg.py':
             raise Fault('invalid request')
         write_file(cfgname, contents)
 
-    def _format_cmd(self, cmd, service, instance):
+    def _format_cmd(self, cmd, _service, instance):
         return cmd.format(control_tool=self._control_tool, instance=instance)

@@ -77,7 +77,8 @@ A typical section looks like this::
     configfiles = /etc/dhcp/dhcpd.conf
 """
 
-from marche.jobs.base import ConfigMixin, Job as BaseJob, LogfileMixin
+from marche.jobs.base import ConfigMixin, LogfileMixin
+from marche.jobs.base import Job as BaseJob
 
 
 class Job(LogfileMixin, ConfigMixin, BaseJob):
@@ -92,7 +93,7 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
         self.configure_config_mixin(config)
 
     def check(self):
-        proc = self._sync_call(self.SYSTEMCTL + ' is-enabled %s' % self.unit)
+        proc = self._sync_call(f'{self.SYSTEMCTL} is-enabled {self.unit}')
         if (not proc.stdout and proc.stderr) or \
            (proc.stdout and proc.stdout[0].strip() == 'not-found'):
             self.log.warning('unit file for %s does not exist', self.unit)
@@ -102,22 +103,22 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
     def get_services(self):
         return [(self.unit, '')]
 
-    def service_description(self, service, instance):
+    def service_description(self, _service, _instance):
         return self.description
 
-    def start_service(self, service, instance):
-        self._async_start(service, self.SYSTEMCTL + ' start %s' % self.unit)
+    def start_service(self, service, _instance):
+        self._async_start(service, f'{self.SYSTEMCTL} start {self.unit}')
 
-    def stop_service(self, service, instance):
-        self._async_stop(service, self.SYSTEMCTL + ' stop %s' % self.unit)
+    def stop_service(self, service, _instance):
+        self._async_stop(service, f'{self.SYSTEMCTL} stop {self.unit}')
 
-    def restart_service(self, service, instance):
-        self._async_start(service, self.SYSTEMCTL + ' restart %s' % self.unit)
+    def restart_service(self, service, _instance):
+        self._async_start(service, f'{self.SYSTEMCTL} restart {self.unit}')
 
-    def service_status(self, service, instance):
+    def service_status(self, service, _instance):
         return self._async_status_systemd(service, self.unit, self.SYSTEMCTL)
 
-    def service_output(self, service, instance):
+    def service_output(self, service, _instance):
         return list(self._output.get(service, []))
 
     def service_logs(self, service, instance):

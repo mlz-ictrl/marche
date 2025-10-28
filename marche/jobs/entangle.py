@@ -68,8 +68,7 @@ except ImportError:
 
 from marche.jobs import DEAD, RUNNING, Fault
 from marche.jobs.base import Job as BaseJob
-from marche.utils import determine_init_system, extract_loglines, read_file, \
-    write_file
+from marche.utils import determine_init_system, extract_loglines, read_file, write_file
 
 
 class EntangleBaseJob(BaseJob):
@@ -104,13 +103,13 @@ class EntangleBaseJob(BaseJob):
     def init(self):
         substitutions = {
             'hostname': socket.gethostname().split('.')[0],
-            'macaddress': ':'.join(re.findall('..', '%012x' % uuid.getnode())),
+            'macaddress': ':'.join(re.findall('..', f'{uuid.getnode():012x}')),
         }
 
         try:
             with self._config.open(mode='rb') as fp:
                 cfg = tomllib.load(fp)
-        except IOError:  # let TOML errors pass through
+        except OSError:  # let TOML errors pass through
             cfg = {}
 
         section = cfg.get('entangle', {})
@@ -143,30 +142,30 @@ class EntangleBaseJob(BaseJob):
     def service_status(self, service, instance):
         return self._async_status_exitcode(
             instance,
-            self._format_cmd(self.STATUS_CMD, service, instance)
+            self._format_cmd(self.STATUS_CMD, service, instance),
         )
 
-    def service_output(self, service, instance):
+    def service_output(self, _service, instance):
         return list(self._output.get(instance, []))
 
-    def service_logs(self, service, instance):
+    def service_logs(self, _service, instance):
         logname = self._logdir / instance / 'current'
         return extract_loglines(logname)
 
-    def receive_config(self, service, instance):
+    def receive_config(self, _service, instance):
         cfgname = self._resdir / f'{instance}.res'
         # don't send conffiles which we can't write
         if os.access(cfgname, os.W_OK):
             return {instance + '.res': read_file(cfgname)}
         return {}
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, _service, instance, filename, contents):
         cfgname = self._resdir / f'{instance}.res'
         if filename != instance + '.res':
             raise Fault('invalid request')
         write_file(cfgname, contents)
 
-    def _format_cmd(self, cmd, service, instance):
+    def _format_cmd(self, cmd, _service, instance):
         return cmd.format(control_tool=self._control_tool, instance=instance)
 
 
@@ -174,7 +173,7 @@ class InitJob(EntangleBaseJob):
     def all_service_status(self):
         result = {}
         initstates = {}
-        for line in self._sync_call('%s status' % self._control_tool).stdout:
+        for line in self._sync_call(f'{self._control_tool} status').stdout:
             if ':' not in line:
                 continue
             name, state = line.split(':', 1)
@@ -193,12 +192,11 @@ class SystemdJob(EntangleBaseJob):
     RESTART_CMD = '{control_tool} restart entangle@{instance}'
     JOURNAL_TOOL = 'journalctl'
 
-    def service_logs(self, service, instance):
-        proc = self._sync_call('%s -n 500 -u entangle@%s' %
-                               (self.JOURNAL_TOOL, instance))
+    def service_logs(self, _service, instance):
+        proc = self._sync_call(f'{self.JOURNAL_TOOL} -n 500 -u entangle@{instance}')
         return {'journal': ''.join(proc.stdout)}
 
-    def service_status(self, service, instance):
+    def service_status(self, _service, instance):
         return self._async_status_systemd(instance, f'entangle@{instance}',
                                           self._control_tool)
 

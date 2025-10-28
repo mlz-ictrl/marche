@@ -26,12 +26,14 @@
 import logging
 import sys
 
-from pytest import fixture, raises
+import pytest
 
 from marche.jobs import RUNNING, Fault
 from marche.jobs.entangle import InitJob, Job, SystemdJob
 from marche.utils import determine_init_system
 from test.utils import job_call_check
+
+# ruff: noqa: SLF001
 
 logger = logging.getLogger('testentangle')
 
@@ -60,7 +62,7 @@ test/my/dev/type: rs232.StringIO
 '''
 
 
-@fixture(scope='function')
+@pytest.fixture
 def tempconf(tmp_path):
     scriptfile = tmp_path / 'script.py'
     scriptfile.write_text(SCRIPT)
@@ -82,7 +84,7 @@ def test_systemd_job(tempconf):
 
 
 def test_job():
-    job = Job('entangle', 'name', {}, logger, lambda event: None)
+    job = Job('entangle', 'name', {}, logger, lambda _event: None)
     if determine_init_system() == 'systemd':
         assert isinstance(job, SystemdJob)
     else:
@@ -93,12 +95,12 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
     tmpdir, scriptfile, configfile = tempconf
 
     job = jobcls('entangle', 'name', {'controltool': 'does/not/exist'},
-                 logger, lambda event: None)
+                 logger, lambda _event: None)
     assert not job.check()
 
     job = jobcls('entangle', 'name', {'configfile': str(configfile),
                                       'controltool': sys.executable},
-                 logger, lambda event: None)
+                 logger, lambda _event: None)
     assert job.check()
     job._control_tool = sys.executable + ' -S ' + str(scriptfile)
     job.JOURNAL_TOOL = job._control_tool
@@ -112,13 +114,13 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
     assert all_st['entangle', 'mysrv'][0] == RUNNING
 
     job_call_check(job, 'entangle', 'mysrv',
-                   'action %smysrv' % prefix, [prefix + 'mysrv', 'action'])
+                   f'action {prefix}mysrv', [prefix + 'mysrv', 'action'])
 
     logs = job.service_logs('entangle', 'mysrv')
     assert list(logs.values()) == ['log1\nlog2\n']
 
     configs = job.receive_config('entangle', 'mysrv')
     assert configs == {'mysrv.res': RES}
-    assert raises(Fault, job.send_config, 'entangle', 'mysrv', 'other.res', '')
+    pytest.raises(Fault, job.send_config, 'entangle', 'mysrv', 'other.res', '')
     job.send_config('entangle', 'mysrv', 'mysrv.res', RES + 'foo\n')
     assert (tmpdir / 'mysrv.res').read_text() == RES + 'foo\n'

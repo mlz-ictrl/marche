@@ -30,6 +30,8 @@ from marche.jobs import DEAD, NOT_RUNNING, RUNNING
 from marche.jobs.process import Job, ProcessMonitor
 from test.utils import wait
 
+# ruff: noqa: SLF001
+
 ProcessMonitor.DELAY = 0.01
 
 logger = logging.getLogger('testprocess')
@@ -54,7 +56,7 @@ def test_job(tmp_path):
         'autostart': True,
     }
 
-    job = Job('process', 'name', config, logger, lambda event: None)
+    job = Job('process', 'name', config, logger, lambda _event: None)
     assert job.check()
     job.init()
 
@@ -87,7 +89,7 @@ def test_oneshot():
         'description': 'descr',
     }
 
-    job = Job('process', 'name', config, logger, lambda event: None)
+    job = Job('process', 'name', config, logger, lambda _event: None)
     assert job.check()
     job.init()
 
@@ -102,8 +104,8 @@ def test_oneshot():
 
 def test_check():
     config = {
-        'cmdline': ['nonexisting_binary']
+        'cmdline': ['nonexisting_binary'],
     }
 
-    job = Job('process', 'name', config, logger, lambda event: None)
+    job = Job('process', 'name', config, logger, lambda _event: None)
     assert not job.check()

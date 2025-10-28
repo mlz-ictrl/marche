@@ -26,11 +26,13 @@
 import logging
 import sys
 
-from pytest import fixture, raises
+import pytest
 
 from marche.jobs import RUNNING, Fault
 from marche.jobs.frappy import Job
 from test.utils import job_call_check
+
+# ruff: noqa: SLF001
 
 logger = logging.getLogger('testfrappy')
 
@@ -53,7 +55,7 @@ test/my/dev/type: rs232.StringIO
 '''
 
 
-@fixture(scope='function')
+@pytest.fixture
 def tempconf(tmp_path):
     scriptfile = tmp_path / 'script.py'
     scriptfile.write_text(SCRIPT)
@@ -68,12 +70,12 @@ def test_job(tempconf):
     tmpdir, scriptfile = tempconf
 
     job = Job('frappy', 'name', {'controltool': 'does/not/exist'},
-              logger, lambda event: None)
+              logger, lambda _event: None)
     assert not job.check()
 
     job = Job('frappy', 'name', {'configdir': tmpdir,
                                  'controltool': sys.executable},
-              logger, lambda event: None)
+              logger, lambda _event: None)
     assert job.check()
     job._control_tool = f'{sys.executable} -S {scriptfile}'
     job._JOURNAL_TOOL = job._control_tool
@@ -93,7 +95,7 @@ def test_job(tempconf):
 
     configs = job.receive_config('frappy', 'mynode')
     assert configs == {'mynode_cfg.py': RES}
-    assert raises(Fault, job.send_config, 'frappy', 'mynode',
+    pytest.raises(Fault, job.send_config, 'frappy', 'mynode',
                   'other_cfg.py', '')
     job.send_config('frappy', 'mynode', 'mynode_cfg.py', RES + 'foo\n')
     assert (tmpdir / 'mynode_cfg.py').read_text() == RES + 'foo\n'

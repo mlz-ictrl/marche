@@ -46,7 +46,7 @@ def main(argv=None):
     args = parse_args(argv[1:])
 
     app = QApplication(argv)
-    app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, False)
+    app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, False)  # noqa: FBT003
     app.setOrganizationName('mlz')
     app.setApplicationName('marche-gui')
 

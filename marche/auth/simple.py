@@ -76,3 +76,4 @@ class Authenticator(BaseAuthenticator):
         if user == self.username and \
            bcrypt.checkpw(passwd.encode(), self.pwhash):
             return ClientInfo(self.level)
+        return None

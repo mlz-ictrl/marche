@@ -23,10 +23,28 @@
 # *****************************************************************************
 
 from marche.gui.buttons import JobButtons, MultiJobButtons
-from marche.gui.qt import QBrush, QColor, QHeaderView, QIcon, QMessageBox, \
-    QSize, Qt, QTreeWidget, QTreeWidgetItem
-from marche.jobs import DEAD, INITIALIZING, NOT_AVAILABLE, NOT_RUNNING, \
-    RUNNING, STARTING, STATE_STR, STOPPING, WARNING
+from marche.gui.qt import (
+    QBrush,
+    QColor,
+    QHeaderView,
+    QIcon,
+    QMessageBox,
+    QSize,
+    Qt,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
+from marche.jobs import (
+    DEAD,
+    INITIALIZING,
+    NOT_AVAILABLE,
+    NOT_RUNNING,
+    RUNNING,
+    STARTING,
+    STATE_STR,
+    STOPPING,
+    WARNING,
+)
 
 STATE_COLORS = {
     RUNNING: ('green', ''),
@@ -146,10 +164,11 @@ class HostTree(QTreeWidget):
         model = self.model()
         # block dataChanged signals while updating items; this avoids
         # potentially hundreds of emitted signals and treeview updates
-        model.blockSignals(True)
+        model.blockSignals(True)  # noqa: FBT003
         try:
             if data is None:
-                return self.updateStatus(None, None, NOT_AVAILABLE, '')
+                self.updateStatus(None, None, NOT_AVAILABLE, '')
+                return
             for service, svcinfo in data.items():
                 for instance, instinfo in svcinfo['instances'].items():
                     self.updateStatus(service, instance, instinfo['state'],
@@ -157,14 +176,14 @@ class HostTree(QTreeWidget):
             for service in self._virt_items:
                 self.updateParentItem(self._virt_items[service])
         finally:
-            model.blockSignals(False)
+            model.blockSignals(False)  # noqa: FBT003
         # finally, emit a signal that *all* data may have changed
         model.dataChanged.emit(
             model.index(0, 0),
-            model.index(model.rowCount() - 1, model.columnCount() - 1)
+            model.index(model.rowCount() - 1, model.columnCount() - 1),
         )
 
-    def updateStatus(self, service, instance, status, info, parent=True):
+    def updateStatus(self, service, instance, status, info, *, parent=True):
         if service is instance is None:
             for (svc, inst) in self._items:
                 self.updateStatus(svc, inst, status, info)
@@ -207,10 +226,10 @@ class HostTree(QTreeWidget):
             colors = STATE_COLORS.get(status, ('gray', ''))
             item.setForeground(1, self._brushes[colors[0]])
             item.setBackground(1, self._brushes[colors[1]])
-            item.setText(1, 'ALL %d %s' % (total, STATE_STR[status]))
+            item.setText(1, f'ALL {total} {STATE_STR[status]}')
         else:
-            item.setText(1, '%d/%d RUNNING' %
-                         (statuses.get(RUNNING, 0), total))
+            running = statuses.get(RUNNING, 0)
+            item.setText(1, f'{running}/{total} RUNNING')
             item.setForeground(1, self._brushes['black'])
             item.setBackground(1, self._brushes['#ffcccc'])
 
@@ -220,6 +239,5 @@ class HostTree(QTreeWidget):
 
     def on_itemClicked(self, item, index):
         # when clicking on the error column, show the whole error in a dialog
-        if index == 3:
-            if item.text(3):
-                QMessageBox.warning(self, 'Error view', item.text(3))
+        if index == 3 and item.text(3):
+            QMessageBox.warning(self, 'Error view', item.text(3))

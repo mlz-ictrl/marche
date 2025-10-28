@@ -36,8 +36,9 @@ from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
 
 
-class lazy_property:
+class lazy_property:  # noqa: N801
     """A property that calculates its value only once."""
+
     def __init__(self, func):
         self._func = func
         self.__name__ = func.__name__
@@ -57,7 +58,7 @@ if os.name == 'nt':  # pragma: no cover
         def __init__(self):
             self.fds = []
 
-        def register(self, fp, opt):
+        def register(self, fp, _opt):
             self.fds.append(fp.fileno())
 
         def poll(self, _timeout):
@@ -70,7 +71,7 @@ else:
 
 
 class AsyncProcess(Thread):
-    def __init__(self, status, log, cmd, sh=True, stdout=None, stderr=None,
+    def __init__(self, status, log, cmd, stdout=None, stderr=None, *, sh=True,
                  timeout=5.0):
         Thread.__init__(self, daemon=True)
 
@@ -92,9 +93,7 @@ class AsyncProcess(Thread):
         started = time.time()
 
         def poll_output():
-            """
-            Read, log and store output (if any) from processes pipes.
-            """
+            """Read, log and store output (if any) from processes pipes."""
             # collect fds with new output
             fds = [entry[0] for entry in poller.poll(1000)]
 
@@ -160,7 +159,7 @@ def extract_loglines(fpath, n=500):
                 # For very long files, skipping over all unneeded lines can
                 # take a while.  Set a limit on average line length instead.
                 fp.seek(-1000 * n, 2)
-            except IOError:
+            except OSError:
                 pass  # the file is too short
             for line in fp:
                 line = line.decode('latin1', 'ignore')
@@ -187,7 +186,7 @@ def normalize_addr(addr, defport):
     host, port = addr.split(':')
     try:
         host = socket.getfqdn(host)
-    except socket.error:  # pragma: no cover
+    except OSError:  # pragma: no cover
         pass
     return host, port
 
@@ -209,13 +208,6 @@ def get_default_cfgdir():  # pragma: no cover
     if os.name == 'nt':
         return Path(sys.prefix) / 'etc' / 'marche'
     return Path('/etc/marche')
-
-
-def bytencode(s):  # pragma: no cover
-    """Encode to bytes if not already."""
-    if not isinstance(s, bytes):
-        return s.encode('utf-8')
-    return s
 
 
 INIT_PKG_REQUESTS = [
@@ -274,8 +266,8 @@ _colors = [
 ]
 
 for _i, (_dark, _light) in enumerate(_colors):
-    _codes[_dark] = '\x1b[%im' % (_i + 30)
-    _codes[_light] = '\x1b[%i;01m' % (_i + 30)
+    _codes[_dark] = f'\x1b[{_i + 30}m'
+    _codes[_light] = f'\x1b[{_i + 30};01m'
 
 
 def colorize(name, text):

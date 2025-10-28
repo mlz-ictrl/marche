@@ -73,11 +73,9 @@ try:
 except ImportError:
     import tomli as tomllib
 
-from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, SYSTEMD_STATE_MAP, \
-    WARNING, Fault
+from marche.jobs import DEAD, NOT_AVAILABLE, RUNNING, SYSTEMD_STATE_MAP, WARNING, Fault
 from marche.jobs.base import Job as BaseJob
-from marche.utils import determine_init_system, extract_loglines, read_file, \
-    write_file
+from marche.utils import determine_init_system, extract_loglines, read_file, write_file
 
 
 class NicosBaseJob(BaseJob):
@@ -95,10 +93,10 @@ class NicosBaseJob(BaseJob):
     def get_services(self):
         return self._services
 
-    def service_output(self, service, instance):
+    def service_output(self, _service, instance):
         return list(self._output.get(instance, []))
 
-    def service_logs(self, service, instance):
+    def service_logs(self, _service, instance):
         if self._logpath is None:
             # extract nicos log directory from nicos.conf
             conffile = self._root / 'nicos.conf'
@@ -120,7 +118,7 @@ class NicosBaseJob(BaseJob):
             return result
         return extract_loglines(self._logpath / instance / 'current')
 
-    def receive_config(self, service, instance):
+    def receive_config(self, _service, instance):
         if instance not in ('', 'daemon'):
             return {}
         if self._setup_path is None:
@@ -135,7 +133,7 @@ class NicosBaseJob(BaseJob):
                 result[candidate.name] = read_file(candidate)
         return result
 
-    def send_config(self, service, instance, filename, contents):
+    def send_config(self, _service, _instance, filename, contents):
         if self._setup_path is None:
             raise Fault('no setup path configured')
         setup_path = Path(self._setup_path)
@@ -174,16 +172,16 @@ class InitJob(NicosBaseJob):
                                   lines[-1][len(prefix):].split(','))
         BaseJob.init(self)
 
-    def start_service(self, service, instance):
+    def start_service(self, _service, instance):
         return self._async_start(instance, f'{self._script} start {instance}')
 
-    def stop_service(self, service, instance):
+    def stop_service(self, _service, instance):
         return self._async_stop(instance, f'{self._script} stop {instance}')
 
-    def restart_service(self, service, instance):
+    def restart_service(self, _service, instance):
         return self._async_start(instance, f'{self._script} restart {instance}')
 
-    def service_status(self, service, instance):
+    def service_status(self, _service, instance):
         async_st = self._async_status_only(instance)
         if async_st is not None:
             return async_st
@@ -282,19 +280,19 @@ class SystemdJob(NicosBaseJob):
                     self._services.append(('nicos', instance))
         return self._services
 
-    def start_service(self, service, instance):
+    def start_service(self, _service, instance):
         if instance:
             self._async_start(instance, f'systemctl start nicos-{instance}')
         else:
             self._async_start(instance, 'systemctl start nicos.target')
 
-    def stop_service(self, service, instance):
+    def stop_service(self, _service, instance):
         if instance:
             self._async_stop(instance, f'systemctl stop nicos-{instance}')
         else:
             self._async_stop(instance, 'systemctl stop nicos.target')
 
-    def restart_service(self, service, instance):
+    def restart_service(self, _service, instance):
         if instance:
             self._async_start(instance, f'systemctl restart nicos-{instance}')
         else:

@@ -73,9 +73,7 @@ import hashlib
 import pamela
 
 from marche.auth.base import Authenticator as BaseAuthenticator
-from marche.permission import ADMIN, CONTROL, DISPLAY, NONE, STRING_LEVELS, \
-    ClientInfo
-from marche.utils import bytencode
+from marche.permission import ADMIN, CONTROL, DISPLAY, NONE, STRING_LEVELS, ClientInfo
 
 
 class Authenticator(BaseAuthenticator):
@@ -91,7 +89,7 @@ class Authenticator(BaseAuthenticator):
             config.get('defaultlevel', 'display').lower()]
 
     def authenticate(self, user, passwd):
-        key = hashlib.sha1(bytencode(user + ':' + passwd)).digest()
+        key = hashlib.sha1((user + ':' + passwd).encode()).digest()  # noqa: S324
         if key not in self._cache:
             try:
                 pamela.authenticate(user, passwd, self.service)

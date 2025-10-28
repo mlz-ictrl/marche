@@ -47,7 +47,7 @@ except ImportError:
 logging.logMultiprocessing = False
 logging.logProcesses = False
 logging.logThreads = False
-logging._srcfile = None
+logging._srcfile = None  # noqa: SLF001
 
 
 class Daemon:
@@ -66,10 +66,10 @@ class Daemon:
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--version', action='version',
-                            version='Marche daemon version v%s' % __version__)
+                            version=f'Marche daemon version v{__version__}')
         parser.add_argument('-c', dest='configdir', action='store', type=Path,
                             default=default_cfgdir, help='configuration '
-                            'directory (default %s)' % default_cfgdir)
+                            f'directory (default {default_cfgdir})')
         parser.add_argument('-D', dest='systemd', action='store_true',
                             help='run in systemd mode (log to journal, notify '
                             'after startup)')
@@ -126,8 +126,7 @@ class Daemon:
 
         for interface in self.config.iface_config:
             try:
-                mod = __import__('marche.iface.%s' % interface, {}, {},
-                                 ['Interface'])
+                mod = __import__(f'marche.iface.{interface}', {}, {}, ['Interface'])
             except Exception as err:
                 self.log.exception('could not import interface %r: %s',
                                    interface, err)
@@ -144,15 +143,15 @@ class Daemon:
                                    interface, err)
                 continue
 
-        signal.signal(signal.SIGTERM, lambda *a: setattr(self, 'stop', True))
+        signal.signal(signal.SIGTERM, lambda *_a: setattr(self, 'stop', True))
         if hasattr(signal, 'SIGUSR1'):
             signal.signal(signal.SIGUSR1,
-                          lambda *a: jobhandler.trigger_reload())
+                          lambda *_a: jobhandler.trigger_reload())
 
         self.log.info('startup successful')
         # notify systemd about startup
         if self.args.systemd:
-            systemd.daemon.notify("READY=1")
+            systemd.daemon.notify('READY=1')
 
         self.wait()
 

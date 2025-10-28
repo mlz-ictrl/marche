@@ -29,12 +29,18 @@ from collections import OrderedDict
 
 from marche.jobs import Busy, Denied, Fault
 from marche.permission import ADMIN, CONTROL, DISPLAY
-from marche.protocol import ConffileResponse, ControlOutputResponse, \
-    FoundHostResponse, LogfileResponse, ServiceListResponse, StatusResponse
+from marche.protocol import (
+    ConffileResponse,
+    ControlOutputResponse,
+    FoundHostResponse,
+    LogfileResponse,
+    ServiceListResponse,
+    StatusResponse,
+)
 from marche.scan import scan_async
 
 
-def command(silent=False):
+def command(*, silent=False):
     def deco(f):
         def new_f(self, *args):
             if silent:
@@ -95,10 +101,10 @@ class JobHandler:
                 continue
             jobtype = config['type']
             try:
-                mod = __import__('marche.jobs.%s' % jobtype, {}, {}, 'Job')
+                mod = __import__(f'marche.jobs.{jobtype}', {}, {}, 'Job')
             except Exception as err:
-                self.log.exception('could not import module %r for job %s: %s'
-                                   % (jobtype, name, err))
+                self.log.exception('could not import module %r for job %s: %s',
+                                   jobtype, name, err)
                 continue
             try:
                 job = mod.Job(jobtype, name, config, self.log, self.emit_event)
@@ -110,22 +116,21 @@ class JobHandler:
                 for service, instance in job.get_services():
                     other = self.service2job.get(service)
                     if other and other is not job:
-                        raise RuntimeError('duplicate service %r, '
-                                           'provided by jobs %s and %s' %
-                                           (service, name, other.name))
+                        raise RuntimeError(f'duplicate service {service}, '
+                                           f'provided by jobs {name} and {other.name}')
                     self.service2job[service] = job
                     self.log.info('found service: %s.%s', service, instance)
                 self.jobs[name] = job
             except Exception as err:
-                self.log.exception('could not initialize job %s: %s' %
-                                   (name, err))
+                self.log.exception('could not initialize job %s: %s',
+                                   name, err)
 
     def _get_job(self, service):
         """Return the job the service belongs to."""
         try:
             return self.service2job[service]
         except KeyError:
-            raise Fault('no such service: %s' % service) from None
+            raise Fault(f'no such service: {service}') from None
 
     def emit_event(self, event):
         """Emit an event to all connected clients."""
@@ -157,7 +162,8 @@ class JobHandler:
     def request_service_list(self, client):
         """Request a list of all services provided by jobs.
 
-        The service list is sent back as a single ServiceListResponse."""
+        The service list is sent back as a single ServiceListResponse.
+        """
         svcs = OrderedDict()
         for job in self.jobs.values():
             for service, instance in job.get_services():

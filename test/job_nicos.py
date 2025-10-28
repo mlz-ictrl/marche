@@ -26,11 +26,13 @@
 import logging
 import sys
 
-from pytest import raises
+import pytest
 
 from marche.jobs import DEAD, RUNNING, WARNING, Fault
 from marche.jobs.nicos import Job
 from test.utils import job_call_check
+
+# ruff: noqa: SLF001
 
 logger = logging.getLogger('testnicos')
 
@@ -79,14 +81,14 @@ def test_job(tmp_path):
     (tmp_path / 'log' / 'cache' / 'current').write_text('log1\nlog2\n')
 
     Job.DEFAULT_INIT = 'does/not/exist'
-    job = Job('nicos', 'name', {}, logger, lambda event: None)
+    job = Job('nicos', 'name', {}, logger, lambda _event: None)
     assert not job.check()
 
     (tmp_path / 'nicos.conf').write_text('[nicos]\nlogging_path = "%s"\n' %
                                          (tmp_path / 'log'))
 
     job = Job('nicos', 'name', {'root': str(tmp_path)},
-              logger, lambda event: None)
+              logger, lambda _event: None)
     assert job.check()
     job._script = f'{sys.executable} -S {job._script}'
     job.init()
@@ -102,14 +104,14 @@ def test_job(tmp_path):
     assert list(logs.values()) == ['log1\nlog2\n']
 
     assert job.receive_config('nicos', 'cache') == {}
-    assert raises(Fault, job.send_config, 'nicos', 'cache', 'file', 'contents')
+    pytest.raises(Fault, job.send_config, 'nicos', 'cache', 'file', 'contents')
 
     job._script = f'{sys.executable} -S {tmp_path / "nicos-system2"}'
     assert job.service_status('nicos', '')[0] == WARNING
 
     assert job.all_service_status() == {
         ('nicos', ''): (WARNING, 'only some services running'),
-        ('nicos', 'cache'): (RUNNING, '')
+        ('nicos', 'cache'): (RUNNING, ''),
     }
 
     job._script = f'{sys.executable} -S {tmp_path / "nicos-system3"}'
@@ -117,11 +119,11 @@ def test_job(tmp_path):
 
     assert job.all_service_status() == {
         ('nicos', ''): (DEAD, ''),
-        ('nicos', 'cache'): (DEAD, '')
+        ('nicos', 'cache'): (DEAD, ''),
     }
 
     job._script = f'{sys.executable} -S {tmp_path / "nicos-system4"}'
     assert job.all_service_status() == {
         ('nicos', ''): (RUNNING, ''),
-        ('nicos', 'cache'): (RUNNING, '')
+        ('nicos', 'cache'): (RUNNING, ''),
     }
