@@ -135,7 +135,7 @@ class ProcessMonitor(Thread):
         else:  # pragma: no cover
             outfile = sys.stdout
             if hasattr(outfile, 'buffer'):
-                outfile = outfile.buffer  # pylint: disable=no-member
+                outfile = outfile.buffer
         process = Popen(self._cmd, stdout=outfile, stderr=STDOUT, cwd=self._wd)
         while process.poll() is None:
             sleep(self.DELAY)

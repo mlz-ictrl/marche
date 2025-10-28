@@ -47,7 +47,7 @@ except ImportError:
 logging.logMultiprocessing = False
 logging.logProcesses = False
 logging.logThreads = False
-logging._srcfile = None  # pylint: disable=protected-access
+logging._srcfile = None
 
 
 class Daemon:

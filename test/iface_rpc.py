@@ -44,7 +44,7 @@ Interface.poll_interval = 0.05
 
 
 @fixture(scope='module')
-def xmlrpc_iface(request):  # pylint: disable=unused-argument
+def xmlrpc_iface(request):
     """Create a Marche XMLRPC interface."""
     config = Config()
     config.iface_config['rpc'] = {'addr': '127.0.0.1:0'}
