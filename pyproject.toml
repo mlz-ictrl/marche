@@ -32,7 +32,6 @@ dependencies = [
     "tomli; python_version < '3.11'",
     "bcrypt",
     "psutil",
-    "ipaddress",
     "mlzlog",
     "netifaces",
     "requests",
