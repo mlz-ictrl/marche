@@ -106,7 +106,7 @@ class JobHandler:
                     job.log.error('feasibility check failed')
                     continue
                 job.init()
-                self.log.info('job %s initialized', name)
+                job.log.info('job initialized')
                 for service, instance in job.get_services():
                     other = self.service2job.get(service)
                     if other and other is not job:
