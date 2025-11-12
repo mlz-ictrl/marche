@@ -41,7 +41,8 @@ This job has the following configuration parameters:
    .. describe:: configdir
 
       Directory where the Frappy configuration files are located.  Default is
-      ``"/etc/frappy"``.
+      ``"/etc/frappy"``, or the confdir set in the FRAPPY section of
+      ``"/etc/frappy/generalConfig.cfg"``, if it exists.
 
    .. describe:: permissions
                  pollinterval
@@ -53,6 +54,7 @@ This job has the following configuration parameters:
    like available servers and their logfiles from there.
 """
 
+import configparser
 import os
 from pathlib import Path
 
@@ -62,6 +64,7 @@ from marche.utils import read_file, write_file
 
 
 class Job(BaseJob):
+    GEN_CONFIG = '/etc/frappy/generalConfig.cfg'
     DEFAULT_CONFIG = '/etc/frappy'
     DEFAULT_CONTROL_TOOL = '/bin/systemctl'
     _START_CMD = '{control_tool} start frappy@{instance}'
@@ -70,7 +73,17 @@ class Job(BaseJob):
     _JOURNAL_TOOL = 'journalctl'
 
     def configure(self, config):
-        self._configdir = Path(config.get('configdir', self.DEFAULT_CONFIG))
+        self._configdir = Path(self.DEFAULT_CONFIG)
+        configured = config.get('configdir')
+        if configured:
+            self._configdir = Path(configured)
+        elif Path(self.GEN_CONFIG).is_file():
+            cfg = configparser.ConfigParser()
+            cfg.optionxform = str
+            cfg.read([self.GEN_CONFIG])
+            configured = cfg.get('FRAPPY', 'confdir', fallback=None)
+            if configured:
+                self._configdir = Path(configured)
         self._control_tool = Path(config.get('controltool',
                                              self.DEFAULT_CONTROL_TOOL))
 
