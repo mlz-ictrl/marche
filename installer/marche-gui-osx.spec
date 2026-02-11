@@ -1,21 +1,15 @@
 # -*- mode: python -*-
 
 from pathlib import Path
-import subprocess
-import sys
 
 rootdir = str(Path('..').resolve())
 guidir = f'{rootdir}/marche/gui'
-versionfile = f'{rootdir}/marche/RELEASE-VERSION'
-
-# Make sure to generate the version file.
-version = subprocess.check_output([sys.executable, f'{rootdir}/marche/version.py'])
 
 a = Analysis(
     [f'{rootdir}/bin/marche-gui'],
     pathex=[rootdir],
     binaries=[],
-    datas=[(f'{guidir}/ui/*.ui', 'marche/gui/ui'), (versionfile, 'marche')],
+    datas=[(f'{guidir}/ui/*.ui', 'marche/gui/ui')],
     hiddenimports=['xmlrpc', 'marche.gui.res'],
     hookspath=[],
     runtime_hooks=[],
