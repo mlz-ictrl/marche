@@ -1,3 +1,10 @@
+marche (5.2.0) stable; urgency=medium
+
+  * add and fix ruff lints
+  * installer: fix and simplify spec files
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Wed, 11 Feb 2026 14:14:54 +0100
+
 marche (5.1.2) stable; urgency=medium
 
   * bump minimum setuptools versions
