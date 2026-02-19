@@ -32,6 +32,8 @@ from marche.jobs import RUNNING, Fault
 from marche.jobs.systemd import Job
 from test.utils import job_call_check
 
+# ruff: noqa: SLF001
+
 logger = logging.getLogger('testsystemd')
 
 SCRIPT = '''\
@@ -54,7 +56,7 @@ def test_job(tmp_path):
     scriptfile.write_text(SCRIPT)
 
     Job.SYSTEMCTL = f'{sys.executable} -S {scriptfile} systemctl'
-    Job.JOURNALCTL = f'{sys.executable} -S {scriptfile} journalctl'
+    Job._JOURNALCTL = f'{sys.executable} -S {scriptfile} journalctl'
 
     job = Job('systemd', 'name', {'unit': 'nope'}, logger, lambda _event: None)
     assert not job.check()

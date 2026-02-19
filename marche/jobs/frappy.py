@@ -70,7 +70,6 @@ class Job(BaseJob):
     _START_CMD = '{control_tool} start frappy@{instance}'
     _STOP_CMD = '{control_tool} stop frappy@{instance}'
     _RESTART_CMD = '{control_tool} restart frappy@{instance}'
-    _JOURNAL_TOOL = 'journalctl'
 
     def configure(self, config):
         self._configdir = Path(self.DEFAULT_CONFIG)
@@ -128,9 +127,7 @@ class Job(BaseJob):
         return list(self._output.get(instance, []))
 
     def service_logs(self, _service, instance):
-        proc = self._sync_call(
-            f'{self._JOURNAL_TOOL} -n 500 -u frappy@{instance}')
-        return {'journal': ''.join(proc.stdout)}
+        return self._journalctl_logs(f'frappy@{instance}')
 
     def receive_config(self, _service, instance):
         cfgname = self._configdir / f'{instance}_cfg.py'

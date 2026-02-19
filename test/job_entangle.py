@@ -103,7 +103,7 @@ def _test_job_cls(jobcls, tempconf, prefix=''):
                  logger, lambda _event: None)
     assert job.check()
     job._control_tool = sys.executable + ' -S ' + str(scriptfile)
-    job.JOURNAL_TOOL = job._control_tool
+    job._JOURNALCTL = job._control_tool
     job.init()
 
     assert job.get_services() == [('entangle', 'mysrv')]

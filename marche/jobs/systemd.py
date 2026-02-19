@@ -84,7 +84,6 @@ from marche.jobs.base import Job as BaseJob
 class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     SYSTEMCTL = 'systemctl'
-    JOURNALCTL = 'journalctl'
 
     def configure(self, config):
         self.unit = config.get('unit', self.name)
@@ -123,6 +122,5 @@ class Job(LogfileMixin, ConfigMixin, BaseJob):
 
     def service_logs(self, service, instance):
         if not self.log_files:
-            proc = self._sync_call(f'{self.JOURNALCTL} -n 500 -u {self.unit}')
-            return {'journal': ''.join(proc.stdout)}
+            return self._journalctl_logs(f'{self.unit}')
         return LogfileMixin.service_logs(self, service, instance)

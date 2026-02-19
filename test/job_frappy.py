@@ -78,7 +78,7 @@ def test_job(tempconf):
               logger, lambda _event: None)
     assert job.check()
     job._control_tool = f'{sys.executable} -S {scriptfile}'
-    job._JOURNAL_TOOL = job._control_tool
+    job._JOURNALCTL = job._control_tool
     job.init()
 
     assert job.get_services() == [('frappy', 'mynode')]

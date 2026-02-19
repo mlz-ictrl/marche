@@ -25,6 +25,7 @@
 """Utilities for the package."""
 
 import collections
+import json
 import os
 import re
 import select
@@ -33,7 +34,7 @@ import sys
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
-from time import monotonic
+from time import localtime, monotonic, strftime
 
 
 class lazy_property:  # noqa: N801
@@ -178,6 +179,33 @@ def extract_loglines(fpath, n=500):
         result[str(new)] = extract(new)
         i += 1
     return result
+
+
+SYSLOG_PRIO = {
+    '0': 'emerg',
+    '1': 'alert',
+    '2': 'crit ',
+    '3': 'error',
+    '4': 'warn ',
+    '5': 'note ',
+    '6': 'info ',
+    '7': 'debug',
+}
+
+
+def convert_journalctl_logs(output):
+    for line in output:
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:  # noqa: PERF203
+            yield line
+        else:
+            ts = int(entry.get('_SOURCE_REALTIME_TIMESTAMP',
+                               entry['__REALTIME_TIMESTAMP']))
+            fmt_time = strftime('%Y-%m-%d %H:%M:%S', localtime(ts / 1e6))
+            yield (f'[{entry.get("_PID", "?")}] {fmt_time} '
+                   f'{SYSLOG_PRIO.get(entry.get("PRIORITY", ""), "?")}: '
+                   f'{entry.get("MESSAGE", "?")}\n')
 
 
 def normalize_addr(addr, defport):

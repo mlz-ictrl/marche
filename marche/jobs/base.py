@@ -40,7 +40,13 @@ from marche.jobs import (
 )
 from marche.permission import ADMIN, CONTROL, DISPLAY, parse_permissions
 from marche.polling import Poller
-from marche.utils import AsyncProcess, extract_loglines, read_file, write_file
+from marche.utils import (
+    AsyncProcess,
+    convert_journalctl_logs,
+    extract_loglines,
+    read_file,
+    write_file,
+)
 
 
 class Job:
@@ -100,6 +106,8 @@ class Job:
 
     # Utilities
 
+    _JOURNALCTL = 'journalctl'
+
     def _async_call(self, status, cmd, *, sh=True, output=None):
         if output is not None:
             output.append(f'$ {cmd}\n')
@@ -151,6 +159,12 @@ class Job:
         result = self._sync_call(cmd).stdout[0].strip()[9:]
         return SYSTEMD_STATE_MAP.get(result, DEAD), \
             result if result != 'running' else ''
+
+    def _journalctl_logs(self, unit, n=500):
+        cmd = (f'{self._JOURNALCTL} -n {n} -o json -u {unit} --output-fields='
+               'PRIORITY,_PID,MESSAGE,_SOURCE_REALTIME_TIMESTAMP')
+        proc = self._sync_call(cmd)
+        return {'journal': ''.join(convert_journalctl_logs(proc.stdout))}
 
     # Public interface
 
