@@ -30,10 +30,10 @@ import re
 import select
 import socket
 import sys
-import time
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen, check_output
 from threading import Thread
+from time import monotonic
 
 
 class lazy_property:  # noqa: N801
@@ -90,7 +90,7 @@ class AsyncProcess(Thread):
         self.log.debug('call [sh:%s]: %s', self.use_sh, self.cmd)
         proc = None
         poller = None
-        started = time.time()
+        started = monotonic()
 
         def poll_output():
             """Read, log and store output (if any) from processes pipes."""
@@ -136,7 +136,7 @@ class AsyncProcess(Thread):
                 break
 
             # timeout occurred?
-            if time.time() > started + self.timeout:
+            if monotonic() > started + self.timeout:
                 try:
                     proc.kill()
                 except Exception:

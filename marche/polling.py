@@ -25,7 +25,7 @@
 
 import queue
 import threading
-import time
+from time import monotonic
 
 from marche.protocol import StatusResponse
 
@@ -55,7 +55,7 @@ class Poller:
 
     def get(self, service, instance):
         cached = self._cache.get((service, instance), [0, None])
-        if time.time() > cached[0] + 1.5 * self.interval:
+        if monotonic() > cached[0] + 1.5 * self.interval:
             return None
         return cached[1]
 
@@ -84,7 +84,7 @@ class Poller:
             errors = 0
             for key, result in states.items():
                 if result != self._cache.get(key, [0, None])[1]:
-                    self._cache[key] = [time.time(), result]
+                    self._cache[key] = [monotonic(), result]
                     self.event_callback(StatusResponse(
                         service=key[0],
                         instance=key[1],
@@ -92,4 +92,4 @@ class Poller:
                         ext_status=result[1],
                     ))
                 else:
-                    self._cache[key][0] = time.time()
+                    self._cache[key][0] = monotonic()
