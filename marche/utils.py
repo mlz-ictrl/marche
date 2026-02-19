@@ -206,6 +206,8 @@ def convert_journalctl_logs(output):
             yield (f'[{entry.get("_PID", "?")}] {fmt_time} '
                    f'{SYSLOG_PRIO.get(entry.get("PRIORITY", ""), "?")}: '
                    f'{entry.get("MESSAGE", "?")}\n')
+            if 'TRACEBACK' in entry:
+                yield entry['TRACEBACK'] + '\n'
 
 
 def normalize_addr(addr, defport):

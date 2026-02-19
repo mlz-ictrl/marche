@@ -162,7 +162,7 @@ class Job:
 
     def _journalctl_logs(self, unit, n=500):
         cmd = (f'{self._JOURNALCTL} -n {n} -o json -u {unit} --output-fields='
-               'PRIORITY,_PID,MESSAGE,_SOURCE_REALTIME_TIMESTAMP')
+               'PRIORITY,_PID,MESSAGE,_SOURCE_REALTIME_TIMESTAMP,TRACEBACK')
         proc = self._sync_call(cmd)
         return {'journal': ''.join(convert_journalctl_logs(proc.stdout))}
 
