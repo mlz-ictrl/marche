@@ -16,7 +16,7 @@ exclude_patterns = ['_build']
 master_doc = 'index'
 
 project = 'Marche'
-copyright = '2015-2025, Georg Brandl, Alexander Lenz'  # noqa: A001
+copyright = '2015-present, Georg Brandl, Alexander Lenz'  # noqa: A001
 author = 'Georg Brandl, Alexander Lenz'
 version = marche.__version__
 release = version
