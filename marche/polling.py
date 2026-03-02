@@ -36,6 +36,7 @@ class Poller:
     def __init__(self, job, interval, event_callback):
         self.job = job
         self.interval = interval
+        self.fast_interval = interval
         self.queue = queue.Queue()
         self.event_callback = event_callback
         self._thread = None
@@ -68,7 +69,9 @@ class Poller:
             try:
                 # Wait interval or until something arrives in the queue.
                 # XXX: diff to next interval instead
-                req = self.queue.get(True, self.interval)
+                req = self.queue.get(True, self.fast_interval)
+                # increase gradually fast interval up to normal value
+                self.fast_interval = min(self.interval, self.fast_interval * 1.5)
                 if req is None:
                     continue
             except queue.Empty:

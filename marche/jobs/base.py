@@ -200,6 +200,8 @@ class Job:
 
     def poll_now(self):
         """Let the poller poll now, if possible."""
+        # poll faster after something has changed
+        self.poller.fast_interval = self.poller.interval / 6
         self.poller.queue.put(True)  # noqa: FBT003
 
     def polled_service_status(self, service, instance):
