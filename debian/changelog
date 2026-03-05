@@ -1,3 +1,14 @@
+marche (5.4.0) stable; urgency=medium
+
+  [ Georg Brandl ]
+  * journalctl: display traceback when available
+  * remove copyright end years
+
+  [ Markus Zolliker ]
+  * increase responsivity
+
+ -- Georg Brandl <jenkins@frm2.tum.de>  Thu, 05 Mar 2026 12:24:40 +0100
+
 marche (5.3.0) stable; urgency=medium
 
   * use time.monotonic where needed
